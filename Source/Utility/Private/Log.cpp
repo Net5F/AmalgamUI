@@ -6,7 +6,6 @@ namespace AUI
 {
 FILE* logFilePtr = nullptr;
 
-
 void Log::info(const char* expression, ...)
 {
     // Get the va_list into arg.

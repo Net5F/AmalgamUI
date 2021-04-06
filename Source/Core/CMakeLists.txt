@@ -1,10 +1,12 @@
 target_sources(AmalgamUI
 	PRIVATE
 		Private/Core.cpp
+		Private/Initializer.cpp
 	PUBLIC
         # Note: We add the extra "AUI" directory so that consumers can include
         # files as "AUI/Xyz.h" for some extra clarity.
 		Public/AUI/Core.h
+		Public/AUI/Initializer.h
 		Public/AUI/Screen.h
 )
 

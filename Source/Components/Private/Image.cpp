@@ -11,7 +11,7 @@ Image::Image(const std::string& debugKey, const SDL_Rect& screenExtent)
 {
 }
 
-Image& Image::setImage(const std::string& relPath)
+void Image::setImage(const std::string& relPath)
 {
     // Attempt to load the given texture (errors on failure).
     ResourceManager& resourceManager = Core::GetResourceManager();
@@ -20,18 +20,14 @@ Image& Image::setImage(const std::string& relPath)
     // Set the texExtent size to the same as the screenExtent.
     texExtent.w = screenExtent.w;
     texExtent.h = screenExtent.h;
-
-    return *this;
 }
 
-Image& Image::setImage(const std::string& relPath, const SDL_Rect& inTexExtent)
+void Image::setImage(const std::string& relPath, const SDL_Rect& inTexExtent)
 {
     setImage(relPath);
 
     // Set the texExtent to the given extent.
     texExtent = inTexExtent;
-
-    return *this;
 }
 
 
@@ -41,6 +37,7 @@ void Image::renderCopy(int offsetX, int offsetY)
         AUI_LOG_ERROR("Tried to render Image with no texture. Key: %s", debugKey.c_str());
     }
 
+    // Account for the given offset.
     SDL_Rect offsetTex{texExtent};
     offsetTex.x += offsetX;
     offsetTex.y += offsetY;
@@ -49,6 +46,7 @@ void Image::renderCopy(int offsetX, int offsetY)
     offsetScreen.x += offsetX;
     offsetScreen.y += offsetY;
 
+    // Render the image.
     SDL_RenderCopy(Core::GetRenderer(), &(*textureHandle), &offsetTex, &offsetScreen);
 }
 

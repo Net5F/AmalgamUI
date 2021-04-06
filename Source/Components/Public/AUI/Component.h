@@ -19,6 +19,10 @@ class Component
 public:
     Component(const std::string& inDebugKey, const SDL_Rect& inScreenExtent);
 
+    virtual ~Component();
+
+    void setScreenExtent(const SDL_Rect& inScreenExtent);
+
     /**
      * Handles all drawing needs of a particular component.
      * Directly calls SDL_RenderCopy().

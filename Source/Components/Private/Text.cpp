@@ -4,8 +4,8 @@
 
 namespace AUI {
 
-Text::Text(const std::string& debugKey, const SDL_Rect& screenExtent)
-: Component(debugKey, screenExtent)
+Text::Text(const entt::hashed_string& key, const SDL_Rect& screenExtent)
+: Component(key, screenExtent)
 , fontHandle()
 , color{255, 255, 255, 255}
 , renderMode(RenderMode::Blended)
@@ -85,7 +85,7 @@ void Text::setText(const std::string& inText)
 void Text::renderCopy(int offsetX, int offsetY)
 {
     if (textTexture == nullptr) {
-        AUI_LOG_ERROR("Tried to render Font with no texture. Key: %s", debugKey.c_str());
+        AUI_LOG_ERROR("Tried to render Font with no texture. Key: %s", key.data());
     }
 
     // Account for the given offset.

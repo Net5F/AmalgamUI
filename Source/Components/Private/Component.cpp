@@ -4,8 +4,8 @@
 
 namespace AUI {
 
-Component::Component(const std::string& inDebugKey, const SDL_Rect& inScreenExtent)
-: debugKey(inDebugKey)
+Component::Component(entt::hashed_string inKey, const SDL_Rect& inScreenExtent)
+: key(inKey)
 , screenExtent(inScreenExtent)
 {
     Core::IncComponentCount();
@@ -16,15 +16,20 @@ Component::~Component()
     Core::DecComponentCount();
 }
 
+void Component::renderCopy(int offsetX, int offsetY)
+{
+    ignore(offsetX);
+    ignore(offsetY);
+}
+
 void Component::setScreenExtent(const SDL_Rect& inScreenExtent)
 {
     screenExtent = inScreenExtent;
 }
 
-void Component::renderCopy(int offsetX, int offsetY)
+const entt::hashed_string& Component::getKey()
 {
-    ignore(offsetX);
-    ignore(offsetY);
+    return key;
 }
 
 } // namespace AUI

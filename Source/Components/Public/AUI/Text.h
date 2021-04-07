@@ -31,7 +31,7 @@ public:
      * Note: The width and height of the given screenExtent are ignored for
      *       text, and the text's size is instead used.
      */
-    Text(const std::string& debugKey, const SDL_Rect& screenExtent);
+    Text(const entt::hashed_string& key, const SDL_Rect& screenExtent);
 
     /**
      * Sets the font and size. Uses the internal ID format "font_size".

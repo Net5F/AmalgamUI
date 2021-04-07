@@ -4,8 +4,8 @@
 
 namespace AUI {
 
-Image::Image(const std::string& debugKey, const SDL_Rect& screenExtent)
-: Component(debugKey, screenExtent)
+Image::Image(entt::hashed_string key, const SDL_Rect& screenExtent)
+: Component(key, screenExtent)
 , textureHandle()
 , texExtent{}
 {
@@ -34,7 +34,7 @@ void Image::setImage(const std::string& relPath, const SDL_Rect& inTexExtent)
 void Image::renderCopy(int offsetX, int offsetY)
 {
     if (!textureHandle) {
-        AUI_LOG_ERROR("Tried to render Image with no texture. Key: %s", debugKey.c_str());
+        AUI_LOG_ERROR("Tried to render Image with no texture. Key: %s", key.data());
     }
 
     // Account for the given offset.

@@ -13,7 +13,7 @@ class AmalgamUI;
 class Image : public Component
 {
 public:
-    Image(const std::string& debugKey, const SDL_Rect& screenExtent);
+    Image(entt::hashed_string key, const SDL_Rect& screenExtent);
 
     virtual ~Image() = default;
 

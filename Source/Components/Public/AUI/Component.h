@@ -1,6 +1,7 @@
 #pragma once
 
 #include <SDL_Rect.h>
+#include "entt/core/hashed_string.hpp"
 #include <string>
 
 namespace AUI {
@@ -17,11 +18,9 @@ namespace AUI {
 class Component
 {
 public:
-    Component(const std::string& inDebugKey, const SDL_Rect& inScreenExtent);
+    Component(entt::hashed_string inKey, const SDL_Rect& inScreenExtent);
 
     virtual ~Component();
-
-    void setScreenExtent(const SDL_Rect& inScreenExtent);
 
     /**
      * Handles all drawing needs of a particular component.
@@ -29,12 +28,17 @@ public:
      */
     virtual void renderCopy(int offsetX = 0, int offsetY = 0);
 
+    /**
+     * Used to dynamically change the component's screen extent.
+     */
+    void setScreenExtent(const SDL_Rect& inScreenExtent);
+
+    const entt::hashed_string& getKey();
+
 protected:
-    /** The user-assigned key associated with this component. Corresponds to
-        this element's key in the Screen's componentMap.
-        In this context, the key is only useful for debugging. For performance
-        reasons, avoid using it in real logic. */
-    const std::string debugKey;
+    /** The unique, user-assigned key. Used to identify the component for
+        removal from the Screen's vector and map. */
+    entt::hashed_string key;
 
     /** The component's screen extent, e.g. the size and position of the
         component on the screen. Used in hit testing and rendering. */

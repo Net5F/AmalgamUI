@@ -34,9 +34,12 @@ void Screen::remove(entt::hashed_string key)
     }
 }
 
-std::vector<std::unique_ptr<Component>>& Screen::getComponents()
+void Screen::render()
 {
-    return components;
+    // Render all of this screen's components.
+    for (std::unique_ptr<AUI::Component>& component : components) {
+        component->render();
+    }
 }
 
 } // namespace AUI

@@ -83,7 +83,10 @@ public:
      */
     void remove(entt::hashed_string key);
 
-    std::vector<std::unique_ptr<Component>>& getComponents();
+    /**
+     * Renders all graphics for this screen to the current rendering target.
+     */
+    void render();
 
 private:
     /** The user-assigned name associated with this screen.

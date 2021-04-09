@@ -16,7 +16,7 @@ Component::~Component()
     Core::DecComponentCount();
 }
 
-void Component::renderCopy(int offsetX, int offsetY)
+void Component::render(int offsetX, int offsetY)
 {
     ignore(offsetX);
     ignore(offsetY);

@@ -63,7 +63,7 @@ public:
      */
     void setText(const std::string& inText);
 
-    void renderCopy(int offsetX = 0, int offsetY = 0) override;
+    void render(int offsetX = 0, int offsetY = 0) override;
 
 private:
     /** The handle to our font object. */

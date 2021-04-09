@@ -82,7 +82,7 @@ void Text::setText(const std::string& inText)
     screenExtent.h = texExtent.h;
 }
 
-void Text::renderCopy(int offsetX, int offsetY)
+void Text::render(int offsetX, int offsetY)
 {
     if (textTexture == nullptr) {
         AUI_LOG_ERROR("Tried to render Font with no texture. Key: %s", key.data());

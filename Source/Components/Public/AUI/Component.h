@@ -23,10 +23,10 @@ public:
     virtual ~Component();
 
     /**
-     * Handles all drawing needs of a particular component.
-     * Directly calls SDL_RenderCopy().
+     * Renders this component to the current rendering target.
+     * Directly calls SDL functions like SDL_RenderCopy().
      */
-    virtual void renderCopy(int offsetX = 0, int offsetY = 0);
+    virtual void render(int offsetX = 0, int offsetY = 0);
 
     /**
      * Used to dynamically change the component's screen extent.

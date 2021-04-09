@@ -29,7 +29,7 @@ public:
      */
     void setImage(const std::string& relPath, const SDL_Rect& inTexExtent);
 
-    void renderCopy(int offsetX = 0, int offsetY = 0) override;
+    void render(int offsetX = 0, int offsetY = 0) override;
 
 private:
     /** The texture containing the image to display. */

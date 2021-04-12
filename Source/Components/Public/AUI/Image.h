@@ -5,7 +5,7 @@
 
 namespace AUI {
 
-class AmalgamUI;
+class Screen;
 
 /**
  * Displays a simple static image.
@@ -13,7 +13,7 @@ class AmalgamUI;
 class Image : public Component
 {
 public:
-    Image(entt::hashed_string key, const SDL_Rect& screenExtent);
+    Image(Screen& screen, const char* key, const SDL_Rect& screenExtent);
 
     virtual ~Image() = default;
 

@@ -4,8 +4,8 @@
 
 namespace AUI {
 
-Image::Image(entt::hashed_string key, const SDL_Rect& screenExtent)
-: Component(key, screenExtent)
+Image::Image(Screen& screen, const char* key, const SDL_Rect& screenExtent)
+: Component(screen, key, screenExtent)
 , textureHandle()
 , texExtent{}
 {

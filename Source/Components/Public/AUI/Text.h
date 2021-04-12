@@ -6,7 +6,7 @@
 
 namespace AUI {
 
-class AmalgamUI;
+class Screen;
 
 /**
  * Displays a line or block of text.
@@ -31,7 +31,7 @@ public:
      * Note: The width and height of the given screenExtent are ignored for
      *       text, and the text's size is instead used.
      */
-    Text(const entt::hashed_string& key, const SDL_Rect& screenExtent);
+    Text(Screen& screen, const char* key, const SDL_Rect& screenExtent);
 
     /**
      * Sets the font and size. Uses the internal ID format "font_size".

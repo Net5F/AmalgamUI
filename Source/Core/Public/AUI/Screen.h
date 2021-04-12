@@ -24,44 +24,42 @@ class Screen
 public:
     Screen(const std::string& inDebugName);
 
+    virtual ~Screen() = default;
+
     /**
-     * Constructs a component of the templated type and adds it to the
-     * screen.
+     * Adds the given component to the componentMap, registering it as a valid
+     * component to get().
      *
-     * Errors if the given key is already used in the componentMap.
+     * Errors if the component is anonymous (key is empty).
      *
-     * @param key  The key to use when inserting into the component map.
-     * @param screenExtent  The screenExtent of the component.
-     * @return A reference to the added component.
+     * @param component  A component with a non-empty key. Components with
+     *                   empty keys are considered anonymous and cannot be
+     *                   registered.
+     * @post The given component's key is now a valid input to get().
      */
-    template <typename T>
-    T& add(const entt::hashed_string& key, const SDL_Rect& screenExtent)
-    {
-        // If we already have a component with that key, fail.
-        if (componentMap.find(key) != componentMap.end()) {
-            AUI_LOG_ERROR("Tried to add component with key that is already in use. Screen: %s, Key: %s", debugName.c_str(), key.data());
-        }
+    void registerComponent(Component& component);
 
-        // Add it to the map.
-        std::unique_ptr<T> component = std::make_unique<T>(key, screenExtent);
-        componentMap[key] = component.get();
-
-        // Add it to the vector.
-        components.push_back(std::move(component));
-
-        return static_cast<T&>(*(components.back()));
-    }
+    /**
+     * Removes the component with the given key from this screen's
+     * componentMap, unregistering it as a valid component to get().
+     *
+     * Errors if the key doesn't exist in this screen's map.
+     *
+     * @param key  A non-empty key that identifies a component.
+     * @post The given key is no longer a valid input to get().
+     */
+    void unregisterComponent(const entt::hashed_string& key);
 
     /**
      * Returns a reference to the component with the given key.
      *
-     * Errors if the key doesn't exist in this screen.
+     * Errors if the key doesn't exist in this screen's map.
      */
     template <typename T>
-    T& get(entt::hashed_string key)
+    T& get(const entt::hashed_string& key)
     {
         // If we don't have a component with that key, fail.
-        auto pairIt = componentMap.find(key);
+        auto pairIt = componentMap.find(key.value());
         if (pairIt == componentMap.end()) {
             AUI_LOG_ERROR("No component with given key exists. Screen: %s, Key: %s", debugName.c_str(), key.data());
         }
@@ -76,17 +74,9 @@ public:
     }
 
     /**
-     * Removes the component with the given key from this screen, destructing
-     * it.
-     *
-     * Errors if the key doesn't exist in this screen.
-     */
-    void remove(entt::hashed_string key);
-
-    /**
      * Renders all graphics for this screen to the current rendering target.
      */
-    void render();
+    virtual void render();
 
 private:
     /** The user-assigned name associated with this screen.
@@ -94,11 +84,8 @@ private:
         in real logic. */
     std::string debugName;
 
-    /** The components that this screen owns. */
-    std::vector<std::unique_ptr<Component>> components;
-
     /** A key->component map for convenient access. */
-    std::unordered_map<entt::id_type, Component*> componentMap;
+    std::unordered_map<entt::hashed_string::hash_type, Component*> componentMap;
 };
 
 } // namespace AUI

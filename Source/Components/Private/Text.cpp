@@ -4,8 +4,8 @@
 
 namespace AUI {
 
-Text::Text(const entt::hashed_string& key, const SDL_Rect& screenExtent)
-: Component(key, screenExtent)
+Text::Text(Screen& screen, const char* key, const SDL_Rect& screenExtent)
+: Component(screen, key, screenExtent)
 , fontHandle()
 , color{255, 255, 255, 255}
 , renderMode(RenderMode::Blended)

@@ -6,6 +6,8 @@
 
 namespace AUI {
 
+class Screen;
+
 /**
  * The base class for all UI components.
  *
@@ -18,7 +20,7 @@ namespace AUI {
 class Component
 {
 public:
-    Component(entt::hashed_string inKey, const SDL_Rect& inScreenExtent);
+    Component(Screen& inScreen, const char* inKey, const SDL_Rect& inScreenExtent);
 
     virtual ~Component();
 
@@ -36,6 +38,11 @@ public:
     const entt::hashed_string& getKey();
 
 protected:
+    /** A reference to the screen that this component is a part of. Used for
+        registering/unregistering named components, and accessing other
+        components. */
+    Screen& screen;
+
     /** The unique, user-assigned key. Used to identify the component for
         removal from the Screen's vector and map. */
     entt::hashed_string key;

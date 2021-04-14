@@ -8,9 +8,12 @@ Text::Text(Screen& screen, const char* key, const SDL_Rect& screenExtent)
 : Component(screen, key, screenExtent)
 , fontHandle()
 , color{255, 255, 255, 255}
-, renderMode(RenderMode::Blended)
+, renderMode{RenderMode::Blended}
 , textTexture{nullptr}
 , texExtent{}
+, verticalAlignment{VerticalAlignment::Top}
+, horizontalAlignment{HorizontalAlignment::Left}
+, alignedExtent{}
 {
 }
 
@@ -76,10 +79,22 @@ void Text::setText(const std::string& inText)
 
     // Save the width and height of the new texture.
     SDL_QueryTexture(textTexture.get(), nullptr, nullptr, &(texExtent.w), &(texExtent.h));
+    alignedExtent = {0, 0, texExtent.w, texExtent.h};
 
-    // TODO: Figure out how we want to really handle the sizes.
-    screenExtent.w = texExtent.w;
-    screenExtent.h = texExtent.h;
+    // Calc our new aligned position.
+    refreshAlignment();
+}
+
+void Text::setVerticalAlignment(VerticalAlignment inVerticalAlignment)
+{
+    verticalAlignment = inVerticalAlignment;
+    refreshAlignment();
+}
+
+void Text::setHorizontalAlignment(HorizontalAlignment inHorizontalAlignment)
+{
+    horizontalAlignment = inHorizontalAlignment;
+    refreshAlignment();
 }
 
 void Text::render(int offsetX, int offsetY)
@@ -89,12 +104,55 @@ void Text::render(int offsetX, int offsetY)
     }
 
     // Account for the given offset.
-    SDL_Rect offsetScreen{screenExtent};
-    offsetScreen.x += offsetX;
-    offsetScreen.y += offsetY;
+    SDL_Rect offsetExtent{alignedExtent};
+    offsetExtent.x += offsetX;
+    offsetExtent.y += offsetY;
 
     // Render the text texture.
-    SDL_RenderCopy(Core::GetRenderer(), textTexture.get(), &texExtent, &offsetScreen);
+    SDL_RenderCopy(Core::GetRenderer(), textTexture.get(), &texExtent, &offsetExtent);
+
+    // TODO: Figure out the most expected behavior for the text texture size
+    //       and screenExtent not lining up.
+    SDL_SetRenderDrawColor(Core::GetRenderer(), 255, 0, 0, 255);
+    SDL_RenderDrawRect(Core::GetRenderer(), &offsetExtent);
+    SDL_SetRenderDrawColor(Core::GetRenderer(), 0, 0, 255, 255);
+    SDL_RenderDrawRect(Core::GetRenderer(), &screenExtent);
+    SDL_SetRenderDrawColor(Core::GetRenderer(), 0, 0, 0, 255);
+}
+
+void Text::refreshAlignment()
+{
+    // Calc the appropriate vertical alignment.
+    switch (verticalAlignment) {
+        case VerticalAlignment::Top: {
+            alignedExtent.y = screenExtent.y;
+            break;
+        }
+        case VerticalAlignment::Middle: {
+            alignedExtent.y = screenExtent.y + ((screenExtent.h - texExtent.h) / 2);
+            break;
+        }
+        case VerticalAlignment::Bottom: {
+            alignedExtent.y = (screenExtent.y + screenExtent.h) - texExtent.h;
+            break;
+        }
+    }
+
+    // Calc the appropriate horizontal alignment.
+    switch (horizontalAlignment) {
+        case HorizontalAlignment::Left: {
+            alignedExtent.x = screenExtent.x;
+            break;
+        }
+        case HorizontalAlignment::Middle: {
+            alignedExtent.x = screenExtent.x + ((screenExtent.w - texExtent.w) / 2);
+            break;
+        }
+        case HorizontalAlignment::Right: {
+            alignedExtent.x = (screenExtent.x + screenExtent.w) - texExtent.w;
+            break;
+        }
+    }
 }
 
 } // namespace AUI

@@ -6,8 +6,6 @@
 
 namespace AUI {
 
-class Screen;
-
 /**
  * Displays a line or block of text.
  */
@@ -28,9 +26,23 @@ public:
     };
 
     /**
-     * Note: The width and height of the given screenExtent are ignored for
-     *       text, and the text's size is instead used.
+     * Vertical text alignment. See setVerticalAlignment().
      */
+    enum class VerticalAlignment {
+        Top,
+        Middle,
+        Bottom
+    };
+
+    /**
+     * Horizontal text alignment. See setHorizontalAlignment().
+     */
+    enum class HorizontalAlignment {
+        Left,
+        Middle,
+        Right
+    };
+
     Text(Screen& screen, const char* key, const SDL_Rect& screenExtent);
 
     /**
@@ -63,9 +75,27 @@ public:
      */
     void setText(const std::string& inText);
 
+    /**
+     * Sets the vertical alignment of the text texture within this component's
+     * screenExtent.
+     */
+    void setVerticalAlignment(VerticalAlignment inVerticalAlignment);
+
+    /**
+     * Sets the horizontal alignment of the text texture within this
+     * component's screenExtent.
+     */
+    void setHorizontalAlignment(HorizontalAlignment inHorizontalAlignment);
+
     void render(int offsetX = 0, int offsetY = 0) override;
 
 private:
+    /**
+     * Re-calculates alignedExtent based on the current verticalAlignment,
+     * horizontalAlignment, texExtent, and screenExtent.
+     */
+    void refreshAlignment();
+
     /** The handle to our font object. */
     FontHandle fontHandle;
 
@@ -85,13 +115,26 @@ private:
         }
     };
 
-    /** The current texture, shows our text in the desired font.
+    /** The current texture; shows our text in the desired font.
         We manage the texture ourselves instead of passing it to the resource
         manager because it'll only ever be used by this component. */
     std::unique_ptr<SDL_Texture, TextureDeleter> textTexture;
 
-    /** The size of the texture. */
+    /** The extent of the image within the text texture.
+        Since we use the whole texture, this is effectively the size of the
+        texture. */
     SDL_Rect texExtent;
+
+    /** Our current vertical alignment. See setVerticalAlignment(). */
+    VerticalAlignment verticalAlignment;
+
+    /** Our current horizontal alignment. See setHorizontalAlignment(). */
+    HorizontalAlignment horizontalAlignment;
+
+    /** Our texExtent, centered on our screenExtent.
+        Centers the text texture since our screenExtent may be larger or
+        smaller than texExtent. */
+    SDL_Rect alignedExtent;
 };
 
 } // namespace AUI

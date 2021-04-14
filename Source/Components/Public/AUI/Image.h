@@ -5,8 +5,6 @@
 
 namespace AUI {
 
-class Screen;
-
 /**
  * Displays a simple static image.
  */
@@ -18,6 +16,10 @@ public:
     virtual ~Image() = default;
 
     /**
+     * Sets this component's image to the one at the given path.
+     *
+     * Errors if the given path is not a valid image.
+     *
      * Gets the texture at Core::resourcePath + relPath from the resource
      * manager, and sets texExtent equal to screenExtent.
      */

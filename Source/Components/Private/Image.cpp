@@ -17,9 +17,8 @@ void Image::setImage(const std::string& relPath)
     ResourceManager& resourceManager = Core::GetResourceManager();
     textureHandle = resourceManager.loadTexture(entt::hashed_string(relPath.c_str()));
 
-    // Set the texExtent size to the same as the screenExtent.
-    texExtent.w = screenExtent.w;
-    texExtent.h = screenExtent.h;
+    // Default the texture size to the actual texture size.
+    SDL_QueryTexture(&(textureHandle.get()), nullptr, nullptr, &(texExtent.w), &(texExtent.h));
 }
 
 void Image::setImage(const std::string& relPath, const SDL_Rect& inTexExtent)

@@ -110,14 +110,6 @@ void Text::render(int offsetX, int offsetY)
 
     // Render the text texture.
     SDL_RenderCopy(Core::GetRenderer(), textTexture.get(), &texExtent, &offsetExtent);
-
-    // TODO: Figure out the most expected behavior for the text texture size
-    //       and screenExtent not lining up.
-    SDL_SetRenderDrawColor(Core::GetRenderer(), 255, 0, 0, 255);
-    SDL_RenderDrawRect(Core::GetRenderer(), &offsetExtent);
-    SDL_SetRenderDrawColor(Core::GetRenderer(), 0, 0, 255, 255);
-    SDL_RenderDrawRect(Core::GetRenderer(), &screenExtent);
-    SDL_SetRenderDrawColor(Core::GetRenderer(), 0, 0, 0, 255);
 }
 
 void Text::refreshAlignment()

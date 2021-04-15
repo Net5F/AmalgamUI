@@ -26,8 +26,10 @@ public:
     void setImage(const std::string& relPath);
 
     /**
-     * Overload to specify texExtent. Used if the component's screen extent
-     * isn't equal to the texture extent.
+     * Overload to specify texExtent. Used if you only want to display a
+     * portion of the texture.
+     *
+     * @param inTexExtent  The extent within the texture to display.
      */
     void setImage(const std::string& relPath, const SDL_Rect& inTexExtent);
 

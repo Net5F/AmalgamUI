@@ -11,9 +11,37 @@ namespace AUI {
 class Button : public Component
 {
 public:
+    /**
+     * Used to track the button's visual and logical state.
+     */
+    enum class State {
+        Normal,
+        Hovered,
+        Pressed,
+        Disabled
+    };
+
     Button(Screen& screen, const char* key, const SDL_Rect& screenExtent);
 
     virtual ~Button() = default;
+
+    /**
+     * Enables this button.
+     *
+     * @post The button will visually be in the Normal state and will respond
+     *       to hover and click events.
+     */
+    void enable();
+
+    /**
+     * Disables this button.
+     *
+     * @post The button will visually be in the Disabled state and will
+     *       ignore all events.
+     */
+    void disable();
+
+    State getCurrentState();
 
     void render(int offsetX = 0, int offsetY = 0) override;
 
@@ -31,6 +59,10 @@ public:
 
     /** Button text. */
     Text text;
+
+private:
+    /** Tracks this button's current visual and logical state. */
+    State currentState;
 };
 
 } // namespace AUI

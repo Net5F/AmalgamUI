@@ -2,6 +2,7 @@
 
 #include "AUI/Image.h"
 #include "AUI/Text.h"
+#include <functional>
 
 namespace AUI {
 
@@ -43,6 +44,22 @@ public:
 
     State getCurrentState();
 
+    //-------------------------------------------------------------------------
+    // Callback registration
+    //-------------------------------------------------------------------------
+    void setOnPressed(std::function<void(void)> inOnPressed);
+
+    //-------------------------------------------------------------------------
+    // Base class overrides
+    //-------------------------------------------------------------------------
+    void onMouseButtonDown(SDL_MouseButtonEvent& event) override;
+
+    void onMouseButtonUp(SDL_MouseButtonEvent& event, bool isHovered) override;
+
+    void onMouseEnter(SDL_MouseMotionEvent& event) override;
+
+    void onMouseLeave(SDL_MouseMotionEvent& event) override;
+
     void render(int offsetX = 0, int offsetY = 0) override;
 
     //-------------------------------------------------------------------------
@@ -61,6 +78,11 @@ public:
     Text text;
 
 private:
+    //-------------------------------------------------------------------------
+    // Private members
+    //-------------------------------------------------------------------------
+    std::function<void(void)> onPressed;
+
     /** Tracks this button's current visual and logical state. */
     State currentState;
 };

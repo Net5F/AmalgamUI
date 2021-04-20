@@ -1,3 +1,4 @@
+#include "AUI/Component.h"
 #include "AUI/Screen.h"
 #include "AUI/Image.h"
 #include "AUI/Core.h"
@@ -36,10 +37,17 @@ Component::~Component()
     Core::DecComponentCount();
 }
 
-void Component::render(int offsetX, int offsetY)
+bool Component::containsPoint(const SDL_Point& point)
 {
-    ignore(offsetX);
-    ignore(offsetY);
+    if ((point.x > screenExtent.x)
+       && (point.x < (screenExtent.x + screenExtent.w))
+       && (point.y > screenExtent.y)
+       && (point.y < (screenExtent.y + screenExtent.h))) {
+        return true;
+    }
+    else {
+        return false;
+    }
 }
 
 void Component::setScreenExtent(const SDL_Rect& inScreenExtent)
@@ -50,6 +58,48 @@ void Component::setScreenExtent(const SDL_Rect& inScreenExtent)
 const entt::hashed_string& Component::getKey()
 {
     return key;
+}
+
+void Component::render(int offsetX, int offsetY)
+{
+    ignore(offsetX);
+    ignore(offsetY);
+}
+
+void Component::onMouseButtonDown(SDL_MouseButtonEvent& event)
+{
+    ignore(event);
+    AUI_LOG_ERROR("Base class callback called. Please override onMouseDown() "
+    "in your derived class.");
+}
+
+void Component::onMouseButtonUp(SDL_MouseButtonEvent& event, bool isHovered)
+{
+    ignore(event);
+    ignore(isHovered);
+    AUI_LOG_ERROR("Base class callback called. Please override onMouseUp() "
+    "in your derived class.");
+}
+
+void Component::onMouseMove(SDL_MouseMotionEvent& event)
+{
+    ignore(event);
+    AUI_LOG_ERROR("Base class callback called. Please override onMouseMoved() "
+    "in your derived class.");
+}
+
+void Component::onMouseEnter(SDL_MouseMotionEvent& event)
+{
+    ignore(event);
+    AUI_LOG_ERROR("Base class callback called. Please override onHovered() "
+    "in your derived class.");
+}
+
+void Component::onMouseLeave(SDL_MouseMotionEvent& event)
+{
+    ignore(event);
+    AUI_LOG_ERROR("Base class callback called. Please override onUnhovered() "
+    "in your derived class.");
 }
 
 } // namespace AUI

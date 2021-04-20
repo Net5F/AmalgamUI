@@ -1,7 +1,9 @@
 #pragma once
 
 #include "AUI/Component.h"
+#include "AUI/EventTypes.h"
 #include "AUI/Internal/Log.h"
+#include <SDL_events.h>
 #include "entt/core/hashed_string.hpp"
 #include <vector>
 #include <memory>
@@ -74,11 +76,70 @@ public:
     }
 
     /**
+     * Registers the given object as listening for the given event type.
+     *
+     * @param eventType  An event type, corresponding to SDL_Event.type.
+     * @param listener  The listening object. Must implement an appropriate
+     *                  function to handle the given eventType.
+     */
+    void registerListener(EventType eventType, Component* listener);
+
+    /**
+     * Unregisters the given listener object from receiving the given event.
+     *
+     * @param eventType  An event type, corresponding to SDL_Event.type.
+     * @param listener  The listening object. Must be derived from Component
+     *                  and implement an appropriate function to handle the
+     *                  given eventType.
+     */
+    void unregisterListener(EventType eventType, Component* listener);
+
+    /**
+     * Offers the given event to this screen to be handled.
+     *
+     * The event will be passed to any relevant registered listeners.
+     *
+     * @return true if the event was handled, else false.
+     */
+    bool handleEvent(SDL_Event& event);
+
+    /**
      * Renders all graphics for this screen to the current rendering target.
      */
     virtual void render();
 
 private:
+    /**
+     * If the given MOUSEBUTTONDOWN event was over a listening component, calls
+     * that component's onMouseButtonDown().
+     */
+    bool handleMouseButtonDown(SDL_MouseButtonEvent& event);
+
+    /**
+     * If a component was being pressed, calls its onMouseButtonUp().
+     */
+    bool handleMouseButtonUp(SDL_MouseButtonEvent& event);
+
+    /**
+     * If the mouse moved inside a listening component, calls its
+     * onMouseMove().
+     */
+    void handleMouseMove(SDL_MouseMotionEvent& event);
+
+    /**
+     * Note: handleMouseLeave() must be called before handleMouseEnter() or we
+     *       may lose track of the previous hovered component.
+     *
+     * If the mouse moved out of the current hovered component, calls its
+     * onMouseLeave().
+     */
+    void handleMouseLeave(SDL_MouseMotionEvent& event);
+
+    /**
+     * If the mouse moved into a component, calls its onMouseEnter().
+     */
+    void handleMouseEnter(SDL_MouseMotionEvent& event);
+
     /** The user-assigned name associated with this screen.
         Only useful for debugging. For performance reasons, avoid using it
         in real logic. */
@@ -86,6 +147,16 @@ private:
 
     /** A key->component map for convenient access. */
     std::unordered_map<entt::hashed_string::hash_type, Component*> componentMap;
+
+    /** A map containing all of this screen's components that care to listen
+        for particular system events. */
+    std::unordered_map<EventType, std::vector<Component*>> listenerMap;
+
+    /** The component that the mouse is currently hovering over, if any. */
+    Component* currentHoveredComponent;
+
+    /** The component that the mouse is currently clicking on, if any. */
+    Component* currentPressedComponent;
 };
 
 } // namespace AUI

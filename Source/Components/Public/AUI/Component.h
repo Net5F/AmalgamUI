@@ -1,6 +1,7 @@
 #pragma once
 
 #include <SDL_Rect.h>
+#include <SDL_events.h>
 #include "entt/core/hashed_string.hpp"
 #include <string>
 
@@ -20,9 +21,49 @@ class Screen;
 class Component
 {
 public:
-    Component(Screen& inScreen, const char* inKey, const SDL_Rect& inScreenExtent);
+    /** Component is not independently constructible. */
+    Component() = delete;
 
     virtual ~Component();
+
+    /**
+     * If this component's screen extent contains the given point, returns
+     * true. Else, returns false.
+     */
+    bool containsPoint(const SDL_Point& point);
+
+    void setScreenExtent(const SDL_Rect& inScreenExtent);
+
+    const entt::hashed_string& getKey();
+
+    //-------------------------------------------------------------------------
+    // Virtual interface
+    //-------------------------------------------------------------------------
+    /**
+     * Called when a MouseButtonDown event happens within this component.
+     */
+    virtual void onMouseButtonDown(SDL_MouseButtonEvent& event);
+
+    /**
+     * Called when a MouseButtonUp event happens after a previous
+     * MouseButtonDown event occurred on this component.
+     */
+    virtual void onMouseButtonUp(SDL_MouseButtonEvent& event, bool isHovered);
+
+    /**
+     * Called when a MouseMove event lands inside this component.
+     */
+    virtual void onMouseMove(SDL_MouseMotionEvent& event);
+
+    /**
+     * Called when the mouse first enters this component.
+     */
+    virtual void onMouseEnter(SDL_MouseMotionEvent& event);
+
+    /**
+     * Called when the mouse leaves this component.
+     */
+    virtual void onMouseLeave(SDL_MouseMotionEvent& event);
 
     /**
      * Renders this component to the current rendering target.
@@ -30,14 +71,9 @@ public:
      */
     virtual void render(int offsetX = 0, int offsetY = 0);
 
-    /**
-     * Used to dynamically change the component's screen extent.
-     */
-    void setScreenExtent(const SDL_Rect& inScreenExtent);
-
-    const entt::hashed_string& getKey();
-
 protected:
+    Component(Screen& inScreen, const char* inKey, const SDL_Rect& inScreenExtent);
+
     /** A reference to the screen that this component is a part of. Used for
         registering/unregistering named components, and accessing other
         components. */

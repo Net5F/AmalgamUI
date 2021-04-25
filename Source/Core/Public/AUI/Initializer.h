@@ -1,5 +1,6 @@
 #pragma once
 
+#include "AUI/ScreenResolution.h"
 #include <string>
 
 // Forward declarations.
@@ -24,8 +25,9 @@ public:
      *                      useful for you.
      * @param sdlRenderer  The renderer to use for constructing textures and
      *                     rendering.
+     * @param logicalScreenSize  See Core::setLogicalScreenSize().
      */
-    Initializer(const std::string& resourcePath, SDL_Renderer* sdlRenderer);
+    Initializer(const std::string& resourcePath, SDL_Renderer* sdlRenderer, ScreenResolution logicalScreenSize);
 
     ~Initializer();
 };

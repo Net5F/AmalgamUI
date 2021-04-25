@@ -5,9 +5,9 @@
 
 namespace AUI {
 
-Initializer::Initializer(const std::string& resourcePath, SDL_Renderer* sdlRenderer)
+Initializer::Initializer(const std::string& resourcePath, SDL_Renderer* sdlRenderer, ScreenResolution logicalScreenSize)
 {
-    Core::Initialize(resourcePath, sdlRenderer);
+    Core::Initialize(resourcePath, sdlRenderer, logicalScreenSize);
 }
 
 Initializer::~Initializer()

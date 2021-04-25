@@ -2,13 +2,16 @@
 #include "AUI/Screen.h"
 #include "AUI/Image.h"
 #include "AUI/Core.h"
+#include "AUI/Internal/ScalingHelpers.h"
 #include "AUI/Internal/Ignore.h"
 
 namespace AUI {
 
 Component::Component(Screen& inScreen, const char* inKey, const SDL_Rect& inScreenExtent)
 : screen(inScreen)
-, screenExtent(inScreenExtent)
+, logicalScreenExtent{inScreenExtent}
+, actualScreenExtent{ScalingHelpers::extentToActual(logicalScreenExtent)}
+, lastUsedScreenSize{Core::GetActualScreenSize()}
 {
     // If we were given a nullptr, replace it with an empty string while
     // constructing the key. This keeps us from having to nullptr check later.
@@ -37,12 +40,16 @@ Component::~Component()
     Core::DecComponentCount();
 }
 
-bool Component::containsPoint(const SDL_Point& point)
+bool Component::containsPoint(const SDL_Point& actualPoint)
 {
-    if ((point.x > screenExtent.x)
-       && (point.x < (screenExtent.x + screenExtent.w))
-       && (point.y > screenExtent.y)
-       && (point.y < (screenExtent.y + screenExtent.h))) {
+    // Scale the given point from actual position to its equivalent logical
+    // position.
+    SDL_Point logicalPoint = ScalingHelpers::pointToLogical(actualPoint);
+
+    if ((logicalPoint.x > logicalScreenExtent.x)
+       && (logicalPoint.x < (logicalScreenExtent.x + logicalScreenExtent.w))
+       && (logicalPoint.y > logicalScreenExtent.y)
+       && (logicalPoint.y < (logicalScreenExtent.y + logicalScreenExtent.h))) {
         return true;
     }
     else {
@@ -52,7 +59,11 @@ bool Component::containsPoint(const SDL_Point& point)
 
 void Component::setScreenExtent(const SDL_Rect& inScreenExtent)
 {
-    screenExtent = inScreenExtent;
+    // Set our logical screen extent.
+    logicalScreenExtent = inScreenExtent;
+
+    // Re-calculate our actual screen extent.
+    actualScreenExtent = ScalingHelpers::extentToActual(logicalScreenExtent);
 }
 
 const entt::hashed_string& Component::getKey()
@@ -64,6 +75,8 @@ void Component::render(int offsetX, int offsetY)
 {
     ignore(offsetX);
     ignore(offsetY);
+    AUI_LOG_ERROR("Base class render called. Please override render() "
+    "in your derived class.");
 }
 
 void Component::onMouseButtonDown(SDL_MouseButtonEvent& event)
@@ -100,6 +113,22 @@ void Component::onMouseLeave(SDL_MouseMotionEvent& event)
     ignore(event);
     AUI_LOG_ERROR("Base class callback called. Please override onUnhovered() "
     "in your derived class.");
+}
+
+bool Component::refreshScaling()
+{
+    // If the screen size has changed.
+    if (lastUsedScreenSize != Core::GetActualScreenSize()) {
+        // Re-calculate our actual extent.
+        actualScreenExtent = ScalingHelpers::extentToActual(logicalScreenExtent);
+
+        // Save the new size.
+        lastUsedScreenSize = Core::GetActualScreenSize();
+
+        return true;
+    }
+
+    return false;
 }
 
 } // namespace AUI

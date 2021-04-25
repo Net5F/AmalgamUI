@@ -29,19 +29,21 @@ void Image::setImage(const std::string& relPath, const SDL_Rect& inTexExtent)
     texExtent = inTexExtent;
 }
 
-
 void Image::render(int offsetX, int offsetY)
 {
     if (!textureHandle) {
         AUI_LOG_ERROR("Tried to render Image with no texture. Key: %s", key.data());
     }
 
+    // Keep our scaling up to date.
+    refreshScaling();
+
     // Account for the given offset.
     SDL_Rect offsetTex{texExtent};
     offsetTex.x += offsetX;
     offsetTex.y += offsetY;
 
-    SDL_Rect offsetScreen{screenExtent};
+    SDL_Rect offsetScreen{actualScreenExtent};
     offsetScreen.x += offsetX;
     offsetScreen.y += offsetY;
 

@@ -121,7 +121,7 @@ bool Screen::handleMouseButtonUp(SDL_MouseButtonEvent& event)
 
 void Screen::handleMouseMove(SDL_MouseMotionEvent& event)
 {
-    // If the mouse entered a listening component, give it the event.
+    // If the mouse moved within a listening component, give it the event.
     for (Component* listener : listenerMap[EventType::MouseMove]) {
         if (listener->containsPoint({event.x, event.y})) {
             listener->onMouseMove(event);

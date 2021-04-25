@@ -9,6 +9,7 @@ target_sources(AmalgamUI
 		Public/AUI/Core.h
 		Public/AUI/Initializer.h
 		Public/AUI/Screen.h
+		Public/AUI/ScreenResolution.h
 )
 
 target_include_directories(AmalgamUI

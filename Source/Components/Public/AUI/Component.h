@@ -1,5 +1,6 @@
 #pragma once
 
+#include "AUI/ScreenResolution.h"
 #include <SDL_Rect.h>
 #include <SDL_events.h>
 #include "entt/core/hashed_string.hpp"
@@ -29,16 +30,20 @@ public:
     /**
      * If this component's screen extent contains the given point, returns
      * true. Else, returns false.
+     *
+     * @param actualPoint  An actual screen position. Will be scaled internally
+     *                     to its equivalent logical screen position.
      */
-    bool containsPoint(const SDL_Point& point);
+    bool containsPoint(const SDL_Point& actualPoint);
 
+    /**
+     * Sets the component's logical screen extent to the given extent and
+     * re-calculates its actual screen extent.
+     */
     void setScreenExtent(const SDL_Rect& inScreenExtent);
 
     const entt::hashed_string& getKey();
 
-    //-------------------------------------------------------------------------
-    // Virtual interface
-    //-------------------------------------------------------------------------
     /**
      * Called when a MouseButtonDown event happens within this component.
      */
@@ -74,6 +79,16 @@ public:
 protected:
     Component(Screen& inScreen, const char* inKey, const SDL_Rect& inScreenExtent);
 
+    /**
+     * Checks if Core::actualScreenSize has changed since the last time this
+     * component's actualScreenExtent was calculated. If so, re-calculates
+     * actualScreenExtent, scaling it to the new actualScreenSize.
+     *
+     * This implementation is sufficient for refreshing actualScreenExtent, but
+     * must be overridden if your component has other scaling needs.
+     */
+    virtual bool refreshScaling();
+
     /** A reference to the screen that this component is a part of. Used for
         registering/unregistering named components, and accessing other
         components. */
@@ -83,9 +98,18 @@ protected:
         removal from the Screen's vector and map. */
     entt::hashed_string key;
 
-    /** The component's screen extent, e.g. the size and position of the
-        component on the screen. Used in hit testing and rendering. */
-    SDL_Rect screenExtent;
+    /** The component's logical screen extent, i.e. the position/size of the
+        component relative to the UI's logical size. */
+    SDL_Rect logicalScreenExtent;
+
+    /** The component's actual screen extent, i.e. the position/size of the
+        component on the screen. */
+    SDL_Rect actualScreenExtent;
+
+    /** The value of Core::actualScreenSize that was used the last time this
+        component calculated its actualScreenExtent.
+        Used to detect when to re-calculate actualScreenExtent. */
+    ScreenResolution lastUsedScreenSize;
 };
 
 } // namespace AUI

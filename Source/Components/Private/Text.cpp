@@ -1,49 +1,171 @@
 #include "AUI/Text.h"
 #include "AUI/Core.h"
+#include "AUI/Internal/ScalingHelpers.h"
 #include <SDL_Render.h>
 
 namespace AUI {
 
 Text::Text(Screen& screen, const char* key, const SDL_Rect& screenExtent)
 : Component(screen, key, screenExtent)
+, fontPath("")
+, logicalFontSize{10}
 , fontHandle()
 , color{255, 255, 255, 255}
+, backgroundColor{0, 0, 0, 0}
 , renderMode{RenderMode::Blended}
-, textTexture{nullptr}
-, texExtent{}
+, text("Initialized")
 , verticalAlignment{VerticalAlignment::Top}
 , horizontalAlignment{HorizontalAlignment::Left}
+, textureIsDirty{true}
+, textTexture{nullptr}
+, texExtent{}
 , alignedExtent{}
 {
 }
 
 void Text::setFont(const std::string& relPath, int size)
 {
-    // Attempt to load the given font (errors on failure).
-    ResourceManager& resourceManager = Core::GetResourceManager();
-    fontHandle = resourceManager.loadFont(relPath, size);
+    // Save the data for later scaling.
+    fontPath = relPath;
+    logicalFontSize = size;
+
+    // Load the new font object.
+    refreshFontObject();
+
+    textureIsDirty = true;
 }
 
 void Text::setColor(const SDL_Color& inColor)
 {
     color = inColor;
+    textureIsDirty = true;
 }
 
 void Text::setBackgroundColor(const SDL_Color& inBackgroundColor)
 {
     backgroundColor = inBackgroundColor;
+    textureIsDirty = true;
 }
 
 void Text::setRenderMode(RenderMode inRenderMode)
 {
     renderMode = inRenderMode;
+    textureIsDirty = true;
 }
 
 void Text::setText(const std::string& inText)
 {
+    text = inText;
+    textureIsDirty = true;
+}
+
+void Text::setVerticalAlignment(VerticalAlignment inVerticalAlignment)
+{
+    verticalAlignment = inVerticalAlignment;
+    refreshAlignment();
+}
+
+void Text::setHorizontalAlignment(HorizontalAlignment inHorizontalAlignment)
+{
+    horizontalAlignment = inHorizontalAlignment;
+    refreshAlignment();
+}
+
+void Text::render(int offsetX, int offsetY)
+{
+    // Keep our scaling up to date.
+    bool isRefreshed = refreshScaling();
+
+    // If we didn't already refresh our texture.
+    if (!isRefreshed) {
+        // If a property has been changed, re-render our text texture.
+        if (textureIsDirty) {
+            refreshTexture();
+        }
+    }
+
+    if (textTexture == nullptr) {
+        AUI_LOG_ERROR("Tried to render Font with no texture. Key: %s", key.data());
+    }
+
+    // Account for the given offset.
+    SDL_Rect offsetExtent{alignedExtent};
+    offsetExtent.x += offsetX;
+    offsetExtent.y += offsetY;
+
+    // Render the text texture.
+    SDL_RenderCopy(Core::GetRenderer(), textTexture.get(), &texExtent, &offsetExtent);
+}
+
+bool Text::refreshScaling()
+{
+    // Refresh actualScreenExtent.
+    if (Component::refreshScaling()) {
+        // Refresh our alignment since the extent has moved.
+        refreshAlignment();
+
+        // Refresh our font object to match the new scale.
+        refreshFontObject();
+
+        // Re-render the text texture.
+        refreshTexture();
+
+        return true;
+    }
+
+    return false;
+}
+
+void Text::refreshAlignment()
+{
+    // Calc the appropriate vertical alignment.
+    switch (verticalAlignment) {
+        case VerticalAlignment::Top: {
+            alignedExtent.y = actualScreenExtent.y;
+            break;
+        }
+        case VerticalAlignment::Middle: {
+            alignedExtent.y = actualScreenExtent.y + ((actualScreenExtent.h - texExtent.h) / 2);
+            break;
+        }
+        case VerticalAlignment::Bottom: {
+            alignedExtent.y = (actualScreenExtent.y + actualScreenExtent.h) - texExtent.h;
+            break;
+        }
+    }
+
+    // Calc the appropriate horizontal alignment.
+    switch (horizontalAlignment) {
+        case HorizontalAlignment::Left: {
+            alignedExtent.x = actualScreenExtent.x;
+            break;
+        }
+        case HorizontalAlignment::Middle: {
+            alignedExtent.x = actualScreenExtent.x + ((actualScreenExtent.w - texExtent.w) / 2);
+            break;
+        }
+        case HorizontalAlignment::Right: {
+            alignedExtent.x = (actualScreenExtent.x + actualScreenExtent.w) - texExtent.w;
+            break;
+        }
+    }
+}
+
+void Text::refreshFontObject()
+{
+    // Scale the font size to the current actual size.
+    int actualFontSize = ScalingHelpers::fontSizeToActual(logicalFontSize);
+
+    // Attempt to load the given font (errors on failure).
+    ResourceManager& resourceManager = Core::GetResourceManager();
+    fontHandle = resourceManager.loadFont(fontPath, actualFontSize);
+}
+
+void Text::refreshTexture()
+{
     if (!fontHandle) {
-        AUI_LOG_ERROR("Please call setFont() before setText(), so that a valid "
-        "font object can be used for texture generation.")
+        AUI_LOG_ERROR("Please call setFont() before renderTextTexture(), so"
+        " that a valid font object can be used for texture generation.");
     }
 
     // Create a temporary surface on the cpu and render our image using the
@@ -51,15 +173,15 @@ void Text::setText(const std::string& inText)
     SDL_Surface* surface{nullptr};
     switch (renderMode) {
         case RenderMode::Solid: {
-            surface = TTF_RenderText_Solid(&(*fontHandle), inText.c_str(), color);
+            surface = TTF_RenderText_Solid(&(*fontHandle), text.c_str(), color);
             break;
         }
         case RenderMode::Shaded: {
-            surface = TTF_RenderText_Shaded(&(*fontHandle), inText.c_str(), color, backgroundColor);
+            surface = TTF_RenderText_Shaded(&(*fontHandle), text.c_str(), color, backgroundColor);
             break;
         }
         case RenderMode::Blended: {
-            surface = TTF_RenderText_Blended(&(*fontHandle), inText.c_str(), color);
+            surface = TTF_RenderText_Blended(&(*fontHandle), text.c_str(), color);
             break;
         }
     }
@@ -83,68 +205,8 @@ void Text::setText(const std::string& inText)
 
     // Calc our new aligned position.
     refreshAlignment();
-}
 
-void Text::setVerticalAlignment(VerticalAlignment inVerticalAlignment)
-{
-    verticalAlignment = inVerticalAlignment;
-    refreshAlignment();
-}
-
-void Text::setHorizontalAlignment(HorizontalAlignment inHorizontalAlignment)
-{
-    horizontalAlignment = inHorizontalAlignment;
-    refreshAlignment();
-}
-
-void Text::render(int offsetX, int offsetY)
-{
-    if (textTexture == nullptr) {
-        AUI_LOG_ERROR("Tried to render Font with no texture. Key: %s", key.data());
-    }
-
-    // Account for the given offset.
-    SDL_Rect offsetExtent{alignedExtent};
-    offsetExtent.x += offsetX;
-    offsetExtent.y += offsetY;
-
-    // Render the text texture.
-    SDL_RenderCopy(Core::GetRenderer(), textTexture.get(), &texExtent, &offsetExtent);
-}
-
-void Text::refreshAlignment()
-{
-    // Calc the appropriate vertical alignment.
-    switch (verticalAlignment) {
-        case VerticalAlignment::Top: {
-            alignedExtent.y = screenExtent.y;
-            break;
-        }
-        case VerticalAlignment::Middle: {
-            alignedExtent.y = screenExtent.y + ((screenExtent.h - texExtent.h) / 2);
-            break;
-        }
-        case VerticalAlignment::Bottom: {
-            alignedExtent.y = (screenExtent.y + screenExtent.h) - texExtent.h;
-            break;
-        }
-    }
-
-    // Calc the appropriate horizontal alignment.
-    switch (horizontalAlignment) {
-        case HorizontalAlignment::Left: {
-            alignedExtent.x = screenExtent.x;
-            break;
-        }
-        case HorizontalAlignment::Middle: {
-            alignedExtent.x = screenExtent.x + ((screenExtent.w - texExtent.w) / 2);
-            break;
-        }
-        case HorizontalAlignment::Right: {
-            alignedExtent.x = (screenExtent.x + screenExtent.w) - texExtent.w;
-            break;
-        }
-    }
+    textureIsDirty = false;
 }
 
 } // namespace AUI

@@ -7,14 +7,21 @@ namespace AUI {
 
 std::string Core::resourcePath{""};
 SDL_Renderer* Core::sdlRenderer{nullptr};
+ScreenResolution Core::logicalScreenSize{};
+ScreenResolution Core::actualScreenSize{};
 std::unique_ptr<ResourceManager> Core::resourceManager{nullptr};
 std::atomic<int> Core::componentCount{0};
 
-void Core::Initialize(const std::string& inResourcePath, SDL_Renderer* inSdlRenderer)
+void Core::Initialize(const std::string& inResourcePath, SDL_Renderer* inSdlRenderer
+                      , ScreenResolution inLogicalScreenSize)
 {
     resourcePath = inResourcePath;
     sdlRenderer = inSdlRenderer;
     resourceManager = std::make_unique<ResourceManager>();
+
+    // Set the screen sizes. Default actual to the same as logical.
+    logicalScreenSize = inLogicalScreenSize;
+    actualScreenSize = inLogicalScreenSize;
 
     // Initialize SDL_img (safe to call if already initialized).
     IMG_Init(IMG_INIT_PNG | IMG_INIT_JPG);
@@ -43,6 +50,21 @@ void Core::Quit()
     TTF_Quit();
 }
 
+void Core::setActualScreenSize(ScreenResolution inActualScreenSize)
+{
+    actualScreenSize = inActualScreenSize;
+}
+
+void Core::IncComponentCount()
+{
+    componentCount++;
+}
+
+void Core::DecComponentCount()
+{
+    componentCount--;
+}
+
 const std::string& Core::GetResourcePath()
 {
     return resourcePath;
@@ -58,14 +80,14 @@ ResourceManager& Core::GetResourceManager()
     return *resourceManager;
 }
 
-void Core::IncComponentCount()
+ScreenResolution Core::GetLogicalScreenSize()
 {
-    componentCount++;
+    return logicalScreenSize;
 }
 
-void Core::DecComponentCount()
+ScreenResolution Core::GetActualScreenSize()
 {
-    componentCount--;
+    return actualScreenSize;
 }
 
 } // namespace AUI

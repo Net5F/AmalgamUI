@@ -89,12 +89,36 @@ public:
 
     void render(int offsetX = 0, int offsetY = 0) override;
 
+protected:
+    /**
+     * Overridden to properly scale text.
+     */
+    bool refreshScaling() override;
+
 private:
     /**
      * Re-calculates alignedExtent based on the current verticalAlignment,
      * horizontalAlignment, texExtent, and screenExtent.
      */
     void refreshAlignment();
+
+    /**
+     * Re-loads the font object, using the current fontPath and scaling
+     * logicalFontSize to the appropriate actual font size.
+     */
+    void refreshFontObject();
+
+    /**
+     * Re-renders the text texture, using all current property values.
+     */
+    void refreshTexture();
+
+    /** Path to the font file, relative to Core::resourcePath. */
+    std::string fontPath;
+
+    /** Logical font size in point, i.e. font size relative to Core's
+        logicalScreenSize. */
+    int logicalFontSize;
 
     /** The handle to our font object. */
     FontHandle fontHandle;
@@ -107,6 +131,19 @@ private:
 
     /** The render mode. Affects the quality of the rendered image. */
     RenderMode renderMode;
+
+    /** The text that this component will display. */
+    std::string text;
+
+    /** Our current vertical alignment. See setVerticalAlignment(). */
+    VerticalAlignment verticalAlignment;
+
+    /** Our current horizontal alignment. See setHorizontalAlignment(). */
+    HorizontalAlignment horizontalAlignment;
+
+    /** If true, a property has been changed and the font texture must be
+        re-rendered. */
+    bool textureIsDirty;
 
     /** A deleter to use with fontTexture. */
     struct TextureDeleter {
@@ -124,12 +161,6 @@ private:
         Since we use the whole texture, this is effectively the size of the
         texture. */
     SDL_Rect texExtent;
-
-    /** Our current vertical alignment. See setVerticalAlignment(). */
-    VerticalAlignment verticalAlignment;
-
-    /** Our current horizontal alignment. See setHorizontalAlignment(). */
-    HorizontalAlignment horizontalAlignment;
 
     /** Our texExtent, centered on our screenExtent.
         Centers the text texture since our screenExtent may be larger or

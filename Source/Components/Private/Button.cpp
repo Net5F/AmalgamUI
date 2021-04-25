@@ -108,6 +108,9 @@ void Button::onMouseLeave(SDL_MouseMotionEvent& event)
 
 void Button::render(int offsetX, int offsetY)
 {
+    // Keep our extent up to date.
+    refreshScaling();
+
     // Render the appropriate background image for our current state.
     switch (currentState) {
         case State::Normal: {

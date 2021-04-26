@@ -17,6 +17,14 @@ struct ScreenResolution {
     bool operator!=(const ScreenResolution& rhs) {
         return (width != rhs.width) || (height != rhs.height);
     }
+
+    // TODO: We assume aspect ratio is fixed, so we only compare width.
+    //       When support for other aspect ratios is added, we'll have to
+    //       first do some math to see what 16:9 resolution fits into the given
+    //       resolutions, and compare the width of those.
+    friend bool operator<(const ScreenResolution& lhs, const ScreenResolution& rhs) {
+        return lhs.width < rhs.width;
+    }
 };
 
 } // namespace AUI

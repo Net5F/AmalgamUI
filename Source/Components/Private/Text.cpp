@@ -99,7 +99,7 @@ void Text::render(int offsetX, int offsetY)
 
 bool Text::refreshScaling()
 {
-    // Refresh actualScreenExtent.
+    // If actualScreenExtent was refreshed, do our specialized refreshing.
     if (Component::refreshScaling()) {
         // Refresh our alignment since the extent has moved.
         refreshAlignment();

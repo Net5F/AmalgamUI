@@ -106,7 +106,7 @@ void Button::onMouseLeave(SDL_MouseMotionEvent& event)
     }
 }
 
-void Button::render(int offsetX, int offsetY)
+void Button::render(const SDL_Point& offsetPoint)
 {
     // Keep our extent up to date.
     refreshScaling();
@@ -114,25 +114,28 @@ void Button::render(int offsetX, int offsetY)
     // Render the appropriate background image for our current state.
     switch (currentState) {
         case State::Normal: {
-            normalImage.render(offsetX, offsetY);
+            normalImage.render(offsetPoint);
             break;
         }
         case State::Hovered: {
-            hoveredImage.render(offsetX, offsetY);
+            hoveredImage.render(offsetPoint);
             break;
         }
         case State::Pressed: {
-            pressedImage.render(offsetX, offsetY);
+            pressedImage.render(offsetPoint);
             break;
         }
         case State::Disabled: {
-            disabledImage.render(offsetX, offsetY);
+            disabledImage.render(offsetPoint);
             break;
         }
     }
 
     // Render the text.
-    text.render(offsetX, offsetY);
+    text.render(offsetPoint);
+
+    // Save the new offset.
+    lastOffsetPoint = offsetPoint;
 }
 
 } // namespace AUI

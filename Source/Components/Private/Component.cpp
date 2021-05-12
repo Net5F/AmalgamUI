@@ -12,6 +12,7 @@ Component::Component(Screen& inScreen, const char* inKey, const SDL_Rect& inScre
 , logicalScreenExtent{inScreenExtent}
 , actualScreenExtent{ScalingHelpers::extentToActual(logicalScreenExtent)}
 , lastUsedScreenSize{Core::GetActualScreenSize()}
+, lastOffsetPoint{}
 {
     // If we were given a nullptr, replace it with an empty string while
     // constructing the key. This keeps us from having to nullptr check later.
@@ -71,10 +72,9 @@ const entt::hashed_string& Component::getKey()
     return key;
 }
 
-void Component::render(int offsetX, int offsetY)
+void Component::render(const SDL_Point& offsetPoint)
 {
-    ignore(offsetX);
-    ignore(offsetY);
+    ignore(offsetPoint);
     AUI_LOG_ERROR("Base class render called. Please override render() "
     "in your derived class.");
 }

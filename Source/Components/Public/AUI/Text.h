@@ -87,7 +87,7 @@ public:
      */
     void setHorizontalAlignment(HorizontalAlignment inHorizontalAlignment);
 
-    void render(int offsetX = 0, int offsetY = 0) override;
+    void render(const SDL_Point& offsetPoint = {}) override;
 
 protected:
     /**

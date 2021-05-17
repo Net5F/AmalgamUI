@@ -52,7 +52,7 @@ void Button::onMouseButtonDown(SDL_MouseButtonEvent& event)
 
     // Check if the user set a callback.
     if (onPressed == nullptr) {
-        AUI_LOG_ERROR("Tried to call empty onMouseButtonDown() callback.");
+        AUI_LOG_ERROR("Button tried to call empty onPressed() callback.");
     }
 
     // Set our state to pressed.
@@ -66,11 +66,6 @@ void Button::onMouseButtonUp(SDL_MouseButtonEvent& event, bool isHovered)
 {
     // We don't care about where exactly the click happened.
     ignore(event);
-
-    // Check if the user set a callback.
-    if (onPressed == nullptr) {
-        AUI_LOG_ERROR("Tried to call empty onMouseButtonUp() callback.");
-    }
 
     // If we were being pressed.
     if (currentState == State::Pressed) {
@@ -106,36 +101,43 @@ void Button::onMouseLeave(SDL_MouseMotionEvent& event)
     }
 }
 
-void Button::render(const SDL_Point& offsetPoint)
+void Button::render(const SDL_Point& parentOffset)
 {
     // Keep our extent up to date.
     refreshScaling();
 
+    // Children should render at the parent's offset + this component's offset.
+    SDL_Point childOffset{parentOffset};
+    childOffset.x += actualScreenExtent.x;
+    childOffset.y += actualScreenExtent.y;
+
     // Render the appropriate background image for our current state.
     switch (currentState) {
         case State::Normal: {
-            normalImage.render(offsetPoint);
+            normalImage.render(childOffset);
             break;
         }
         case State::Hovered: {
-            hoveredImage.render(offsetPoint);
+            hoveredImage.render(childOffset);
             break;
         }
         case State::Pressed: {
-            pressedImage.render(offsetPoint);
+            pressedImage.render(childOffset);
             break;
         }
         case State::Disabled: {
-            disabledImage.render(offsetPoint);
+            disabledImage.render(childOffset);
             break;
         }
     }
 
     // Render the text.
-    text.render(offsetPoint);
+    text.render(childOffset);
 
-    // Save the new offset.
-    lastOffsetPoint = offsetPoint;
+    // Save the extent that we actually rendered.
+    lastRenderedExtent = actualScreenExtent;
+    lastRenderedExtent.x += parentOffset.x;
+    lastRenderedExtent.y += parentOffset.y;
 }
 
 } // namespace AUI

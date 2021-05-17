@@ -74,11 +74,11 @@ public:
      * Renders this component to the current rendering target.
      * Directly calls SDL functions like SDL_RenderCopy().
      *
-     * @param offsetPoint  The offset that should be added to this component's
-     *                     position before rendering. Used by parent classes to
-     *                     control the layout of their children.
+     * @param parentOffset  The offset that should be added to this component's
+     *                      position before rendering. Used by parent classes
+     *                      to control the layout of their children.
      */
-    virtual void render(const SDL_Point& offsetPoint = {});
+    virtual void render(const SDL_Point& parentOffset = {});
 
 protected:
     Component(Screen& inScreen, const char* inKey, const SDL_Rect& inScreenExtent);
@@ -107,17 +107,18 @@ protected:
     SDL_Rect logicalScreenExtent;
 
     /** The component's actual screen extent, i.e. the position/size of the
-        component on the screen. */
+        component on the screen. Does not account for parent offsets. */
     SDL_Rect actualScreenExtent;
+
+    /** The actual screen extent of this component during the last render()
+        call. Generally equal to actualScreenExtent + any offsets added by
+        parent components. Used in hit testing for event handling. */
+    SDL_Rect lastRenderedExtent;
 
     /** The value of Core::actualScreenSize that was used the last time this
         component calculated its actualScreenExtent.
         Used to detect when to re-calculate actualScreenExtent. */
     ScreenResolution lastUsedScreenSize;
-
-    /** The value of offsetPoint that was passed to this component's last
-        render() call. */
-    SDL_Point lastOffsetPoint;
 };
 
 } // namespace AUI

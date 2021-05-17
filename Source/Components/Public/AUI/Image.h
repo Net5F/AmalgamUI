@@ -44,7 +44,7 @@ public:
      */
     void addResolution(const ScreenResolution& resolution, const std::string& relPath, const SDL_Rect& inTexExtent);
 
-    void render(const SDL_Point& offsetPoint = {}) override;
+    void render(const SDL_Point& parentOffset = {}) override;
 
 protected:
     /**

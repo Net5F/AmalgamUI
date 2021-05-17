@@ -12,7 +12,7 @@ Component::Component(Screen& inScreen, const char* inKey, const SDL_Rect& inScre
 , logicalScreenExtent{inScreenExtent}
 , actualScreenExtent{ScalingHelpers::extentToActual(logicalScreenExtent)}
 , lastUsedScreenSize{Core::GetActualScreenSize()}
-, lastOffsetPoint{}
+, lastRenderedExtent{}
 {
     // If we were given a nullptr, replace it with an empty string while
     // constructing the key. This keeps us from having to nullptr check later.
@@ -43,14 +43,10 @@ Component::~Component()
 
 bool Component::containsPoint(const SDL_Point& actualPoint)
 {
-    // Scale the given point from actual position to its equivalent logical
-    // position.
-    SDL_Point logicalPoint = ScalingHelpers::pointToLogical(actualPoint);
-
-    if ((logicalPoint.x > logicalScreenExtent.x)
-       && (logicalPoint.x < (logicalScreenExtent.x + logicalScreenExtent.w))
-       && (logicalPoint.y > logicalScreenExtent.y)
-       && (logicalPoint.y < (logicalScreenExtent.y + logicalScreenExtent.h))) {
+    if ((actualPoint.x > lastRenderedExtent.x)
+       && (actualPoint.x < (lastRenderedExtent.x + lastRenderedExtent.w))
+       && (actualPoint.y > lastRenderedExtent.y)
+       && (actualPoint.y < (lastRenderedExtent.y + lastRenderedExtent.h))) {
         return true;
     }
     else {
@@ -72,9 +68,9 @@ const entt::hashed_string& Component::getKey()
     return key;
 }
 
-void Component::render(const SDL_Point& offsetPoint)
+void Component::render(const SDL_Point& parentOffset)
 {
-    ignore(offsetPoint);
+    ignore(parentOffset);
     AUI_LOG_ERROR("Base class render called. Please override render() "
     "in your derived class.");
 }

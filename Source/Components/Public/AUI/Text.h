@@ -87,7 +87,7 @@ public:
      */
     void setHorizontalAlignment(HorizontalAlignment inHorizontalAlignment);
 
-    void render(const SDL_Point& offsetPoint = {}) override;
+    void render(const SDL_Point& parentOffset = {}) override;
 
 protected:
     /**
@@ -162,7 +162,7 @@ private:
         texture. */
     SDL_Rect texExtent;
 
-    /** Our texExtent, centered on our screenExtent.
+    /** Our texExtent, centered on our actualScreenExtent.
         Centers the text texture since our screenExtent may be larger or
         smaller than texExtent. */
     SDL_Rect alignedExtent;

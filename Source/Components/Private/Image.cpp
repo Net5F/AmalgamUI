@@ -42,7 +42,7 @@ void Image::addResolution(const ScreenResolution& resolution, const std::string&
     resolutionMap[resolution].extent = inTexExtent;
 }
 
-void Image::render(const SDL_Point& offsetPoint)
+void Image::render(const SDL_Point& parentOffset)
 {
     if (!currentTexHandle) {
         AUI_LOG_ERROR("Tried to render Image with no texture. Key: %s", key.data());
@@ -52,19 +52,15 @@ void Image::render(const SDL_Point& offsetPoint)
     refreshScaling();
 
     // Account for the given offset.
-    SDL_Rect offsetTex{currentTexExtent};
-    offsetTex.x += offsetPoint.x;
-    offsetTex.y += offsetPoint.y;
-
-    SDL_Rect offsetScreen{actualScreenExtent};
-    offsetScreen.x += offsetPoint.x;
-    offsetScreen.y += offsetPoint.y;
+    SDL_Rect offsetExtent{actualScreenExtent};
+    offsetExtent.x += parentOffset.x;
+    offsetExtent.y += parentOffset.y;
 
     // Render the image.
-    SDL_RenderCopy(Core::GetRenderer(), &(*currentTexHandle), &offsetTex, &offsetScreen);
+    SDL_RenderCopy(Core::GetRenderer(), &(*currentTexHandle), &currentTexExtent, &offsetExtent);
 
-    // Save the new offset.
-    lastOffsetPoint = offsetPoint;
+    // Save the extent that we actually rendered.
+    lastRenderedExtent = offsetExtent;
 }
 
 bool Image::refreshScaling()

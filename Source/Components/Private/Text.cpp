@@ -71,7 +71,7 @@ void Text::setHorizontalAlignment(HorizontalAlignment inHorizontalAlignment)
     refreshAlignment();
 }
 
-void Text::render(const SDL_Point& offsetPoint)
+void Text::render(const SDL_Point& parentOffset)
 {
     // Keep our scaling up to date.
     bool isRefreshed = refreshScaling();
@@ -90,14 +90,14 @@ void Text::render(const SDL_Point& offsetPoint)
 
     // Account for the given offset.
     SDL_Rect offsetExtent{alignedExtent};
-    offsetExtent.x += offsetPoint.x;
-    offsetExtent.y += offsetPoint.y;
+    offsetExtent.x += parentOffset.x;
+    offsetExtent.y += parentOffset.y;
 
     // Render the text texture.
     SDL_RenderCopy(Core::GetRenderer(), textTexture.get(), &texExtent, &offsetExtent);
 
-    // Save the new offset.
-    lastOffsetPoint = offsetPoint;
+    // Save the extent that we actually rendered.
+    lastRenderedExtent = offsetExtent;
 }
 
 bool Text::refreshScaling()

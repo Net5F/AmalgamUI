@@ -60,7 +60,7 @@ public:
 
     void onMouseLeave(SDL_MouseMotionEvent& event) override;
 
-    void render(const SDL_Point& offsetPoint = {}) override;
+    void render(const SDL_Point& parentOffset = {}) override;
 
     //-------------------------------------------------------------------------
     // Public child components

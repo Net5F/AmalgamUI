@@ -91,6 +91,13 @@ bool Screen::handleMouseButtonDown(SDL_MouseButtonEvent& event)
     }
 
     for (Component* listener : listenerMap[EventType::MouseButtonDown]) {
+        // If the listener isn't visible, ignore it.
+        if (!(listener->getIsVisible())) {
+            continue;
+        }
+
+        // If the listener contains the point that was pressed, signal it and
+        // save it as the current pressed component.
         if (listener->containsPoint({event.x, event.y})) {
             listener->onMouseButtonDown(event);
             currentPressedComponent = listener;
@@ -105,14 +112,18 @@ bool Screen::handleMouseButtonUp(SDL_MouseButtonEvent& event)
 {
     // If a component is currently pressed.
     if (currentPressedComponent != nullptr) {
-        // Check if the mouse is still over the pressed component or not.
-        bool isHovered{false};
-        if (currentPressedComponent == currentHoveredComponent) {
-            isHovered = true;
+        // If the component is still visible, signal it.
+        if (currentPressedComponent->getIsVisible()) {
+            // Check if the mouse is still over the pressed component or not.
+            bool isHovered{false};
+            if (currentPressedComponent == currentHoveredComponent) {
+                isHovered = true;
+            }
+
+            currentPressedComponent->onMouseButtonUp(event, isHovered);
         }
 
-        // Release the component.
-        currentPressedComponent->onMouseButtonUp(event, isHovered);
+        // Mark the component as released.
         currentPressedComponent = nullptr;
     }
 
@@ -121,8 +132,13 @@ bool Screen::handleMouseButtonUp(SDL_MouseButtonEvent& event)
 
 void Screen::handleMouseMove(SDL_MouseMotionEvent& event)
 {
-    // If the mouse moved within a listening component, give it the event.
     for (Component* listener : listenerMap[EventType::MouseMove]) {
+        // If the listener isn't visible, ignore it.
+        if (!(listener->getIsVisible())) {
+            continue;
+        }
+
+        // If the mouse moved within this component, signal it.
         if (listener->containsPoint({event.x, event.y})) {
             listener->onMouseMove(event);
         }
@@ -134,8 +150,12 @@ void Screen::handleMouseLeave(SDL_MouseMotionEvent& event)
     // If we have a current hovered component, check if the mouse left it.
     if ((currentHoveredComponent != nullptr)
     && !(currentHoveredComponent->containsPoint({event.x, event.y}))) {
-        // Unhover the current hovered component.
-        currentHoveredComponent->onMouseLeave(event);
+        // If the component is visible, signal it.
+        if (currentHoveredComponent->getIsVisible()) {
+            currentHoveredComponent->onMouseLeave(event);
+        }
+
+        // Mark the component as no longer hovered.
         currentHoveredComponent = nullptr;
     }
 }
@@ -150,6 +170,11 @@ void Screen::handleMouseEnter(SDL_MouseMotionEvent& event)
 
     // Check if we're entering a new component.
     for (Component* listener : listenerMap[EventType::MouseEnter]) {
+        // If the listener isn't visible, ignore it.
+        if (!(listener->getIsVisible())) {
+            continue;
+        }
+
         // If we just moved the mouse over this component and it isn't already
         // hovered.
         if ((listener != currentHoveredComponent)

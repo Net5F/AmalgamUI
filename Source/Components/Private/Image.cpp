@@ -56,11 +56,18 @@ void Image::render(const SDL_Point& parentOffset)
     offsetExtent.x += parentOffset.x;
     offsetExtent.y += parentOffset.y;
 
-    // Render the image.
-    SDL_RenderCopy(Core::GetRenderer(), &(*currentTexHandle), &currentTexExtent, &offsetExtent);
-
-    // Save the extent that we actually rendered.
+    // Save the extent that we should render at.
     lastRenderedExtent = offsetExtent;
+
+    // If the component isn't visible, return without rendering.
+    if (!isVisible) {
+        return;
+    }
+
+    // Render the image.
+    SDL_RenderCopy(Core::GetRenderer(), &(*currentTexHandle)
+        , &currentTexExtent, &offsetExtent);
+
 }
 
 bool Image::refreshScaling()

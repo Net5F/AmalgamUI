@@ -11,8 +11,9 @@ Component::Component(Screen& inScreen, const char* inKey, const SDL_Rect& inScre
 : screen(inScreen)
 , logicalScreenExtent{inScreenExtent}
 , actualScreenExtent{ScalingHelpers::extentToActual(logicalScreenExtent)}
-, lastUsedScreenSize{Core::GetActualScreenSize()}
 , lastRenderedExtent{}
+, lastUsedScreenSize{Core::GetActualScreenSize()}
+, isVisible{true}
 {
     // If we were given a nullptr, replace it with an empty string while
     // constructing the key. This keeps us from having to nullptr check later.
@@ -66,6 +67,16 @@ void Component::setScreenExtent(const SDL_Rect& inScreenExtent)
 const entt::hashed_string& Component::getKey()
 {
     return key;
+}
+
+void Component::setIsVisible(bool inIsVisible)
+{
+    isVisible = inIsVisible;
+}
+
+bool Component::getIsVisible()
+{
+    return isVisible;
 }
 
 void Component::render(const SDL_Point& parentOffset)

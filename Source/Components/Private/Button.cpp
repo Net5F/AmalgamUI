@@ -7,11 +7,11 @@ namespace AUI {
 
 Button::Button(Screen& screen, const char* key, const SDL_Rect& screenExtent)
 : Component(screen, key, screenExtent)
-, normalImage(screen, "", screenExtent)
-, hoveredImage(screen, "", screenExtent)
-, pressedImage(screen, "", screenExtent)
-, disabledImage(screen, "", screenExtent)
-, text(screen, "", screenExtent)
+, normalImage(screen, "", {0, 0, screenExtent.w, screenExtent.h})
+, hoveredImage(screen, "", {0, 0, screenExtent.w, screenExtent.h})
+, pressedImage(screen, "", {0, 0, screenExtent.w, screenExtent.h})
+, disabledImage(screen, "", {0, 0, screenExtent.w, screenExtent.h})
+, text(screen, "", {0, 0, screenExtent.w, screenExtent.h})
 , currentState{State::Normal}
 {
     // Default to centering the text within the button. The user can set it
@@ -111,6 +111,16 @@ void Button::render(const SDL_Point& parentOffset)
     childOffset.x += actualScreenExtent.x;
     childOffset.y += actualScreenExtent.y;
 
+    // Save the extent that we should render at.
+    lastRenderedExtent = actualScreenExtent;
+    lastRenderedExtent.x += parentOffset.x;
+    lastRenderedExtent.y += parentOffset.y;
+
+    // If the component isn't visible, return without rendering.
+    if (!isVisible) {
+        return;
+    }
+
     // Render the appropriate background image for our current state.
     switch (currentState) {
         case State::Normal: {
@@ -133,11 +143,6 @@ void Button::render(const SDL_Point& parentOffset)
 
     // Render the text.
     text.render(childOffset);
-
-    // Save the extent that we actually rendered.
-    lastRenderedExtent = actualScreenExtent;
-    lastRenderedExtent.x += parentOffset.x;
-    lastRenderedExtent.y += parentOffset.y;
 }
 
 } // namespace AUI

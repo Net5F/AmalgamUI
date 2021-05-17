@@ -93,11 +93,17 @@ void Text::render(const SDL_Point& parentOffset)
     offsetExtent.x += parentOffset.x;
     offsetExtent.y += parentOffset.y;
 
-    // Render the text texture.
-    SDL_RenderCopy(Core::GetRenderer(), textTexture.get(), &texExtent, &offsetExtent);
-
-    // Save the extent that we actually rendered.
+    // Save the extent that we should render at.
     lastRenderedExtent = offsetExtent;
+
+    // If the component isn't visible, return without rendering.
+    if (!isVisible) {
+        return;
+    }
+
+    // Render the text texture.
+    SDL_RenderCopy(Core::GetRenderer(), textTexture.get()
+        , &texExtent, &offsetExtent);
 }
 
 bool Text::refreshScaling()

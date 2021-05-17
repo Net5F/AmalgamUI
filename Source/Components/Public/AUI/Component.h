@@ -44,6 +44,9 @@ public:
 
     const entt::hashed_string& getKey();
 
+    void setIsVisible(bool inIsVisible);
+    bool getIsVisible();
+
     /**
      * Called when a MouseButtonDown event happens within this component.
      */
@@ -119,6 +122,9 @@ protected:
         component calculated its actualScreenExtent.
         Used to detect when to re-calculate actualScreenExtent. */
     ScreenResolution lastUsedScreenSize;
+
+    /** If true, this component will be rendered and will respond to events. */
+    bool isVisible;
 };
 
 } // namespace AUI

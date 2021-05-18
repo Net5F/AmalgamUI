@@ -81,6 +81,7 @@ void Text::render(const SDL_Point& parentOffset)
         // If a property has been changed, re-render our text texture.
         if (textureIsDirty) {
             refreshTexture();
+            textureIsDirty = false;
         }
     }
 
@@ -118,6 +119,7 @@ bool Text::refreshScaling()
 
         // Re-render the text texture.
         refreshTexture();
+        textureIsDirty = false;
 
         return true;
     }
@@ -173,7 +175,7 @@ void Text::refreshFontObject()
 void Text::refreshTexture()
 {
     if (!fontHandle) {
-        AUI_LOG_ERROR("Please call setFont() before renderTextTexture(), so"
+        AUI_LOG_ERROR("Please call setFont() before refreshTexture(), so"
         " that a valid font object can be used for texture generation.");
     }
 

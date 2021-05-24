@@ -4,6 +4,7 @@ target_sources(AmalgamUI
 		Private/Component.cpp
 		Private/Image.cpp
 		Private/Text.cpp
+		Private/TextBox.cpp
 	PUBLIC
         # Note: We add the extra "AUI" directory so that consumers can include
         # files as "AUI/Xyz.h" for some extra clarity.
@@ -11,6 +12,7 @@ target_sources(AmalgamUI
 		Public/AUI/Component.h
 		Public/AUI/Image.h
 		Public/AUI/Text.h
+		Public/AUI/TextBox.h
 )
 
 target_include_directories(AmalgamUI

@@ -6,8 +6,6 @@ namespace AUI {
 Screen::Screen(const std::string& inDebugName)
 : debugName{inDebugName}
 , componentMap()
-, currentHoveredComponent{nullptr}
-, currentPressedComponent{nullptr}
 {
 }
 
@@ -70,11 +68,13 @@ bool Screen::handleEvent(SDL_Event& event)
             // Motion logic never counts the event as handled, since the mouse
             // might've gone into or come from a non-UI point on the screen.
             handleMouseMove(event.motion);
-
-            // Note: Leave must be called before Enter (see header comment).
-            handleMouseLeave(event.motion);
-            handleMouseEnter(event.motion);
-            break;
+            return false;
+        }
+        case SDL_KEYDOWN: {
+            return handleKeyDown(event.key);
+        }
+        case SDL_TEXTINPUT: {
+            return handleTextInput(event.text);
         }
         default:
             break;
@@ -85,49 +85,38 @@ bool Screen::handleEvent(SDL_Event& event)
 
 bool Screen::handleMouseButtonDown(SDL_MouseButtonEvent& event)
 {
-    if (currentPressedComponent != nullptr) {
-        AUI_LOG_ERROR("Received a MOUSEBUTTONDOWN while a component is"
-        " currently pressed.");
-    }
-
+    bool eventHandled{false};
     for (Component* listener : listenerMap[EventType::MouseButtonDown]) {
         // If the listener isn't visible, ignore it.
         if (!(listener->getIsVisible())) {
             continue;
         }
 
-        // If the listener contains the point that was pressed, signal it and
-        // save it as the current pressed component.
-        if (listener->containsPoint({event.x, event.y})) {
-            listener->onMouseButtonDown(event);
-            currentPressedComponent = listener;
-            return true;
+        // Call the listener's callback and track if the event was handled.
+        if (listener->onMouseButtonDown(event)) {
+            eventHandled = true;
         }
     }
 
-    return false;
+    return eventHandled;
 }
 
 bool Screen::handleMouseButtonUp(SDL_MouseButtonEvent& event)
 {
-    // If a component is currently pressed.
-    if (currentPressedComponent != nullptr) {
-        // If the component is still visible, signal it.
-        if (currentPressedComponent->getIsVisible()) {
-            // Check if the mouse is still over the pressed component or not.
-            bool isHovered{false};
-            if (currentPressedComponent == currentHoveredComponent) {
-                isHovered = true;
-            }
-
-            currentPressedComponent->onMouseButtonUp(event, isHovered);
+    bool eventHandled{false};
+    for (Component* listener : listenerMap[EventType::MouseButtonUp]) {
+        // If the listener isn't visible, ignore the event..
+        if (!(listener->getIsVisible())) {
+            continue;
         }
 
-        // Mark the component as released.
-        currentPressedComponent = nullptr;
+        // Call the listener's callback and track if the event was handled.
+        if (listener->onMouseButtonUp(event)) {
+            eventHandled = true;
+        }
     }
 
-    return true;
+    return eventHandled;
 }
 
 void Screen::handleMouseMove(SDL_MouseMotionEvent& event)
@@ -138,59 +127,45 @@ void Screen::handleMouseMove(SDL_MouseMotionEvent& event)
             continue;
         }
 
-        // If the mouse moved within this component, signal it.
-        if (listener->containsPoint({event.x, event.y})) {
-            listener->onMouseMove(event);
-        }
+        // Call the listener's callback.
+        listener->onMouseMove(event);
     }
 }
 
-void Screen::handleMouseLeave(SDL_MouseMotionEvent& event)
+bool Screen::handleKeyDown(SDL_KeyboardEvent& event)
 {
-    // If we have a current hovered component, check if the mouse left it.
-    if ((currentHoveredComponent != nullptr)
-    && !(currentHoveredComponent->containsPoint({event.x, event.y}))) {
-        // If the component is visible, signal it.
-        if (currentHoveredComponent->getIsVisible()) {
-            currentHoveredComponent->onMouseLeave(event);
-        }
-
-        // Mark the component as no longer hovered.
-        currentHoveredComponent = nullptr;
-    }
-}
-
-void Screen::handleMouseEnter(SDL_MouseMotionEvent& event)
-{
-    // If we're still hovering a previous hovered component, skip checking
-    // for a new one.
-    if (currentHoveredComponent != nullptr) {
-        return;
-    }
-
-    // Check if we're entering a new component.
-    for (Component* listener : listenerMap[EventType::MouseEnter]) {
-        // If the listener isn't visible, ignore it.
+    bool eventHandled{false};
+    for (Component* listener : listenerMap[EventType::KeyDown]) {
+        // If the listener isn't visible, ignore the event..
         if (!(listener->getIsVisible())) {
             continue;
         }
 
-        // If we just moved the mouse over this component and it isn't already
-        // hovered.
-        if ((listener != currentHoveredComponent)
-        && listener->containsPoint({event.x, event.y})) {
-            // A new component is becoming hovered.
-            // If we have a current hovered component, tell the listener we're
-            // leaving.
-            if (currentHoveredComponent != nullptr) {
-                currentHoveredComponent->onMouseLeave(event);
-            }
-
-            // Call the listener's callback and save the hovered component.
-            listener->onMouseEnter(event);
-            currentHoveredComponent = listener;
+        // Call the listener's callback and track if the event was handled.
+        if (listener->onKeyDown(event)) {
+            eventHandled = true;
         }
     }
+
+    return eventHandled;
+}
+
+bool Screen::handleTextInput(SDL_TextInputEvent& event)
+{
+    bool eventHandled{false};
+    for (Component* listener : listenerMap[EventType::TextInput]) {
+        // If the listener isn't visible, ignore the event..
+        if (!(listener->getIsVisible())) {
+            continue;
+        }
+
+        // Call the listener's callback and track if the event was handled.
+        if (listener->onTextInput(event)) {
+            eventHandled = true;
+        }
+    }
+
+    return eventHandled;
 }
 
 void Screen::render()

@@ -1,7 +1,6 @@
 #include "AUI/Button.h"
 #include "AUI/Screen.h"
 #include "AUI/Core.h"
-#include "AUI/Internal/Ignore.h"
 
 namespace AUI {
 
@@ -21,8 +20,7 @@ Button::Button(Screen& screen, const char* key, const SDL_Rect& screenExtent)
 
     screen.registerListener(EventType::MouseButtonDown, this);
     screen.registerListener(EventType::MouseButtonUp, this);
-    screen.registerListener(EventType::MouseEnter, this);
-    screen.registerListener(EventType::MouseLeave, this);
+    screen.registerListener(EventType::MouseMove, this);
 }
 
 void Button::enable()
@@ -45,59 +43,78 @@ void Button::setOnPressed(std::function<void(void)> inOnPressed)
     onPressed = std::move(inOnPressed);
 }
 
-void Button::onMouseButtonDown(SDL_MouseButtonEvent& event)
+bool Button::onMouseButtonDown(SDL_MouseButtonEvent& event)
 {
-    // We don't care about where exactly the click happened.
-    ignore(event);
-
-    // Check if the user set a callback.
-    if (onPressed == nullptr) {
-        AUI_LOG_ERROR("Button tried to call empty onPressed() callback.");
+    // If we're disabled, ignore the event.
+    if (currentState == State::Disabled) {
+        return false;
     }
 
-    // Set our state to pressed.
-    currentState = State::Pressed;
+    // If the mouse press was inside our extent.
+    if (containsPoint({event.x, event.y})) {
+        // Check if the user set a callback.
+        if (onPressed == nullptr) {
+            AUI_LOG_ERROR("Button tried to call empty onPressed() callback.");
+        }
 
-    // Call the user's onPressed callback.
-    onPressed();
+        // Set our state to pressed.
+        currentState = State::Pressed;
+
+        // Call the user's onPressed callback.
+        onPressed();
+
+        return true;
+    }
+    else {
+        // The mouse press missed us.
+        return false;
+    }
 }
 
-void Button::onMouseButtonUp(SDL_MouseButtonEvent& event, bool isHovered)
+bool Button::onMouseButtonUp(SDL_MouseButtonEvent& event)
 {
-    // We don't care about where exactly the click happened.
-    ignore(event);
+    // If we're disabled, ignore the event.
+    if (currentState == State::Disabled) {
+        return false;
+    }
 
     // If we were being pressed.
     if (currentState == State::Pressed) {
         // If the mouse is still over this component, go to hovered.
-        if (isHovered) {
+        if (containsPoint({event.x, event.y})) {
             currentState = State::Hovered;
         }
         else {
             currentState = State::Normal;
         }
+
+        return true;
+    }
+    else {
+        // We weren't being pressed.
+        return false;
     }
 }
 
-void Button::onMouseEnter(SDL_MouseMotionEvent& event)
+void Button::onMouseMove(SDL_MouseMotionEvent& event)
 {
-    // We don't care about where exactly the hover happened.
-    ignore(event);
-
-    // If we were in a normal state, go to hovered.
-    if (currentState == State::Normal) {
-        currentState = State::Hovered;
+    // If we're disabled, ignore the event.
+    if (currentState == State::Disabled) {
+        return;
     }
-}
 
-void Button::onMouseLeave(SDL_MouseMotionEvent& event)
-{
-    // We don't care about where exactly the hover happened.
-    ignore(event);
-
-    // If we were in a hovered state, go to normal.
-    if (currentState == State::Hovered) {
-        currentState = State::Normal;
+    // If the mouse is inside our extent.
+    if (containsPoint({event.x, event.y})) {
+        // If we're normal, change to hovered.
+        if (currentState == State::Normal) {
+            currentState = State::Hovered;
+        }
+    }
+    else {
+        // Else, the mouse isn't in our extent. If we're hovered, unhover.
+        if (currentState == State::Hovered) {
+            currentState = State::Normal;
+        }
     }
 }
 

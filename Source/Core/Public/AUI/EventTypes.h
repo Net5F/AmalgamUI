@@ -10,16 +10,17 @@ namespace AUI {
  * vs Pressed).
  */
 enum EventType {
-    /** The mouse clicked on the component. */
+    /** The mouse clicked within the window. */
     MouseButtonDown,
-    /** The mouse released a previous click. */
+    /** The mouse released a click within the window. */
     MouseButtonUp,
-    /** The mouse moved within the component's extent. */
+    /** The mouse moved within the window. */
     MouseMove,
-    /** The mouse entered the component's extent. */
-    MouseEnter,
-    /** The mouse left the component's extent. */
-    MouseLeave
+    /** A key was pressed while the window was selected. */
+    KeyDown,
+    /** Text input is enabled and a key or combination of keys was pressed,
+        resulting in a unicode text character. */
+    TextInput
 };
 
 } // namespace AUI

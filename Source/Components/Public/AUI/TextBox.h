@@ -7,9 +7,9 @@
 namespace AUI {
 
 /**
- * Displays a simple static image.
+ * A box for displaying or inputting text.
  */
-class Button : public Component
+class TextBox : public Component
 {
 public:
     /**
@@ -18,45 +18,39 @@ public:
     enum class State {
         Normal,
         Hovered,
-        Pressed,
+        Selected,
         Disabled
     };
 
-    Button(Screen& screen, const char* key, const SDL_Rect& screenExtent);
+    TextBox(Screen& screen, const char* key, const SDL_Rect& screenExtent);
 
-    virtual ~Button() = default;
-
-    /**
-     * Enables this button.
-     *
-     * @post The button will visually be in the Normal state and will respond
-     *       to hover and click events.
-     */
-    void enable();
+    virtual ~TextBox() = default;
 
     /**
-     * Disables this button.
-     *
-     * @post The button will visually be in the Disabled state and will
-     *       ignore all events.
+     * Sets the distance between the left side of the box and the start of the
+     * text.
      */
-    void disable();
+    void setLeftMargin(int inMargin);
+
+    // Set cursor blink rate
 
     State getCurrentState();
 
     //-------------------------------------------------------------------------
     // Callback registration
     //-------------------------------------------------------------------------
-    void setOnPressed(std::function<void(void)> inOnPressed);
+    void setOnTextChanged(std::function<void(void)> inOnTextChanged);
 
     //-------------------------------------------------------------------------
     // Base class overrides
     //-------------------------------------------------------------------------
     bool onMouseButtonDown(SDL_MouseButtonEvent& event) override;
 
-    bool onMouseButtonUp(SDL_MouseButtonEvent& event) override;
-
     void onMouseMove(SDL_MouseMotionEvent& event) override;
+
+    bool onKeyDown(SDL_KeyboardEvent& event) override;
+
+    bool onTextInput(SDL_TextInputEvent& event) override;
 
     void render(const SDL_Point& parentOffset = {}) override;
 
@@ -67,22 +61,28 @@ public:
     Image normalImage;
     /** Background image, hovered state. */
     Image hoveredImage;
-    /** Background image, pressed state. */
-    Image pressedImage;
+    /** Background image, selected state. */
+    Image selectedImage;
     /** Background image, disabled state. */
     Image disabledImage;
+    /** Text cursor image. */
+    Image cursorImage;
 
-    /** Button text. */
+    /** The text that this box contains. */
     Text text;
 
 private:
     //-------------------------------------------------------------------------
     // Private members
     //-------------------------------------------------------------------------
-    std::function<void(void)> onPressed;
+    std::function<void(void)> onTextChanged;
 
     /** Tracks this button's current visual and logical state. */
     State currentState;
+
+    /** The distance between the left side of the box and the start of the
+        text. */
+    int leftMargin;
 };
 
 } // namespace AUI

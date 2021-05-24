@@ -48,30 +48,29 @@ public:
     bool getIsVisible();
 
     /**
-     * Called when a MouseButtonDown event happens within this component.
+     * Called when a SDL_MOUSEBUTTONDOWN event occurs.
      */
-    virtual void onMouseButtonDown(SDL_MouseButtonEvent& event);
+    virtual bool onMouseButtonDown(SDL_MouseButtonEvent& event);
 
     /**
-     * Called when a MouseButtonUp event happens after a previous
-     * MouseButtonDown event occurred on this component.
+     * Called when a SDL_MOUSEBUTTONUP event occurs.
      */
-    virtual void onMouseButtonUp(SDL_MouseButtonEvent& event, bool isHovered);
+    virtual bool onMouseButtonUp(SDL_MouseButtonEvent& event);
 
     /**
-     * Called when a MouseMove event lands inside this component.
+     * Called when a SDL_MOUSEMOTION event occurs.
      */
     virtual void onMouseMove(SDL_MouseMotionEvent& event);
 
     /**
-     * Called when the mouse first enters this component.
+     * Called when a SDL_KEYDOWN event occurs.
      */
-    virtual void onMouseEnter(SDL_MouseMotionEvent& event);
+    virtual bool onKeyDown(SDL_KeyboardEvent& event);
 
     /**
-     * Called when the mouse leaves this component.
+     * Called when a SDL_TEXTINPUT event occurs.
      */
-    virtual void onMouseLeave(SDL_MouseMotionEvent& event);
+    virtual bool onTextInput(SDL_TextInputEvent& event);
 
     /**
      * Renders this component to the current rendering target.

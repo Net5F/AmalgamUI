@@ -3,6 +3,7 @@
 #include "AUI/Component.h"
 #include "AUI/Internal/ResourceManager.h" // TextureHandle
 #include <SDL_ttf.h>
+#include <string_view>
 
 namespace AUI {
 
@@ -73,7 +74,7 @@ public:
      * Renders the given text to a texture, using the already set font, color,
      * and renderMode.
      */
-    void setText(const std::string& inText);
+    void setText(std::string_view inText);
 
     /**
      * Sets the vertical alignment of the text texture within this component's
@@ -86,6 +87,20 @@ public:
      * component's screenExtent.
      */
     void setHorizontalAlignment(HorizontalAlignment inHorizontalAlignment);
+
+    /**
+     * Appends the given text to the end of this component's text.
+     */
+    void appendText(std::string_view inText);
+
+    /**
+     * Efficient function for removing the last character from this text.
+     * @return true if a character was removed, else false (empty string).
+     */
+    bool removeLastChar();
+
+    /** Returns a const reference to the underlying std::string. */
+    const std::string& asString();
 
     void render(const SDL_Point& parentOffset = {}) override;
 

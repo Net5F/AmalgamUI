@@ -110,35 +110,29 @@ public:
 
 private:
     /**
-     * If the given MOUSEBUTTONDOWN event was over a listening component, calls
-     * that component's onMouseButtonDown().
+     * Passes the event to all MouseButtonDown listeners.
      */
     bool handleMouseButtonDown(SDL_MouseButtonEvent& event);
 
     /**
-     * If a component was being pressed, calls its onMouseButtonUp().
+     * Passes the event to all MouseButtonUp listeners.
      */
     bool handleMouseButtonUp(SDL_MouseButtonEvent& event);
 
     /**
-     * If the mouse moved inside a listening component, calls its
-     * onMouseMove().
+     * Passes the event to all MouseMove listeners.
      */
     void handleMouseMove(SDL_MouseMotionEvent& event);
 
     /**
-     * Note: handleMouseLeave() must be called before handleMouseEnter() or we
-     *       may lose track of the previous hovered component.
-     *
-     * If the mouse moved out of the current hovered component, calls its
-     * onMouseLeave().
+     * Passes the event to all KeyDown listeners.
      */
-    void handleMouseLeave(SDL_MouseMotionEvent& event);
+    bool handleKeyDown(SDL_KeyboardEvent& event);
 
     /**
-     * If the mouse moved into a component, calls its onMouseEnter().
+     * Passes the event to all TextInput listeners.
      */
-    void handleMouseEnter(SDL_MouseMotionEvent& event);
+    bool handleTextInput(SDL_TextInputEvent& event);
 
     /** The user-assigned name associated with this screen.
         Only useful for debugging. For performance reasons, avoid using it
@@ -151,12 +145,6 @@ private:
     /** A map containing all of this screen's components that care to listen
         for particular system events. */
     std::unordered_map<EventType, std::vector<Component*>> listenerMap;
-
-    /** The component that the mouse is currently hovering over, if any. */
-    Component* currentHoveredComponent;
-
-    /** The component that the mouse is currently clicking on, if any. */
-    Component* currentPressedComponent;
 };
 
 } // namespace AUI

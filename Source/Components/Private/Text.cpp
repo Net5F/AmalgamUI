@@ -53,7 +53,7 @@ void Text::setRenderMode(RenderMode inRenderMode)
     textureIsDirty = true;
 }
 
-void Text::setText(const std::string& inText)
+void Text::setText(std::string_view inText)
 {
     text = inText;
     textureIsDirty = true;
@@ -69,6 +69,32 @@ void Text::setHorizontalAlignment(HorizontalAlignment inHorizontalAlignment)
 {
     horizontalAlignment = inHorizontalAlignment;
     refreshAlignment();
+}
+
+void Text::appendText(std::string_view inText)
+{
+    // Append the given text to the end of the string.
+    text += inText;
+    textureIsDirty = true;
+}
+
+bool Text::removeLastChar()
+{
+    // If there's a character to remove, pop it.
+    if (text.length() > 0) {
+        text.pop_back();
+        textureIsDirty = true;
+        return true;
+    }
+    else {
+        // Else, the string was empty.
+        return false;
+    }
+}
+
+const std::string& Text::asString()
+{
+    return text;
 }
 
 void Text::render(const SDL_Point& parentOffset)
@@ -179,20 +205,27 @@ void Text::refreshTexture()
         " that a valid font object can be used for texture generation.");
     }
 
+    // If the text string is empty, render a space instead.
+    std::string spaceText{" "};
+    std::string* textToRender{&text};
+    if (text == "") {
+        textToRender = &spaceText;
+    }
+
     // Create a temporary surface on the cpu and render our image using the
     // set renderMode.
     SDL_Surface* surface{nullptr};
     switch (renderMode) {
         case RenderMode::Solid: {
-            surface = TTF_RenderText_Solid(&(*fontHandle), text.c_str(), color);
+            surface = TTF_RenderText_Solid(&(*fontHandle), textToRender->c_str(), color);
             break;
         }
         case RenderMode::Shaded: {
-            surface = TTF_RenderText_Shaded(&(*fontHandle), text.c_str(), color, backgroundColor);
+            surface = TTF_RenderText_Shaded(&(*fontHandle), textToRender->c_str(), color, backgroundColor);
             break;
         }
         case RenderMode::Blended: {
-            surface = TTF_RenderText_Blended(&(*fontHandle), text.c_str(), color);
+            surface = TTF_RenderText_Blended(&(*fontHandle), textToRender->c_str(), color);
             break;
         }
     }

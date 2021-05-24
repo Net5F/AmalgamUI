@@ -86,40 +86,47 @@ void Component::render(const SDL_Point& parentOffset)
     "in your derived class.");
 }
 
-void Component::onMouseButtonDown(SDL_MouseButtonEvent& event)
+bool Component::onMouseButtonDown(SDL_MouseButtonEvent& event)
 {
     ignore(event);
-    AUI_LOG_ERROR("Base class callback called. Please override onMouseDown() "
-    "in your derived class.");
+    AUI_LOG_ERROR("Base class callback called. Please override"
+    " onMouseButtonDown() in your derived class.");
+
+    return false;
 }
 
-void Component::onMouseButtonUp(SDL_MouseButtonEvent& event, bool isHovered)
+bool Component::onMouseButtonUp(SDL_MouseButtonEvent& event)
 {
     ignore(event);
-    ignore(isHovered);
-    AUI_LOG_ERROR("Base class callback called. Please override onMouseUp() "
-    "in your derived class.");
+    AUI_LOG_ERROR("Base class callback called. Please override"
+    " onMouseButtonUp() in your derived class.");
+
+    return false;
 }
 
 void Component::onMouseMove(SDL_MouseMotionEvent& event)
 {
     ignore(event);
-    AUI_LOG_ERROR("Base class callback called. Please override onMouseMoved() "
+    AUI_LOG_ERROR("Base class callback called. Please override onMouseMove() "
     "in your derived class.");
 }
 
-void Component::onMouseEnter(SDL_MouseMotionEvent& event)
+bool Component::onKeyDown(SDL_KeyboardEvent& event)
 {
     ignore(event);
-    AUI_LOG_ERROR("Base class callback called. Please override onHovered() "
+    AUI_LOG_ERROR("Base class callback called. Please override onKeyDown() "
     "in your derived class.");
+
+    return false;
 }
 
-void Component::onMouseLeave(SDL_MouseMotionEvent& event)
+bool Component::onTextInput(SDL_TextInputEvent& event)
 {
     ignore(event);
-    AUI_LOG_ERROR("Base class callback called. Please override onUnhovered() "
+    AUI_LOG_ERROR("Base class callback called. Please override onTextInput() "
     "in your derived class.");
+
+    return false;
 }
 
 bool Component::refreshScaling()

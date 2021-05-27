@@ -18,6 +18,7 @@ Button::Button(Screen& screen, const char* key, const SDL_Rect& screenExtent)
     text.setVerticalAlignment(AUI::Text::VerticalAlignment::Middle);
     text.setHorizontalAlignment(AUI::Text::HorizontalAlignment::Middle);
 
+    // Register for the events that we want to listen for.
     screen.registerListener(EventType::MouseButtonDown, this);
     screen.registerListener(EventType::MouseButtonUp, this);
     screen.registerListener(EventType::MouseMove, this);
@@ -66,7 +67,7 @@ bool Button::onMouseButtonDown(SDL_MouseButtonEvent& event)
         return true;
     }
     else {
-        // The mouse press missed us.
+        // Else, the mouse press missed us.
         return false;
     }
 }

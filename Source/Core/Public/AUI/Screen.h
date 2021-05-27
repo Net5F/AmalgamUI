@@ -2,6 +2,7 @@
 
 #include "AUI/Component.h"
 #include "AUI/EventTypes.h"
+#include "AUI/Internal/Timer.h"
 #include "AUI/Internal/Log.h"
 #include <SDL_events.h>
 #include "entt/core/hashed_string.hpp"
@@ -24,6 +25,9 @@ namespace AUI {
 class Screen
 {
 public:
+    /** The amount of time between Tick events, in seconds. */
+    static constexpr double TICK_TIMESTEP_S = 1 / static_cast<double>(30);
+
     Screen(const std::string& inDebugName);
 
     virtual ~Screen() = default;
@@ -104,6 +108,12 @@ public:
     bool handleEvent(SDL_Event& event);
 
     /**
+     * Updates accumulatedTime. If greater than the tick timestep, calls all
+     * Tick event listeners.
+     */
+    void tick();
+
+    /**
      * Renders all graphics for this screen to the current rendering target.
      */
     virtual void render();
@@ -145,6 +155,12 @@ private:
     /** A map containing all of this screen's components that care to listen
         for particular system events. */
     std::unordered_map<EventType, std::vector<Component*>> listenerMap;
+
+    /** Used to time when we should fire Tick events. */
+    Timer timer;
+
+    /** The accumulated time since we last fired a Tick event. */
+    double accumulatedTime;
 };
 
 } // namespace AUI

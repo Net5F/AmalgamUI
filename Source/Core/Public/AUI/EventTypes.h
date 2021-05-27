@@ -20,7 +20,9 @@ enum EventType {
     KeyDown,
     /** Text input is enabled and a key or combination of keys was pressed,
         resulting in a unicode text character. */
-    TextInput
+    TextInput,
+    /** The tick timestep has passed. */
+    Tick
 };
 
 } // namespace AUI

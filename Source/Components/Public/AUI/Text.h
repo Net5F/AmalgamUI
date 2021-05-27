@@ -89,18 +89,32 @@ public:
     void setHorizontalAlignment(HorizontalAlignment inHorizontalAlignment);
 
     /**
-     * Appends the given text to the end of this component's text.
+     * Inserts the given text into the given position in the underlying string.
      */
-    void appendText(std::string_view inText);
+    void insertText(std::string_view inText, unsigned int index);
 
     /**
-     * Efficient function for removing the last character from this text.
-     * @return true if a character was removed, else false (empty string).
+     * Erases the character at the given index in the underlying string.
+     *
+     * @return true if a character was erased, else false (empty string).
      */
-    bool removeLastChar();
+    bool eraseCharacter(unsigned int index);
 
     /** Returns a const reference to the underlying std::string. */
     const std::string& asString();
+
+    /**
+     * Used to tell where within the component a particular character starts.
+     *
+     * @param index  The index of the desired character in the underlying
+     *               string.
+     * @return An extent containing the offset of the top left of the desired
+     *         character, and the character's height.
+     */
+    SDL_Rect calcCharacterOffset(unsigned int index);
+
+    VerticalAlignment getVerticalAlignment();
+    HorizontalAlignment getHorizontalAlignment();
 
     void render(const SDL_Point& parentOffset = {}) override;
 
@@ -177,9 +191,8 @@ private:
         texture. */
     SDL_Rect texExtent;
 
-    /** Our texExtent, centered on our actualScreenExtent.
-        Centers the text texture since our screenExtent may be larger or
-        smaller than texExtent. */
+    /** Our texExtent, aligned according to our vertical/horizontal alignment
+        setting. */
     SDL_Rect alignedExtent;
 };
 

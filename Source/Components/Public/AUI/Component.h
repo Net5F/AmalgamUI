@@ -73,6 +73,12 @@ public:
     virtual bool onTextInput(SDL_TextInputEvent& event);
 
     /**
+     * Called when Screen::TICK_TIMESTEP_S has passed since the last tick
+     * event.
+     */
+    virtual void onTick();
+
+    /**
      * Renders this component to the current rendering target.
      * Directly calls SDL functions like SDL_RenderCopy().
      *

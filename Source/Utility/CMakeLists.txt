@@ -3,6 +3,7 @@ target_sources(AmalgamUI
         Private/Log.cpp
         Private/ResourceManager.cpp
         Private/ScalingHelpers.cpp
+        Private/Timer.cpp
     PUBLIC
         # Note: We add the extra "AUI/Internal" directories so that files don't
         #       clash with consumer files.
@@ -10,6 +11,7 @@ target_sources(AmalgamUI
         Public/AUI/Internal/Log.h
         Public/AUI/Internal/ResourceManager.h
         Public/AUI/Internal/ScalingHelpers.h
+        Public/AUI/Internal/Timer.h
 )
 
 target_include_directories(AmalgamUI

@@ -6,6 +6,7 @@ namespace AUI {
 Screen::Screen(const std::string& inDebugName)
 : debugName{inDebugName}
 , componentMap()
+, accumulatedTime{0.0}
 {
 }
 
@@ -83,6 +84,30 @@ bool Screen::handleEvent(SDL_Event& event)
     return false;
 }
 
+void Screen::tick()
+{
+    // Accumulate the time passed since last tick().
+    accumulatedTime += timer.getDeltaSeconds(true);
+
+    // Process as many time steps as have accumulated.
+    int count = 0;
+    while (accumulatedTime >= TICK_TIMESTEP_S) {
+        // Call all listener callbacks.
+        for (Component* listener : listenerMap[EventType::Tick]) {
+            listener->onTick();
+        }
+
+        // Subtract this tick from the accumulated time.
+        accumulatedTime -= TICK_TIMESTEP_S;
+        count++;
+    }
+}
+
+void Screen::render()
+{
+    // Rendering is left up to derived classes.
+}
+
 bool Screen::handleMouseButtonDown(SDL_MouseButtonEvent& event)
 {
     bool eventHandled{false};
@@ -105,7 +130,7 @@ bool Screen::handleMouseButtonUp(SDL_MouseButtonEvent& event)
 {
     bool eventHandled{false};
     for (Component* listener : listenerMap[EventType::MouseButtonUp]) {
-        // If the listener isn't visible, ignore the event..
+        // If the listener isn't visible, ignore the event.
         if (!(listener->getIsVisible())) {
             continue;
         }
@@ -136,7 +161,7 @@ bool Screen::handleKeyDown(SDL_KeyboardEvent& event)
 {
     bool eventHandled{false};
     for (Component* listener : listenerMap[EventType::KeyDown]) {
-        // If the listener isn't visible, ignore the event..
+        // If the listener isn't visible, ignore the event.
         if (!(listener->getIsVisible())) {
             continue;
         }
@@ -154,7 +179,7 @@ bool Screen::handleTextInput(SDL_TextInputEvent& event)
 {
     bool eventHandled{false};
     for (Component* listener : listenerMap[EventType::TextInput]) {
-        // If the listener isn't visible, ignore the event..
+        // If the listener isn't visible, ignore the event.
         if (!(listener->getIsVisible())) {
             continue;
         }
@@ -166,11 +191,6 @@ bool Screen::handleTextInput(SDL_TextInputEvent& event)
     }
 
     return eventHandled;
-}
-
-void Screen::render()
-{
-    // Rendering is left up to derived classes.
 }
 
 } // namespace AUI

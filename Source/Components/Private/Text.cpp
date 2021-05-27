@@ -71,18 +71,18 @@ void Text::setHorizontalAlignment(HorizontalAlignment inHorizontalAlignment)
     refreshAlignment();
 }
 
-void Text::appendText(std::string_view inText)
+void Text::insertText(std::string_view inText, unsigned int index)
 {
-    // Append the given text to the end of the string.
-    text += inText;
+    // Insert the given text at the given index.
+    text.insert(index, inText);
     textureIsDirty = true;
 }
 
-bool Text::removeLastChar()
+bool Text::eraseCharacter(unsigned int index)
 {
     // If there's a character to remove, pop it.
-    if (text.length() > 0) {
-        text.pop_back();
+    if (text.length() > index) {
+        text.erase(text.begin() + index);
         textureIsDirty = true;
         return true;
     }
@@ -95,6 +95,33 @@ bool Text::removeLastChar()
 const std::string& Text::asString()
 {
     return text;
+}
+
+SDL_Rect Text::calcCharacterOffset(unsigned int index)
+{
+    // Get a null-terminated substring containing all characters up to index.
+    std::string relevantChars{text, 0, index};
+
+    // Get the x offset and height from the relevant characters.
+    SDL_Rect offsetExtent{};
+    TTF_SizeText(&(*(fontHandle)), relevantChars.c_str(), &(offsetExtent.x)
+                 , &(offsetExtent.h));
+
+    // Account for our alignment by adding the aligned extent's offset.
+    offsetExtent.x += alignedExtent.x;
+    offsetExtent.y += alignedExtent.y;
+
+    return offsetExtent;
+}
+
+Text::VerticalAlignment Text::getVerticalAlignment()
+{
+    return verticalAlignment;
+}
+
+Text::HorizontalAlignment Text::getHorizontalAlignment()
+{
+    return horizontalAlignment;
 }
 
 void Text::render(const SDL_Point& parentOffset)

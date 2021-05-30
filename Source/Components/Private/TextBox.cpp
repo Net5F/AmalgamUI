@@ -248,7 +248,7 @@ void TextBox::render(const SDL_Point& parentOffset)
     childOffset.x += scaledExtent.x;
     childOffset.y += scaledExtent.y;
 
-    // Save the extent that we should render at.
+    // Save the extent that we're going to render at.
     lastRenderedExtent = scaledExtent;
     lastRenderedExtent.x += parentOffset.x;
     lastRenderedExtent.y += parentOffset.y;

@@ -147,7 +147,7 @@ void Text::render(const SDL_Point& parentOffset)
     offsetExtent.x += parentOffset.x;
     offsetExtent.y += parentOffset.y;
 
-    // Save the extent that we should render at.
+    // Save the extent that we're going to render at.
     lastRenderedExtent = offsetExtent;
 
     // If the component isn't visible, return without rendering.

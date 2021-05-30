@@ -127,7 +127,7 @@ protected:
 private:
     /**
      * Re-calculates alignedExtent based on the current verticalAlignment,
-     * horizontalAlignment, texExtent, and screenExtent.
+     * horizontalAlignment, texExtent, and scaledExtent.
      */
     void refreshAlignment();
 
@@ -193,7 +193,7 @@ private:
 
     /** Our texExtent, aligned according to our vertical/horizontal alignment
         setting. */
-    SDL_Rect alignedExtent;
+    SDL_Rect alignedTexExtent;
 };
 
 } // namespace AUI

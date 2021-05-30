@@ -126,11 +126,11 @@ void Button::render(const SDL_Point& parentOffset)
 
     // Children should render at the parent's offset + this component's offset.
     SDL_Point childOffset{parentOffset};
-    childOffset.x += actualScreenExtent.x;
-    childOffset.y += actualScreenExtent.y;
+    childOffset.x += scaledExtent.x;
+    childOffset.y += scaledExtent.y;
 
     // Save the extent that we should render at.
-    lastRenderedExtent = actualScreenExtent;
+    lastRenderedExtent = scaledExtent;
     lastRenderedExtent.x += parentOffset.x;
     lastRenderedExtent.y += parentOffset.y;
 

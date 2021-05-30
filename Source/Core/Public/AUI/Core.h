@@ -30,7 +30,7 @@ public:
      *                        useful for you.
      * @param inSdlRenderer  The renderer to use for constructing textures and
      *                       rendering.
-     * @param inLogicalScreenSize  See setActualScreenSize().
+     * @param inLogicalScreenSize  See ScalingHelpers.h class comment.
      */
     static void Initialize(const std::string& inResourcePath, SDL_Renderer* inSdlRenderer
                            , ScreenResolution inLogicalScreenSize);
@@ -44,18 +44,14 @@ public:
     static void Quit();
 
     /**
-     * Sets a new actual screen size for the UI to scale to.
+     * Sets a new screen size for the UI to scale to.
      *
      * Components will recognize that this size changed, prompting them to re-
      * calculate their relevant data.
      *
-     * UI scaling works through two concepts: logical screen size, and actual.
-     * The intent is that the developer will set a logical size and give all
-     * width, height, position, etc values in reference to that logical size.
-     * Then, the user can select a new actual size and the UI will scale to it
-     * intelligently.
+     * See ScalingHelpers.h class comment for full information on AUI scaling.
      */
-    static void setActualScreenSize(ScreenResolution inActualScreenSize);
+    static void setActualScreenSize(ScreenResolution inScaledScreenSize);
 
     static const std::string& GetResourcePath();
     static SDL_Renderer* GetRenderer();
@@ -82,10 +78,10 @@ private:
     /** The renderer to use when constructing textures and rendering. */
     static SDL_Renderer* sdlRenderer;
 
-    /** See setActualScreenSize(). */
+    /** See ScalingHelpers.h class comment. */
     static ScreenResolution logicalScreenSize;
 
-    /** See setActualScreenSize(). */
+    /** See ScalingHelpers.h class comment. */
     static ScreenResolution actualScreenSize;
 
     /** The resource manager for font objects and image textures. */

@@ -52,7 +52,7 @@ void Image::render(const SDL_Point& parentOffset)
     refreshScaling();
 
     // Account for the given offset.
-    SDL_Rect offsetExtent{actualScreenExtent};
+    SDL_Rect offsetExtent{scaledExtent};
     offsetExtent.x += parentOffset.x;
     offsetExtent.y += parentOffset.y;
 
@@ -66,8 +66,7 @@ void Image::render(const SDL_Point& parentOffset)
 
     // Render the image.
     SDL_RenderCopy(Core::GetRenderer(), &(*currentTexHandle)
-        , &currentTexExtent, &offsetExtent);
-
+        , &currentTexExtent, &lastRenderedExtent);
 }
 
 bool Image::refreshScaling()

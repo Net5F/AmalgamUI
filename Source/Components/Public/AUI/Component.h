@@ -31,16 +31,23 @@ public:
      * If this component's screen extent contains the given point, returns
      * true. Else, returns false.
      *
-     * @param actualPoint  An actual screen position. Will be scaled internally
-     *                     to its equivalent logical screen position.
+     * @param actualPoint  A point in actual screen space.
      */
     bool containsPoint(const SDL_Point& actualPoint);
 
     /**
-     * Sets the component's logical screen extent to the given extent and
-     * re-calculates its actual screen extent.
+     * If this component's screen extent fully contains the given extent,
+     * returns true. Else, returns false.
+     *
+     * @param actualExtent  An extent in actual screen space.
      */
-    void setScreenExtent(const SDL_Rect& inScreenExtent);
+    bool containsExtent(const SDL_Rect& actualExtent);
+
+    /**
+     * Sets the component's logical extent to the given extent and
+     * re-calculates its scaled extent.
+     */
+    void setExtent(const SDL_Rect& inExtent);
 
     const entt::hashed_string& getKey();
 
@@ -89,17 +96,23 @@ public:
     virtual void render(const SDL_Point& parentOffset = {});
 
 protected:
-    Component(Screen& inScreen, const char* inKey, const SDL_Rect& inScreenExtent);
+    Component(Screen& inScreen, const char* inKey, const SDL_Rect& inExtent);
 
     /**
      * Checks if Core::actualScreenSize has changed since the last time this
-     * component's actualScreenExtent was calculated. If so, re-calculates
-     * actualScreenExtent, scaling it to the new actualScreenSize.
+     * component's scaledExtent was calculated. If so, re-calculates
+     * scaledExtent, scaling it to the new actualScreenSize.
      *
-     * This implementation is sufficient for refreshing actualScreenExtent, but
-     * must be overridden if your component has other scaling needs.
+     * This implementation is sufficient for refreshing actualExtent, but must
+     * be overridden if your component has other scaling needs.
      */
     virtual bool refreshScaling();
+
+    /**
+     * Returns an extent equal to sourceExtent, adjusted to not go beyond the
+     * bounds of clipExtent.
+     */
+    SDL_Rect calcClippedExtent(const SDL_Rect& sourceExtent, const SDL_Rect& clipExtent);
 
     /** A reference to the screen that this component is a part of. Used for
         registering/unregistering named components, and accessing other
@@ -112,14 +125,15 @@ protected:
 
     /** The component's logical screen extent, i.e. the position/size of the
         component relative to the UI's logical size. */
-    SDL_Rect logicalScreenExtent;
+    SDL_Rect logicalExtent;
 
-    /** The component's actual screen extent, i.e. the position/size of the
-        component on the screen. Does not account for parent offsets. */
-    SDL_Rect actualScreenExtent;
+    /** The component's logical screen extent, scaled to match the current UI
+        scaling. The position of this extent does not account for any offsets,
+        such as those passed by parents. */
+    SDL_Rect scaledExtent;
 
     /** The actual screen extent of this component during the last render()
-        call. Generally equal to actualScreenExtent + any offsets added by
+        call. Generally equal to scaledScreenExtent + any offsets added by
         parent components. Used in hit testing for event handling. */
     SDL_Rect lastRenderedExtent;
 

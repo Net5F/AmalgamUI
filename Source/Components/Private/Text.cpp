@@ -19,7 +19,7 @@ Text::Text(Screen& screen, const char* key, const SDL_Rect& screenExtent)
 , textureIsDirty{true}
 , textTexture{nullptr}
 , texExtent{}
-, alignedExtent{}
+, alignedTexExtent{}
 {
 }
 
@@ -108,8 +108,8 @@ SDL_Rect Text::calcCharacterOffset(unsigned int index)
                  , &(offsetExtent.h));
 
     // Account for our alignment by adding the aligned extent's offset.
-    offsetExtent.x += alignedExtent.x;
-    offsetExtent.y += alignedExtent.y;
+    offsetExtent.x += alignedTexExtent.x;
+    offsetExtent.y += alignedTexExtent.y;
 
     return offsetExtent;
 }
@@ -143,7 +143,7 @@ void Text::render(const SDL_Point& parentOffset)
     }
 
     // Account for the given offset.
-    SDL_Rect offsetExtent{alignedExtent};
+    SDL_Rect offsetExtent{alignedTexExtent};
     offsetExtent.x += parentOffset.x;
     offsetExtent.y += parentOffset.y;
 
@@ -185,15 +185,15 @@ void Text::refreshAlignment()
     // Calc the appropriate vertical alignment.
     switch (verticalAlignment) {
         case VerticalAlignment::Top: {
-            alignedExtent.y = actualScreenExtent.y;
+            alignedTexExtent.y = scaledExtent.y;
             break;
         }
         case VerticalAlignment::Middle: {
-            alignedExtent.y = actualScreenExtent.y + ((actualScreenExtent.h - texExtent.h) / 2);
+            alignedTexExtent.y = scaledExtent.y + ((scaledExtent.h - texExtent.h) / 2);
             break;
         }
         case VerticalAlignment::Bottom: {
-            alignedExtent.y = (actualScreenExtent.y + actualScreenExtent.h) - texExtent.h;
+            alignedTexExtent.y = (scaledExtent.y + scaledExtent.h) - texExtent.h;
             break;
         }
     }
@@ -201,15 +201,15 @@ void Text::refreshAlignment()
     // Calc the appropriate horizontal alignment.
     switch (horizontalAlignment) {
         case HorizontalAlignment::Left: {
-            alignedExtent.x = actualScreenExtent.x;
+            alignedTexExtent.x = scaledExtent.x;
             break;
         }
         case HorizontalAlignment::Middle: {
-            alignedExtent.x = actualScreenExtent.x + ((actualScreenExtent.w - texExtent.w) / 2);
+            alignedTexExtent.x = scaledExtent.x + ((scaledExtent.w - texExtent.w) / 2);
             break;
         }
         case HorizontalAlignment::Right: {
-            alignedExtent.x = (actualScreenExtent.x + actualScreenExtent.w) - texExtent.w;
+            alignedTexExtent.x = (scaledExtent.x + scaledExtent.w) - texExtent.w;
             break;
         }
     }
@@ -272,7 +272,7 @@ void Text::refreshTexture()
 
     // Save the width and height of the new texture.
     SDL_QueryTexture(textTexture.get(), nullptr, nullptr, &(texExtent.w), &(texExtent.h));
-    alignedExtent = {0, 0, texExtent.w, texExtent.h};
+    alignedTexExtent = {0, 0, texExtent.w, texExtent.h};
 
     // Calc our new aligned position.
     refreshAlignment();

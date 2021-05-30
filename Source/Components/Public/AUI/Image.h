@@ -78,7 +78,7 @@ private:
     /** The current resolution of image to display. */
     TextureHandle currentTexHandle;
 
-    /** The position and size of the desired image within currentHandle. */
+    /** The position and size of the desired image within currentTexHandle. */
     SDL_Rect currentTexExtent;
 };
 

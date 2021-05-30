@@ -7,10 +7,10 @@
 
 namespace AUI {
 
-Component::Component(Screen& inScreen, const char* inKey, const SDL_Rect& inScreenExtent)
+Component::Component(Screen& inScreen, const char* inKey, const SDL_Rect& inExtent)
 : screen(inScreen)
-, logicalScreenExtent{inScreenExtent}
-, actualScreenExtent{ScalingHelpers::extentToActual(logicalScreenExtent)}
+, logicalExtent{inExtent}
+, scaledExtent{ScalingHelpers::extentToActual(logicalExtent)}
 , lastRenderedExtent{}
 , lastUsedScreenSize{Core::GetActualScreenSize()}
 , isVisible{true}
@@ -44,6 +44,7 @@ Component::~Component()
 
 bool Component::containsPoint(const SDL_Point& actualPoint)
 {
+    // Test if the point is within all 4 sides of our extent.
     if ((actualPoint.x > lastRenderedExtent.x)
        && (actualPoint.x < (lastRenderedExtent.x + lastRenderedExtent.w))
        && (actualPoint.y > lastRenderedExtent.y)
@@ -55,13 +56,26 @@ bool Component::containsPoint(const SDL_Point& actualPoint)
     }
 }
 
-void Component::setScreenExtent(const SDL_Rect& inScreenExtent)
+bool Component::containsExtent(const SDL_Rect& actualExtent)
+{
+    // Test if 2 diagonal corners of the extent are within our extent.
+    if (containsPoint({actualExtent.x, actualExtent.y})
+        && containsPoint({(actualExtent.x + actualExtent.w)
+                        , (actualExtent.y + actualExtent.h)})) {
+        return true;
+    }
+    else {
+        return false;
+    }
+}
+
+void Component::setExtent(const SDL_Rect& inExtent)
 {
     // Set our logical screen extent.
-    logicalScreenExtent = inScreenExtent;
+    logicalExtent = inExtent;
 
-    // Re-calculate our actual screen extent.
-    actualScreenExtent = ScalingHelpers::extentToActual(logicalScreenExtent);
+    // Re-calculate our scaled screen extent.
+    scaledExtent = ScalingHelpers::extentToActual(logicalExtent);
 }
 
 const entt::hashed_string& Component::getKey()
@@ -139,8 +153,8 @@ bool Component::refreshScaling()
 {
     // If the screen size has changed.
     if (lastUsedScreenSize != Core::GetActualScreenSize()) {
-        // Re-calculate our actual extent.
-        actualScreenExtent = ScalingHelpers::extentToActual(logicalScreenExtent);
+        // Re-calculate our scaled extent.
+        scaledExtent = ScalingHelpers::extentToActual(logicalExtent);
 
         // Save the new size.
         lastUsedScreenSize = Core::GetActualScreenSize();
@@ -149,6 +163,43 @@ bool Component::refreshScaling()
     }
 
     return false;
+}
+
+SDL_Rect Component::calcClippedExtent(const SDL_Rect& sourceExtent, const SDL_Rect& clipExtent)
+{
+    // If the clipping extent has no width or height, don't clip.
+    if ((clipExtent.w == 0) || (clipExtent.h == 0)) {
+        AUI_LOG_INFO("Tried to clip using a clipExtent with either no width or"
+        " no height.");
+        return sourceExtent;
+    }
+
+    // If we're beyond the left bound of clipExtent, set it as our x.
+    SDL_Rect clippedExtent{sourceExtent};
+    int leftDiff = clipExtent.x - sourceExtent.x;
+    if (leftDiff > 0) {
+        clippedExtent.x = clipExtent.x;
+    }
+
+    // If we're beyond the right bound of clipExtent, decrease width to fit.
+    int rightDiff = (clippedExtent.x + clippedExtent.w) - (clipExtent.x + clipExtent.w);
+    if (rightDiff > 0) {
+        clippedExtent.w -= rightDiff;
+    }
+
+    // If we're beyond the top bound of clipExtent, set it as our y.
+    int topDiff = clipExtent.y - sourceExtent.y;
+    if (topDiff > 0) {
+        clippedExtent.y = clipExtent.y;
+    }
+
+    // If we're beyond the bottom bound of clipExtent, decrease height to fit.
+    int bottomDiff = (clippedExtent.y + clippedExtent.h) - (clipExtent.y + clipExtent.h);
+    if (bottomDiff > 0) {
+        clippedExtent.h -= bottomDiff;
+    }
+
+    return clippedExtent;
 }
 
 } // namespace AUI

@@ -18,8 +18,9 @@ Text::Text(Screen& screen, const char* key, const SDL_Rect& logicalExtent)
 , horizontalAlignment{HorizontalAlignment::Left}
 , textureIsDirty{true}
 , textTexture{nullptr}
-, texExtent{}
-, alignedTexExtent{}
+, textureExtent{}
+, textExtent{}
+, textOffset{0}
 {
 }
 
@@ -71,6 +72,12 @@ void Text::setHorizontalAlignment(HorizontalAlignment inHorizontalAlignment)
     refreshAlignment();
 }
 
+void Text::setTextOffset(int inTextOffset)
+{
+    SDL_Point scaledPoint{ScalingHelpers::pointToActual({inTextOffset, 0})};
+    textOffset = scaledPoint.x;
+}
+
 void Text::insertText(std::string_view inText, unsigned int index)
 {
     // Insert the given text at the given index.
@@ -108,8 +115,8 @@ SDL_Rect Text::calcCharacterOffset(unsigned int index)
                  , &(offsetExtent.h));
 
     // Account for our alignment by adding the aligned extent's offset.
-    offsetExtent.x += alignedTexExtent.x;
-    offsetExtent.y += alignedTexExtent.y;
+    offsetExtent.x += textExtent.x;
+    offsetExtent.y += textExtent.y;
 
     return offsetExtent;
 }
@@ -165,19 +172,31 @@ void Text::render(const SDL_Point& parentOffset)
     }
 
     // Clip the text image's extent to not go beyond the component's extent.
-    SDL_Rect offsetTexExtent{alignedTexExtent};
-    offsetTexExtent.x += parentOffset.x;
-    offsetTexExtent.y += parentOffset.y;
-    SDL_Rect clippedTexExtent = calcClippedExtent(offsetTexExtent, offsetScaledExtent);
+    SDL_Rect offsetTextExtent{textExtent};
+    offsetTextExtent.x += (parentOffset.x + textOffset);
+    offsetTextExtent.y += parentOffset.y;
+    SDL_Rect clippedTextExtent = calcClippedExtent(offsetTextExtent, offsetScaledExtent);
 
-    // Calc where clippedTexExtent is in the text texture.
-    SDL_Rect texSrcExtent{clippedTexExtent};
-    texSrcExtent.x -= (parentOffset.x + alignedTexExtent.x);
-    texSrcExtent.y -= (parentOffset.y + alignedTexExtent.y);
+    // Calc where clippedTextExtent is in the text texture.
+    SDL_Rect clippedTextureExtent{clippedTextExtent};
+    clippedTextureExtent.x -= offsetTextExtent.x;
+    clippedTextureExtent.y -= offsetTextExtent.y;
 
     // Render the text texture.
     SDL_RenderCopy(Core::GetRenderer(), textTexture.get()
-        , &texSrcExtent, &clippedTexExtent);
+        , &clippedTextureExtent, &clippedTextExtent);
+
+    // TEMP
+    SDL_SetRenderDrawColor(Core::GetRenderer(), 0, 0, 255, 255);
+    SDL_RenderDrawRect(Core::GetRenderer(), &offsetScaledExtent);
+    SDL_SetRenderDrawColor(Core::GetRenderer(), 255, 0, 0, 255);
+    SDL_RenderDrawRect(Core::GetRenderer(), &offsetTextExtent);
+    SDL_SetRenderDrawColor(Core::GetRenderer(), 0, 255, 0, 255);
+    SDL_RenderDrawRect(Core::GetRenderer(), &clippedTextExtent);
+    SDL_SetRenderDrawColor(Core::GetRenderer(), 255, 255, 255, 255);
+    SDL_RenderDrawRect(Core::GetRenderer(), &clippedTextureExtent);
+    SDL_SetRenderDrawColor(Core::GetRenderer(), 0, 0, 0, 255);
+    // TEMP
 }
 
 bool Text::refreshScaling()
@@ -205,15 +224,15 @@ void Text::refreshAlignment()
     // Calc the appropriate vertical alignment.
     switch (verticalAlignment) {
         case VerticalAlignment::Top: {
-            alignedTexExtent.y = scaledExtent.y;
+            textExtent.y = scaledExtent.y;
             break;
         }
         case VerticalAlignment::Middle: {
-            alignedTexExtent.y = scaledExtent.y + ((scaledExtent.h - texExtent.h) / 2);
+            textExtent.y = scaledExtent.y + ((scaledExtent.h - textureExtent.h) / 2);
             break;
         }
         case VerticalAlignment::Bottom: {
-            alignedTexExtent.y = (scaledExtent.y + scaledExtent.h) - texExtent.h;
+            textExtent.y = (scaledExtent.y + scaledExtent.h) - textureExtent.h;
             break;
         }
     }
@@ -221,15 +240,15 @@ void Text::refreshAlignment()
     // Calc the appropriate horizontal alignment.
     switch (horizontalAlignment) {
         case HorizontalAlignment::Left: {
-            alignedTexExtent.x = scaledExtent.x;
+            textExtent.x = scaledExtent.x;
             break;
         }
         case HorizontalAlignment::Middle: {
-            alignedTexExtent.x = scaledExtent.x + ((scaledExtent.w - texExtent.w) / 2);
+            textExtent.x = scaledExtent.x + ((scaledExtent.w - textureExtent.w) / 2);
             break;
         }
         case HorizontalAlignment::Right: {
-            alignedTexExtent.x = (scaledExtent.x + scaledExtent.w) - texExtent.w;
+            textExtent.x = (scaledExtent.x + scaledExtent.w) - textureExtent.w;
             break;
         }
     }
@@ -291,8 +310,8 @@ void Text::refreshTexture()
     textTexture = std::unique_ptr<SDL_Texture, TextureDeleter>(texture);
 
     // Save the width and height of the new texture.
-    SDL_QueryTexture(textTexture.get(), nullptr, nullptr, &(texExtent.w), &(texExtent.h));
-    alignedTexExtent = {0, 0, texExtent.w, texExtent.h};
+    SDL_QueryTexture(textTexture.get(), nullptr, nullptr, &(textureExtent.w), &(textureExtent.h));
+    textExtent = {0, 0, textureExtent.w, textureExtent.h};
 
     // Calc our new aligned position.
     refreshAlignment();

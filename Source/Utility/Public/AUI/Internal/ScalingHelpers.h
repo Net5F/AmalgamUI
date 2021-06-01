@@ -30,6 +30,13 @@ public:
     static SDL_Rect extentToActual(const SDL_Rect& logicalExtent);
 
     /**
+     * Scales the given logical point to match the current UI scaling,
+     * returning its actual-space equivalent.
+     * Uses Core::logicalScreenSize and Core::actualScreenSize.
+     */
+    static SDL_Point pointToActual(const SDL_Point& logicalPoint);
+
+    /**
      * Applies the inverse of the current UI scaling to the given point,
      * returning its logical screen position.
      * Uses Core::logicalScreenSize and Core::actualScreenSize.

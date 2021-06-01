@@ -89,6 +89,15 @@ public:
     void setHorizontalAlignment(HorizontalAlignment inHorizontalAlignment);
 
     /**
+     * Sets the text texture's x-axis offset. Effectively, this moves the text
+     * in relation to this component's scaledExtent.
+     *
+     * This is done after all other offsets but pre-clipping, allowing you to
+     * scroll the text and have it be clipped appropriately.
+     */
+    void setTextOffset(int inTextOffset);
+
+    /**
      * Inserts the given text into the given position in the underlying string.
      */
     void insertText(std::string_view inText, unsigned int index);
@@ -191,14 +200,20 @@ private:
         manager because it'll only ever be used by this component. */
     std::unique_ptr<SDL_Texture, TextureDeleter> textTexture;
 
-    /** The extent of the image within the text texture.
+    /** The source extent of the image within the text texture.
         Since we use the whole texture, this is effectively the size of the
         texture. */
-    SDL_Rect texExtent;
+    SDL_Rect textureExtent;
 
-    /** Our texExtent, aligned to our scaledExtent according to our
-        vertical/horizontal alignment setting. */
-    SDL_Rect alignedTexExtent;
+    /** Our textureExtent, aligned to our scaledExtent according to our
+        vertical/horizontal alignment setting. This is the extent in actual
+        space that the text texture should be rendered at. */
+    SDL_Rect textExtent;
+
+    /** An x-axis offset applied to the text's actual space position before
+        clipping. Effectively moves the text in relation to our scaledExtent.
+        Used to scroll the text and have it be clipped appropriately. */
+    int textOffset;
 };
 
 } // namespace AUI

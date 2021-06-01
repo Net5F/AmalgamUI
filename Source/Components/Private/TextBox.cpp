@@ -39,6 +39,7 @@ TextBox::TextBox(Screen& screen, const char* key, const SDL_Rect& logicalExtent)
 
 void TextBox::setMargin(Margin inMargin)
 {
+    // TODO: Scale the margin to actual (probably move margin to another header)
     // Set the text component to be the size of this component, minus the
     // margins.
     text.setLogicalExtent({inMargin.left, inMargin.top
@@ -271,6 +272,12 @@ void TextBox::render(const SDL_Point& parentOffset)
     if (cursorIsVisible) {
         renderTextCursor(childOffset);
     }
+
+    // TEMP
+    SDL_SetRenderDrawColor(Core::GetRenderer(), 0, 0, 255, 255);
+    SDL_RenderDrawRect(Core::GetRenderer(), &lastRenderedExtent);
+    SDL_SetRenderDrawColor(Core::GetRenderer(), 0, 0, 0, 255);
+    // TEMP
 }
 
 void TextBox::handleBackspaceEvent()

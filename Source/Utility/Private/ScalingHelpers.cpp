@@ -28,6 +28,27 @@ SDL_Rect ScalingHelpers::extentToActual(const SDL_Rect& logicalExtent)
     return actualExtent;
 }
 
+SDL_Point ScalingHelpers::pointToActual(const SDL_Point& logicalPoint)
+{
+    // Calculate the scaling factor, going from logical size to actual.
+    double xScale = static_cast<double>(Core::GetActualScreenSize().width) / Core::GetLogicalScreenSize().width;
+    double yScale = static_cast<double>(Core::GetActualScreenSize().height) / Core::GetLogicalScreenSize().height;
+
+    // Note: We'll eventually support other aspect ratios by centering the UI,
+    //       but for now we just fail if you try to change the aspect ratio.
+    if (xScale != yScale) {
+        AUI_LOG_ERROR("We currently only support scaling within the same aspect"
+                      " ratio.");
+    }
+
+    // Scale from logical to actual.
+    SDL_Point actualPoint;
+    actualPoint.x = logicalPoint.x * xScale;
+    actualPoint.y = logicalPoint.y * yScale;
+
+    return actualPoint;
+}
+
 SDL_Point ScalingHelpers::pointToLogical(const SDL_Point& actualPoint)
 {
     // Calculate the scaling factor, going from actual position to logical.

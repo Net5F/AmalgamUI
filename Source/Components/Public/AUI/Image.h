@@ -13,7 +13,7 @@ namespace AUI {
 class Image : public Component
 {
 public:
-    Image(Screen& screen, const char* key, const SDL_Rect& screenExtent);
+    Image(Screen& screen, const char* key, const SDL_Rect& logicalExtent);
 
     virtual ~Image() = default;
 

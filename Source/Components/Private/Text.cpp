@@ -5,8 +5,8 @@
 
 namespace AUI {
 
-Text::Text(Screen& screen, const char* key, const SDL_Rect& screenExtent)
-: Component(screen, key, screenExtent)
+Text::Text(Screen& screen, const char* key, const SDL_Rect& logicalExtent)
+: Component(screen, key, logicalExtent)
 , fontPath("")
 , logicalFontSize{10}
 , fontHandle()
@@ -124,6 +124,15 @@ Text::HorizontalAlignment Text::getHorizontalAlignment()
     return horizontalAlignment;
 }
 
+void Text::setLogicalExtent(const SDL_Rect& inLogicalExtent)
+{
+    // Scale and set the extent.
+    Component::setLogicalExtent(inLogicalExtent);
+
+    // Refresh our alignment.
+    refreshAlignment();
+}
+
 void Text::render(const SDL_Point& parentOffset)
 {
     // Keep our scaling up to date.
@@ -143,21 +152,32 @@ void Text::render(const SDL_Point& parentOffset)
     }
 
     // Account for the given offset.
-    SDL_Rect offsetExtent{alignedTexExtent};
-    offsetExtent.x += parentOffset.x;
-    offsetExtent.y += parentOffset.y;
+    SDL_Rect offsetScaledExtent{scaledExtent};
+    offsetScaledExtent.x += parentOffset.x;
+    offsetScaledExtent.y += parentOffset.y;
 
     // Save the extent that we're going to render at.
-    lastRenderedExtent = offsetExtent;
+    lastRenderedExtent = offsetScaledExtent;
 
     // If the component isn't visible, return without rendering.
     if (!isVisible) {
         return;
     }
 
+    // Clip the text image's extent to not go beyond the component's extent.
+    SDL_Rect offsetTexExtent{alignedTexExtent};
+    offsetTexExtent.x += parentOffset.x;
+    offsetTexExtent.y += parentOffset.y;
+    SDL_Rect clippedTexExtent = calcClippedExtent(offsetTexExtent, offsetScaledExtent);
+
+    // Calc where clippedTexExtent is in the text texture.
+    SDL_Rect texSrcExtent{clippedTexExtent};
+    texSrcExtent.x -= (parentOffset.x + alignedTexExtent.x);
+    texSrcExtent.y -= (parentOffset.y + alignedTexExtent.y);
+
     // Render the text texture.
     SDL_RenderCopy(Core::GetRenderer(), textTexture.get()
-        , &texExtent, &offsetExtent);
+        , &texSrcExtent, &clippedTexExtent);
 }
 
 bool Text::refreshScaling()

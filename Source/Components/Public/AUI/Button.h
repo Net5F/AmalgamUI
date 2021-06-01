@@ -22,7 +22,7 @@ public:
         Disabled
     };
 
-    Button(Screen& screen, const char* key, const SDL_Rect& screenExtent);
+    Button(Screen& screen, const char* key, const SDL_Rect& logicalExtent);
 
     virtual ~Button() = default;
 

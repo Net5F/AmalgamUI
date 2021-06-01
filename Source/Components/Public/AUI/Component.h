@@ -47,11 +47,11 @@ public:
      * Sets the component's logical extent to the given extent and
      * re-calculates its scaled extent.
      */
-    void setExtent(const SDL_Rect& inExtent);
+    virtual void setLogicalExtent(const SDL_Rect& inLogicalExtent);
 
     const entt::hashed_string& getKey();
 
-    void setIsVisible(bool inIsVisible);
+    virtual void setIsVisible(bool inIsVisible);
     bool getIsVisible();
 
     /**
@@ -96,7 +96,7 @@ public:
     virtual void render(const SDL_Point& parentOffset = {});
 
 protected:
-    Component(Screen& inScreen, const char* inKey, const SDL_Rect& inExtent);
+    Component(Screen& inScreen, const char* inKey, const SDL_Rect& inLogicalExtent);
 
     /**
      * Checks if Core::actualScreenSize has changed since the last time this

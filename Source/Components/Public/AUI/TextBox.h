@@ -22,7 +22,17 @@ public:
         Disabled
     };
 
-    TextBox(Screen& screen, const char* key, const SDL_Rect& screenExtent);
+    /**
+     * The distance between the text and the edge of the text box on each side.
+     */
+    struct Margin {
+        int left{0};
+        int top{0};
+        int right{0};
+        int bottom{0};
+    };
+
+    TextBox(Screen& screen, const char* key, const SDL_Rect& inLogicalExtent);
 
     virtual ~TextBox() = default;
 
@@ -30,11 +40,10 @@ public:
     // Public interface
     //-------------------------------------------------------------------------
     /**
-     * For left or right horizontal alignment, margin is the distance between
-     * the respective side of the box and the start of the text.
-     * For center alignment, margin is applied to the left side.
+     * Sets the distance between the text and the edge of the text box on each
+     * side.
      */
-    void setMargin(int inMargin);
+    void setMargin(Margin inMargin);
 
     /**
      * Sets the color of the text cursor.
@@ -62,11 +71,6 @@ public:
      */
     void setTextColor(const SDL_Color& inColor);
 
-    /**
-     * See Text::setHorizontalAlignment().
-     */
-    void setTextHorizontalAlignment(Text::HorizontalAlignment inHorizontalAlignment);
-
     State getCurrentState();
 
     /** Background image, normal state. */
@@ -81,8 +85,6 @@ public:
     //-------------------------------------------------------------------------
     // Callback registration
     //-------------------------------------------------------------------------
-    // TODO: Change to "registerOnTextChanged" and switch to a class that handles
-    //       multiple registration
     void setOnTextChanged(std::function<void(void)> inOnTextChanged);
 
     //-------------------------------------------------------------------------
@@ -128,14 +130,9 @@ private:
     void renderAppropriateImage(const SDL_Point& childOffset);
 
     /**
-     * Returns the margin, accounting for the text's alignment.
-     */
-    int getAlignedMargin();
-
-    /**
      * Calcs where the text cursor should be and renders it.
      */
-    void renderTextCursor(const SDL_Point& childOffset, int alignedMargin);
+    void renderTextCursor(const SDL_Point& childOffset);
 
     /** The text that this box contains. Private since we must keep the cursor
         in sync with the text. */
@@ -146,10 +143,9 @@ private:
     /** Tracks this button's current visual and logical state. */
     State currentState;
 
-    /** For left or right horizontal alignment, margin is the distance between
-        the respective side of the box and the start of the text.
-        For center alignment, margin is set to 0. */
-    int margin;
+    /** The distance between the text and the edge of the text box on each
+        side. */
+    Margin margin;
 
     /** The accumulated time since we last toggled the text cursor's
         visibility. */
@@ -166,6 +162,12 @@ private:
 
     /** Tracks whether the text cursor should be drawn or not. */
     bool cursorIsVisible;
+
+    /** The current offset that we're adding to our text to account for
+        scrolling. Does not include parent offsets or margins.
+        Used in calculating whether the cursor index is within our bounds, or
+        if the text needs to be scrolled. */
+    int textScrollOffset;
 };
 
 } // namespace AUI

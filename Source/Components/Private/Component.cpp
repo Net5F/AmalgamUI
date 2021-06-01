@@ -7,9 +7,9 @@
 
 namespace AUI {
 
-Component::Component(Screen& inScreen, const char* inKey, const SDL_Rect& inExtent)
+Component::Component(Screen& inScreen, const char* inKey, const SDL_Rect& inLogicalExtent)
 : screen(inScreen)
-, logicalExtent{inExtent}
+, logicalExtent{inLogicalExtent}
 , scaledExtent{ScalingHelpers::extentToActual(logicalExtent)}
 , lastRenderedExtent{}
 , lastUsedScreenSize{Core::GetActualScreenSize()}
@@ -69,10 +69,10 @@ bool Component::containsExtent(const SDL_Rect& actualExtent)
     }
 }
 
-void Component::setExtent(const SDL_Rect& inExtent)
+void Component::setLogicalExtent(const SDL_Rect& inLogicalExtent)
 {
     // Set our logical screen extent.
-    logicalExtent = inExtent;
+    logicalExtent = inLogicalExtent;
 
     // Re-calculate our scaled screen extent.
     scaledExtent = ScalingHelpers::extentToActual(logicalExtent);

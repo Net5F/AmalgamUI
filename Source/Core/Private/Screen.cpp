@@ -86,12 +86,13 @@ bool Screen::handleEvent(SDL_Event& event)
 
 void Screen::tick()
 {
+    // TODO: This is susceptible to being slightly off and missing
     // Accumulate the time passed since last tick().
     accumulatedTime += timer.getDeltaSeconds(true);
 
     // Process as many time steps as have accumulated.
     int count = 0;
-    while (accumulatedTime >= TICK_TIMESTEP_S) {
+    if (accumulatedTime >= TICK_TIMESTEP_S) {
         // Call all listener callbacks.
         for (Component* listener : listenerMap[EventType::Tick]) {
             listener->onTick();
@@ -99,6 +100,16 @@ void Screen::tick()
 
         // Subtract this tick from the accumulated time.
         accumulatedTime -= TICK_TIMESTEP_S;
+
+        // If we lagged, reset the accumulated time, since we only care to
+        // process the latest iteration.
+        if (accumulatedTime >= TICK_TIMESTEP_S) {
+            AUI_LOG_INFO(
+                "Detected a request for multiple Screen update calls in the same "
+                "frame. Update was delayed by: %.5fs.", accumulatedTime);
+            accumulatedTime = 0;
+        }
+
         count++;
     }
 }

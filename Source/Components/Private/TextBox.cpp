@@ -5,19 +5,20 @@
 
 namespace AUI {
 
-TextBox::TextBox(Screen& screen, const char* key, const SDL_Rect& screenExtent)
-: Component(screen, key, screenExtent)
-, normalImage(screen, "", {0, 0, screenExtent.w, screenExtent.h})
-, hoveredImage(screen, "", {0, 0, screenExtent.w, screenExtent.h})
-, selectedImage(screen, "", {0, 0, screenExtent.w, screenExtent.h})
-, disabledImage(screen, "", {0, 0, screenExtent.w, screenExtent.h})
-, text(screen, "", {0, 0, screenExtent.w, screenExtent.h})
+TextBox::TextBox(Screen& screen, const char* key, const SDL_Rect& logicalExtent)
+: Component(screen, key, logicalExtent)
+, normalImage(screen, "", {0, 0, logicalExtent.w, logicalExtent.h})
+, hoveredImage(screen, "", {0, 0, logicalExtent.w, logicalExtent.h})
+, selectedImage(screen, "", {0, 0, logicalExtent.w, logicalExtent.h})
+, disabledImage(screen, "", {0, 0, logicalExtent.w, logicalExtent.h})
+, text(screen, "", {0, 0, logicalExtent.w, logicalExtent.h})
 , currentState{State::Normal}
-, margin{0}
+, margin{}
 , cursorColor{0, 0, 0, 255}
 , cursorWidth{2}
 , cursorIndex{0}
 , cursorIsVisible{false}
+, textScrollOffset{0}
 {
     // Default to left-justifying the text within the button. The user can set
     // it otherwise if they care to.
@@ -36,8 +37,15 @@ TextBox::TextBox(Screen& screen, const char* key, const SDL_Rect& screenExtent)
     screen.registerListener(EventType::Tick, this);
 }
 
-void TextBox::setMargin(int inMargin)
+void TextBox::setMargin(Margin inMargin)
 {
+    // Set the text component to be the size of this component, minus the
+    // margins.
+    text.setLogicalExtent({inMargin.left, inMargin.top
+                    , (logicalExtent.w - inMargin.left - inMargin.right)
+                    , (logicalExtent.h - inMargin.top - inMargin.bottom)});
+
+    // Save the margin for later use.
     margin = inMargin;
 }
 
@@ -68,11 +76,6 @@ void TextBox::setTextFont(const std::string& relPath, int size)
 void TextBox::setTextColor(const SDL_Color& inColor)
 {
     text.setColor(inColor);
-}
-
-void TextBox::setTextHorizontalAlignment(Text::HorizontalAlignment inHorizontalAlignment)
-{
-    text.setHorizontalAlignment(inHorizontalAlignment);
 }
 
 TextBox::State TextBox::getCurrentState()
@@ -261,15 +264,12 @@ void TextBox::render(const SDL_Point& parentOffset)
     // Render the appropriate background image for our current state.
     renderAppropriateImage(childOffset);
 
-    // Determine which side the margin should apply to, based on alignment.
-    int alignedMargin = getAlignedMargin();
-
     // Render the text, adding the margin.
-    text.render({childOffset.x + alignedMargin, childOffset.y});
+    text.render({childOffset.x, childOffset.y});
 
     // Render the text cursor, if necessary.
     if (cursorIsVisible) {
-        renderTextCursor(childOffset, alignedMargin);
+        renderTextCursor(childOffset);
     }
 }
 
@@ -395,27 +395,7 @@ void TextBox::renderAppropriateImage(const SDL_Point& childOffset)
     }
 }
 
-int TextBox::getAlignedMargin()
-{
-    // Determine which direction the margin should move the text.
-    switch (text.getHorizontalAlignment()) {
-        case Text::HorizontalAlignment::Left:
-        case Text::HorizontalAlignment::Middle: {
-            // Apply to the left side.
-            return margin;
-        }
-        case Text::HorizontalAlignment::Right: {
-            // Apply to the right side.
-            return -margin;
-        }
-        default: {
-            // Shouldn't reach here.
-            return 0;
-        }
-    }
-}
-
-void TextBox::renderTextCursor(const SDL_Point& childOffset, int alignedMargin)
+void TextBox::renderTextCursor(const SDL_Point& childOffset)
 {
     // Save the current draw color to re-apply later.
     SDL_Color originalColor;
@@ -424,7 +404,7 @@ void TextBox::renderTextCursor(const SDL_Point& childOffset, int alignedMargin)
 
     // Calc where the cursor should be.
     SDL_Rect offsetCursorExtent{text.calcCharacterOffset(cursorIndex)};
-    offsetCursorExtent.x += childOffset.x + alignedMargin;
+    offsetCursorExtent.x += childOffset.x + margin.left;
     offsetCursorExtent.y += childOffset.y;
     offsetCursorExtent.w = cursorWidth;
 

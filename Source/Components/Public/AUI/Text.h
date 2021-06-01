@@ -44,7 +44,7 @@ public:
         Right
     };
 
-    Text(Screen& screen, const char* key, const SDL_Rect& screenExtent);
+    Text(Screen& screen, const char* key, const SDL_Rect& logicalExtent);
 
     /**
      * Sets the font and size. Uses the internal ID format "font_size".
@@ -115,6 +115,11 @@ public:
 
     VerticalAlignment getVerticalAlignment();
     HorizontalAlignment getHorizontalAlignment();
+
+    /**
+     * Calls Component::setExtent(), then calls refreshAlignment().
+     */
+    void setLogicalExtent(const SDL_Rect& inLogicalExtent) override;
 
     void render(const SDL_Point& parentOffset = {}) override;
 
@@ -191,8 +196,8 @@ private:
         texture. */
     SDL_Rect texExtent;
 
-    /** Our texExtent, aligned according to our vertical/horizontal alignment
-        setting. */
+    /** Our texExtent, aligned to our scaledExtent according to our
+        vertical/horizontal alignment setting. */
     SDL_Rect alignedTexExtent;
 };
 

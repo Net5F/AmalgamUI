@@ -67,4 +67,27 @@ int ScalingHelpers::fontSizeToActual(int logicalFontSize)
     return logicalFontSize * scale;
 }
 
+Margins ScalingHelpers::marginsToActual(Margins margins)
+{
+    // Calculate the scaling factor, going from logical size to actual.
+    double xScale = static_cast<double>(Core::GetActualScreenSize().width) / Core::GetLogicalScreenSize().width;
+    double yScale = static_cast<double>(Core::GetActualScreenSize().height) / Core::GetLogicalScreenSize().height;
+
+    // Note: We'll eventually support other aspect ratios by centering the UI,
+    //       but for now we just fail if you try to change the aspect ratio.
+    if (xScale != yScale) {
+        AUI_LOG_ERROR("We currently only support scaling within the same aspect"
+                      " ratio.");
+    }
+
+    // Scale from logical to actual.
+    Margins actualMargins{};
+    actualMargins.left = margins.left * xScale;
+    actualMargins.top = margins.top * yScale;
+    actualMargins.right = margins.right * xScale;
+    actualMargins.bottom = margins.bottom * yScale;
+
+    return actualMargins;
+}
+
 } // namespace AUI

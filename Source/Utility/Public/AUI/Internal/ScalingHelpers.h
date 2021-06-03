@@ -1,5 +1,6 @@
 #pragma once
 
+#include "AUI/Margins.h"
 #include <SDL_Rect.h>
 
 namespace AUI
@@ -43,7 +44,19 @@ public:
      */
     static SDL_Point pointToLogical(const SDL_Point& actualPoint);
 
+    /**
+     * Scaled the given logical font size to match the current UI scaling,
+     * returning its actual-space equivalent.
+     * Uses Core::logicalScreenSize and Core::actualScreenSize.
+     */
     static int fontSizeToActual(int logicalFontSize);
+
+    /**
+     * Scaled the given margins to match the current UI scaling, returning
+     * their actual-space equivalent.
+     * Uses Core::logicalScreenSize and Core::actualScreenSize.
+     */
+    static Margins marginsToActual(Margins margins);
 };
 
 } // namespace AUI

@@ -2,6 +2,7 @@
 
 #include "AUI/Image.h"
 #include "AUI/Text.h"
+#include "AUI/Margins.h"
 #include <functional>
 
 namespace AUI {
@@ -22,16 +23,6 @@ public:
         Disabled
     };
 
-    /**
-     * The distance between the text and the edge of the text box on each side.
-     */
-    struct Margin {
-        int left{0};
-        int top{0};
-        int right{0};
-        int bottom{0};
-    };
-
     TextBox(Screen& screen, const char* key, const SDL_Rect& inLogicalExtent);
 
     virtual ~TextBox() = default;
@@ -43,7 +34,7 @@ public:
      * Sets the distance between the text and the edge of the text box on each
      * side.
      */
-    void setMargin(Margin inMargin);
+    void setMargins(Margins inLogicalMargins);
 
     /**
      * Sets the color of the text cursor.
@@ -125,6 +116,12 @@ private:
     void handleEndEvent();
 
     /**
+     * Re-calculates where the text should be scrolled to, based on the current
+     * cursor index.
+     */
+    void refreshTextScrollOffset();
+
+    /**
      * Renders the appropriate background image, based on the current State.
      */
     void renderAppropriateImage(const SDL_Point& childOffset);
@@ -143,10 +140,6 @@ private:
     /** Tracks this button's current visual and logical state. */
     State currentState;
 
-    /** The distance between the text and the edge of the text box on each
-        side. */
-    Margin margin;
-
     /** The accumulated time since we last toggled the text cursor's
         visibility. */
     double accumulatedBlinkTime;
@@ -162,12 +155,6 @@ private:
 
     /** Tracks whether the text cursor should be drawn or not. */
     bool cursorIsVisible;
-
-    /** The current offset that we're adding to our text to account for
-        scrolling. Does not include parent offsets or margins.
-        Used in calculating whether the cursor index is within our bounds, or
-        if the text needs to be scrolled. */
-    int textScrollOffset;
 };
 
 } // namespace AUI

@@ -8,7 +8,19 @@
 namespace AUI {
 
 /**
- * Displays a line or block of text.
+ * Displays a line of text.
+ *
+ * The Text component consists of two concepts: the component extent, and the
+ * text extent.
+ *
+ * The component extent is defined by logicalExtent/scaledExtent. This extent
+ * defines the area that the component ultimately takes up. You can think of it
+ * as the area that the text goes in.
+ *
+ * The text extent reflects the size and placement of the text.
+ * This is placed within the component extent, offset through the alignment
+ * and textOffset parameters, and is finally clipped by the component extent
+ * before rendering.
  */
 class Text : public Component
 {
@@ -124,6 +136,7 @@ public:
 
     VerticalAlignment getVerticalAlignment();
     HorizontalAlignment getHorizontalAlignment();
+    int getTextOffset();
 
     /**
      * Calls Component::setExtent(), then calls refreshAlignment().
@@ -210,7 +223,7 @@ private:
         space that the text texture should be rendered at. */
     SDL_Rect textExtent;
 
-    /** An x-axis offset applied to the text's actual space position before
+    /** An x-axis offset applied to the text's actual-space position before
         clipping. Effectively moves the text in relation to our scaledExtent.
         Used to scroll the text and have it be clipped appropriately. */
     int textOffset;

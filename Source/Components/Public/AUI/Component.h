@@ -49,6 +49,10 @@ public:
      */
     virtual void setLogicalExtent(const SDL_Rect& inLogicalExtent);
 
+    SDL_Rect getLogicalExtent();
+    SDL_Rect getScaledExtent();
+    SDL_Rect getLastRenderedExtent();
+
     const entt::hashed_string& getKey();
 
     virtual void setIsVisible(bool inIsVisible);

@@ -13,12 +13,10 @@ TextBox::TextBox(Screen& screen, const char* key, const SDL_Rect& logicalExtent)
 , disabledImage(screen, "", {0, 0, logicalExtent.w, logicalExtent.h})
 , text(screen, "", {0, 0, logicalExtent.w, logicalExtent.h})
 , currentState{State::Normal}
-, margin{}
 , cursorColor{0, 0, 0, 255}
 , cursorWidth{2}
 , cursorIndex{0}
 , cursorIsVisible{false}
-, textScrollOffset{0}
 {
     // Default to left-justifying the text within the button. The user can set
     // it otherwise if they care to.
@@ -37,17 +35,16 @@ TextBox::TextBox(Screen& screen, const char* key, const SDL_Rect& logicalExtent)
     screen.registerListener(EventType::Tick, this);
 }
 
-void TextBox::setMargin(Margin inMargin)
+void TextBox::setMargins(Margins inLogicalMargins)
 {
-    // TODO: Scale the margin to actual (probably move margin to another header)
     // Set the text component to be the size of this component, minus the
     // margins.
-    text.setLogicalExtent({inMargin.left, inMargin.top
-                    , (logicalExtent.w - inMargin.left - inMargin.right)
-                    , (logicalExtent.h - inMargin.top - inMargin.bottom)});
+    text.setLogicalExtent({inLogicalMargins.left, inLogicalMargins.top
+                    , (logicalExtent.w - inLogicalMargins.left - inLogicalMargins.right)
+                    , (logicalExtent.h - inLogicalMargins.top - inLogicalMargins.bottom)});
 
-    // Save the margin for later use.
-    margin = inMargin;
+    // Refresh the text position to account for the change.
+    refreshTextScrollOffset();
 }
 
 void TextBox::setCursorColor(const SDL_Color& inCursorColor)
@@ -65,8 +62,11 @@ void TextBox::setText(std::string_view inText)
     // Set the text member's text.
     text.setText(inText);
 
-    // Update the cursor.
-    cursorIndex = inText.length();
+    // Move the cursor to the front (seems to be the most expected behavior.)
+    cursorIndex = 0;
+
+    // Refresh the text position to account for the change.
+    refreshTextScrollOffset();
 }
 
 void TextBox::setTextFont(const std::string& relPath, int size)
@@ -212,6 +212,9 @@ bool TextBox::onTextInput(SDL_TextInputEvent& event)
     // Move the cursor forwards.
     cursorIndex++;
 
+    // Refresh the text position to account for the change.
+    refreshTextScrollOffset();
+
     // Make the cursor visible and reset the blink time so it stays solid
     // while interacting.
     cursorIsVisible = true;
@@ -265,32 +268,29 @@ void TextBox::render(const SDL_Point& parentOffset)
     // Render the appropriate background image for our current state.
     renderAppropriateImage(childOffset);
 
-    // Render the text, adding the margin.
+    // Render the text.
     text.render({childOffset.x, childOffset.y});
 
     // Render the text cursor, if necessary.
     if (cursorIsVisible) {
         renderTextCursor(childOffset);
     }
-
-    // TEMP
-    SDL_SetRenderDrawColor(Core::GetRenderer(), 0, 0, 255, 255);
-    SDL_RenderDrawRect(Core::GetRenderer(), &lastRenderedExtent);
-    SDL_SetRenderDrawColor(Core::GetRenderer(), 0, 0, 0, 255);
-    // TEMP
 }
 
 void TextBox::handleBackspaceEvent()
 {
     // If there's any text, delete the last character.
     if (text.eraseCharacter(cursorIndex - 1)) {
-        // If we deleted a character, move the cursor backwards.
+        // We deleted a character, move the cursor backwards.
         cursorIndex--;
 
         // Make the cursor visible and reset the blink time so it stays
         // solid while interacting.
         cursorIsVisible = true;
         accumulatedBlinkTime = 0;
+
+        // Refresh the text position to account for the change.
+        refreshTextScrollOffset();
     }
 }
 
@@ -302,43 +302,57 @@ void TextBox::handleDeleteEvent()
         // solid while interacting.
         cursorIsVisible = true;
         accumulatedBlinkTime = 0;
+
+        // Refresh the text position to account for the change.
+        refreshTextScrollOffset();
     }
 }
 
 void TextBox::handleCopyEvent()
 {
-    // If there's text to copy, copy it to the clipboard.
+    // If there's text to copy.
     const std::string& textString = text.asString();
     if (textString.length() > 0) {
+        // Copy the text to the clipboard.
         SDL_SetClipboardText(textString.c_str());
     }
 }
 
 void TextBox::handleCutEvent()
 {
-    // If there's text to copy, copy it to the clipboard.
+    // If there's text to cut.
     const std::string& textString = text.asString();
     if (textString.length() > 0) {
+        // Copy the text to the clipboard.
         SDL_SetClipboardText(textString.c_str());
+
+        // Clear the text.
+        text.setText("");
+
+        // Move the cursor to the start.
+        cursorIndex = 0;
+
+        // Refresh the text position to account for the change.
+        refreshTextScrollOffset();
     }
-
-    // Empty the text.
-    text.setText("");
-
-    // Move the cursor to the start.
-    cursorIndex = 0;
 }
 
 void TextBox::handlePasteEvent()
 {
-    // Paste the text from the clipboard to the cursor index.
-    char* clipboardText = SDL_GetClipboardText();
-    text.insertText(clipboardText, cursorIndex);
+    // If there's text in the clipboard.
+    if (SDL_HasClipboardText()) {
+        // Paste the text from the clipboard to the cursor index.
+        char* clipboardText = SDL_GetClipboardText();
+        text.insertText(clipboardText, cursorIndex);
 
-    // Move the cursor to the end of the inserted text.
-    cursorIndex += std::strlen(clipboardText);
+        // Move the cursor to the end of the inserted text.
+        cursorIndex += std::strlen(clipboardText);
 
-    SDL_free(clipboardText);
+        SDL_free(clipboardText);
+
+        // Refresh the text position to account for the change.
+        refreshTextScrollOffset();
+    }
 }
 
 void TextBox::handleLeftEvent()
@@ -346,6 +360,9 @@ void TextBox::handleLeftEvent()
     // If we can, move the cursor left.
     if (cursorIndex > 0) {
         cursorIndex--;
+
+        // Refresh the text position to account for the change.
+        refreshTextScrollOffset();
     }
 
     // Make the cursor visible and reset the blink time so it stays
@@ -359,6 +376,9 @@ void TextBox::handleRightEvent()
     // If we can, move the cursor right.
     if (cursorIndex < text.asString().length()) {
         cursorIndex++;
+
+        // Refresh the text position to account for the change.
+        refreshTextScrollOffset();
     }
 
     // Make the cursor visible and reset the blink time so it stays
@@ -371,12 +391,55 @@ void TextBox::handleHomeEvent()
 {
     // Move the cursor to the front.
     cursorIndex = 0;
+
+    // Refresh the text position to account for the change.
+    refreshTextScrollOffset();
 }
 
 void TextBox::handleEndEvent()
 {
     // Move the cursor to the end.
     cursorIndex = text.asString().length();
+
+    // Refresh the text position to account for the change.
+    refreshTextScrollOffset();
+}
+
+void TextBox::refreshTextScrollOffset()
+{
+    // Get the distance from the start of the string to the cursor position.
+    // Note: This position is relative to text's scaledExtent.
+    SDL_Rect cursorOffsetExtent{text.calcCharacterOffset(cursorIndex)};
+
+    // If the text isn't scrolled properly, fix it.
+    SDL_Rect textExtent = text.getScaledExtent();
+    int cursorX = cursorOffsetExtent.x;
+    int textOffset = text.getTextOffset();
+    if (cursorX < textExtent.x) {
+        // Cursor is past the left bound, scroll right.
+        textOffset += (textExtent.x - cursorX);
+    }
+    else if (cursorX > (textExtent.x + textExtent.w)) {
+        // Cursor is past the right bound, scroll left.
+        textOffset -= (cursorX - (textExtent.x + textExtent.w));
+    }
+    else if (textOffset < 0) {
+        // There's text hanging off the left side. Are we still pushed against
+        // the right bound? (Relevant after a backspace.)
+        SDL_Rect lastCharOffset = text.calcCharacterOffset(text.asString().length());
+        if (lastCharOffset.x < (textExtent.x + textExtent.w)) {
+            // There's a gap to fill, scroll right.
+            textOffset += ((textExtent.x + textExtent.w) - lastCharOffset.x);
+
+            // Don't let the text move farther than the left bound.
+            if (textOffset > 0) {
+                textOffset = 0;
+            }
+        }
+    }
+
+    // Set the new offset.
+    text.setTextOffset(textOffset);
 }
 
 void TextBox::renderAppropriateImage(const SDL_Point& childOffset)
@@ -410,16 +473,16 @@ void TextBox::renderTextCursor(const SDL_Point& childOffset)
                            , &originalColor.g, &originalColor.b, &originalColor.a);
 
     // Calc where the cursor should be.
-    SDL_Rect offsetCursorExtent{text.calcCharacterOffset(cursorIndex)};
-    offsetCursorExtent.x += childOffset.x + margin.left;
-    offsetCursorExtent.y += childOffset.y;
-    offsetCursorExtent.w = cursorWidth;
+    SDL_Rect cursorOffsetExtent{text.calcCharacterOffset(cursorIndex)};
+    cursorOffsetExtent.x += childOffset.x;
+    cursorOffsetExtent.y += childOffset.y;
+    cursorOffsetExtent.w = cursorWidth;
 
     // Draw the cursor.
     SDL_SetRenderDrawColor(Core::GetRenderer()
     , cursorColor.r, cursorColor.g, cursorColor.b, cursorColor.a);
 
-    SDL_RenderFillRect(Core::GetRenderer(), &offsetCursorExtent);
+    SDL_RenderFillRect(Core::GetRenderer(), &cursorOffsetExtent);
 
     // Re-apply the original draw color.
     SDL_SetRenderDrawColor(Core::GetRenderer(), originalColor.r

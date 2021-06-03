@@ -78,6 +78,21 @@ void Component::setLogicalExtent(const SDL_Rect& inLogicalExtent)
     scaledExtent = ScalingHelpers::extentToActual(logicalExtent);
 }
 
+SDL_Rect Component::getLogicalExtent()
+{
+    return logicalExtent;
+}
+
+SDL_Rect Component::getScaledExtent()
+{
+    return scaledExtent;
+}
+
+SDL_Rect Component::getLastRenderedExtent()
+{
+    return lastRenderedExtent;
+}
+
 const entt::hashed_string& Component::getKey()
 {
     return key;

@@ -114,9 +114,12 @@ SDL_Rect Text::calcCharacterOffset(unsigned int index)
     TTF_SizeText(&(*(fontHandle)), relevantChars.c_str(), &(offsetExtent.x)
                  , &(offsetExtent.h));
 
-    // Account for our alignment by adding the aligned extent's offset.
+    // Account for our alignment/position by adding the text extent's offset.
     offsetExtent.x += textExtent.x;
     offsetExtent.y += textExtent.y;
+
+    // Account for our current text offset.
+    offsetExtent.x += textOffset;
 
     return offsetExtent;
 }
@@ -129,6 +132,11 @@ Text::VerticalAlignment Text::getVerticalAlignment()
 Text::HorizontalAlignment Text::getHorizontalAlignment()
 {
     return horizontalAlignment;
+}
+
+int Text::getTextOffset()
+{
+    return textOffset;
 }
 
 void Text::setLogicalExtent(const SDL_Rect& inLogicalExtent)
@@ -185,18 +193,6 @@ void Text::render(const SDL_Point& parentOffset)
     // Render the text texture.
     SDL_RenderCopy(Core::GetRenderer(), textTexture.get()
         , &clippedTextureExtent, &clippedTextExtent);
-
-    // TEMP
-    SDL_SetRenderDrawColor(Core::GetRenderer(), 0, 0, 255, 255);
-    SDL_RenderDrawRect(Core::GetRenderer(), &offsetScaledExtent);
-    SDL_SetRenderDrawColor(Core::GetRenderer(), 255, 0, 0, 255);
-    SDL_RenderDrawRect(Core::GetRenderer(), &offsetTextExtent);
-    SDL_SetRenderDrawColor(Core::GetRenderer(), 0, 255, 0, 255);
-    SDL_RenderDrawRect(Core::GetRenderer(), &clippedTextExtent);
-    SDL_SetRenderDrawColor(Core::GetRenderer(), 255, 255, 255, 255);
-    SDL_RenderDrawRect(Core::GetRenderer(), &clippedTextureExtent);
-    SDL_SetRenderDrawColor(Core::GetRenderer(), 0, 0, 0, 255);
-    // TEMP
 }
 
 bool Text::refreshScaling()

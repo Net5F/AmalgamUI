@@ -10,22 +10,28 @@ namespace AUI {
 /**
  * A box for displaying or inputting text.
  */
-class TextBox : public Component
+class TextInput : public Component
 {
 public:
+    // TODO: Mouse/ctrl+arrow text selection should be added. It should be
+    //       fairly straightforward using positioning similar to the text
+    //       scroll offset calcs. The graphic itself can just be a blue
+    //       box drawn behind the text, or a semi-transparent box drawn
+    //       in front of it.
+
     /**
      * Used to track the button's visual and logical state.
      */
     enum class State {
-        Normal,
-        Hovered,
-        Selected,
-        Disabled
+        Normal, /*!< Normal state. Only mouse events are handled. */
+        Hovered, /*!< The mouse is within our extent. */
+        Focused, /*!< We were clicked on. Key press events are handled. */
+        Disabled /*!< Disabled state. No events are handled. */
     };
 
-    TextBox(Screen& screen, const char* key, const SDL_Rect& inLogicalExtent);
+    TextInput(Screen& screen, const char* key, const SDL_Rect& inLogicalExtent);
 
-    virtual ~TextBox() = default;
+    virtual ~TextInput() = default;
 
     //-------------------------------------------------------------------------
     // Public interface
@@ -76,7 +82,16 @@ public:
     //-------------------------------------------------------------------------
     // Callback registration
     //-------------------------------------------------------------------------
+    /**
+     * Sets a callback to be called when text is entered or deleted.
+     */
     void setOnTextChanged(std::function<void(void)> inOnTextChanged);
+
+    /**
+     * Sets a callback to be called when either the enter key is pressed, or
+     * this component loses focus (the user clicks outside the box).
+     */
+    void setOnTextCommitted(std::function<void(void)> inOnTextChanged);
 
     //-------------------------------------------------------------------------
     // Base class overrides
@@ -97,7 +112,7 @@ private:
     //-------------------------------------------------------------------------
     // Private definitions
     //-------------------------------------------------------------------------
-    /** The text cursor's blink rate. Windows seems to default to 530, so
+    /** The text cursor's blink rate. Windows seems to default to 530ms, so
         it should work fine for us. */
     static constexpr double CURSOR_BLINK_RATE_S = 530 / static_cast<double>(1000);
 
@@ -105,15 +120,33 @@ private:
     // Private members
     //-------------------------------------------------------------------------
     // Event handlers for key press events.
-    void handleBackspaceEvent();
-    void handleDeleteEvent();
-    void handleCopyEvent();
-    void handleCutEvent();
-    void handlePasteEvent();
-    void handleLeftEvent();
-    void handleRightEvent();
-    void handleHomeEvent();
-    void handleEndEvent();
+    bool handleBackspaceEvent();
+    bool handleDeleteEvent();
+    bool handleCopyEvent();
+    bool handleCutEvent();
+    bool handlePasteEvent();
+    bool handleLeftEvent();
+    bool handleRightEvent();
+    bool handleHomeEvent();
+    bool handleEndEvent();
+    bool handleEnterEvent();
+
+    /**
+     * Puts this component in a focused state. Changes the image displayed,
+     * activates the text cursor, and causes this component to start responding
+     * to and generating additional.
+     */
+    void assumeFocus();
+
+    /**
+     * Puts this component back into a normal state. Changes the image
+     * displayed, de-activates the text cursor, and causes this component to
+     * stop responding to and generating events, other than those that can
+     * result in re-assuming focus.
+     * The onTextCommitted callback will be called, since losing focus is
+     * counted as an implicit commit.
+     */
+    void removeFocus();
 
     /**
      * Re-calculates where the text should be scrolled to, based on the current
@@ -135,7 +168,11 @@ private:
         in sync with the text. */
     Text text;
 
+    /** See setOnTextChanged(). */
     std::function<void(void)> onTextChanged;
+
+    /** See setOnTextCommitted(). */
+    std::function<void(void)> onTextCommitted;
 
     /** Tracks this button's current visual and logical state. */
     State currentState;

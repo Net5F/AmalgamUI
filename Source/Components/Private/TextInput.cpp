@@ -1,11 +1,11 @@
-#include "AUI/TextBox.h"
+#include "AUI/TextInput.h"
 #include "AUI/Screen.h"
 #include "AUI/Core.h"
 #include <cstring>
 
 namespace AUI {
 
-TextBox::TextBox(Screen& screen, const char* key, const SDL_Rect& logicalExtent)
+TextInput::TextInput(Screen& screen, const char* key, const SDL_Rect& logicalExtent)
 : Component(screen, key, logicalExtent)
 , normalImage(screen, "", {0, 0, logicalExtent.w, logicalExtent.h})
 , hoveredImage(screen, "", {0, 0, logicalExtent.w, logicalExtent.h})
@@ -35,7 +35,7 @@ TextBox::TextBox(Screen& screen, const char* key, const SDL_Rect& logicalExtent)
     screen.registerListener(EventType::Tick, this);
 }
 
-void TextBox::setMargins(Margins inLogicalMargins)
+void TextInput::setMargins(Margins inLogicalMargins)
 {
     // Set the text component to be the size of this component, minus the
     // margins.
@@ -47,17 +47,17 @@ void TextBox::setMargins(Margins inLogicalMargins)
     refreshTextScrollOffset();
 }
 
-void TextBox::setCursorColor(const SDL_Color& inCursorColor)
+void TextInput::setCursorColor(const SDL_Color& inCursorColor)
 {
     cursorColor = inCursorColor;
 }
 
-void TextBox::setCursorWidth(unsigned int inCursorWidth)
+void TextInput::setCursorWidth(unsigned int inCursorWidth)
 {
     cursorWidth = inCursorWidth;
 }
 
-void TextBox::setText(std::string_view inText)
+void TextInput::setText(std::string_view inText)
 {
     // Set the text member's text.
     text.setText(inText);
@@ -69,62 +69,58 @@ void TextBox::setText(std::string_view inText)
     refreshTextScrollOffset();
 }
 
-void TextBox::setTextFont(const std::string& relPath, int size)
+void TextInput::setTextFont(const std::string& relPath, int size)
 {
     text.setFont(relPath, size);
 }
 
-void TextBox::setTextColor(const SDL_Color& inColor)
+void TextInput::setTextColor(const SDL_Color& inColor)
 {
     text.setColor(inColor);
 }
 
-TextBox::State TextBox::getCurrentState()
+TextInput::State TextInput::getCurrentState()
 {
     return currentState;
 }
 
-void TextBox::setOnTextChanged(std::function<void(void)> inOnTextChanged)
+void TextInput::setOnTextChanged(std::function<void(void)> inOnTextChanged)
 {
     onTextChanged = std::move(inOnTextChanged);
 }
 
-bool TextBox::onMouseButtonDown(SDL_MouseButtonEvent& event)
+void TextInput::setOnTextCommitted(std::function<void(void)> inOnTextCommitted)
+{
+    onTextCommitted = std::move(inOnTextCommitted);
+}
+
+bool TextInput::onMouseButtonDown(SDL_MouseButtonEvent& event)
 {
     // If we're disabled, ignore the event.
     if (currentState == State::Disabled) {
         return false;
     }
 
-    // If the mouse press was inside our extent, become selected.
+    // If the mouse press was inside our extent, assume focus.
     if (containsPoint({event.x, event.y})) {
-        // Set our state to pressed.
-        currentState = State::Selected;
-
-        // Begin generating text input events.
-        SDL_StartTextInput();
-
-        // Reset the text cursor's state.
-        cursorIsVisible = false;
-        accumulatedBlinkTime = 0;
+        // If we don't have focus, assume focus.
+        if (currentState != State::Focused) {
+            assumeFocus();
+        }
 
         return true;
     }
     else {
-        // Else the mouse press was outside, become unselected.
-        currentState = State::Normal;
-
-        // Stop generating text input events.
-        SDL_StopTextInput();
-
-        // Reset the text cursor's state.
-        cursorIsVisible = false;
+        // Else the click was outside our extent. If we have focus, remove it.
+        if (currentState == State::Focused) {
+            removeFocus();
+        }
 
         return false;
     }
 }
 
-void TextBox::onMouseMove(SDL_MouseMotionEvent& event)
+void TextInput::onMouseMove(SDL_MouseMotionEvent& event)
 {
     // If we're disabled, ignore the event.
     if (currentState == State::Disabled) {
@@ -146,65 +142,50 @@ void TextBox::onMouseMove(SDL_MouseMotionEvent& event)
     }
 }
 
-bool TextBox::onKeyDown(SDL_KeyboardEvent& event)
+bool TextInput::onKeyDown(SDL_KeyboardEvent& event)
 {
-    // If we aren't selected, ignore the event.
-    if (currentState != State::Selected) {
+    // If we don't have focus, ignore the event.
+    if (currentState != State::Focused) {
         return false;
     }
 
     switch (event.keysym.sym) {
         case SDLK_BACKSPACE: {
-            handleBackspaceEvent();
-            return true;
+            return handleBackspaceEvent();
         }
         case SDLK_DELETE: {
-            handleDeleteEvent();
-            return true;
+            return handleDeleteEvent();
         }
         case SDLK_c: {
-            // If this was a CTRL+c copy command.
-            if (SDL_GetModState() & KMOD_CTRL) {
-                handleCopyEvent();
-            }
-            return true;
+            return handleCopyEvent();
         }
         case SDLK_x: {
-            // If this was a CTRL+x cut command
-            if (SDL_GetModState() & KMOD_CTRL) {
-                handleCutEvent();
-            }
-            return true;
+            return handleCutEvent();
         }
         case SDLK_v: {
-            // If this was a CTRL+v paste command.
-            if (SDL_GetModState() & KMOD_CTRL) {
-                handlePasteEvent();
-            }
-            return true;
+            return handlePasteEvent();
         }
         case SDLK_LEFT: {
-            handleLeftEvent();
-            return true;
+            return handleLeftEvent();
         }
         case SDLK_RIGHT: {
-            handleRightEvent();
-            return true;
+            return handleRightEvent();
         }
         case SDLK_HOME: {
-            handleHomeEvent();
-            return true;
+            return handleHomeEvent();
         }
         case SDLK_END: {
-            handleEndEvent();
-            return true;
+            return handleEndEvent();
+        }
+        case SDLK_RETURN: {
+            return handleEnterEvent();
         }
     }
 
     return false;
 }
 
-bool TextBox::onTextInput(SDL_TextInputEvent& event)
+bool TextInput::onTextInput(SDL_TextInputEvent& event)
 {
     // Append the user's new character to the end of the text.
     text.insertText(event.text, cursorIndex);
@@ -223,10 +204,10 @@ bool TextBox::onTextInput(SDL_TextInputEvent& event)
     return true;
 }
 
-void TextBox::onTick()
+void TextInput::onTick()
 {
-    // If we're selected, blink the cursor.
-    if (currentState == State::Selected) {
+    // If we have focus, blink the cursor.
+    if (currentState == State::Focused) {
         // Accumulate the time passed since last tick().
         accumulatedBlinkTime += Screen::TICK_TIMESTEP_S;
 
@@ -245,7 +226,7 @@ void TextBox::onTick()
     }
 }
 
-void TextBox::render(const SDL_Point& parentOffset)
+void TextInput::render(const SDL_Point& parentOffset)
 {
     // Keep our extent up to date.
     refreshScaling();
@@ -277,7 +258,7 @@ void TextBox::render(const SDL_Point& parentOffset)
     }
 }
 
-void TextBox::handleBackspaceEvent()
+bool TextInput::handleBackspaceEvent()
 {
     // If there's any text, delete the last character.
     if (text.eraseCharacter(cursorIndex - 1)) {
@@ -291,10 +272,19 @@ void TextBox::handleBackspaceEvent()
 
         // Refresh the text position to account for the change.
         refreshTextScrollOffset();
+
+        // If a callback is registered, signal that the the text was changed.
+        if (onTextChanged) {
+            onTextChanged();
+        }
+
+        return true;
     }
+
+    return false;
 }
 
-void TextBox::handleDeleteEvent()
+bool TextInput::handleDeleteEvent()
 {
     // If there's a character after the cursor, delete it.
     if (text.eraseCharacter(cursorIndex)) {
@@ -305,61 +295,103 @@ void TextBox::handleDeleteEvent()
 
         // Refresh the text position to account for the change.
         refreshTextScrollOffset();
+
+        // If a callback is registered, signal that the the text was changed.
+        if (onTextChanged) {
+            onTextChanged();
+        }
+
+        return true;
     }
+
+    return false;
 }
 
-void TextBox::handleCopyEvent()
+bool TextInput::handleCopyEvent()
 {
-    // If there's text to copy.
-    const std::string& textString = text.asString();
-    if (textString.length() > 0) {
-        // Copy the text to the clipboard.
-        SDL_SetClipboardText(textString.c_str());
+    // If this was a CTRL+c copy command.
+    if (SDL_GetModState() & KMOD_CTRL) {
+        // If there's text to copy.
+        const std::string& textString = text.asString();
+        if (textString.length() > 0) {
+            // Copy the text to the clipboard.
+            SDL_SetClipboardText(textString.c_str());
+        }
+
+        return true;
     }
+
+    return false;
 }
 
-void TextBox::handleCutEvent()
+bool TextInput::handleCutEvent()
 {
-    // If there's text to cut.
-    const std::string& textString = text.asString();
-    if (textString.length() > 0) {
-        // Copy the text to the clipboard.
-        SDL_SetClipboardText(textString.c_str());
+    // If this was a CTRL+x cut command
+    if (SDL_GetModState() & KMOD_CTRL) {
+        // If there's text to cut.
+        const std::string& textString = text.asString();
+        if (textString.length() > 0) {
+            // Copy the text to the clipboard.
+            SDL_SetClipboardText(textString.c_str());
 
-        // Clear the text.
-        text.setText("");
+            // Clear the text.
+            text.setText("");
 
-        // Move the cursor to the start.
-        cursorIndex = 0;
+            // Move the cursor to the start.
+            cursorIndex = 0;
 
-        // Refresh the text position to account for the change.
-        refreshTextScrollOffset();
+            // Refresh the text position to account for the change.
+            refreshTextScrollOffset();
+
+            // If a callback is registered, signal that the the text was changed.
+            if (onTextChanged) {
+                onTextChanged();
+            }
+        }
+
+        return true;
     }
+
+    return false;
 }
 
-void TextBox::handlePasteEvent()
+bool TextInput::handlePasteEvent()
 {
-    // If there's text in the clipboard.
-    if (SDL_HasClipboardText()) {
-        // Paste the text from the clipboard to the cursor index.
-        char* clipboardText = SDL_GetClipboardText();
-        text.insertText(clipboardText, cursorIndex);
+    // If this was a CTRL+v paste command.
+    if (SDL_GetModState() & KMOD_CTRL) {
+        // If there's text in the clipboard.
+        if (SDL_HasClipboardText()) {
+            // Paste the text from the clipboard to the cursor index.
+            char* clipboardText = SDL_GetClipboardText();
+            text.insertText(clipboardText, cursorIndex);
 
-        // Move the cursor to the end of the inserted text.
-        cursorIndex += std::strlen(clipboardText);
+            // Move the cursor to the end of the inserted text.
+            cursorIndex += std::strlen(clipboardText);
 
-        SDL_free(clipboardText);
+            SDL_free(clipboardText);
 
-        // Refresh the text position to account for the change.
-        refreshTextScrollOffset();
+            // Refresh the text position to account for the change.
+            refreshTextScrollOffset();
+
+            // If a callback is registered, signal that the the text was changed.
+            if (onTextChanged) {
+                onTextChanged();
+            }
+        }
+
+        return true;
     }
+
+    return false;
 }
 
-void TextBox::handleLeftEvent()
+bool TextInput::handleLeftEvent()
 {
     // If we can, move the cursor left.
+    bool movedCursor{false};
     if (cursorIndex > 0) {
         cursorIndex--;
+        movedCursor = true;
 
         // Refresh the text position to account for the change.
         refreshTextScrollOffset();
@@ -369,13 +401,17 @@ void TextBox::handleLeftEvent()
     // solid while interacting.
     cursorIsVisible = true;
     accumulatedBlinkTime = 0;
+
+    return movedCursor;
 }
 
-void TextBox::handleRightEvent()
+bool TextInput::handleRightEvent()
 {
     // If we can, move the cursor right.
+    bool movedCursor{false};
     if (cursorIndex < text.asString().length()) {
         cursorIndex++;
+        movedCursor = true;
 
         // Refresh the text position to account for the change.
         refreshTextScrollOffset();
@@ -385,27 +421,74 @@ void TextBox::handleRightEvent()
     // solid while interacting.
     cursorIsVisible = true;
     accumulatedBlinkTime = 0;
+
+    return movedCursor;
 }
 
-void TextBox::handleHomeEvent()
+bool TextInput::handleHomeEvent()
 {
     // Move the cursor to the front.
     cursorIndex = 0;
 
     // Refresh the text position to account for the change.
     refreshTextScrollOffset();
+
+    return true;
 }
 
-void TextBox::handleEndEvent()
+bool TextInput::handleEndEvent()
 {
     // Move the cursor to the end.
     cursorIndex = text.asString().length();
 
     // Refresh the text position to account for the change.
     refreshTextScrollOffset();
+
+    return true;
 }
 
-void TextBox::refreshTextScrollOffset()
+bool TextInput::handleEnterEvent()
+{
+    // If we have focus, remove it.
+    if (currentState == State::Focused) {
+        removeFocus();
+    }
+
+    return true;
+}
+
+void TextInput::assumeFocus()
+{
+    // Set our state to focused.
+    currentState = State::Focused;
+
+    // Begin generating text input events.
+    SDL_StartTextInput();
+
+    // Reset the text cursor's state.
+    // Show the text cursor immediately so the user can see where they're at.
+    cursorIsVisible = true;
+    accumulatedBlinkTime = 0;
+}
+
+void TextInput::removeFocus()
+{
+    // Set our state back to normal.
+    currentState = State::Normal;
+
+    // Stop generating text input events.
+    SDL_StopTextInput();
+
+    // Reset the text cursor's state.
+    cursorIsVisible = false;
+
+    // If a callback is registered, signal that the the text was committed.
+    if (onTextCommitted) {
+        onTextCommitted();
+    }
+}
+
+void TextInput::refreshTextScrollOffset()
 {
     // Get the distance from the start of the string to the cursor position.
     // Note: This position is relative to text's scaledExtent.
@@ -442,7 +525,7 @@ void TextBox::refreshTextScrollOffset()
     text.setTextOffset(textOffset);
 }
 
-void TextBox::renderAppropriateImage(const SDL_Point& childOffset)
+void TextInput::renderAppropriateImage(const SDL_Point& childOffset)
 {
     // Render the appropriate background image for our current state.
     switch (currentState) {
@@ -454,7 +537,7 @@ void TextBox::renderAppropriateImage(const SDL_Point& childOffset)
             hoveredImage.render(childOffset);
             break;
         }
-        case State::Selected: {
+        case State::Focused: {
             selectedImage.render(childOffset);
             break;
         }
@@ -465,7 +548,7 @@ void TextBox::renderAppropriateImage(const SDL_Point& childOffset)
     }
 }
 
-void TextBox::renderTextCursor(const SDL_Point& childOffset)
+void TextInput::renderTextCursor(const SDL_Point& childOffset)
 {
     // Save the current draw color to re-apply later.
     SDL_Color originalColor;

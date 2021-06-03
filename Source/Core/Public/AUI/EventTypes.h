@@ -9,7 +9,7 @@ namespace AUI {
  * the naming convention of user-facing external events (e.g. MouseButtonDown
  * vs Pressed).
  */
-enum EventType {
+enum class EventType {
     /** The mouse clicked within the window. */
     MouseButtonDown,
     /** The mouse released a click within the window. */

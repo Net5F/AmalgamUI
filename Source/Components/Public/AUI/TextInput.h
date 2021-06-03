@@ -18,6 +18,9 @@ public:
     //       scroll offset calcs. The graphic itself can just be a blue
     //       box drawn behind the text, or a semi-transparent box drawn
     //       in front of it.
+    // TODO: Scaling is currently broken. When moving the cursor to the right,
+    //       the text image blows up instead of the destination extent scaling
+    //       properly.
 
     /**
      * Used to track the button's visual and logical state.

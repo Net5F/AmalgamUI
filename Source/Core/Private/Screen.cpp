@@ -6,7 +6,6 @@ namespace AUI {
 Screen::Screen(const std::string& inDebugName)
 : debugName{inDebugName}
 , componentMap()
-, accumulatedTime{0.0}
 {
 }
 
@@ -84,33 +83,11 @@ bool Screen::handleEvent(SDL_Event& event)
     return false;
 }
 
-void Screen::tick()
+void Screen::tick(double timestepS)
 {
-    // TODO: This is susceptible to being slightly off and missing
-    // Accumulate the time passed since last tick().
-    accumulatedTime += timer.getDeltaSeconds(true);
-
-    // Process as many time steps as have accumulated.
-    int count = 0;
-    if (accumulatedTime >= TICK_TIMESTEP_S) {
-        // Call all listener callbacks.
-        for (Component* listener : listenerMap[EventType::Tick]) {
-            listener->onTick();
-        }
-
-        // Subtract this tick from the accumulated time.
-        accumulatedTime -= TICK_TIMESTEP_S;
-
-        // If we lagged, reset the accumulated time, since we only care to
-        // process the latest iteration.
-        if (accumulatedTime >= TICK_TIMESTEP_S) {
-            AUI_LOG_INFO(
-                "Detected a request for multiple Screen update calls in the same "
-                "frame. Update was delayed by: %.5fs.", accumulatedTime);
-            accumulatedTime = 0;
-        }
-
-        count++;
+    // Call all listener callbacks.
+    for (Component* listener : listenerMap[EventType::Tick]) {
+        listener->onTick(timestepS);
     }
 }
 

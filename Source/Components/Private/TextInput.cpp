@@ -204,12 +204,12 @@ bool TextInput::onTextInput(SDL_TextInputEvent& event)
     return true;
 }
 
-void TextInput::onTick()
+void TextInput::onTick(double timestepS)
 {
     // If we have focus, blink the cursor.
     if (currentState == State::Focused) {
         // Accumulate the time passed since last tick().
-        accumulatedBlinkTime += Screen::TICK_TIMESTEP_S;
+        accumulatedBlinkTime += timestepS;
 
         // If enough time has passed.
         if (accumulatedBlinkTime > CURSOR_BLINK_RATE_S) {

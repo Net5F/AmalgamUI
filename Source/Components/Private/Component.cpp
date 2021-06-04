@@ -158,8 +158,9 @@ bool Component::onTextInput(SDL_TextInputEvent& event)
     return false;
 }
 
-void Component::onTick()
+void Component::onTick(double timestepS)
 {
+    ignore(timestepS);
     AUI_LOG_ERROR("Base class callback called. Please override onTick() "
     "in your derived class.");
 }

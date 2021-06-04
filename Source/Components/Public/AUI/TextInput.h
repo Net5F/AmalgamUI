@@ -107,7 +107,7 @@ public:
 
     bool onTextInput(SDL_TextInputEvent& event) override;
 
-    void onTick() override;
+    void onTick(double timestepS) override;
 
     void render(const SDL_Point& parentOffset = {}) override;
 

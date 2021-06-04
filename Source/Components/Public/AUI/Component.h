@@ -84,10 +84,12 @@ public:
     virtual bool onTextInput(SDL_TextInputEvent& event);
 
     /**
-     * Called when Screen::TICK_TIMESTEP_S has passed since the last tick
-     * event.
+     * Called when the current screen's tick() is called.
+     *
+     * @param timestepS  The amount of time that has passed since the last
+     *                   tick() call, in seconds.
      */
-    virtual void onTick();
+    virtual void onTick(double timestepS);
 
     /**
      * Renders this component to the current rendering target.

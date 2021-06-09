@@ -5,7 +5,6 @@ message(STATUS "Configuring AmalgamUI")
 
 # Provide header-only EnTT, if it hasn't already been supplied.
 # Used for the resource manager and hashed string.
-# If we need to build on a pre-c++17 toolchain, we can replace this pretty easily.
 if (NOT TARGET EnTT)
     add_subdirectory("${PROJECT_SOURCE_DIR}/Libraries/entt/"
                      "${PROJECT_BINARY_DIR}/Libraries/entt/")
@@ -29,8 +28,8 @@ target_link_libraries(AmalgamUI
         EnTT::EnTT
 )
 
-# Compile with C++14.
-target_compile_features(AmalgamUI PRIVATE cxx_std_14)
+# Compile with C++17.
+target_compile_features(AmalgamUI PRIVATE cxx_std_17)
 set_target_properties(AmalgamUI PROPERTIES CXX_EXTENSIONS OFF)
 
 # Enable compile warnings.

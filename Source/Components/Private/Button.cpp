@@ -15,8 +15,8 @@ Button::Button(Screen& screen, const char* key, const SDL_Rect& logicalExtent)
 {
     // Default to centering the text within the button. The user can set it
     // otherwise if they care to.
-    text.setVerticalAlignment(AUI::Text::VerticalAlignment::Middle);
-    text.setHorizontalAlignment(AUI::Text::HorizontalAlignment::Middle);
+    text.setVerticalAlignment(AUI::Text::VerticalAlignment::Center);
+    text.setHorizontalAlignment(AUI::Text::HorizontalAlignment::Center);
 
     // Register for the events that we want to listen for.
     screen.registerListener(EventType::MouseButtonDown, this);

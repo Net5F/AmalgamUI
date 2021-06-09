@@ -10,7 +10,7 @@ namespace AUI {
 Component::Component(Screen& inScreen, const char* inKey, const SDL_Rect& inLogicalExtent)
 : screen(inScreen)
 , logicalExtent{inLogicalExtent}
-, scaledExtent{ScalingHelpers::extentToActual(logicalExtent)}
+, scaledExtent{ScalingHelpers::logicalToActual(logicalExtent)}
 , lastRenderedExtent{}
 , lastUsedScreenSize{Core::GetActualScreenSize()}
 , isVisible{true}
@@ -75,7 +75,7 @@ void Component::setLogicalExtent(const SDL_Rect& inLogicalExtent)
     logicalExtent = inLogicalExtent;
 
     // Re-calculate our scaled screen extent.
-    scaledExtent = ScalingHelpers::extentToActual(logicalExtent);
+    scaledExtent = ScalingHelpers::logicalToActual(logicalExtent);
 }
 
 SDL_Rect Component::getLogicalExtent()
@@ -170,7 +170,7 @@ bool Component::refreshScaling()
     // If the screen size has changed.
     if (lastUsedScreenSize != Core::GetActualScreenSize()) {
         // Re-calculate our scaled extent.
-        scaledExtent = ScalingHelpers::extentToActual(logicalExtent);
+        scaledExtent = ScalingHelpers::logicalToActual(logicalExtent);
 
         // Save the new size.
         lastUsedScreenSize = Core::GetActualScreenSize();

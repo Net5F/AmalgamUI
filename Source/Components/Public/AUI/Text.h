@@ -43,7 +43,7 @@ public:
      */
     enum class VerticalAlignment {
         Top,
-        Middle,
+        Center,
         Bottom
     };
 
@@ -52,7 +52,7 @@ public:
      */
     enum class HorizontalAlignment {
         Left,
-        Middle,
+        Center,
         Right
     };
 
@@ -130,9 +130,16 @@ public:
      * @param index  The index of the desired character in the underlying
      *               string.
      * @return An extent containing the offset of the top left of the desired
-     *         character, and the character's height.
+     *         character, and the character's height. This extent is relative
+     *         to scaledExtent.
      */
     SDL_Rect calcCharacterOffset(unsigned int index);
+
+    /**
+     * Calculates the width that the given string would have if rendered using
+     * this component's current font.
+     */
+    int calcStringWidth(const std::string& string);
 
     VerticalAlignment getVerticalAlignment();
     HorizontalAlignment getHorizontalAlignment();

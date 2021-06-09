@@ -12,6 +12,9 @@ namespace AUI {
 class Button : public Component
 {
 public:
+    //-------------------------------------------------------------------------
+    // Public definitions
+    //-------------------------------------------------------------------------
     /**
      * Used to track the button's visual and logical state.
      */
@@ -22,6 +25,9 @@ public:
         Disabled
     };
 
+    //-------------------------------------------------------------------------
+    // Public interface
+    //-------------------------------------------------------------------------
     Button(Screen& screen, const char* key, const SDL_Rect& logicalExtent);
 
     virtual ~Button() = default;
@@ -44,6 +50,18 @@ public:
 
     State getCurrentState();
 
+    /** Background image, normal state. */
+    Image normalImage;
+    /** Background image, hovered state. */
+    Image hoveredImage;
+    /** Background image, pressed state. */
+    Image pressedImage;
+    /** Background image, disabled state. */
+    Image disabledImage;
+
+    /** Button text. */
+    Text text;
+
     //-------------------------------------------------------------------------
     // Callback registration
     //-------------------------------------------------------------------------
@@ -59,21 +77,6 @@ public:
     void onMouseMove(SDL_MouseMotionEvent& event) override;
 
     void render(const SDL_Point& parentOffset = {}) override;
-
-    //-------------------------------------------------------------------------
-    // Public child components
-    //-------------------------------------------------------------------------
-    /** Background image, normal state. */
-    Image normalImage;
-    /** Background image, hovered state. */
-    Image hoveredImage;
-    /** Background image, pressed state. */
-    Image pressedImage;
-    /** Background image, disabled state. */
-    Image disabledImage;
-
-    /** Button text. */
-    Text text;
 
 private:
     //-------------------------------------------------------------------------

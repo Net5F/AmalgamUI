@@ -23,7 +23,8 @@ void Image::addResolution(const ScreenResolution& resolution, const std::string&
 
     // If we already have the given resolution, fail.
     if (resolutionMap.find(resolution) != resolutionMap.end()) {
-        AUI_LOG_ERROR("Tried to add image resolution that is already in use. Key: %s, Path: %s", key, relPath);
+        AUI_LOG_ERROR("Tried to add image resolution that is already in use. "
+        "Key: %s, Resolution: (%d, %d)", key, resolution.width, resolution.height);
     }
 
     // Add the resolution to the map.
@@ -40,6 +41,9 @@ void Image::addResolution(const ScreenResolution& resolution, const std::string&
 
     // Set the texture extent to the given extent.
     resolutionMap[resolution].extent = inTexExtent;
+
+    // Re-calculate which resolution of texture to use.
+    refreshChosenResolution();
 }
 
 void Image::render(const SDL_Point& parentOffset)
@@ -94,6 +98,8 @@ void Image::refreshChosenResolution()
     else {
         // Else, default to the largest texture for the best chance at nice
         // scaling.
+        // Note: This relies on resolutionMap being sorted, hence why we use
+        //       std::map.
         auto largestIt = resolutionMap.rbegin();
         currentTexHandle = largestIt->second.handle;
         currentTexExtent = largestIt->second.extent;

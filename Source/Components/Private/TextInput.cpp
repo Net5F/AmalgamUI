@@ -1,6 +1,7 @@
 #include "AUI/TextInput.h"
 #include "AUI/Screen.h"
 #include "AUI/Core.h"
+#include "AUI/Internal/ScalingHelpers.h"
 #include <cstring>
 
 namespace AUI {
@@ -14,13 +15,14 @@ TextInput::TextInput(Screen& screen, const char* key, const SDL_Rect& logicalExt
 , text(screen, "", {0, 0, logicalExtent.w, logicalExtent.h})
 , currentState{State::Normal}
 , cursorColor{0, 0, 0, 255}
-, cursorWidth{2}
+, logicalCursorWidth{2}
+, scaledCursorWidth{ScalingHelpers::logicalToActual(logicalCursorWidth)}
 , cursorIndex{0}
 , cursorIsVisible{false}
 {
     // Default to left-justifying the text within the button. The user can set
     // it otherwise if they care to.
-    text.setVerticalAlignment(AUI::Text::VerticalAlignment::Middle);
+    text.setVerticalAlignment(AUI::Text::VerticalAlignment::Center);
     text.setHorizontalAlignment(AUI::Text::HorizontalAlignment::Left);
 
     // Set the underlying text to empty string since it defaults to something
@@ -54,19 +56,13 @@ void TextInput::setCursorColor(const SDL_Color& inCursorColor)
 
 void TextInput::setCursorWidth(unsigned int inCursorWidth)
 {
-    cursorWidth = inCursorWidth;
+   logicalCursorWidth = inCursorWidth;
+   scaledCursorWidth = ScalingHelpers::logicalToActual(logicalCursorWidth);
 }
 
-void TextInput::setText(std::string_view inText)
+TextInput::State TextInput::getCurrentState()
 {
-    // Set the text member's text.
-    text.setText(inText);
-
-    // Move the cursor to the front (seems to be the most expected behavior.)
-    cursorIndex = 0;
-
-    // Refresh the text position to account for the change.
-    refreshTextScrollOffset();
+    return currentState;
 }
 
 void TextInput::setTextFont(const std::string& relPath, int size)
@@ -79,9 +75,16 @@ void TextInput::setTextColor(const SDL_Color& inColor)
     text.setColor(inColor);
 }
 
-TextInput::State TextInput::getCurrentState()
+void TextInput::setText(std::string_view inText)
 {
-    return currentState;
+    // Set the text member's text.
+    text.setText(inText);
+
+    // Move the cursor to the front (seems to be the most expected behavior.)
+    cursorIndex = 0;
+
+    // Refresh the text position to account for the change.
+    refreshTextScrollOffset();
 }
 
 void TextInput::setOnTextChanged(std::function<void(void)> inOnTextChanged)
@@ -256,6 +259,19 @@ void TextInput::render(const SDL_Point& parentOffset)
     if (cursorIsVisible) {
         renderTextCursor(childOffset);
     }
+}
+
+bool TextInput::refreshScaling()
+{
+    // If actualScreenExtent was refreshed, do our specialized refreshing.
+    if (Component::refreshScaling()) {
+        // Refresh our cursor size.
+        scaledCursorWidth = ScalingHelpers::logicalToActual(logicalCursorWidth);
+
+        return true;
+    }
+
+    return false;
 }
 
 bool TextInput::handleBackspaceEvent()
@@ -559,7 +575,7 @@ void TextInput::renderTextCursor(const SDL_Point& childOffset)
     SDL_Rect cursorOffsetExtent{text.calcCharacterOffset(cursorIndex)};
     cursorOffsetExtent.x += childOffset.x;
     cursorOffsetExtent.y += childOffset.y;
-    cursorOffsetExtent.w = cursorWidth;
+    cursorOffsetExtent.w = scaledCursorWidth;
 
     // Draw the cursor.
     SDL_SetRenderDrawColor(Core::GetRenderer()

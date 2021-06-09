@@ -18,45 +18,36 @@ namespace AUI
  *       The intent is that the developer will set a logical screen size and
  *       give all width, height, position, etc values in reference to that
  *       logical size. Then, the user can select a new actual size and the UI
- *       will scale to it intelligently.
+ *       will intelligently scale to match it.
  */
 class ScalingHelpers
 {
 public:
     /**
-     * Scales the given logical extent to match the current UI scaling,
+     * Scales the given logical-space value to match the current UI scaling,
      * returning its actual-space equivalent.
      * Uses Core::logicalScreenSize and Core::actualScreenSize.
      */
-    static SDL_Rect extentToActual(const SDL_Rect& logicalExtent);
+    static int logicalToActual(int logicalInt);
+
+    /** Overload for unsigned int. See logicalToActual(int). */
+    static unsigned int logicalToActual(unsigned int logicalInt);
+
+    /** Overload for SDL_Rect. See logicalToActual(int). */
+    static SDL_Rect logicalToActual(const SDL_Rect& logicalExtent);
+
+    /** Overload for SDL_Point. See logicalToActual(int). */
+    static SDL_Point logicalToActual(const SDL_Point& logicalPoint);
+
+    /** Overload for Margins. See logicalToActual(int). */
+    static Margins logicalToActual(Margins logicalMargins);
 
     /**
-     * Scales the given logical point to match the current UI scaling,
-     * returning its actual-space equivalent.
+     * Applies the inverse of the current UI scaling to the given actual-space
+     * value, returning its logical-space equivalent.
      * Uses Core::logicalScreenSize and Core::actualScreenSize.
      */
-    static SDL_Point pointToActual(const SDL_Point& logicalPoint);
-
-    /**
-     * Applies the inverse of the current UI scaling to the given point,
-     * returning its logical screen position.
-     * Uses Core::logicalScreenSize and Core::actualScreenSize.
-     */
-    static SDL_Point pointToLogical(const SDL_Point& actualPoint);
-
-    /**
-     * Scaled the given logical font size to match the current UI scaling,
-     * returning its actual-space equivalent.
-     * Uses Core::logicalScreenSize and Core::actualScreenSize.
-     */
-    static int fontSizeToActual(int logicalFontSize);
-
-    /**
-     * Scaled the given margins to match the current UI scaling, returning
-     * their actual-space equivalent.
-     * Uses Core::logicalScreenSize and Core::actualScreenSize.
-     */
-    static Margins marginsToActual(Margins margins);
+    static SDL_Point actualToLogical(const SDL_Point& actualPoint);
 };
 
 } // namespace AUI

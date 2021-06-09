@@ -22,6 +22,9 @@ public:
     //       the text image blows up instead of the destination extent scaling
     //       properly.
 
+    //-------------------------------------------------------------------------
+    // Public definitions
+    //-------------------------------------------------------------------------
     /**
      * Used to track the button's visual and logical state.
      */
@@ -32,13 +35,13 @@ public:
         Disabled /*!< Disabled state. No events are handled. */
     };
 
+    //-------------------------------------------------------------------------
+    // Public interface
+    //-------------------------------------------------------------------------
     TextInput(Screen& screen, const char* key, const SDL_Rect& inLogicalExtent);
 
     virtual ~TextInput() = default;
 
-    //-------------------------------------------------------------------------
-    // Public interface
-    //-------------------------------------------------------------------------
     /**
      * Sets the distance between the text and the edge of the text box on each
      * side.
@@ -55,22 +58,6 @@ public:
      */
     void setCursorWidth(unsigned int inCursorWidth);
 
-    /**
-     * See Text::setText().
-     * Keeps our cursor in sync with the newly set text.
-     */
-    void setText(std::string_view inText);
-
-    /**
-     * See Text::setFont().
-     */
-    void setTextFont(const std::string& relPath, int size);
-
-    /**
-     * See Text::setColor().
-     */
-    void setTextColor(const SDL_Color& inColor);
-
     State getCurrentState();
 
     /** Background image, normal state. */
@@ -81,6 +68,20 @@ public:
     Image selectedImage;
     /** Background image, disabled state. */
     Image disabledImage;
+
+    //-------------------------------------------------------------------------
+    // Limited public interface of private components
+    //-------------------------------------------------------------------------
+    /**
+     * Calls text.setText().
+     * Keeps our cursor in sync with the newly set text.
+     */
+    void setText(std::string_view inText);
+
+    /** Calls text.setFont(). */
+    void setTextFont(const std::string& relPath, int size);
+    /** Calls text.setColor(). */
+    void setTextColor(const SDL_Color& inColor);
 
     //-------------------------------------------------------------------------
     // Callback registration
@@ -110,6 +111,12 @@ public:
     void onTick(double timestepS) override;
 
     void render(const SDL_Point& parentOffset = {}) override;
+
+protected:
+    /**
+     * Overridden to properly scale our cursor size.
+     */
+    bool refreshScaling() override;
 
 private:
     //-------------------------------------------------------------------------
@@ -187,8 +194,11 @@ private:
     /** The color of the text cursor. */
     SDL_Color cursorColor;
 
-    /** The width of the text cursor in pixels. */
-    unsigned int cursorWidth;
+    /** The logical width of the text cursor in pixels. */
+    unsigned int logicalCursorWidth;
+
+    /** The scaled width of the text cursor in pixels. */
+    unsigned int scaledCursorWidth;
 
     /** The character index in our text that the cursor is currently at. */
     unsigned int cursorIndex;

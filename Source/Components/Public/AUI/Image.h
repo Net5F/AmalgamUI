@@ -23,7 +23,8 @@ public:
      * The texture that this component renders will be chosen by comparing
      * Core's current actualScreenSize to the available resolutions.
      *
-     * Errors if the given path is not a valid image.
+     * Errors if the given path is not a valid image or the given resolution
+     * is already in use.
      *
      * @param resolution  The actual screen resolution that this texture
      *                    should be used for.
@@ -55,7 +56,7 @@ protected:
 private:
     /**
      * Re-calculates which resolution of texture to use, based on Core's
-     * current actualScreenSize and the available resolutions.
+     * current actualScreenSize and the available resolutions in resolutionMap.
      */
     void refreshChosenResolution();
 

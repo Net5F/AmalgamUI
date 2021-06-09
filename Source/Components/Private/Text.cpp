@@ -10,7 +10,7 @@ Text::Text(Screen& screen, const char* key, const SDL_Rect& logicalExtent)
 , fontPath("")
 , logicalFontSize{10}
 , fontHandle()
-, color{255, 255, 255, 255}
+, color{0, 0, 0, 255}
 , backgroundColor{0, 0, 0, 0}
 , renderMode{RenderMode::Blended}
 , text("Initialized")
@@ -74,7 +74,7 @@ void Text::setHorizontalAlignment(HorizontalAlignment inHorizontalAlignment)
 
 void Text::setTextOffset(int inTextOffset)
 {
-    SDL_Point scaledPoint{ScalingHelpers::pointToActual({inTextOffset, 0})};
+    SDL_Point scaledPoint{ScalingHelpers::logicalToActual(SDL_Point{inTextOffset, 0})};
     textOffset = scaledPoint.x;
 }
 
@@ -111,7 +111,7 @@ SDL_Rect Text::calcCharacterOffset(unsigned int index)
 
     // Get the x offset and height from the relevant characters.
     SDL_Rect offsetExtent{};
-    TTF_SizeText(&(*(fontHandle)), relevantChars.c_str(), &(offsetExtent.x)
+    TTF_SizeText(&(*fontHandle), relevantChars.c_str(), &(offsetExtent.x)
                  , &(offsetExtent.h));
 
     // Account for our alignment/position by adding the text extent's offset.
@@ -122,6 +122,16 @@ SDL_Rect Text::calcCharacterOffset(unsigned int index)
     offsetExtent.x += textOffset;
 
     return offsetExtent;
+}
+
+int Text::calcStringWidth(const std::string& string)
+{
+    // Calculate the width that the given string would have if rendered using
+    // the font in fontHandle.
+    int stringWidth{0};
+    TTF_SizeText(&(*fontHandle), string.c_str(), &(stringWidth), nullptr);
+
+    return stringWidth;
 }
 
 Text::VerticalAlignment Text::getVerticalAlignment()
@@ -223,7 +233,7 @@ void Text::refreshAlignment()
             textExtent.y = scaledExtent.y;
             break;
         }
-        case VerticalAlignment::Middle: {
+        case VerticalAlignment::Center: {
             textExtent.y = scaledExtent.y + ((scaledExtent.h - textureExtent.h) / 2);
             break;
         }
@@ -239,7 +249,7 @@ void Text::refreshAlignment()
             textExtent.x = scaledExtent.x;
             break;
         }
-        case HorizontalAlignment::Middle: {
+        case HorizontalAlignment::Center: {
             textExtent.x = scaledExtent.x + ((scaledExtent.w - textureExtent.w) / 2);
             break;
         }
@@ -253,7 +263,7 @@ void Text::refreshAlignment()
 void Text::refreshFontObject()
 {
     // Scale the font size to the current actual size.
-    int actualFontSize = ScalingHelpers::fontSizeToActual(logicalFontSize);
+    int actualFontSize = ScalingHelpers::logicalToActual(logicalFontSize);
 
     // Attempt to load the given font (errors on failure).
     ResourceManager& resourceManager = Core::GetResourceManager();

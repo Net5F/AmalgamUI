@@ -11,10 +11,12 @@ target_sources(AmalgamUI
         # files as "AUI/Xyz.h" for some extra clarity.
         Public/AUI/Button.h
         Public/AUI/Component.h
+        Public/AUI/Container.h
         Public/AUI/Image.h
         Public/AUI/Text.h
         Public/AUI/TextInput.h
         Public/AUI/Thumbnail.h
+        Public/AUI/VerticalGridContainer.h
 )
 
 target_include_directories(AmalgamUI

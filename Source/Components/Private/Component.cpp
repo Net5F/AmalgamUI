@@ -14,6 +14,7 @@ Component::Component(Screen& inScreen, const char* inKey, const SDL_Rect& inLogi
 , lastRenderedExtent{}
 , lastUsedScreenSize{Core::GetActualScreenSize()}
 , isVisible{true}
+, listeningEventTypes{}
 {
     // If we were given a nullptr, replace it with an empty string while
     // constructing the key. This keeps us from having to nullptr check later.
@@ -34,6 +35,13 @@ Component::Component(Screen& inScreen, const char* inKey, const SDL_Rect& inLogi
 
 Component::~Component()
 {
+    // Unregister from any events that we were listening for.
+    for (unsigned int i = 0; i < InternalEvent::NumTypes; ++i) {
+        if (listeningEventTypes[i]) {
+            screen.unregisterListener(static_cast<InternalEvent::Type>(i), this);
+        }
+    }
+
     // If this is not an anonymous component, unregister it with the screen.
     if (key != entt::hashed_string{""}) {
         screen.unregisterComponent(key);
@@ -163,6 +171,25 @@ void Component::onTick(double timestepS)
     ignore(timestepS);
     AUI_LOG_ERROR("Base class callback called. Please override onTick() "
     "in your derived class.");
+}
+
+void Component::registerListener(InternalEvent::Type eventType)
+{
+    // Register with the screen as a listener for the given type.
+    screen.registerListener(eventType, this);
+
+    // Track that we're now listening to the given type.
+    listeningEventTypes[static_cast<unsigned int>(eventType)] = true;
+}
+
+void Component::unregisterListener(InternalEvent::Type eventType)
+{
+    // Unregister with the screen as a listener for the given type.
+    // Note: Errors if we aren't listening to the given type.
+    screen.unregisterListener(eventType, this);
+
+    // Track that we're no longer listening to the given type.
+    listeningEventTypes[eventType] = false;
 }
 
 bool Component::refreshScaling()

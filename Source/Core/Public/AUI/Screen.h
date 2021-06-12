@@ -1,7 +1,7 @@
 #pragma once
 
 #include "AUI/Component.h"
-#include "AUI/EventTypes.h"
+#include "AUI/InternalEvent.h"
 #include "AUI/Internal/Log.h"
 #include <SDL_events.h>
 #include "entt/core/hashed_string.hpp"
@@ -45,6 +45,8 @@ public:
      * Removes the component with the given key from this screen's
      * componentMap, unregistering it as a valid component to get().
      *
+     * References and iterators to the componentMap are not invalidated.
+     *
      * Errors if the key doesn't exist in this screen's map.
      *
      * @param key  A non-empty key that identifies a component.
@@ -82,17 +84,19 @@ public:
      * @param listener  The listening object. Must implement an appropriate
      *                  function to handle the given eventType.
      */
-    void registerListener(EventType eventType, Component* listener);
+    void registerListener(InternalEvent::Type eventType, Component* listener);
 
     /**
      * Unregisters the given listener object from receiving the given event.
+     *
+     * References and iterators to the listenerMap are not invalidated.
      *
      * @param eventType  An event type, corresponding to SDL_Event.type.
      * @param listener  The listening object. Must be derived from Component
      *                  and implement an appropriate function to handle the
      *                  given eventType.
      */
-    void unregisterListener(EventType eventType, Component* listener);
+    void unregisterListener(InternalEvent::Type eventType, Component* listener);
 
     /**
      * Offers the given event to this screen to be handled.
@@ -152,7 +156,7 @@ private:
 
     /** A map containing all of this screen's components that care to listen
         for particular system events. */
-    std::unordered_map<EventType, std::vector<Component*>> listenerMap;
+    std::unordered_map<InternalEvent::Type, std::vector<Component*>> listenerMap;
 };
 
 } // namespace AUI

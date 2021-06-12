@@ -30,11 +30,11 @@ TextInput::TextInput(Screen& screen, const char* key, const SDL_Rect& logicalExt
     text.setText("");
 
     // Register for the events that we want to listen for.
-    screen.registerListener(EventType::MouseButtonDown, this);
-    screen.registerListener(EventType::MouseMove, this);
-    screen.registerListener(EventType::KeyDown, this);
-    screen.registerListener(EventType::TextInput, this);
-    screen.registerListener(EventType::Tick, this);
+    registerListener(InternalEvent::MouseButtonDown);
+    registerListener(InternalEvent::MouseMove);
+    registerListener(InternalEvent::KeyDown);
+    registerListener(InternalEvent::TextInput);
+    registerListener(InternalEvent::Tick);
 }
 
 void TextInput::setMargins(Margins inLogicalMargins)

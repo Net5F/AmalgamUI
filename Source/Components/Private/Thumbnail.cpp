@@ -19,8 +19,8 @@ Thumbnail::Thumbnail(Screen& screen, const char* key, const SDL_Rect& logicalExt
     text.setHorizontalAlignment(AUI::Text::HorizontalAlignment::Center);
 
     // Register for the events that we want to listen for.
-    screen.registerListener(EventType::MouseButtonDown, this);
-    screen.registerListener(EventType::MouseMove, this);
+    registerListener(InternalEvent::MouseButtonDown);
+    registerListener(InternalEvent::MouseMove);
 }
 
 void Thumbnail::activate()

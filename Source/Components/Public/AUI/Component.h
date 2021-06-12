@@ -1,10 +1,12 @@
 #pragma once
 
 #include "AUI/ScreenResolution.h"
+#include "AUI/InternalEvent.h"
 #include <SDL_Rect.h>
 #include <SDL_events.h>
 #include "entt/core/hashed_string.hpp"
 #include <string>
+#include <array>
 
 namespace AUI {
 
@@ -49,8 +51,11 @@ public:
      */
     virtual void setLogicalExtent(const SDL_Rect& inLogicalExtent);
 
+    /** See Component::logicalExtent. */
     SDL_Rect getLogicalExtent();
+    /** See Component::scaledExtent. */
     SDL_Rect getScaledExtent();
+    /** See Component::lastRenderedExtent. */
     SDL_Rect getLastRenderedExtent();
 
     const entt::hashed_string& getKey();
@@ -105,6 +110,19 @@ protected:
     Component(Screen& inScreen, const char* inKey, const SDL_Rect& inLogicalExtent);
 
     /**
+     * Registers this component as a listener for the given event type.
+     *
+     * This component will internally track that the given event type is being
+     * listened to, and will unregister itself during destruction.
+     */
+    void registerListener(InternalEvent::Type eventType);
+
+    /**
+     * Unregisters this component as a listener for the given event type.
+     */
+    void unregisterListener(InternalEvent::Type eventType);
+
+    /**
      * Checks if Core::actualScreenSize has changed since the last time this
      * component's scaledExtent was calculated. If so, re-calculates
      * scaledExtent, scaling it to the new actualScreenSize.
@@ -150,6 +168,9 @@ protected:
 
     /** If true, this component will be rendered and will respond to events. */
     bool isVisible;
+
+    /** Tracks the events that this component is currently listening for. */
+    std::array<bool, InternalEvent::NumTypes> listeningEventTypes;
 };
 
 } // namespace AUI

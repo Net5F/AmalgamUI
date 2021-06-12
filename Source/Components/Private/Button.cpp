@@ -19,9 +19,9 @@ Button::Button(Screen& screen, const char* key, const SDL_Rect& logicalExtent)
     text.setHorizontalAlignment(AUI::Text::HorizontalAlignment::Center);
 
     // Register for the events that we want to listen for.
-    screen.registerListener(EventType::MouseButtonDown, this);
-    screen.registerListener(EventType::MouseButtonUp, this);
-    screen.registerListener(EventType::MouseMove, this);
+    registerListener(InternalEvent::MouseButtonDown);
+    registerListener(InternalEvent::MouseButtonUp);
+    registerListener(InternalEvent::MouseMove);
 }
 
 void Button::enable()

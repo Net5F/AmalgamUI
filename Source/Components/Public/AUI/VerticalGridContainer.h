@@ -9,17 +9,16 @@ namespace AUI {
 /**
  * Lays out components in a vertical grid.
  */
-template <typename T>
-class VerticalGridContainer : public Container<T>
+class VerticalGridContainer : public Container
 {
 public:
     // Bring base class members into current namespace.
-    using Component::actualScreenExtent;
+    using Component::scaledExtent;
     using Component::isVisible;
-    using Container<T>::elements;
+    using Container::elements;
 
-    VerticalGridContainer(Screen& screen, const char* key, const SDL_Rect& screenExtent)
-    : Container<T>(screen, key, screenExtent)
+    VerticalGridContainer(Screen& screen, const char* key, const SDL_Rect& logicalExtent)
+    : Container(screen, key, logicalExtent)
     {
     }
 
@@ -35,12 +34,12 @@ public:
         // Add our position to the given offset.
         int offsetX{parentOffset.x};
         int offsetY{parentOffset.y};
-        offsetX += actualScreenExtent.x;
-        offsetY += actualScreenExtent.y;
+        offsetX += scaledExtent.x;
+        offsetY += scaledExtent.y;
 
-        for (std::unique_ptr<T>& element : elements) {
+        for (std::unique_ptr<Component>& element : elements) {
             element->render({offsetX, offsetY});
-            offsetY += 50;
+            offsetY += 100;
         }
     }
 };

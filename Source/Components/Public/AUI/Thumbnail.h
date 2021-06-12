@@ -20,18 +20,6 @@ class Thumbnail : public Component
 {
 public:
     //-------------------------------------------------------------------------
-    // Public definitions
-    //-------------------------------------------------------------------------
-    /**
-     * Used to track the thumbnail's visual and logical state.
-     */
-    enum class State {
-        Normal,
-        Hovered,
-        Active
-    };
-
-    //-------------------------------------------------------------------------
     // Public interface
     //-------------------------------------------------------------------------
     Thumbnail(Screen& screen, const char* key, const SDL_Rect& logicalExtent);
@@ -39,16 +27,44 @@ public:
     virtual ~Thumbnail() = default;
 
     /**
-     * Sets the component's state to Active and signals onActivated.
+     * Selects this component and calls onSelected.
+     *
+     * If this component is already selected or isSelectable == false, does
+     * nothing.
+     *
+     * Note: This component selects itself when clicked. This function just
+     *       exists in case you need to do it programatically.
+     */
+    void select();
+
+    /**
+     * Deselects this component and calls onDeselected.
+     *
+     * If this component isn't selected, does nothing.
+     *
+     * Note: This component doesn't deselect itself. The context that is
+     *       managing this component must detect when the component should be
+     *       deactivated and call this method.
+     */
+    void deselect();
+
+    /**
+     * Activates this component and calls onActivated.
+     *
+     * If this component is already active or isActivateable == false, does
+     * nothing.
+     *
+     * Disables hovering. Any active hover state will be removed.
      *
      * Note: This component activates itself when double clicked. This function
-     *       just exists in case you need to do something like setting an
-     *       initial active component.
+     *       just exists in case you need to do it programatically.
      */
     void activate();
 
     /**
-     * Sets the component's state to Normal and signals onDeactivated.
+     * Deactivates this component and calls onDeactivated.
+     *
+     * If this component isn't active, does nothing.
      *
      * Note: This component doesn't deactivate itself. The context that is
      *       managing this component must detect when the component should be
@@ -56,13 +72,22 @@ public:
      */
     void deactivate();
 
-    State getCurrentState();
+    /** If true, this component is able to be hovered. */
+    void setIsHoverable(bool inIsHoverable);
 
-    /** Background image, normal state. */
-    Image normalImage;
-    /** Background image, hovered state. */
+    /** If true, this component is able to be selected. */
+    void setIsSelectable(bool inIsSelectable);
+
+    /** If true, this component is able to be activated. */
+    void setIsActivateable(bool inIsActivateable);
+
+    /** Background image, always visible. */
+    Image backgroundImage;
+    /** Middle-ground image, hovered state. */
     Image hoveredImage;
-    /** Background image, disabled state. */
+    /** Middle-ground image, selected state. */
+    Image selectedImage;
+    /** Middle-ground image, active state. */
     Image activeImage;
 
     /** Foreground thumbnail image. */
@@ -98,6 +123,18 @@ public:
     // Callback registration
     //-------------------------------------------------------------------------
     /**
+     * @param inOnSelected  A callable that expects a pointer to the component
+     *                      that was selected.
+     */
+    void setOnSelected(std::function<void(Thumbnail*)> inOnSelected);
+
+    /**
+     * @param inOnDeselected  A callable that expects a pointer to the
+     *                        component that was deselected.
+     */
+    void setOnDeselected(std::function<void(Thumbnail*)> inOnDeselected);
+
+    /**
      * @param inOnActivated  A callable that expects a pointer to the component
      *                       that was activated.
      */
@@ -126,11 +163,28 @@ private:
         right-align the text if it gets too large. */
     Text text;
 
+    std::function<void(Thumbnail*)> onSelected;
+    std::function<void(Thumbnail*)> onDeselected;
     std::function<void(Thumbnail*)> onActivated;
     std::function<void(Thumbnail*)> onDeactivated;
 
-    /** Tracks this button's current visual and logical state. */
-    State currentState;
+    /** If true, this component is able to be hovered. */
+    bool isHoverable;
+
+    /** If true, this component is able to be selected. */
+    bool isSelectable;
+
+    /** If true, this component is able to be activated. */
+    bool isActivateable;
+
+    /** Tracks whether the mouse is currently hovering over this component. */
+    bool isHovered;
+
+    /** Tracks whether this component is currently selected. */
+    bool isSelected;
+
+    /** Tracks whether this component is currently active. */
+    bool isActive;
 
     /** Stores the last set horizontal text alignment. We re-apply this
         alignment any time the text is set to a string that fits within its

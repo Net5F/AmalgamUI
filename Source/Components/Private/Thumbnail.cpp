@@ -6,12 +6,18 @@ namespace AUI {
 
 Thumbnail::Thumbnail(Screen& screen, const char* key, const SDL_Rect& logicalExtent)
 : Component(screen, key, logicalExtent)
-, normalImage(screen, "", {0, 0, logicalExtent.w, logicalExtent.h})
+, backgroundImage(screen, "", {0, 0, logicalExtent.w, logicalExtent.h})
 , hoveredImage(screen, "", {0, 0, logicalExtent.w, logicalExtent.h})
+, selectedImage(screen, "", {0, 0, logicalExtent.w, logicalExtent.h})
 , activeImage(screen, "", {0, 0, logicalExtent.w, logicalExtent.h})
 , thumbnailImage(screen, "", {0, 0, logicalExtent.w, logicalExtent.h})
 , text(screen, "", {0, 0, logicalExtent.w, logicalExtent.h})
-, currentState{State::Normal}
+, isHoverable{true}
+, isSelectable{true}
+, isActivateable{true}
+, isHovered{false}
+, isSelected{false}
+, isActive{false}
 , savedTextAlignment{Text::HorizontalAlignment::Center}
 {
     // Default to centering the text. The user can set it otherwise if they
@@ -23,42 +29,83 @@ Thumbnail::Thumbnail(Screen& screen, const char* key, const SDL_Rect& logicalExt
     registerListener(InternalEvent::MouseMove);
 }
 
-void Thumbnail::activate()
+void Thumbnail::select()
 {
-    // If we're already active, do nothing.
-    if (currentState == State::Active) {
+    // If we shouldn't become selected or are already selected, do nothing.
+    if (!isSelectable || isSelected) {
         return;
     }
 
-    // Check if the user set a callback for this event.
-    // Note: We require the user to set this callback because this component
-    //       doesn't make much sense if you're ignoring this interaction.
-    if (onActivated == nullptr) {
-        AUI_LOG_ERROR("Thumbnail tried to call empty onActivated() callback.");
+    // Flag that we're now selected.
+    isSelected = true;
+
+    // If the user set a callback for this event, call it.
+    if (onSelected != nullptr) {
+        onSelected(this);
+    }
+}
+
+void Thumbnail::deselect()
+{
+    // If we aren't selected, do nothing.
+    if (!isSelected) {
+        return;
     }
 
-    // Set our state to active.
-    currentState = State::Active;
+    // Flag that we're not selected.
+    isSelected = false;
 
-    // Call the user's onActivated callback.
-    // Signal that we've been activated.
-    onActivated(this);
+    // If the user set a callback for this event, call it.
+    if (onDeselected == nullptr) {
+        onDeselected(this);
+    }
+}
+
+void Thumbnail::activate()
+{
+    // If we shouldn't become active or are already active, do nothing.
+    if (!isActivateable || isActive) {
+        return;
+    }
+
+    // Flag that we're now active.
+    isActive = true;
+
+    // If the user set a callback for this event, call it.
+    if (onActivated != nullptr) {
+        onActivated(this);
+    }
 }
 
 void Thumbnail::deactivate()
 {
-    // Set our state back to normal.
-    currentState = State::Normal;
+    // If we aren't active, do nothing.
+    if (!isActive) {
+        return;
+    }
 
-    // If the user set a callback, signal that we've been deactivated.
+    // Flag that we're inactive.
+    isActive = false;
+
+    // If the user set a callback for this event, call it.
     if (onDeactivated == nullptr) {
         onDeactivated(this);
     }
 }
 
-Thumbnail::State Thumbnail::getCurrentState()
+void Thumbnail::setIsHoverable(bool inIsHoverable)
 {
-    return currentState;
+    isHoverable = inIsHoverable;
+}
+
+void Thumbnail::setIsSelectable(bool inIsSelectable)
+{
+    isSelectable = inIsSelectable;
+}
+
+void Thumbnail::setIsActivateable(bool inIsActivateable)
+{
+    isActivateable = inIsActivateable;
 }
 
 void Thumbnail::setTextLogicalExtent(const SDL_Rect& inLogicalExtent)
@@ -119,16 +166,32 @@ void Thumbnail::setOnDeactivated(std::function<void(Thumbnail*)> inOnDeactivated
 
 bool Thumbnail::onMouseButtonDown(SDL_MouseButtonEvent& event)
 {
-    // If we're already active, do nothing.
-    if (currentState == State::Active) {
+    // If we're already selected and active, do nothing.
+    if (isSelected && isActive) {
         return false;
     }
 
-    // If this was a double click and was inside our extent.
-    if ((event.clicks == 2) && containsPoint({event.x, event.y})) {
-        // Activate this component.
-        activate();
+    // If the click event was inside our extent.
+    if (containsPoint({event.x, event.y})) {
+        // If this was a double click (or more) and we aren't already active,
+        // activate this component.
+        if (!isActive && (event.clicks >= 2)) {
+            activate();
 
+            // If we were selected, clear the selection.
+            // Note: We don't call the deselected callback since this wasn't
+            //       a normal deselect event.
+            if (isSelected) {
+                isSelected = false;
+            }
+        }
+        else if (!isSelected){
+            // This was a single click, if we aren't already selected, select
+            // this component.
+            select();
+        }
+
+        // The click event was inside our component, so flag it as handled.
         return true;
     }
     else {
@@ -140,21 +203,21 @@ bool Thumbnail::onMouseButtonDown(SDL_MouseButtonEvent& event)
 void Thumbnail::onMouseMove(SDL_MouseMotionEvent& event)
 {
     // If we're active, don't change to hovered.
-    if (currentState == State::Active) {
+    if (isActive) {
         return;
     }
 
     // If the mouse is inside our extent.
     if (containsPoint({event.x, event.y})) {
-        // If we're normal, change to hovered.
-        if (currentState == State::Normal) {
-            currentState = State::Hovered;
+        // If we're not hovered, become hovered.
+        if (!isHovered) {
+            isHovered = true;
         }
     }
     else {
         // Else, the mouse isn't in our extent. If we're hovered, unhover.
-        if (currentState == State::Hovered) {
-            currentState = State::Normal;
+        if (isHovered) {
+            isHovered = false;
         }
     }
 }
@@ -179,20 +242,21 @@ void Thumbnail::render(const SDL_Point& parentOffset)
         return;
     }
 
-    // Render the appropriate background image for our current state.
-    switch (currentState) {
-        case State::Normal: {
-            normalImage.render(childOffset);
-            break;
-        }
-        case State::Hovered: {
-            hoveredImage.render(childOffset);
-            break;
-        }
-        case State::Active: {
-            activeImage.render(childOffset);
-            break;
-        }
+    // Render the background.
+    backgroundImage.render(childOffset);
+
+    // If we're active, render the active image.
+    if (isActive) {
+        activeImage.render(childOffset);
+    }
+    else if (isHovered) {
+        // We aren't active and are hovered, render the hovered image.
+        hoveredImage.render(childOffset);
+    }
+
+    // If selected, render the selected image.
+    if (isSelected) {
+        selectedImage.render(childOffset);
     }
 
     // Render the thumbnail image.

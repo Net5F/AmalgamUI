@@ -1,4 +1,4 @@
-#include "AUI/Internal/ResourceManager.h"
+#include "AUI/ResourceManager.h"
 #include "AUI/Core.h"
 
 namespace AUI

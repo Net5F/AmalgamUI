@@ -1,7 +1,7 @@
 #pragma once
 
 #include "AUI/Component.h"
-#include "AUI/Internal/ResourceManager.h" // TextureHandle
+#include "AUI/ResourceManager.h" // TextureHandle
 #include <SDL_ttf.h>
 #include <string_view>
 

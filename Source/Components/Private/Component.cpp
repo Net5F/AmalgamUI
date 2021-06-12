@@ -2,7 +2,7 @@
 #include "AUI/Screen.h"
 #include "AUI/Image.h"
 #include "AUI/Core.h"
-#include "AUI/Internal/ScalingHelpers.h"
+#include "AUI/ScalingHelpers.h"
 #include "AUI/Internal/Ignore.h"
 
 namespace AUI {

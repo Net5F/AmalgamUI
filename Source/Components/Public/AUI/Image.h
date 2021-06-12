@@ -2,7 +2,7 @@
 
 #include "AUI/Component.h"
 #include "AUI/ScreenResolution.h"
-#include "AUI/Internal/ResourceManager.h" // TextureHandle
+#include "AUI/ResourceManager.h" // TextureHandle
 #include <map>
 
 namespace AUI {

@@ -1,6 +1,7 @@
 #pragma once
 
 #include "AUI/Container.h"
+#include "AUI/ScalingHelpers.h"
 #include <vector>
 #include <memory>
 
@@ -39,7 +40,7 @@ public:
 
         for (std::unique_ptr<Component>& element : elements) {
             element->render({offsetX, offsetY});
-            offsetY += 100;
+            offsetY += ScalingHelpers::logicalToActual(150);
         }
     }
 };

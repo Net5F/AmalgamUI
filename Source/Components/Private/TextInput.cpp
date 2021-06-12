@@ -1,7 +1,7 @@
 #include "AUI/TextInput.h"
 #include "AUI/Screen.h"
 #include "AUI/Core.h"
-#include "AUI/Internal/ScalingHelpers.h"
+#include "AUI/ScalingHelpers.h"
 #include <cstring>
 
 namespace AUI {

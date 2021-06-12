@@ -20,7 +20,7 @@ public:
 
     virtual ~Container() = default;
 
-    void add(std::unique_ptr<Component> newElement)
+    void push_back(std::unique_ptr<Component> newElement)
     {
         elements.push_back(std::move(newElement));
     }

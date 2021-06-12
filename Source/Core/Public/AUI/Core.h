@@ -1,6 +1,6 @@
 #pragma once
 
-#include "AUI/Internal/ResourceManager.h"
+#include "AUI/ResourceManager.h"
 #include "AUI/ScreenResolution.h"
 #include <string>
 #include <memory>

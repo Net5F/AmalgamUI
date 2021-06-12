@@ -10,10 +10,16 @@ struct ScreenResolution {
 
     int height{0};
 
+    /**
+     * Compares the width and height of both resolutions.
+     */
     bool operator==(const ScreenResolution& rhs) {
         return (width == rhs.width) && (height == rhs.height);
     }
 
+    /**
+     * Compares the width and height of both resolutions.
+     */
     bool operator!=(const ScreenResolution& rhs) {
         return (width != rhs.width) || (height != rhs.height);
     }

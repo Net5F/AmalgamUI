@@ -6,10 +6,10 @@ namespace AUI {
 
 Thumbnail::Thumbnail(Screen& screen, const char* key, const SDL_Rect& logicalExtent)
 : Component(screen, key, logicalExtent)
-, backgroundImage(screen, "", {0, 0, logicalExtent.w, logicalExtent.h})
 , hoveredImage(screen, "", {0, 0, logicalExtent.w, logicalExtent.h})
-, selectedImage(screen, "", {0, 0, logicalExtent.w, logicalExtent.h})
 , activeImage(screen, "", {0, 0, logicalExtent.w, logicalExtent.h})
+, backdropImage(screen, "", {0, 0, logicalExtent.w, logicalExtent.h})
+, selectedImage(screen, "", {0, 0, logicalExtent.w, logicalExtent.h})
 , thumbnailImage(screen, "", {0, 0, logicalExtent.w, logicalExtent.h})
 , text(screen, "", {0, 0, logicalExtent.w, logicalExtent.h})
 , isHoverable{true}
@@ -242,9 +242,6 @@ void Thumbnail::render(const SDL_Point& parentOffset)
         return;
     }
 
-    // Render the background.
-    backgroundImage.render(childOffset);
-
     // If we're active, render the active image.
     if (isActive) {
         activeImage.render(childOffset);
@@ -254,7 +251,10 @@ void Thumbnail::render(const SDL_Point& parentOffset)
         hoveredImage.render(childOffset);
     }
 
-    // If selected, render the selected image.
+    // Render the thumbnail's backdrop image.
+    backdropImage.render(childOffset);
+
+    // If we're selected, render the selected image.
     if (isSelected) {
         selectedImage.render(childOffset);
     }

@@ -11,6 +11,11 @@ namespace AUI {
  *
  * Has a double-click Active state.
  *
+ * The rendering order for this component's children is:
+ *   Background: activeImage, hoveredImage
+ *   Middle-ground: backdropImage, selectedImage
+ *   Foreground: thumbnailImage, text
+ *
  * Note: This component may be immediately useful to you, but exists more as
  *       an easily copyable example of how to make this sort of thing. With
  *       minor tweaks you can make any sort of thumbnail-based interactable
@@ -81,14 +86,15 @@ public:
     /** If true, this component is able to be activated. */
     void setIsActivateable(bool inIsActivateable);
 
-    /** Background image, always visible. */
-    Image backgroundImage;
-    /** Middle-ground image, hovered state. */
+    /** Background image, hovered state. */
     Image hoveredImage;
+    /** Background image, active state. */
+    Image activeImage;
+
+    /** Middle-ground backdrop image, always visible. */
+    Image backdropImage;
     /** Middle-ground image, selected state. */
     Image selectedImage;
-    /** Middle-ground image, active state. */
-    Image activeImage;
 
     /** Foreground thumbnail image. */
     Image thumbnailImage;

@@ -39,9 +39,6 @@ public:
     /** Overload for SDL_Point. See logicalToActual(int). */
     static SDL_Point logicalToActual(const SDL_Point& logicalPoint);
 
-    /** Overload for Margins. See logicalToActual(int). */
-    static Margins logicalToActual(Margins logicalMargins);
-
     /**
      * Applies the inverse of the current UI scaling to the given actual-space
      * value, returning its logical-space equivalent.

@@ -12,7 +12,7 @@ int ScalingHelpers::logicalToActual(int logicalInt)
     //       tweak this.
     double scale = static_cast<double>(Core::GetActualScreenSize().width) / Core::GetLogicalScreenSize().width;
 
-    return logicalInt * scale;
+    return std::round(logicalInt * scale);
 }
 
 unsigned int ScalingHelpers::logicalToActual(unsigned int logicalInt)
@@ -22,7 +22,7 @@ unsigned int ScalingHelpers::logicalToActual(unsigned int logicalInt)
     //       tweak this.
     double scale = static_cast<double>(Core::GetActualScreenSize().width) / Core::GetLogicalScreenSize().width;
 
-    return logicalInt * scale;
+    return std::round(logicalInt * scale);
 }
 
 SDL_Rect ScalingHelpers::logicalToActual(const SDL_Rect& logicalExtent)
@@ -40,10 +40,10 @@ SDL_Rect ScalingHelpers::logicalToActual(const SDL_Rect& logicalExtent)
 
     // Scale from logical to actual.
     SDL_Rect actualExtent;
-    actualExtent.x = logicalExtent.x * xScale;
-    actualExtent.y = logicalExtent.y * yScale;
-    actualExtent.w = logicalExtent.w * xScale;
-    actualExtent.h = logicalExtent.h * yScale;
+    actualExtent.x = std::round(logicalExtent.x * xScale);
+    actualExtent.y = std::round(logicalExtent.y * yScale);
+    actualExtent.w = std::round(logicalExtent.w * xScale);
+    actualExtent.h = std::round(logicalExtent.h * yScale);
 
     return actualExtent;
 }
@@ -63,17 +63,17 @@ SDL_Point ScalingHelpers::logicalToActual(const SDL_Point& logicalPoint)
 
     // Scale from logical to actual.
     SDL_Point actualPoint;
-    actualPoint.x = logicalPoint.x * xScale;
-    actualPoint.y = logicalPoint.y * yScale;
+    actualPoint.x = std::round(logicalPoint.x * xScale);
+    actualPoint.y = std::round(logicalPoint.y * yScale);
 
     return actualPoint;
 }
 
-Margins ScalingHelpers::logicalToActual(Margins logicalMargins)
+SDL_Point ScalingHelpers::actualToLogical(const SDL_Point& actualPoint)
 {
-    // Calculate the scaling factor, going from logical size to actual.
-    double xScale = static_cast<double>(Core::GetActualScreenSize().width) / Core::GetLogicalScreenSize().width;
-    double yScale = static_cast<double>(Core::GetActualScreenSize().height) / Core::GetLogicalScreenSize().height;
+    // Calculate the scaling factor, going from actual position to logical.
+    double xScale = static_cast<double>(Core::GetLogicalScreenSize().width) / Core::GetActualScreenSize().width;
+    double yScale = static_cast<double>(Core::GetLogicalScreenSize().height) / Core::GetActualScreenSize().height;
 
     // Note: We'll eventually support other aspect ratios by centering the UI,
     //       but for now we just fail if you try to change the aspect ratio.
@@ -82,22 +82,12 @@ Margins ScalingHelpers::logicalToActual(Margins logicalMargins)
                       " ratio.");
     }
 
-    // Scale from logical to actual.
-    Margins actualMargins{};
-    actualMargins.left = logicalMargins.left * xScale;
-    actualMargins.top = logicalMargins.top * yScale;
-    actualMargins.right = logicalMargins.right * xScale;
-    actualMargins.bottom = logicalMargins.bottom * yScale;
+    // Scale from actual to logical.
+    SDL_Point logicalPoint;
+    logicalPoint.x = std::round(actualPoint.x * xScale);
+    logicalPoint.y = std::round(actualPoint.y * yScale);
 
-    return actualMargins;
-}
-
-SDL_Point ScalingHelpers::actualToLogical(const SDL_Point& actualPoint)
-{
-    // Calculate the scaling factor, going from actual position to logical.
-    double scale = static_cast<double>(Core::GetLogicalScreenSize().width) / Core::GetActualScreenSize().width;
-
-    return {static_cast<int>(actualPoint.x * scale), static_cast<int>(actualPoint.y * scale)};
+    return logicalPoint;
 }
 
 } // namespace AUI

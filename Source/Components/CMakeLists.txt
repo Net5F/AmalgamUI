@@ -2,10 +2,12 @@ target_sources(AmalgamUI
     PRIVATE
         Private/Button.cpp
         Private/Component.cpp
+        Private/Container.cpp
         Private/Image.cpp
         Private/Text.cpp
         Private/TextInput.cpp
         Private/Thumbnail.cpp
+        Private/VerticalGridContainer.cpp
     PUBLIC
         # Note: We add the extra "AUI" directory so that consumers can include
         # files as "AUI/Xyz.h" for some extra clarity.

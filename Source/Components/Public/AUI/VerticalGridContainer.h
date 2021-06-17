@@ -1,48 +1,53 @@
 #pragma once
 
 #include "AUI/Container.h"
-#include "AUI/ScalingHelpers.h"
-#include <vector>
-#include <memory>
 
 namespace AUI {
 
 /**
- * Lays out components in a vertical grid.
+ * Lays out components in a grid that grows vertically.
  */
 class VerticalGridContainer : public Container
 {
 public:
-    // Bring base class members into current namespace.
-    using Component::scaledExtent;
-    using Component::isVisible;
-    using Container::elements;
-
-    VerticalGridContainer(Screen& screen, const char* key, const SDL_Rect& logicalExtent)
-    : Container(screen, key, logicalExtent)
-    {
-    }
+    VerticalGridContainer(Screen& screen, const char* key, const SDL_Rect& logicalExtent);
 
     virtual ~VerticalGridContainer() = default;
 
-    void render(const SDL_Point& parentOffset = {}) override
-    {
-        // If the component isn't visible, return without rendering.
-        if (!isVisible) {
-            return;
-        }
+    /**
+     * The number of columns to render components in. When all columns are
+     * used, rendering continues down to the next row.
+     */
+    void setNumColumns(unsigned int inNumColumns);
 
-        // Add our position to the given offset.
-        int offsetX{parentOffset.x};
-        int offsetY{parentOffset.y};
-        offsetX += scaledExtent.x;
-        offsetY += scaledExtent.y;
+    /**
+     * Sets the width of a grid cell. The elements of this container will be
+     * rendered starting at the top left of their cell.
+     */
+    void setCellWidth(unsigned int inLogicalCellWidth);
 
-        for (std::unique_ptr<Component>& element : elements) {
-            element->render({offsetX, offsetY});
-            offsetY += ScalingHelpers::logicalToActual(150);
-        }
-    }
+    /**
+     * Sets the height of a grid cell. The elements of this container will be
+     * rendered starting at the top left of their cell.
+     */
+    void setCellHeight(unsigned int inLogicalCellHeight);
+
+    void render(const SDL_Point& parentOffset = {}) override;
+
+protected:
+    /**
+     * Overridden to properly scale cell size.
+     */
+    bool refreshScaling() override;
+
+private:
+    unsigned int numColumns;
+
+    int logicalCellWidth;
+    int scaledCellWidth;
+
+    int logicalCellHeight;
+    int scaledCellHeight;
 };
 
 } // namespace AUI

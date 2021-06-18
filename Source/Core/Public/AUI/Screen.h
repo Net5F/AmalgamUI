@@ -132,6 +132,11 @@ private:
     bool handleMouseButtonUp(SDL_MouseButtonEvent& event);
 
     /**
+     * Passes the event to all MouseWheel listeners.
+     */
+    bool handleMouseWheel(SDL_MouseWheelEvent& event);
+
+    /**
      * Passes the event to all MouseMove listeners.
      */
     void handleMouseMove(SDL_MouseMotionEvent& event);

@@ -74,6 +74,11 @@ public:
     virtual bool onMouseButtonUp(SDL_MouseButtonEvent& event);
 
     /**
+     * Called when a SDL_MOUSEWHEEL event occurs.
+     */
+    virtual bool onMouseWheel(SDL_MouseWheelEvent& event);
+
+    /**
      * Called when a SDL_MOUSEMOTION event occurs.
      */
     virtual void onMouseMove(SDL_MouseMotionEvent& event);

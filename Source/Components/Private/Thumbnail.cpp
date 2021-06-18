@@ -1,6 +1,7 @@
 #include "AUI/Thumbnail.h"
 #include "AUI/Screen.h"
 #include "AUI/Core.h"
+#include "AUI/Internal/Ignore.h"
 
 namespace AUI {
 
@@ -26,6 +27,7 @@ Thumbnail::Thumbnail(Screen& screen, const char* key, const SDL_Rect& logicalExt
 
     // Register for the events that we want to listen for.
     registerListener(InternalEvent::MouseButtonDown);
+    registerListener(InternalEvent::MouseWheel);
     registerListener(InternalEvent::MouseMove);
 }
 
@@ -200,26 +202,24 @@ bool Thumbnail::onMouseButtonDown(SDL_MouseButtonEvent& event)
     }
 }
 
+bool Thumbnail::onMouseWheel(SDL_MouseWheelEvent& event)
+{
+    // We don't care about the scroll itself, just about updating our
+    // hovered state since we may have moved.
+    ignore(event);
+
+    // Get the mouse position since the event doesn't report it.
+    SDL_Point mousePosition{};
+    SDL_GetMouseState(&(mousePosition.x), &(mousePosition.y));
+
+    // Update our hovered state if necessary.
+    return updateHovered(mousePosition);
+}
+
 void Thumbnail::onMouseMove(SDL_MouseMotionEvent& event)
 {
-    // If we're active, don't change to hovered.
-    if (isActive) {
-        return;
-    }
-
-    // If the mouse is inside our extent.
-    if (containsPoint({event.x, event.y})) {
-        // If we're not hovered, become hovered.
-        if (!isHovered) {
-            isHovered = true;
-        }
-    }
-    else {
-        // Else, the mouse isn't in our extent. If we're hovered, unhover.
-        if (isHovered) {
-            isHovered = false;
-        }
-    }
+    // Update our hovered state if necessary.
+    updateHovered({event.x, event.y});
 }
 
 void Thumbnail::render(const SDL_Point& parentOffset)
@@ -264,6 +264,31 @@ void Thumbnail::render(const SDL_Point& parentOffset)
 
     // Render the text.
     text.render(childOffset);
+}
+
+bool Thumbnail::updateHovered(SDL_Point actualMousePoint)
+{
+    // If we're active, don't change to hovered.
+    if (isActive) {
+        return false;
+    }
+
+    // If the mouse is inside our extent.
+    if (containsPoint({actualMousePoint.x, actualMousePoint.y})) {
+        // If we're not hovered, become hovered.
+        if (!isHovered) {
+            isHovered = true;
+            return true;
+        }
+    }
+    else {
+        // Else, the mouse isn't in our extent. If we're hovered, unhover.
+        if (isHovered) {
+            isHovered = false;
+        }
+    }
+
+    return false;
 }
 
 } // namespace AUI

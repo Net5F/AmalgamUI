@@ -157,6 +157,8 @@ public:
     //-------------------------------------------------------------------------
     bool onMouseButtonDown(SDL_MouseButtonEvent& event) override;
 
+    bool onMouseWheel(SDL_MouseWheelEvent& event) override;
+
     void onMouseMove(SDL_MouseMotionEvent& event) override;
 
     void render(const SDL_Point& parentOffset = {}) override;
@@ -165,6 +167,12 @@ private:
     //-------------------------------------------------------------------------
     // Private members
     //-------------------------------------------------------------------------
+    /**
+     * Uses the given actual-space mouse position to check if this component
+     * should be hovered or unhovered.
+     */
+    bool updateHovered(SDL_Point actualMousePoint);
+
     /** The text that goes under the thumbnail image. Private since we need to
         right-align the text if it gets too large. */
     Text text;

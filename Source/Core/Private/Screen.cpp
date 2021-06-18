@@ -81,6 +81,9 @@ bool Screen::handleEvent(SDL_Event& event)
             handleMouseMove(event.motion);
             return false;
         }
+        case SDL_MOUSEWHEEL: {
+            return handleMouseWheel(event.wheel);
+        }
         case SDL_KEYDOWN: {
             return handleKeyDown(event.key);
         }
@@ -144,6 +147,25 @@ bool Screen::handleMouseButtonUp(SDL_MouseButtonEvent& event)
 
         // Call the listener's callback and track if the event was handled.
         if (listener->onMouseButtonUp(event)) {
+            eventHandled = true;
+        }
+    }
+
+    return eventHandled;
+}
+
+bool Screen::handleMouseWheel(SDL_MouseWheelEvent& event)
+{
+    bool eventHandled{false};
+    for (Component* listener : listenerMap[InternalEvent::MouseWheel]) {
+        // If the index is empty or the listener isn't visible, continue.
+        if ((listener == nullptr)
+            || !(listener->getIsVisible())) {
+            continue;
+        }
+
+        // Call the listener's callback.
+        if (listener->onMouseWheel(event)) {
             eventHandled = true;
         }
     }

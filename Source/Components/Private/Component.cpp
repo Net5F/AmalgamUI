@@ -141,6 +141,15 @@ bool Component::onMouseButtonUp(SDL_MouseButtonEvent& event)
     return false;
 }
 
+bool Component::onMouseWheel(SDL_MouseWheelEvent& event)
+{
+    ignore(event);
+    AUI_LOG_ERROR("Base class callback called. Please override onMouseWheel() "
+    "in your derived class.");
+
+    return false;
+}
+
 void Component::onMouseMove(SDL_MouseMotionEvent& event)
 {
     ignore(event);

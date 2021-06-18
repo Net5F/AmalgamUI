@@ -16,6 +16,10 @@ namespace AUI {
 class Container : public Component
 {
 public:
+    using container_type = std::vector<std::unique_ptr<Component>>;
+    using iterator = container_type::iterator;
+    using const_iterator = container_type::const_iterator;
+
     virtual ~Container() = default;
 
     /**
@@ -53,6 +57,11 @@ public:
      * Returns the number of elements in this container.
      */
     std::size_t size();
+
+    iterator begin() { return elements.begin(); };
+    const_iterator begin() const { return elements.begin(); };
+    iterator end() { return elements.end(); };
+    const_iterator end() const { return elements.end(); };
 
 protected:
     Container(Screen& screen, const char* key, const SDL_Rect& logicalExtent);

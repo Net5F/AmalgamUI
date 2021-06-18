@@ -58,7 +58,7 @@ void Thumbnail::deselect()
     isSelected = false;
 
     // If the user set a callback for this event, call it.
-    if (onDeselected == nullptr) {
+    if (onDeselected != nullptr) {
         onDeselected(this);
     }
 }
@@ -90,9 +90,24 @@ void Thumbnail::deactivate()
     isActive = false;
 
     // If the user set a callback for this event, call it.
-    if (onDeactivated == nullptr) {
+    if (onDeactivated != nullptr) {
         onDeactivated(this);
     }
+}
+
+bool Thumbnail::getIsHovered()
+{
+    return isHovered;
+}
+
+bool Thumbnail::getIsSelected()
+{
+    return isSelected;
+}
+
+bool Thumbnail::getIsActive()
+{
+    return isActive;
 }
 
 void Thumbnail::setIsHoverable(bool inIsHoverable)
@@ -154,6 +169,16 @@ void Thumbnail::setTextHorizontalAlignment(Text::HorizontalAlignment inHorizonta
         // Else the text is too big to fit, right align it.
         text.setHorizontalAlignment(Text::HorizontalAlignment::Right);
     }
+}
+
+void Thumbnail::setOnSelected(std::function<void(Thumbnail*)> inOnSelected)
+{
+    onSelected = std::move(inOnSelected);
+}
+
+void Thumbnail::setOnDeselected(std::function<void(Thumbnail*)> inOnDeselected)
+{
+    onDeselected = std::move(inOnDeselected);
 }
 
 void Thumbnail::setOnActivated(std::function<void(Thumbnail*)> inOnActivated)

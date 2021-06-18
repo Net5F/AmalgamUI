@@ -77,6 +77,10 @@ public:
      */
     void deactivate();
 
+    bool getIsHovered();
+    bool getIsSelected();
+    bool getIsActive();
+
     /** If true, this component is able to be hovered. */
     void setIsHoverable(bool inIsHoverable);
 

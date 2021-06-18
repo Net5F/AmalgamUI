@@ -202,7 +202,7 @@ bool Thumbnail::onMouseButtonDown(SDL_MouseButtonEvent& event)
     if (containsPoint({event.x, event.y})) {
         // If this was a double click (or more) and we aren't already active,
         // activate this component.
-        if (!isActive && (event.clicks >= 2)) {
+        if (isActivateable && !isActive && (event.clicks >= 2)) {
             activate();
 
             // If we were selected, clear the selection.

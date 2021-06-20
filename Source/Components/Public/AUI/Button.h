@@ -7,7 +7,7 @@
 namespace AUI {
 
 /**
- * Displays a simple static image.
+ * A simple button with text.
  */
 class Button : public Component
 {

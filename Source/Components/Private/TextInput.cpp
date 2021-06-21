@@ -190,6 +190,11 @@ bool TextInput::onKeyDown(SDL_KeyboardEvent& event)
 
 bool TextInput::onTextInput(SDL_TextInputEvent& event)
 {
+    // If we don't have focus, ignore the event.
+    if (currentState != State::Focused) {
+        return false;
+    }
+
     // Append the user's new character to the end of the text.
     text.insertText(event.text, cursorIndex);
 
@@ -485,6 +490,12 @@ void TextInput::assumeFocus()
     // Show the text cursor immediately so the user can see where they're at.
     cursorIsVisible = true;
     accumulatedBlinkTime = 0;
+
+    // Move the cursor to the end.
+    cursorIndex = text.asString().length();
+
+    // Refresh the text position to account for the change.
+    refreshTextScrollOffset();
 }
 
 void TextInput::removeFocus()

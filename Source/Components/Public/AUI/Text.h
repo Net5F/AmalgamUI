@@ -230,7 +230,7 @@ private:
         space that the text texture should be rendered at. */
     SDL_Rect textExtent;
 
-    /** An x-axis offset applied to the text's actual-space position before
+    /** An actual-space x-axis offset applied to the text's position before
         clipping. Effectively moves the text in relation to our scaledExtent.
         Used to scroll the text and have it be clipped appropriately. */
     int textOffset;

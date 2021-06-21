@@ -69,9 +69,52 @@ SDL_Point ScalingHelpers::logicalToActual(const SDL_Point& logicalPoint)
     return actualPoint;
 }
 
+int ScalingHelpers::actualToLogical(int actualInt)
+{
+    // Calculate the scaling factor, going from actual size to logical.
+    // TODO: When support for changing aspect ratios gets added, we'll have to
+    //       tweak this.
+    double scale = static_cast<double>(Core::GetLogicalScreenSize().width) / Core::GetActualScreenSize().width;
+
+    return std::round(actualInt * scale);
+}
+
+unsigned int ScalingHelpers::actualToLogical(unsigned int actualInt)
+{
+    // Calculate the scaling factor, going from actual size to logical.
+    // TODO: When support for changing aspect ratios gets added, we'll have to
+    //       tweak this.
+    double scale = static_cast<double>(Core::GetLogicalScreenSize().width) / Core::GetActualScreenSize().width;
+
+    return std::round(actualInt * scale);
+}
+
+SDL_Rect ScalingHelpers::actualToLogical(const SDL_Rect& actualExtent)
+{
+    // Calculate the scaling factor, going from actual size to logical.
+    double xScale = static_cast<double>(Core::GetLogicalScreenSize().width) / Core::GetActualScreenSize().width;
+    double yScale = static_cast<double>(Core::GetLogicalScreenSize().height) / Core::GetActualScreenSize().height;
+
+    // Note: We'll eventually support other aspect ratios by centering the UI,
+    //       but for now we just fail if you try to change the aspect ratio.
+    if (xScale != yScale) {
+        AUI_LOG_ERROR("We currently only support scaling within the same aspect"
+                      " ratio.");
+    }
+
+    // Scale from actual to logical.
+    SDL_Rect logicalExtent;
+    logicalExtent.x = std::round(actualExtent.x * xScale);
+    logicalExtent.y = std::round(actualExtent.y * yScale);
+    logicalExtent.w = std::round(actualExtent.w * xScale);
+    logicalExtent.h = std::round(actualExtent.h * yScale);
+
+    return logicalExtent;
+}
+
 SDL_Point ScalingHelpers::actualToLogical(const SDL_Point& actualPoint)
 {
-    // Calculate the scaling factor, going from actual position to logical.
+    // Calculate the scaling factor, going from actual size to logical.
     double xScale = static_cast<double>(Core::GetLogicalScreenSize().width) / Core::GetActualScreenSize().width;
     double yScale = static_cast<double>(Core::GetLogicalScreenSize().height) / Core::GetActualScreenSize().height;
 

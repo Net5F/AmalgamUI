@@ -74,8 +74,7 @@ void Text::setHorizontalAlignment(HorizontalAlignment inHorizontalAlignment)
 
 void Text::setTextOffset(int inTextOffset)
 {
-    SDL_Point scaledPoint{ScalingHelpers::logicalToActual(SDL_Point{inTextOffset, 0})};
-    textOffset = scaledPoint.x;
+    textOffset = inTextOffset;
 }
 
 void Text::insertText(std::string_view inText, unsigned int index)

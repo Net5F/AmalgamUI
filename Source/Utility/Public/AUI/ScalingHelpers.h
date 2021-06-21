@@ -44,6 +44,15 @@ public:
      * value, returning its logical-space equivalent.
      * Uses Core::logicalScreenSize and Core::actualScreenSize.
      */
+    static int actualToLogical(int actualInt);
+
+    /** Overload for unsigned int. See actualToLogical(int). */
+    static unsigned int actualToLogical(unsigned int actualInt);
+
+    /** Overload for SDL_Rect. See actualToLogical(int). */
+    static SDL_Rect actualToLogical(const SDL_Rect& actualExtent);
+
+    /** Overload for SDL_Point. See actualToLogical(int). */
     static SDL_Point actualToLogical(const SDL_Point& actualPoint);
 };
 

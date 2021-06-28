@@ -87,6 +87,11 @@ void TextInput::setText(std::string_view inText)
     refreshTextScrollOffset();
 }
 
+const std::string& TextInput::getText()
+{
+    return text.asString();
+}
+
 void TextInput::setOnTextChanged(std::function<void(void)> inOnTextChanged)
 {
     onTextChanged = std::move(inOnTextChanged);

@@ -26,35 +26,46 @@ class ResourceManager
 {
 public:
     /**
-     * Attempts to load the texture at the given path.
+     * Loads the texture at the given path and returns a handle to it.
+     *
+     * If the texture is already loaded, returns a handle to it without re-
+     * loading.
      *
      * @param relPath  The path to the texture, including the file name,
      *                 relative to Core's resourcePath.
      */
-     TextureHandle loadTexture(const entt::hashed_string& relPath);
+    TextureHandle loadTexture(const std::string& relPath);
 
     /**
-     * @param id  The resource identifier (the relPath that you passed into
-     *            loadTexture()).
-     * @return A valid handle if the id exists, else an invalid handle.
+     * Removes the texture at the given path from the resource cache.
+     *
+     * @param relPath  The path to the texture, including the file name,
+     *                 relative to Core's resourcePath.
+     * @return true if the texture was found and removed, else false.
      */
-     TextureHandle getTexture(const entt::hashed_string id);
+    bool discardTexture(const std::string& relPath);
 
     /**
-     * Attempts to load the font at the given path with the given size.
+     * Loads the font at the given path and size, and returns a handle to it.
+     *
+     * If the font is already loaded, returns a handle to it without re-
+     * loading.
      *
      * @param relPath  The path to the font, including the file name, relative
      *                 to Core's resourcePath.
      * @param size  The size of the font, in points.
      */
-     FontHandle loadFont(const std::string& relPath, int size);
+    FontHandle loadFont(const std::string& relPath, int size);
 
     /**
-     * @param id  The resource identifier (the name that you passed to
-     *            loadFont()).
-     * @return A valid handle if the id exists, else an invalid handle.
+     * Removes the font at the given path from the resource cache.
+     *
+     * @param relPath  The path to the font, including the file name, relative
+     *                 to Core's resourcePath.
+     * @param size  The size of the font, in points.
+     * @return true if the font was found and removed, else false.
      */
-     FontHandle getFont(const entt::hashed_string id);
+    bool discardFont(const std::string& relPath, int size);
 
 private:
     entt::resource_cache<SDL_Texture> textureCache;

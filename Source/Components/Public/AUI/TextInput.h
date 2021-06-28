@@ -78,6 +78,8 @@ public:
      */
     void setText(std::string_view inText);
 
+    /** Calls text.asString(). */
+    const std::string& getText();
     /** Calls text.setFont(). */
     void setTextFont(const std::string& relPath, int size);
     /** Calls text.setColor(). */

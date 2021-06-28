@@ -16,7 +16,7 @@ void Image::addResolution(const ScreenResolution& resolution, const std::string&
     // Attempt to load the given texture (errors on failure).
     ResourceManager& resourceManager = Core::GetResourceManager();
     TextureData textureData;
-    textureData.handle = resourceManager.loadTexture(entt::hashed_string(relPath.c_str()));
+    textureData.handle = resourceManager.loadTexture(relPath);
 
     // Default the texture extent to the actual texture size.
     SDL_QueryTexture(&(textureData.handle.get()), nullptr, nullptr, &(textureData.extent.w), &(textureData.extent.h));

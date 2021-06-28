@@ -3,19 +3,19 @@
 
 namespace AUI
 {
-TextureHandle ResourceManager::loadTexture(const entt::hashed_string& relPath)
+TextureHandle ResourceManager::loadTexture(const std::string& relPath)
 {
-    // If the texture is already loaded, don't try to load it again.
-    if (textureCache.contains(relPath)) {
-        return getTexture(relPath);
-    }
+    // Prepare the cache ID for this texture (we just use the relPath).
+    entt::hashed_string id{relPath.c_str()};
 
-    // Prepare the path.
+    // Append Core::resourcePath to the given path.
     std::string fullPath{Core::GetResourcePath()};
-    fullPath += relPath.data();
+    fullPath += relPath;
 
     // Load the texture.
-    TextureHandle handle = textureCache.load<TextureLoader>(relPath, fullPath, Core::GetRenderer());
+    // Note: If the texture is already loaded, this returns the existing
+    //       handle.
+    TextureHandle handle = textureCache.load<TextureLoader>(id, fullPath, Core::GetRenderer());
     if (!handle) {
         AUI_LOG_ERROR("Failed to load texture at path: %s", fullPath.c_str());
     }
@@ -23,22 +23,27 @@ TextureHandle ResourceManager::loadTexture(const entt::hashed_string& relPath)
     return handle;
 }
 
-TextureHandle ResourceManager::getTexture(const entt::hashed_string id)
+bool ResourceManager::discardTexture(const std::string& relPath)
 {
-    return textureCache.handle(id);
+    // Prepare the cache ID for this texture (we just use the relPath).
+    entt::hashed_string id{relPath.c_str()};
+
+    // If the cache contains the given texture, discard it.
+    if (textureCache.contains(id)) {
+        textureCache.discard(id);
+        return true;
+    }
+    else {
+        return false;
+    }
 }
 
 FontHandle ResourceManager::loadFont(const std::string& relPath, int size)
 {
-    // Prepare the ID ("relPath_size").
+    // Prepare the cache ID for this font ("relPath_size").
     std::string idString{relPath};
     idString += "_" + std::to_string(size);
     entt::hashed_string id(idString.c_str());
-
-    // If the font is already loaded, don't try to load it again.
-    if (fontCache.contains(id)) {
-        return getFont(id);
-    }
 
     // Prepare the path.
     std::string fullPath{Core::GetResourcePath()};
@@ -53,9 +58,21 @@ FontHandle ResourceManager::loadFont(const std::string& relPath, int size)
     return handle;
 }
 
-FontHandle ResourceManager::getFont(const entt::hashed_string id)
+bool ResourceManager::discardFont(const std::string& relPath, int size)
 {
-    return fontCache.handle(id);
+    // Prepare the cache ID for this font ("relPath_size").
+    std::string idString{relPath};
+    idString += "_" + std::to_string(size);
+    entt::hashed_string id(idString.c_str());
+
+    // If the cache contains the given font, discard it.
+    if (textureCache.contains(id)) {
+        textureCache.discard(id);
+        return true;
+    }
+    else {
+        return false;
+    }
 }
 
 } // End namespace AUI

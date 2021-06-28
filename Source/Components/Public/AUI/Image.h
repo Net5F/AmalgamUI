@@ -4,6 +4,7 @@
 #include "AUI/ScreenResolution.h"
 #include "AUI/ResourceManager.h" // TextureHandle
 #include <map>
+#include <string>
 
 namespace AUI {
 

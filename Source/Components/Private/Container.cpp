@@ -42,6 +42,11 @@ void Container::erase(Component* component) {
     }
 }
 
+void Container::clear()
+{
+    elements.clear();
+}
+
 Component& Container::operator[](std::size_t index) {
     if (elements.size() <= index) {
         AUI_LOG_ERROR("Given index is out of bounds. Index: %u, Size: %u"

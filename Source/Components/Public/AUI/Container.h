@@ -45,6 +45,11 @@ public:
     void erase(Component* component);
 
     /**
+     * Clears the container, removing all elements.
+     */
+    void clear();
+
+    /**
      * Returns the element at the given index.
      *
      * Errors in debug if the given index doesn't exist.

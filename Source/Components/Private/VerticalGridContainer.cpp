@@ -1,6 +1,7 @@
 #include "AUI/VerticalGridContainer.h"
 #include "AUI/ScalingHelpers.h"
 #include "AUI/Internal/Log.h"
+#include <cmath>
 
 namespace AUI {
 
@@ -84,9 +85,9 @@ void VerticalGridContainer::render(const SDL_Point& parentOffset)
         unsigned int cellColumn = i % numColumns;
         unsigned int cellRow = i / numColumns;
 
-        // If this element is offscreen, make it invisible to ignore events
+        // If this element is offscreen, make it invisible (to ignore events)
         // and continue to the next.
-        if ((cellRow < rowScroll) || (cellRow > (maxVisibleRows + rowScroll))) {
+        if ((cellRow < rowScroll) || (cellRow >= (maxVisibleRows + rowScroll))) {
             elements[i]->setIsVisible(false);
             continue;
         }
@@ -126,7 +127,7 @@ bool VerticalGridContainer::refreshScaling()
 void VerticalGridContainer::scrollElements(bool scrollUp)
 {
     // Calc how many rows are currently present.
-    int currentRows = elements.size() / numColumns;
+    int currentRows = std::ceil(elements.size() / static_cast<float>(numColumns));
 
     // Calc how many rows can fit onscreen at once.
     int maxVisibleRows = logicalExtent.h / logicalCellHeight;
@@ -138,11 +139,11 @@ void VerticalGridContainer::scrollElements(bool scrollUp)
     }
     else if (!scrollUp) {
         // Else if we've being asked to scroll down, calculate if there are
-        // any elements below to scroll to.
-        int elementsBelow = currentRows - maxVisibleRows - rowScroll;
+        // any rows below to scroll to.
+        int rowsBelow = currentRows - maxVisibleRows - rowScroll;
 
         // If there are any elements offscreen below, scroll down 1 row.
-        if (elementsBelow > 0) {
+        if (rowsBelow > 0) {
             rowScroll++;
         }
     }

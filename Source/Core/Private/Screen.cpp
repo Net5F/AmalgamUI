@@ -42,6 +42,7 @@ void Screen::registerListener(InternalEvent::Type eventType, Component* listener
         // If we found an empty index, add the listener to it.
         if (listeners[i] == nullptr) {
             listeners[i] = listener;
+            return;
         }
     }
 

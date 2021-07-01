@@ -73,6 +73,9 @@ void Thumbnail::activate()
     // Flag that we're now active.
     isActive = true;
 
+    // Flag that we aren't hovered (can't be hovered while active.)
+    isHovered = false;
+
     // If the user set a callback for this event, call it.
     if (onActivated != nullptr) {
         onActivated(this);

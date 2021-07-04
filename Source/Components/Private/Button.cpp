@@ -4,13 +4,13 @@
 
 namespace AUI {
 
-Button::Button(Screen& screen, const char* key, const SDL_Rect& logicalExtent)
-: Component(screen, key, logicalExtent)
-, normalImage(screen, "", {0, 0, logicalExtent.w, logicalExtent.h})
-, hoveredImage(screen, "", {0, 0, logicalExtent.w, logicalExtent.h})
-, pressedImage(screen, "", {0, 0, logicalExtent.w, logicalExtent.h})
-, disabledImage(screen, "", {0, 0, logicalExtent.w, logicalExtent.h})
-, text(screen, "", {0, 0, logicalExtent.w, logicalExtent.h})
+Button::Button(Screen& inScreen, const char* key, const SDL_Rect& logicalExtent)
+: Component(inScreen, key, logicalExtent)
+, normalImage(inScreen, "", {0, 0, logicalExtent.w, logicalExtent.h})
+, hoveredImage(inScreen, "", {0, 0, logicalExtent.w, logicalExtent.h})
+, pressedImage(inScreen, "", {0, 0, logicalExtent.w, logicalExtent.h})
+, disabledImage(inScreen, "", {0, 0, logicalExtent.w, logicalExtent.h})
+, text(inScreen, "", {0, 0, logicalExtent.w, logicalExtent.h})
 , currentState{State::Normal}
 {
     // Default to centering the text within the button. The user can set it

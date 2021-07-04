@@ -24,7 +24,7 @@ void Image::addResolution(const ScreenResolution& resolution, const std::string&
     // If we already have the given resolution, fail.
     if (resolutionMap.find(resolution) != resolutionMap.end()) {
         AUI_LOG_ERROR("Tried to add image resolution that is already in use. "
-        "Key: %s, Resolution: (%d, %d)", key, resolution.width, resolution.height);
+        "Key: %s, Resolution: (%d, %d)", key.data(), resolution.width, resolution.height);
     }
 
     // Add the resolution to the map.

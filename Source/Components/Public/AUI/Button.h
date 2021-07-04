@@ -28,7 +28,7 @@ public:
     //-------------------------------------------------------------------------
     // Public interface
     //-------------------------------------------------------------------------
-    Button(Screen& screen, const char* key, const SDL_Rect& logicalExtent);
+    Button(Screen& inScreen, const char* key, const SDL_Rect& logicalExtent);
 
     virtual ~Button() = default;
 

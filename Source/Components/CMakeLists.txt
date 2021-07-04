@@ -2,6 +2,7 @@ target_sources(AmalgamUI
     PRIVATE
         Private/Button.cpp
         Private/Component.cpp
+        Private/ConfirmationDialog.cpp
         Private/Container.cpp
         Private/Image.cpp
         Private/Text.cpp
@@ -13,6 +14,7 @@ target_sources(AmalgamUI
         # files as "AUI/Xyz.h" for some extra clarity.
         Public/AUI/Button.h
         Public/AUI/Component.h
+        Public/AUI/ConfirmationDialog.h
         Public/AUI/Container.h
         Public/AUI/Image.h
         Public/AUI/Text.h

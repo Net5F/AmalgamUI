@@ -6,6 +6,8 @@
 
 namespace AUI {
 
+int TextInput::focusedInputCount = 0;
+
 TextInput::TextInput(Screen& screen, const char* key, const SDL_Rect& logicalExtent)
 : Component(screen, key, logicalExtent)
 , normalImage(screen, "", {0, 0, logicalExtent.w, logicalExtent.h})
@@ -487,6 +489,7 @@ void TextInput::assumeFocus()
 {
     // Set our state to focused.
     currentState = State::Focused;
+    focusedInputCount++;
 
     // Begin generating text input events.
     SDL_StartTextInput();
@@ -507,9 +510,12 @@ void TextInput::removeFocus()
 {
     // Set our state back to normal.
     currentState = State::Normal;
+    focusedInputCount--;
 
-    // Stop generating text input events.
-    SDL_StopTextInput();
+    // If there are no other focused inputs, stop generating text input events.
+    if (focusedInputCount == 0) {
+        SDL_StopTextInput();
+    }
 
     // Reset the text cursor's state.
     cursorIsVisible = false;

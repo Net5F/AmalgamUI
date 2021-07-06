@@ -18,9 +18,6 @@ public:
     //       scroll offset calcs. The graphic itself can just be a blue
     //       box drawn behind the text, or a semi-transparent box drawn
     //       in front of it.
-    // TODO: Scaling is currently broken. When moving the cursor to the right,
-    //       the text image blows up instead of the destination extent scaling
-    //       properly.
 
     //-------------------------------------------------------------------------
     // Public definitions
@@ -207,6 +204,12 @@ private:
 
     /** Tracks whether the text cursor should be drawn or not. */
     bool cursorIsVisible;
+
+    /** Tracks the number of inputs that are currently focused. If an unfocused
+        TextInput receives a MouseDown event before a currently-focused one
+        can unfocus, we'll briefly have 2. In that case, we use this count to
+        avoid calling SDL_StopTextInput() prematurely. */
+    static int focusedInputCount;
 };
 
 } // namespace AUI

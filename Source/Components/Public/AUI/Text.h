@@ -25,6 +25,9 @@ namespace AUI {
 class Text : public Component
 {
 public:
+    //-------------------------------------------------------------------------
+    // Public definitions
+    //-------------------------------------------------------------------------
     /**
      * Text render mode, affects the quality of the rendered image.
      * See SDL_ttf documentation for more.
@@ -56,6 +59,9 @@ public:
         Right
     };
 
+    //-------------------------------------------------------------------------
+    // Public interface
+    //-------------------------------------------------------------------------
     Text(Screen& screen, const char* key, const SDL_Rect& logicalExtent);
 
     /**
@@ -145,6 +151,9 @@ public:
     HorizontalAlignment getHorizontalAlignment();
     int getTextOffset();
 
+    //-------------------------------------------------------------------------
+    // Base class overrides
+    //-------------------------------------------------------------------------
     /**
      * Calls Component::setExtent(), then calls refreshAlignment().
      */

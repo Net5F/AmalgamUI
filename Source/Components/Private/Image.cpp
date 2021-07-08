@@ -4,8 +4,8 @@
 
 namespace AUI {
 
-Image::Image(Screen& screen, const char* key, const SDL_Rect& logicalExtent)
-: Component(screen, key, logicalExtent)
+Image::Image(Screen& inScreen, const char* key, const SDL_Rect& logicalExtent)
+: Component(inScreen, key, logicalExtent)
 , currentTexHandle()
 , currentTexExtent{}
 {

@@ -8,6 +8,7 @@ target_sources(AmalgamUI
         Private/Text.cpp
         Private/TextInput.cpp
         Private/Thumbnail.cpp
+        Private/TiledImage.cpp
         Private/VerticalGridContainer.cpp
     PUBLIC
         # Note: We add the extra "AUI" directory so that consumers can include
@@ -20,6 +21,7 @@ target_sources(AmalgamUI
         Public/AUI/Text.h
         Public/AUI/TextInput.h
         Public/AUI/Thumbnail.h
+        Public/AUI/TiledImage.h
         Public/AUI/VerticalGridContainer.h
 )
 

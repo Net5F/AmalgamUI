@@ -14,7 +14,10 @@ namespace AUI {
 class Image : public Component
 {
 public:
-    Image(Screen& screen, const char* key, const SDL_Rect& logicalExtent);
+    //-------------------------------------------------------------------------
+    // Public interface
+    //-------------------------------------------------------------------------
+    Image(Screen& inScreen, const char* key, const SDL_Rect& logicalExtent);
 
     virtual ~Image() = default;
 
@@ -46,6 +49,9 @@ public:
      */
     void addResolution(const ScreenResolution& resolution, const std::string& relPath, const SDL_Rect& inTexExtent);
 
+    //-------------------------------------------------------------------------
+    // Base class overrides
+    //-------------------------------------------------------------------------
     void render(const SDL_Point& parentOffset = {}) override;
 
 protected:
@@ -54,7 +60,6 @@ protected:
      */
     bool refreshScaling() override;
 
-private:
     /**
      * Re-calculates which resolution of texture to use, based on Core's
      * current actualScreenSize and the available resolutions in resolutionMap.

@@ -49,6 +49,12 @@ public:
      */
     void addResolution(const ScreenResolution& resolution, const std::string& relPath, const SDL_Rect& inTexExtent);
 
+    /**
+     * Clears this image's current texture and the textures in its
+     * resolutionMap.
+     */
+    void clearTextures();
+
     //-------------------------------------------------------------------------
     // Base class overrides
     //-------------------------------------------------------------------------

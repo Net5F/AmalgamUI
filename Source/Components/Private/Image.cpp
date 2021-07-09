@@ -48,10 +48,6 @@ void Image::addResolution(const ScreenResolution& resolution, const std::string&
 
 void Image::render(const SDL_Point& parentOffset)
 {
-    if (!currentTexHandle) {
-        AUI_LOG_ERROR("Tried to render Image with no texture. Key: %s", key.data());
-    }
-
     // Keep our scaling up to date.
     refreshScaling();
 
@@ -68,9 +64,21 @@ void Image::render(const SDL_Point& parentOffset)
         return;
     }
 
+    // If we don't have a texture to render, fail.
+    if (!currentTexHandle) {
+        AUI_LOG_ERROR("Tried to render Image with no texture. Key: %s", key.data());
+    }
+
     // Render the image.
     SDL_RenderCopy(Core::GetRenderer(), &(*currentTexHandle)
         , &currentTexExtent, &lastRenderedExtent);
+}
+
+void Image::clearTextures()
+{
+    currentTexHandle = TextureHandle();
+    currentTexExtent = SDL_Rect{};
+    resolutionMap.clear();
 }
 
 bool Image::refreshScaling()
@@ -88,6 +96,11 @@ bool Image::refreshScaling()
 
 void Image::refreshChosenResolution()
 {
+    if (resolutionMap.size() == 0) {
+        // No resolutions to choose from, return early.
+        return;
+    }
+
     // If we have a texture that matches the current actualScreenSize.
     auto matchIt = resolutionMap.find(Core::GetActualScreenSize());
     if (matchIt != resolutionMap.end()) {

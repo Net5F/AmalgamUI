@@ -11,10 +11,6 @@ TiledImage::TiledImage(Screen& inScreen, const char* key, const SDL_Rect& logica
 
 void TiledImage::render(const SDL_Point& parentOffset)
 {
-    if (!currentTexHandle) {
-        AUI_LOG_ERROR("Tried to render Image with no texture. Key: %s", key.data());
-    }
-
     // Keep our scaling up to date.
     refreshScaling();
 
@@ -29,6 +25,11 @@ void TiledImage::render(const SDL_Point& parentOffset)
     // If the component isn't visible, return without rendering.
     if (!isVisible) {
         return;
+    }
+
+    // If we don't have a texture to render, fail.
+    if (!currentTexHandle) {
+        AUI_LOG_ERROR("Tried to render Image with no texture. Key: %s", key.data());
     }
 
     // Tile the image to cover this component's extent.

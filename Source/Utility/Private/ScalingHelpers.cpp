@@ -25,6 +25,16 @@ unsigned int ScalingHelpers::logicalToActual(unsigned int logicalInt)
     return std::round(logicalInt * scale);
 }
 
+float ScalingHelpers::logicalToActual(float logicalFloat)
+{
+    // Calculate the scaling factor, going from logical size to actual.
+    // TODO: When support for changing aspect ratios gets added, we'll have to
+    //       tweak this.
+    double scale = static_cast<double>(Core::GetActualScreenSize().width) / Core::GetLogicalScreenSize().width;
+
+    return std::round(logicalFloat * scale);
+}
+
 SDL_Rect ScalingHelpers::logicalToActual(const SDL_Rect& logicalExtent)
 {
     // Calculate the scaling factor, going from logical size to actual.

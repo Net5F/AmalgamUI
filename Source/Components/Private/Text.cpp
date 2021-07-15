@@ -206,7 +206,7 @@ void Text::render(const SDL_Point& parentOffset)
 
 bool Text::refreshScaling()
 {
-    // If actualScreenExtent was refreshed, do our specialized refreshing.
+    // If scaledExtent was refreshed, do our specialized refreshing.
     if (Component::refreshScaling()) {
         // Refresh our alignment since the extent has moved.
         refreshAlignment();

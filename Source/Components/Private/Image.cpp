@@ -83,7 +83,7 @@ void Image::clearTextures()
 
 bool Image::refreshScaling()
 {
-    // If actualScreenExtent was refreshed, do our specialized refreshing.
+    // If scaledExtent was refreshed, do our specialized refreshing.
     if (Component::refreshScaling()) {
         // Re-calculate which resolution of texture to use.
         refreshChosenResolution();

@@ -51,6 +51,9 @@ public:
     /** Overload for unsigned int. See actualToLogical(int). */
     static unsigned int actualToLogical(unsigned int actualInt);
 
+    /** Overload for float. See actualToLogical(int). */
+    static float actualToLogical(float actualFloat);
+
     /** Overload for SDL_Rect. See actualToLogical(int). */
     static SDL_Rect actualToLogical(const SDL_Rect& actualExtent);
 

@@ -590,7 +590,7 @@ void TextInput::renderTextCursor(const SDL_Point& childOffset)
 {
     // Save the current draw color to re-apply later.
     SDL_Color originalColor;
-    SDL_GetRenderDrawColor(Core::GetRenderer(), &originalColor.r
+    SDL_GetRenderDrawColor(Core::getRenderer(), &originalColor.r
                            , &originalColor.g, &originalColor.b, &originalColor.a);
 
     // Calc where the cursor should be.
@@ -600,13 +600,13 @@ void TextInput::renderTextCursor(const SDL_Point& childOffset)
     cursorOffsetExtent.w = scaledCursorWidth;
 
     // Draw the cursor.
-    SDL_SetRenderDrawColor(Core::GetRenderer()
+    SDL_SetRenderDrawColor(Core::getRenderer()
     , cursorColor.r, cursorColor.g, cursorColor.b, cursorColor.a);
 
-    SDL_RenderFillRect(Core::GetRenderer(), &cursorOffsetExtent);
+    SDL_RenderFillRect(Core::getRenderer(), &cursorOffsetExtent);
 
     // Re-apply the original draw color.
-    SDL_SetRenderDrawColor(Core::GetRenderer(), originalColor.r
+    SDL_SetRenderDrawColor(Core::getRenderer(), originalColor.r
                            , originalColor.g, originalColor.b, originalColor.a);
 }
 

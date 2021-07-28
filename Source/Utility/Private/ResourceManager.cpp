@@ -8,16 +8,12 @@ TextureHandle ResourceManager::loadTexture(const std::string& relPath)
     // Prepare the cache ID for this texture (we just use the relPath).
     entt::hashed_string id{relPath.c_str()};
 
-    // Append Core::resourcePath to the given path.
-    std::string fullPath{Core::GetResourcePath()};
-    fullPath += relPath;
-
     // Load the texture.
     // Note: If the texture is already loaded, this returns the existing
     //       handle.
-    TextureHandle handle = textureCache.load<TextureLoader>(id, fullPath, Core::GetRenderer());
+    TextureHandle handle = textureCache.load<TextureLoader>(id, relPath, Core::getRenderer());
     if (!handle) {
-        AUI_LOG_ERROR("Failed to load texture at path: %s", fullPath.c_str());
+        AUI_LOG_ERROR("Failed to load texture at path: %s", relPath.c_str());
     }
 
     return handle;
@@ -45,14 +41,10 @@ FontHandle ResourceManager::loadFont(const std::string& relPath, int size)
     idString += "_" + std::to_string(size);
     entt::hashed_string id(idString.c_str());
 
-    // Prepare the path.
-    std::string fullPath{Core::GetResourcePath()};
-    fullPath += relPath.data();
-
     // Load the font.
-    FontHandle handle = fontCache.load<FontLoader>(id, fullPath, size);
+    FontHandle handle = fontCache.load<FontLoader>(id, relPath, size);
     if (!handle) {
-        AUI_LOG_ERROR("Failed to load font: %s", fullPath.c_str());
+        AUI_LOG_ERROR("Failed to load font: %s", relPath.c_str());
     }
 
     return handle;

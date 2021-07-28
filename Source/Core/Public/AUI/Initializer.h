@@ -20,14 +20,11 @@ class Initializer
 {
 public:
     /**
-     * @param resourcePath  The base path to use when opening resource files.
-     *                      Provided for convenience, can be whatever is
-     *                      useful for you.
      * @param sdlRenderer  The renderer to use for constructing textures and
      *                     rendering.
      * @param logicalScreenSize  See Core::setLogicalScreenSize().
      */
-    Initializer(const std::string& resourcePath, SDL_Renderer* sdlRenderer, ScreenResolution logicalScreenSize);
+    Initializer(SDL_Renderer* sdlRenderer, ScreenResolution logicalScreenSize);
 
     ~Initializer();
 };

@@ -12,7 +12,7 @@ Component::Component(Screen& inScreen, const char* inKey, const SDL_Rect& inLogi
 , logicalExtent{inLogicalExtent}
 , scaledExtent{ScalingHelpers::logicalToActual(logicalExtent)}
 , lastRenderedExtent{}
-, lastUsedScreenSize{Core::GetActualScreenSize()}
+, lastUsedScreenSize{Core::getActualScreenSize()}
 , isVisible{true}
 , listeningEventTypes{}
 {
@@ -30,13 +30,13 @@ Component::Component(Screen& inScreen, const char* inKey, const SDL_Rect& inLogi
         screen.registerComponent(*this);
     }
 
-    Core::IncComponentCount();
+    Core::incComponentCount();
 }
 
 Component::~Component()
 {
     // Unregister from any events that we were listening for.
-    for (unsigned int i = 0; i < InternalEvent::NumTypes; ++i) {
+    for (unsigned int i = 0; i < InternalEvent::NUM_TYPES; ++i) {
         if (listeningEventTypes[i]) {
             screen.unregisterListener(static_cast<InternalEvent::Type>(i), this);
         }
@@ -47,7 +47,7 @@ Component::~Component()
         screen.unregisterComponent(key);
     }
 
-    Core::DecComponentCount();
+    Core::decComponentCount();
 }
 
 bool Component::containsPoint(const SDL_Point& actualPoint)
@@ -204,12 +204,12 @@ void Component::unregisterListener(InternalEvent::Type eventType)
 bool Component::refreshScaling()
 {
     // If the screen size has changed.
-    if (lastUsedScreenSize != Core::GetActualScreenSize()) {
+    if (lastUsedScreenSize != Core::getActualScreenSize()) {
         // Re-calculate our scaled extent.
         scaledExtent = ScalingHelpers::logicalToActual(logicalExtent);
 
         // Save the new size.
-        lastUsedScreenSize = Core::GetActualScreenSize();
+        lastUsedScreenSize = Core::getActualScreenSize();
 
         return true;
     }

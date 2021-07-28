@@ -5,17 +5,15 @@
 
 namespace AUI {
 
-std::string Core::resourcePath{""};
 SDL_Renderer* Core::sdlRenderer{nullptr};
 ScreenResolution Core::logicalScreenSize{};
 ScreenResolution Core::actualScreenSize{};
 std::unique_ptr<ResourceManager> Core::resourceManager{nullptr};
 std::atomic<int> Core::componentCount{0};
 
-void Core::Initialize(const std::string& inResourcePath, SDL_Renderer* inSdlRenderer
+void Core::initialize(SDL_Renderer* inSdlRenderer
                       , ScreenResolution inLogicalScreenSize)
 {
-    resourcePath = inResourcePath;
     sdlRenderer = inSdlRenderer;
     resourceManager = std::make_unique<ResourceManager>();
 
@@ -32,7 +30,7 @@ void Core::Initialize(const std::string& inResourcePath, SDL_Renderer* inSdlRend
     }
 }
 
-void Core::Quit()
+void Core::quit()
 {
     // Check if any components are still alive.
     // Components must be destructed before IMG_Quit()/TTF_Quit() or they may
@@ -42,7 +40,6 @@ void Core::Quit()
         "AUI::Core::Quit(). Component count: %d", componentCount.load());
     }
 
-    resourcePath = "";
     sdlRenderer = nullptr;
     resourceManager = nullptr;
 
@@ -55,39 +52,34 @@ void Core::setActualScreenSize(ScreenResolution inActualScreenSize)
     actualScreenSize = inActualScreenSize;
 }
 
-void Core::IncComponentCount()
-{
-    componentCount++;
-}
-
-void Core::DecComponentCount()
-{
-    componentCount--;
-}
-
-const std::string& Core::GetResourcePath()
-{
-    return resourcePath;
-}
-
-SDL_Renderer* Core::GetRenderer()
+SDL_Renderer* Core::getRenderer()
 {
     return sdlRenderer;
 }
 
-ResourceManager& Core::GetResourceManager()
+ResourceManager& Core::getResourceManager()
 {
     return *resourceManager;
 }
 
-ScreenResolution Core::GetLogicalScreenSize()
+ScreenResolution Core::getLogicalScreenSize()
 {
     return logicalScreenSize;
 }
 
-ScreenResolution Core::GetActualScreenSize()
+ScreenResolution Core::getActualScreenSize()
 {
     return actualScreenSize;
+}
+
+void Core::incComponentCount()
+{
+    componentCount++;
+}
+
+void Core::decComponentCount()
+{
+    componentCount--;
 }
 
 } // namespace AUI

@@ -175,7 +175,7 @@ protected:
     bool isVisible;
 
     /** Tracks the events that this component is currently listening for. */
-    std::array<bool, InternalEvent::NumTypes> listeningEventTypes;
+    std::array<bool, InternalEvent::NUM_TYPES> listeningEventTypes;
 };
 
 } // namespace AUI

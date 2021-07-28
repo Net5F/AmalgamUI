@@ -58,7 +58,7 @@ void TiledImage::render(const SDL_Point& parentOffset)
             }
 
             // Render the tile.
-            SDL_RenderCopy(Core::GetRenderer(), &(*currentTexHandle)
+            SDL_RenderCopy(Core::getRenderer(), &(*currentTexHandle)
                 , &tileTexExtent, &tileExtent);
         }
     }

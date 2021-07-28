@@ -25,14 +25,11 @@ public:
      *
      * Alternatively, use the Initializer class.
      *
-     * @param inResourcePath  The base path to use when opening resource files.
-     *                        Provided for convenience, can be whatever is
-     *                        useful for you.
      * @param inSdlRenderer  The renderer to use for constructing textures and
      *                       rendering.
      * @param inLogicalScreenSize  See ScalingHelpers.h class comment.
      */
-    static void Initialize(const std::string& inResourcePath, SDL_Renderer* inSdlRenderer
+    static void initialize(SDL_Renderer* inSdlRenderer
                            , ScreenResolution inLogicalScreenSize);
 
     /**
@@ -41,7 +38,7 @@ public:
      *
      * Errors if componentCount != 0.
      */
-    static void Quit();
+    static void quit();
 
     /**
      * Sets a new screen size for the UI to scale to.
@@ -53,11 +50,10 @@ public:
      */
     static void setActualScreenSize(ScreenResolution inScaledScreenSize);
 
-    static const std::string& GetResourcePath();
-    static SDL_Renderer* GetRenderer();
-    static AUI::ResourceManager& GetResourceManager();
-    static ScreenResolution GetLogicalScreenSize();
-    static ScreenResolution GetActualScreenSize();
+    static SDL_Renderer* getRenderer();
+    static AUI::ResourceManager& getResourceManager();
+    static ScreenResolution getLogicalScreenSize();
+    static ScreenResolution getActualScreenSize();
 
 private:
     /** Friend component so it can update the component count. */
@@ -66,14 +62,11 @@ private:
     /**
      * Increases the count of currently constructed components.
      */
-    static void IncComponentCount();
+    static void incComponentCount();
     /**
      * Decreases the count of currently constructed components.
      */
-    static void DecComponentCount();
-
-    /** The base path to the start of the resource directory. */
-    static std::string resourcePath;
+    static void decComponentCount();
 
     /** The renderer to use when constructing textures and rendering. */
     static SDL_Renderer* sdlRenderer;

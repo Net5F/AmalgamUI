@@ -27,7 +27,7 @@ struct InternalEvent {
     };
 
     /** The number of event types. */
-    static constexpr unsigned int NumTypes = Type::Tick + 1;
+    static constexpr unsigned int NUM_TYPES = Type::Tick + 1;
 };
 
 } // namespace AUI

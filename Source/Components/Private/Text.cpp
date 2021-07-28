@@ -200,7 +200,7 @@ void Text::render(const SDL_Point& parentOffset)
     clippedTextureExtent.y -= offsetTextExtent.y;
 
     // Render the text texture.
-    SDL_RenderCopy(Core::GetRenderer(), textTexture.get()
+    SDL_RenderCopy(Core::getRenderer(), textTexture.get()
         , &clippedTextureExtent, &clippedTextExtent);
 }
 
@@ -265,7 +265,7 @@ void Text::refreshFontObject()
     int actualFontSize = ScalingHelpers::logicalToActual(logicalFontSize);
 
     // Attempt to load the given font (errors on failure).
-    ResourceManager& resourceManager = Core::GetResourceManager();
+    ResourceManager& resourceManager = Core::getResourceManager();
     fontHandle = resourceManager.loadFont(fontPath, actualFontSize);
 }
 
@@ -305,7 +305,7 @@ void Text::refreshTexture()
     }
 
     // Move the image to a texture on the gpu.
-    SDL_Texture* texture = SDL_CreateTextureFromSurface(Core::GetRenderer(), surface);
+    SDL_Texture* texture = SDL_CreateTextureFromSurface(Core::getRenderer(), surface);
     SDL_FreeSurface(surface);
     if (texture == nullptr) {
         AUI_LOG_ERROR("Failed to create texture.");

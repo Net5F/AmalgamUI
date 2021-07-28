@@ -14,7 +14,7 @@ Image::Image(Screen& inScreen, const char* key, const SDL_Rect& logicalExtent)
 void Image::addResolution(const ScreenResolution& resolution, const std::string& relPath)
 {
     // Attempt to load the given texture (errors on failure).
-    ResourceManager& resourceManager = Core::GetResourceManager();
+    ResourceManager& resourceManager = Core::getResourceManager();
     TextureData textureData;
     textureData.handle = resourceManager.loadTexture(relPath);
 
@@ -70,7 +70,7 @@ void Image::render(const SDL_Point& parentOffset)
     }
 
     // Render the image.
-    SDL_RenderCopy(Core::GetRenderer(), &(*currentTexHandle)
+    SDL_RenderCopy(Core::getRenderer(), &(*currentTexHandle)
         , &currentTexExtent, &lastRenderedExtent);
 }
 
@@ -102,7 +102,7 @@ void Image::refreshChosenResolution()
     }
 
     // If we have a texture that matches the current actualScreenSize.
-    auto matchIt = resolutionMap.find(Core::GetActualScreenSize());
+    auto matchIt = resolutionMap.find(Core::getActualScreenSize());
     if (matchIt != resolutionMap.end()) {
         // Use the matching texture.
         currentTexHandle = matchIt->second.handle;

@@ -69,7 +69,7 @@ public:
     const_iterator end() const { return elements.end(); };
 
 protected:
-    Container(Screen& screen, const char* key, const SDL_Rect& logicalExtent);
+    Container(Screen& screen, const SDL_Rect& inLogicalExtent, const std::string& inDebugName = "");
 
     /** This container's child elements. This container owns the elements in
         this vector and must render them according to its layout logic. */

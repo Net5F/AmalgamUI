@@ -4,8 +4,8 @@
 
 namespace AUI {
 
-Container::Container(Screen& screen, const char* key, const SDL_Rect& logicalExtent)
-: Component(screen, key, logicalExtent)
+Container::Container(Screen& inScreen, const SDL_Rect& inLogicalExtent, const std::string& inDebugName)
+: Component(inScreen, inLogicalExtent, inDebugName)
 {
 }
 
@@ -38,7 +38,7 @@ void Container::erase(Component* component) {
     else {
         // We didn't find it, error.
         AUI_LOG_ERROR("Tried to remove element that doesn't exist in "
-        "container. Container name: %s, element name: %s", key.data(), component->getKey().data());
+        "container. Container name: %s, element name: %s", debugName.c_str(), component->getDebugName().c_str());
     }
 }
 

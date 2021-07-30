@@ -16,7 +16,7 @@ public:
     //-------------------------------------------------------------------------
     // Public interface
     //-------------------------------------------------------------------------
-    ConfirmationDialog(Screen& screen, const char* key, const SDL_Rect& logicalExtent);
+    ConfirmationDialog(Screen& screen, const SDL_Rect& inLogicalExtent, const std::string& inDebugName = "");
 
     virtual ~ConfirmationDialog() = default;
 

@@ -4,8 +4,8 @@
 
 namespace AUI {
 
-Image::Image(Screen& inScreen, const char* key, const SDL_Rect& logicalExtent)
-: Component(inScreen, key, logicalExtent)
+Image::Image(Screen& inScreen, const SDL_Rect& inLogicalExtent, const std::string& inDebugName)
+: Component(inScreen, inLogicalExtent, inDebugName)
 , currentTexHandle()
 , currentTexExtent{}
 {
@@ -24,7 +24,7 @@ void Image::addResolution(const ScreenResolution& resolution, const std::string&
     // If we already have the given resolution, fail.
     if (resolutionMap.find(resolution) != resolutionMap.end()) {
         AUI_LOG_ERROR("Tried to add image resolution that is already in use. "
-        "Key: %s, Resolution: (%d, %d)", key.data(), resolution.width, resolution.height);
+        "DebugName: %s, Resolution: (%d, %d)", debugName.c_str(), resolution.width, resolution.height);
     }
 
     // Add the resolution to the map.
@@ -66,7 +66,7 @@ void Image::render(const SDL_Point& parentOffset)
 
     // If we don't have a texture to render, fail.
     if (!currentTexHandle) {
-        AUI_LOG_ERROR("Tried to render Image with no texture. Key: %s", key.data());
+        AUI_LOG_ERROR("Tried to render Image with no texture. DebugName: %s", debugName.c_str());
     }
 
     // Render the image.

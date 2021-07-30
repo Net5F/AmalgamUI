@@ -5,14 +5,14 @@
 
 namespace AUI {
 
-Thumbnail::Thumbnail(Screen& screen, const char* key, const SDL_Rect& logicalExtent)
-: Component(screen, key, logicalExtent)
-, hoveredImage(screen, "", {0, 0, logicalExtent.w, logicalExtent.h})
-, activeImage(screen, "", {0, 0, logicalExtent.w, logicalExtent.h})
-, backdropImage(screen, "", {0, 0, logicalExtent.w, logicalExtent.h})
-, selectedImage(screen, "", {0, 0, logicalExtent.w, logicalExtent.h})
-, thumbnailImage(screen, "", {0, 0, logicalExtent.w, logicalExtent.h})
-, text(screen, "", {0, 0, logicalExtent.w, logicalExtent.h})
+Thumbnail::Thumbnail(Screen& inScreen, const SDL_Rect& inLogicalExtent, const std::string& inDebugName)
+: Component(inScreen, inLogicalExtent, inDebugName)
+, hoveredImage(screen, {0, 0, logicalExtent.w, logicalExtent.h})
+, activeImage(screen, {0, 0, logicalExtent.w, logicalExtent.h})
+, backdropImage(screen, {0, 0, logicalExtent.w, logicalExtent.h})
+, selectedImage(screen, {0, 0, logicalExtent.w, logicalExtent.h})
+, thumbnailImage(screen, {0, 0, logicalExtent.w, logicalExtent.h})
+, text(screen, {0, 0, logicalExtent.w, logicalExtent.h})
 , isHoverable{true}
 , isSelectable{true}
 , isActivateable{true}

@@ -4,6 +4,7 @@
 #include "AUI/ResourceManager.h" // TextureHandle
 #include <SDL_ttf.h>
 #include <string_view>
+#include <string>
 
 namespace AUI {
 
@@ -62,7 +63,7 @@ public:
     //-------------------------------------------------------------------------
     // Public interface
     //-------------------------------------------------------------------------
-    Text(Screen& screen, const char* key, const SDL_Rect& logicalExtent);
+    Text(Screen& screen, const SDL_Rect& inLogicalExtent, const std::string& inDebugName = "");
 
     /**
      * Sets the font and size. Uses the internal ID format "font_size".

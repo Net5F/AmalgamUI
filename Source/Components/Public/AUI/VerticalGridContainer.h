@@ -13,7 +13,7 @@ public:
     //-------------------------------------------------------------------------
     // Public interface
     //-------------------------------------------------------------------------
-    VerticalGridContainer(Screen& screen, const char* key, const SDL_Rect& logicalExtent);
+    VerticalGridContainer(Screen& screen, const SDL_Rect& inLogicalExtent, const std::string& inDebugName = "");
 
     virtual ~VerticalGridContainer() = default;
 

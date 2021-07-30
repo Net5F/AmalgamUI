@@ -7,8 +7,9 @@
 
 namespace AUI {
 
-Component::Component(Screen& inScreen, const char* inKey, const SDL_Rect& inLogicalExtent)
+Component::Component(Screen& inScreen, const SDL_Rect& inLogicalExtent, const std::string& inDebugName)
 : screen(inScreen)
+, debugName{inDebugName}
 , logicalExtent{inLogicalExtent}
 , scaledExtent{ScalingHelpers::logicalToActual(logicalExtent)}
 , lastRenderedExtent{}
@@ -16,20 +17,6 @@ Component::Component(Screen& inScreen, const char* inKey, const SDL_Rect& inLogi
 , isVisible{true}
 , listeningEventTypes{}
 {
-    // If we were given a nullptr, replace it with an empty string while
-    // constructing the key. This keeps us from having to nullptr check later.
-    if (inKey == nullptr) {
-        key = entt::hashed_string{""};
-    }
-    else {
-        key = entt::hashed_string{inKey};
-    }
-
-    // If this is not an anonymous component, register it with the screen.
-    if (key != entt::hashed_string{""}) {
-        screen.registerComponent(*this);
-    }
-
     Core::incComponentCount();
 }
 
@@ -40,11 +27,6 @@ Component::~Component()
         if (listeningEventTypes[i]) {
             screen.unregisterListener(static_cast<InternalEvent::Type>(i), this);
         }
-    }
-
-    // If this is not an anonymous component, unregister it with the screen.
-    if (key != entt::hashed_string{""}) {
-        screen.unregisterComponent(key);
     }
 
     Core::decComponentCount();
@@ -101,9 +83,9 @@ SDL_Rect Component::getLastRenderedExtent()
     return lastRenderedExtent;
 }
 
-const entt::hashed_string& Component::getKey()
+const std::string& Component::getDebugName()
 {
-    return key;
+    return debugName;
 }
 
 void Component::setIsVisible(bool inIsVisible)

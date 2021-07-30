@@ -4,12 +4,12 @@
 
 namespace AUI {
 
-ConfirmationDialog::ConfirmationDialog(Screen& inScreen, const char* key, const SDL_Rect& logicalExtent)
-: Component(inScreen, key, logicalExtent)
-, backgroundImage(inScreen, "", {0, 0, logicalExtent.w, logicalExtent.h})
-, bodyText(inScreen, "", {0, 0, logicalExtent.w, logicalExtent.h})
-, confirmButton(inScreen, "", {0, 0, logicalExtent.w, logicalExtent.h})
-, cancelButton(inScreen, "", {0, 0, logicalExtent.w, logicalExtent.h})
+ConfirmationDialog::ConfirmationDialog(Screen& inScreen, const SDL_Rect& inLogicalExtent, const std::string& inDebugName)
+: Component(inScreen, inLogicalExtent, inDebugName)
+, backgroundImage(inScreen, {0, 0, logicalExtent.w, logicalExtent.h})
+, bodyText(inScreen, {0, 0, logicalExtent.w, logicalExtent.h})
+, confirmButton(inScreen, {0, 0, logicalExtent.w, logicalExtent.h})
+, cancelButton(inScreen, {0, 0, logicalExtent.w, logicalExtent.h})
 {
     // Set the default cancel button behavior.
     cancelButton.setOnPressed([&](){

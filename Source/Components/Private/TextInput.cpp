@@ -8,13 +8,13 @@ namespace AUI {
 
 int TextInput::focusedInputCount = 0;
 
-TextInput::TextInput(Screen& screen, const char* key, const SDL_Rect& logicalExtent)
-: Component(screen, key, logicalExtent)
-, normalImage(screen, "", {0, 0, logicalExtent.w, logicalExtent.h})
-, hoveredImage(screen, "", {0, 0, logicalExtent.w, logicalExtent.h})
-, selectedImage(screen, "", {0, 0, logicalExtent.w, logicalExtent.h})
-, disabledImage(screen, "", {0, 0, logicalExtent.w, logicalExtent.h})
-, text(screen, "", {0, 0, logicalExtent.w, logicalExtent.h})
+TextInput::TextInput(Screen& inScreen, const SDL_Rect& inLogicalExtent, const std::string& inDebugName)
+: Component(inScreen, inLogicalExtent, inDebugName)
+, normalImage(screen, {0, 0, logicalExtent.w, logicalExtent.h})
+, hoveredImage(screen, {0, 0, logicalExtent.w, logicalExtent.h})
+, selectedImage(screen, {0, 0, logicalExtent.w, logicalExtent.h})
+, disabledImage(screen, {0, 0, logicalExtent.w, logicalExtent.h})
+, text(screen, {0, 0, logicalExtent.w, logicalExtent.h})
 , currentState{State::Normal}
 , cursorColor{0, 0, 0, 255}
 , logicalCursorWidth{2}

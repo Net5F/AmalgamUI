@@ -4,8 +4,8 @@
 
 namespace AUI {
 
-TiledImage::TiledImage(Screen& inScreen, const char* key, const SDL_Rect& logicalExtent)
-: Image(inScreen, key, logicalExtent)
+TiledImage::TiledImage(Screen& inScreen, const SDL_Rect& inLogicalExtent, const std::string& inDebugName)
+: Image(inScreen, inLogicalExtent, inDebugName)
 {
 }
 
@@ -29,7 +29,7 @@ void TiledImage::render(const SDL_Point& parentOffset)
 
     // If we don't have a texture to render, fail.
     if (!currentTexHandle) {
-        AUI_LOG_ERROR("Tried to render Image with no texture. Key: %s", key.data());
+        AUI_LOG_ERROR("Tried to render Image with no texture. DebugName: %s", debugName.c_str());
     }
 
     // Tile the image to cover this component's extent.

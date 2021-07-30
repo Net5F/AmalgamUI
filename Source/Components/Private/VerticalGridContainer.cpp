@@ -5,8 +5,8 @@
 
 namespace AUI {
 
-VerticalGridContainer::VerticalGridContainer(Screen& screen, const char* key, const SDL_Rect& logicalExtent)
-: Container(screen, key, logicalExtent)
+VerticalGridContainer::VerticalGridContainer(Screen& screen, const SDL_Rect& inLogicalExtent, const std::string& inDebugName)
+: Container(screen, inLogicalExtent, inDebugName)
 , numColumns{1}
 , logicalCellWidth{100}
 , scaledCellWidth{ScalingHelpers::logicalToActual(logicalCellWidth)}

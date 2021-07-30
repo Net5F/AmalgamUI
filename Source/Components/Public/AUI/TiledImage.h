@@ -16,7 +16,7 @@ public:
     //-------------------------------------------------------------------------
     // Public interface
     //-------------------------------------------------------------------------
-    TiledImage(Screen& inScreen, const char* key, const SDL_Rect& logicalExtent);
+    TiledImage(Screen& inScreen, const SDL_Rect& inLogicalExtent, const std::string& inDebugName = "");
 
     virtual ~TiledImage() = default;
 

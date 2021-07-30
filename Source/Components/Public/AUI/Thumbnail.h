@@ -27,7 +27,7 @@ public:
     //-------------------------------------------------------------------------
     // Public interface
     //-------------------------------------------------------------------------
-    Thumbnail(Screen& screen, const char* key, const SDL_Rect& logicalExtent);
+    Thumbnail(Screen& screen, const SDL_Rect& inLogicalExtent, const std::string& inDebugName = "");
 
     virtual ~Thumbnail() = default;
 

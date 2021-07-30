@@ -5,8 +5,8 @@
 
 namespace AUI {
 
-Text::Text(Screen& screen, const char* key, const SDL_Rect& logicalExtent)
-: Component(screen, key, logicalExtent)
+Text::Text(Screen& inScreen, const SDL_Rect& inLogicalExtent, const std::string& inDebugName)
+: Component(inScreen, inLogicalExtent, inDebugName)
 , fontPath("")
 , logicalFontSize{10}
 , fontHandle()
@@ -172,7 +172,7 @@ void Text::render(const SDL_Point& parentOffset)
     }
 
     if (textTexture == nullptr) {
-        AUI_LOG_ERROR("Tried to render Font with no texture. Key: %s", key.data());
+        AUI_LOG_ERROR("Tried to render Font with no texture. DebugName: %s", debugName.c_str());
     }
 
     // Account for the given offset.

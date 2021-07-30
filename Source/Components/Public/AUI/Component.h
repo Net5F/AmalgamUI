@@ -4,7 +4,6 @@
 #include "AUI/InternalEvent.h"
 #include <SDL_Rect.h>
 #include <SDL_events.h>
-#include "entt/core/hashed_string.hpp"
 #include <string>
 #include <array>
 
@@ -58,7 +57,7 @@ public:
     /** See Component::lastRenderedExtent. */
     SDL_Rect getLastRenderedExtent();
 
-    const entt::hashed_string& getKey();
+    const std::string& getDebugName();
 
     virtual void setIsVisible(bool inIsVisible);
     bool getIsVisible();
@@ -112,7 +111,7 @@ public:
     virtual void render(const SDL_Point& parentOffset = {});
 
 protected:
-    Component(Screen& inScreen, const char* inKey, const SDL_Rect& inLogicalExtent);
+    Component(Screen& inScreen, const SDL_Rect& inLogicalExtent, const std::string& inDebugName = "");
 
     /**
      * Registers this component as a listener for the given event type.
@@ -148,9 +147,10 @@ protected:
         components. */
     Screen& screen;
 
-    /** The unique, user-assigned key. Used to identify the component for
-        removal from the Screen's vector and map. */
-    entt::hashed_string key;
+    /** An optional user-assigned name associated with this component.
+        Only useful for debugging. For performance reasons, avoid using it
+        in real logic. */
+    std::string debugName;
 
     /** The component's logical screen extent, i.e. the position/size of the
         component relative to the UI's logical size. */

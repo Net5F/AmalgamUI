@@ -4,7 +4,6 @@
 #include "AUI/InternalEvent.h"
 #include "AUI/Internal/Log.h"
 #include <SDL_events.h>
-#include "entt/core/hashed_string.hpp"
 #include <vector>
 #include <memory>
 #include <unordered_map>

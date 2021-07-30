@@ -5,22 +5,19 @@
 #include <SDL_Render.h>
 #include <SDL_image.h>
 #include <SDL_ttf.h>
-#include "entt/core/hashed_string.hpp"
-#include "entt/resource/cache.hpp"
-#include "entt/resource/loader.hpp"
 
 #include <memory>
 #include <string>
+#include <unordered_map>
 
 namespace AUI
 {
 
-using TextureHandle = entt::resource_handle<SDL_Texture>;
-using FontHandle = entt::resource_handle<TTF_Font>;
+using TextureHandle = std::shared_ptr<SDL_Texture>;
+using FontHandle = std::shared_ptr<TTF_Font>;
 
 /**
- * This class facilitates loading and managing the lifetime of texture and
- * resources.
+ * This class facilitates loading and managing the lifetime of font resources.
  */
 class ResourceManager
 {
@@ -31,19 +28,18 @@ public:
      * If the texture is already loaded, returns a handle to it without re-
      * loading.
      *
-     * @param relPath  The path to the texture, including the file name,
-     *                 relative to Core's resourcePath.
+     * @param filePath  The path to the texture, including the file name,
+     *                  relative to Core's resourcePath.
      */
-    TextureHandle loadTexture(const std::string& relPath);
+    TextureHandle loadTexture(const std::string& filePath);
 
     /**
      * Removes the texture at the given path from the resource cache.
      *
-     * @param relPath  The path to the texture, including the file name,
-     *                 relative to Core's resourcePath.
+     * @param filePath  The full path to the texture, including the file name.
      * @return true if the texture was found and removed, else false.
      */
-    bool discardTexture(const std::string& relPath);
+    bool discardTexture(const std::string& filePath);
 
     /**
      * Loads the font at the given path and size, and returns a handle to it.
@@ -51,57 +47,25 @@ public:
      * If the font is already loaded, returns a handle to it without re-
      * loading.
      *
-     * @param relPath  The path to the font, including the file name, relative
-     *                 to Core's resourcePath.
+     * @param filePath  The full path to the font, including the file name.
      * @param size  The size of the font, in points.
      */
-    FontHandle loadFont(const std::string& relPath, int size);
+    FontHandle loadFont(const std::string& filePath, int size);
 
     /**
      * Removes the font at the given path from the resource cache.
      *
-     * @param relPath  The path to the font, including the file name, relative
+     * @param filePath  The path to the font, including the file name, relative
      *                 to Core's resourcePath.
      * @param size  The size of the font, in points.
      * @return true if the font was found and removed, else false.
      */
-    bool discardFont(const std::string& relPath, int size);
+    bool discardFont(const std::string& filePath, int size);
 
 private:
-    entt::resource_cache<SDL_Texture> textureCache;
+    std::unordered_map<std::string, TextureHandle> textureCache;
 
-    entt::resource_cache<TTF_Font> fontCache;
-};
-
-/**
- * Specialized loader for SDL_Texture.
- */
-struct TextureLoader : entt::resource_loader<TextureLoader, SDL_Texture> {
-    std::shared_ptr<SDL_Texture> load(const std::string& filePath,
-                                          SDL_Renderer* sdlRenderer) const
-    {
-        SDL_Texture* texture = IMG_LoadTexture(sdlRenderer, filePath.c_str());
-        if (texture == nullptr) {
-            AUI_LOG_ERROR("Failed to load texture: %s", filePath.c_str());
-        }
-
-        return std::shared_ptr<SDL_Texture>(texture, [](SDL_Texture* p){SDL_DestroyTexture(p);});
-    }
-};
-
-/**
- * Specialized loader for TTF_Font.
- */
-struct FontLoader : entt::resource_loader<FontLoader, TTF_Font> {
-    std::shared_ptr<TTF_Font> load(const std::string& fontPath, int fontSize) const
-    {
-        TTF_Font* font = TTF_OpenFont(fontPath.c_str(), fontSize);
-        if (font == nullptr) {
-            AUI_LOG_ERROR("Failed to load font: %s", fontPath.c_str());
-        }
-
-        return std::shared_ptr<TTF_Font>(font, [](TTF_Font* p){TTF_CloseFont(p);});
-    }
+    std::unordered_map<std::string, FontHandle> fontCache;
 };
 
 } // End namespace AUI

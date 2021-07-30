@@ -19,7 +19,7 @@ void Image::addResolution(const ScreenResolution& resolution, const std::string&
     textureData.handle = resourceManager.loadTexture(relPath);
 
     // Default the texture extent to the actual texture size.
-    SDL_QueryTexture(&(textureData.handle.get()), nullptr, nullptr, &(textureData.extent.w), &(textureData.extent.h));
+    SDL_QueryTexture(textureData.handle.get(), nullptr, nullptr, &(textureData.extent.w), &(textureData.extent.h));
 
     // If we already have the given resolution, fail.
     if (resolutionMap.find(resolution) != resolutionMap.end()) {

@@ -3,30 +3,35 @@
 
 namespace AUI
 {
-TextureHandle ResourceManager::loadTexture(const std::string& relPath)
+TextureHandle ResourceManager::loadTexture(const std::string& filePath)
 {
-    // Prepare the cache ID for this texture (we just use the relPath).
-    entt::hashed_string id{relPath.c_str()};
+    // If the texture is already loaded, return it.
+    auto it = textureCache.find(filePath);
+    if (it != textureCache.end()) {
+        return it->second;
+    }
 
     // Load the texture.
-    // Note: If the texture is already loaded, this returns the existing
-    //       handle.
-    TextureHandle handle = textureCache.load<TextureLoader>(id, relPath, Core::getRenderer());
-    if (!handle) {
-        AUI_LOG_ERROR("Failed to load texture at path: %s", relPath.c_str());
+    SDL_Texture* texture = IMG_LoadTexture(Core::getRenderer(), filePath.c_str());
+    if (texture == nullptr) {
+        AUI_LOG_ERROR("Failed to load texture: %s", filePath.c_str());
     }
+
+    // Wrap the texture in a shared_ptr.
+    TextureHandle handle = TextureHandle(texture, [](SDL_Texture* p){SDL_DestroyTexture(p);});
+
+    // Save the texture in the cache.
+    textureCache[filePath] = handle;
 
     return handle;
 }
 
-bool ResourceManager::discardTexture(const std::string& relPath)
+bool ResourceManager::discardTexture(const std::string& filePath)
 {
-    // Prepare the cache ID for this texture (we just use the relPath).
-    entt::hashed_string id{relPath.c_str()};
-
     // If the cache contains the given texture, discard it.
-    if (textureCache.contains(id)) {
-        textureCache.discard(id);
+    auto it = textureCache.find(filePath);
+    if (it != textureCache.end()) {
+        textureCache.erase(it);
         return true;
     }
     else {
@@ -34,32 +39,43 @@ bool ResourceManager::discardTexture(const std::string& relPath)
     }
 }
 
-FontHandle ResourceManager::loadFont(const std::string& relPath, int size)
+FontHandle ResourceManager::loadFont(const std::string& filePath, int size)
 {
-    // Prepare the cache ID for this font ("relPath_size").
-    std::string idString{relPath};
+    // Prepare the cache ID for this font ("filePath_size").
+    std::string idString{filePath};
     idString += "_" + std::to_string(size);
-    entt::hashed_string id(idString.c_str());
+
+    // If the font is already loaded, return it.
+    auto it = fontCache.find(idString);
+    if (it != fontCache.end()) {
+        return it->second;
+    }
 
     // Load the font.
-    FontHandle handle = fontCache.load<FontLoader>(id, relPath, size);
-    if (!handle) {
-        AUI_LOG_ERROR("Failed to load font: %s", relPath.c_str());
+    TTF_Font* font = TTF_OpenFont(filePath.c_str(), size);
+    if (font == nullptr) {
+        AUI_LOG_ERROR("Failed to load font: %s", filePath.c_str());
     }
+
+    // Wrap the font in a shared_ptr.
+    FontHandle handle = FontHandle(font, [](TTF_Font* p){TTF_CloseFont(p);});
+
+    // Save the font in the cache.
+    fontCache[idString] = handle;
 
     return handle;
 }
 
-bool ResourceManager::discardFont(const std::string& relPath, int size)
+bool ResourceManager::discardFont(const std::string& filePath, int size)
 {
-    // Prepare the cache ID for this font ("relPath_size").
-    std::string idString{relPath};
+    // Prepare the cache ID for this font ("filePath_size").
+    std::string idString{filePath};
     idString += "_" + std::to_string(size);
-    entt::hashed_string id(idString.c_str());
 
     // If the cache contains the given font, discard it.
-    if (textureCache.contains(id)) {
-        textureCache.discard(id);
+    auto it = fontCache.find(idString);
+    if (it != fontCache.end()) {
+        fontCache.erase(it);
         return true;
     }
     else {

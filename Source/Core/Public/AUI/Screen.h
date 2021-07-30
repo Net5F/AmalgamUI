@@ -107,9 +107,6 @@ private:
         in real logic. */
     std::string debugName;
 
-    /** A key->component map for convenient access. */
-    std::unordered_map<entt::hashed_string::hash_type, Component*> componentMap;
-
     /** A map containing all of this screen's components that care to listen
         for particular system events. */
     std::unordered_map<InternalEvent::Type, std::vector<Component*>> listenerMap;

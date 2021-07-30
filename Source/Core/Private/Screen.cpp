@@ -5,7 +5,6 @@ namespace AUI {
 
 Screen::Screen(const std::string& inDebugName)
 : debugName{inDebugName}
-, componentMap()
 {
 }
 

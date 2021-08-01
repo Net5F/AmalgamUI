@@ -265,8 +265,8 @@ void Text::refreshFontObject()
     int actualFontSize = ScalingHelpers::logicalToActual(logicalFontSize);
 
     // Attempt to load the given font (errors on failure).
-    ResourceManager& resourceManager = Core::getResourceManager();
-    fontHandle = resourceManager.loadFont(fontPath, actualFontSize);
+    AssetCache& assetCache = Core::getAssetCache();
+    fontHandle = assetCache.loadFont(fontPath, actualFontSize);
 }
 
 void Text::refreshTexture()

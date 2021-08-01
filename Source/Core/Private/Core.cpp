@@ -8,14 +8,14 @@ namespace AUI {
 SDL_Renderer* Core::sdlRenderer{nullptr};
 ScreenResolution Core::logicalScreenSize{};
 ScreenResolution Core::actualScreenSize{};
-std::unique_ptr<ResourceManager> Core::resourceManager{nullptr};
+std::unique_ptr<AssetCache> Core::assetCache{nullptr};
 std::atomic<int> Core::componentCount{0};
 
 void Core::initialize(SDL_Renderer* inSdlRenderer
                       , ScreenResolution inLogicalScreenSize)
 {
     sdlRenderer = inSdlRenderer;
-    resourceManager = std::make_unique<ResourceManager>();
+    assetCache = std::make_unique<AssetCache>();
 
     // Set the screen sizes. Default actual to the same as logical.
     logicalScreenSize = inLogicalScreenSize;
@@ -41,7 +41,7 @@ void Core::quit()
     }
 
     sdlRenderer = nullptr;
-    resourceManager = nullptr;
+    assetCache = nullptr;
 
     IMG_Quit();
     TTF_Quit();
@@ -57,9 +57,9 @@ SDL_Renderer* Core::getRenderer()
     return sdlRenderer;
 }
 
-ResourceManager& Core::getResourceManager()
+AssetCache& Core::getAssetCache()
 {
-    return *resourceManager;
+    return *assetCache;
 }
 
 ScreenResolution Core::getLogicalScreenSize()

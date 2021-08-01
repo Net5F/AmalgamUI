@@ -28,7 +28,7 @@ void TiledImage::render(const SDL_Point& parentOffset)
     }
 
     // If we don't have a texture to render, fail.
-    if (!currentTexHandle) {
+    if (!currentTexture) {
         AUI_LOG_ERROR("Tried to render Image with no texture. DebugName: %s", debugName.c_str());
     }
 
@@ -58,7 +58,7 @@ void TiledImage::render(const SDL_Point& parentOffset)
             }
 
             // Render the tile.
-            SDL_RenderCopy(Core::getRenderer(), &(*currentTexHandle)
+            SDL_RenderCopy(Core::getRenderer(), currentTexture.get()
                 , &tileTexExtent, &tileExtent);
         }
     }

@@ -1,6 +1,6 @@
 #pragma once
 
-#include "AUI/ResourceManager.h"
+#include "AUI/AssetCache.h"
 #include "AUI/ScreenResolution.h"
 #include <string>
 #include <memory>
@@ -51,7 +51,7 @@ public:
     static void setActualScreenSize(ScreenResolution inScaledScreenSize);
 
     static SDL_Renderer* getRenderer();
-    static AUI::ResourceManager& getResourceManager();
+    static AUI::AssetCache& getAssetCache();
     static ScreenResolution getLogicalScreenSize();
     static ScreenResolution getActualScreenSize();
 
@@ -77,8 +77,8 @@ private:
     /** See ScalingHelpers.h class comment. */
     static ScreenResolution actualScreenSize;
 
-    /** The resource manager for font objects and image textures. */
-    static std::unique_ptr<ResourceManager> resourceManager;
+    /** The asset cache for font objects. */
+    static std::unique_ptr<AssetCache> assetCache;
 
     /** Keeps a count of the number of currently constructed components.
         Used to check if it's safe to Quit(). */

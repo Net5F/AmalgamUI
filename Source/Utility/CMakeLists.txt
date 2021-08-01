@@ -1,10 +1,10 @@
 target_sources(AmalgamUI
     PRIVATE
         Private/Log.cpp
-        Private/ResourceManager.cpp
+        Private/AssetCache.cpp
         Private/ScalingHelpers.cpp
     PUBLIC
-        Public/AUI/ResourceManager.h
+        Public/AUI/AssetCache.h
         Public/AUI/ScalingHelpers.h
 
         # Note: We add the extra "AUI/Internal" directory so that we don't

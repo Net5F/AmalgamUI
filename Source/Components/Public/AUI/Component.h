@@ -2,8 +2,8 @@
 
 #include "AUI/ScreenResolution.h"
 #include "AUI/InternalEvent.h"
-#include <SDL_Rect.h>
-#include <SDL_events.h>
+#include <SDL2/SDL_Rect.h>
+#include <SDL2/SDL_events.h>
 #include <string>
 #include <array>
 

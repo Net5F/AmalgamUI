@@ -3,7 +3,7 @@
 #include "AUI/Component.h"
 #include "AUI/InternalEvent.h"
 #include "AUI/Internal/Log.h"
-#include <SDL_events.h>
+#include <SDL2/SDL_events.h>
 #include <vector>
 #include <memory>
 #include <unordered_map>

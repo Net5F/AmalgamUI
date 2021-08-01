@@ -2,7 +2,7 @@
 
 #include "AUI/Component.h"
 #include "AUI/AssetCache.h" // FontHandle
-#include <SDL_ttf.h>
+#include <SDL2/SDL_ttf.h>
 #include <string_view>
 #include <string>
 

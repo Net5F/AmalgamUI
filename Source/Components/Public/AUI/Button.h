@@ -4,8 +4,8 @@
 #include "AUI/Text.h"
 #include <functional>
 
-namespace AUI {
-
+namespace AUI
+{
 /**
  * A simple button with text.
  */
@@ -18,17 +18,13 @@ public:
     /**
      * Used to track the button's visual and logical state.
      */
-    enum class State {
-        Normal,
-        Hovered,
-        Pressed,
-        Disabled
-    };
+    enum class State { Normal, Hovered, Pressed, Disabled };
 
     //-------------------------------------------------------------------------
     // Public interface
     //-------------------------------------------------------------------------
-    Button(Screen& inScreen, const SDL_Rect& inLogicalExtent, const std::string& inDebugName = "");
+    Button(Screen& inScreen, const SDL_Rect& inLogicalExtent,
+           const std::string& inDebugName = "");
 
     virtual ~Button() = default;
 

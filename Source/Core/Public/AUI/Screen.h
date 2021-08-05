@@ -5,11 +5,10 @@
 #include "AUI/Internal/Log.h"
 #include <SDL2/SDL_events.h>
 #include <vector>
-#include <memory>
 #include <unordered_map>
 
-namespace AUI {
-
+namespace AUI
+{
 /**
  * This class represents a UI screen.
  *
@@ -108,7 +107,8 @@ private:
 
     /** A map containing all of this screen's components that care to listen
         for particular system events. */
-    std::unordered_map<InternalEvent::Type, std::vector<Component*>> listenerMap;
+    std::unordered_map<InternalEvent::Type, std::vector<Component*>>
+        listenerMap;
 };
 
 } // namespace AUI

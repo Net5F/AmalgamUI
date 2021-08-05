@@ -4,8 +4,8 @@
 #include <vector>
 #include <memory>
 
-namespace AUI {
-
+namespace AUI
+{
 /**
  * Base class for container components.
  *
@@ -69,7 +69,8 @@ public:
     const_iterator end() const { return elements.end(); };
 
 protected:
-    Container(Screen& screen, const SDL_Rect& inLogicalExtent, const std::string& inDebugName = "");
+    Container(Screen& screen, const SDL_Rect& inLogicalExtent,
+              const std::string& inDebugName = "");
 
     /** This container's child elements. This container owns the elements in
         this vector and must render them according to its layout logic. */

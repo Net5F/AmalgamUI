@@ -1,7 +1,7 @@
 #pragma once
 
-namespace AUI {
-
+namespace AUI
+{
 /**
  * The distance between the text and the edge of the text box on each side.
  */

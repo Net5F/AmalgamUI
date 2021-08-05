@@ -5,8 +5,8 @@
 #include "AUI/Margins.h"
 #include <functional>
 
-namespace AUI {
-
+namespace AUI
+{
 /**
  * A box for displaying or inputting text.
  */
@@ -26,7 +26,7 @@ public:
      * Used to track the button's visual and logical state.
      */
     enum class State {
-        Normal, /*!< Normal state. Only mouse events are handled. */
+        Normal,  /*!< Normal state. Only mouse events are handled. */
         Hovered, /*!< The mouse is within our extent. */
         Focused, /*!< We were clicked on. Key press events are handled. */
         Disabled /*!< Disabled state. No events are handled. */
@@ -35,7 +35,8 @@ public:
     //-------------------------------------------------------------------------
     // Public interface
     //-------------------------------------------------------------------------
-    TextInput(Screen& screen, const SDL_Rect& inLogicalExtent, const std::string& inDebugName = "");
+    TextInput(Screen& screen, const SDL_Rect& inLogicalExtent,
+              const std::string& inDebugName = "");
 
     virtual ~TextInput() = default;
 
@@ -123,7 +124,8 @@ private:
     //-------------------------------------------------------------------------
     /** The text cursor's blink rate. Windows seems to default to 530ms, so
         it should work fine for us. */
-    static constexpr double CURSOR_BLINK_RATE_S = 530 / static_cast<double>(1000);
+    static constexpr double CURSOR_BLINK_RATE_S
+        = 530 / static_cast<double>(1000);
 
     //-------------------------------------------------------------------------
     // Private members

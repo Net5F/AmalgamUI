@@ -2,8 +2,8 @@
 
 #include "AUI/Container.h"
 
-namespace AUI {
-
+namespace AUI
+{
 /**
  * Lays out components in a grid that grows vertically.
  */
@@ -13,7 +13,8 @@ public:
     //-------------------------------------------------------------------------
     // Public interface
     //-------------------------------------------------------------------------
-    VerticalGridContainer(Screen& screen, const SDL_Rect& inLogicalExtent, const std::string& inDebugName = "");
+    VerticalGridContainer(Screen& screen, const SDL_Rect& inLogicalExtent,
+                          const std::string& inDebugName = "");
 
     virtual ~VerticalGridContainer() = default;
 

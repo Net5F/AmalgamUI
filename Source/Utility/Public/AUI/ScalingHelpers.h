@@ -5,7 +5,6 @@
 
 namespace AUI
 {
-
 /**
  * Static functions for scaling between logical and actual sizes.
  *

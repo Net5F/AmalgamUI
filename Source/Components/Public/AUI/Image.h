@@ -7,8 +7,8 @@
 #include <string>
 #include <memory>
 
-namespace AUI {
-
+namespace AUI
+{
 /**
  * Displays a simple static image.
  */
@@ -18,7 +18,8 @@ public:
     //-------------------------------------------------------------------------
     // Public interface
     //-------------------------------------------------------------------------
-    Image(Screen& inScreen, const SDL_Rect& inLogicalExtent, const std::string& inDebugName = "");
+    Image(Screen& inScreen, const SDL_Rect& inLogicalExtent,
+          const std::string& inDebugName = "");
 
     virtual ~Image() = default;
 
@@ -35,7 +36,8 @@ public:
      *                    should be used for.
      * @param texture  The texture that this Image should render.
      */
-    void addResolution(const ScreenResolution& resolution, const std::shared_ptr<SDL_Texture>& texture);
+    void addResolution(const ScreenResolution& resolution,
+                       const std::shared_ptr<SDL_Texture>& texture);
 
     /**
      * Overload to specify texExtent. Used if you only want to display a
@@ -46,7 +48,9 @@ public:
      * @param texture  The texture that this Image should render.
      * @param inTexExtent  The extent within the texture to display.
      */
-    void addResolution(const ScreenResolution& resolution, const std::shared_ptr<SDL_Texture>& texture, const SDL_Rect& inTexExtent);
+    void addResolution(const ScreenResolution& resolution,
+                       const std::shared_ptr<SDL_Texture>& texture,
+                       const SDL_Rect& inTexExtent);
 
     /**
      * Clears this image's current texture and the textures in its

@@ -3,9 +3,10 @@
 #include "AUI/Core.h"
 #include "AUI/Internal/Ignore.h"
 
-namespace AUI {
-
-Thumbnail::Thumbnail(Screen& inScreen, const SDL_Rect& inLogicalExtent, const std::string& inDebugName)
+namespace AUI
+{
+Thumbnail::Thumbnail(Screen& inScreen, const SDL_Rect& inLogicalExtent,
+                     const std::string& inDebugName)
 : Component(inScreen, inLogicalExtent, inDebugName)
 , hoveredImage(screen, {0, 0, logicalExtent.w, logicalExtent.h})
 , activeImage(screen, {0, 0, logicalExtent.w, logicalExtent.h})
@@ -143,7 +144,8 @@ void Thumbnail::setTextColor(const SDL_Color& inColor)
     text.setColor(inColor);
 }
 
-void Thumbnail::setTextVerticalAlignment(Text::VerticalAlignment inVerticalAlignment)
+void Thumbnail::setTextVerticalAlignment(
+    Text::VerticalAlignment inVerticalAlignment)
 {
     text.setVerticalAlignment(inVerticalAlignment);
 }
@@ -158,7 +160,8 @@ void Thumbnail::setText(std::string_view inText)
     setTextHorizontalAlignment(savedTextAlignment);
 }
 
-void Thumbnail::setTextHorizontalAlignment(Text::HorizontalAlignment inHorizontalAlignment)
+void Thumbnail::setTextHorizontalAlignment(
+    Text::HorizontalAlignment inHorizontalAlignment)
 {
     // Save the given extent.
     savedTextAlignment = inHorizontalAlignment;
@@ -189,7 +192,8 @@ void Thumbnail::setOnActivated(std::function<void(Thumbnail*)> inOnActivated)
     onActivated = std::move(inOnActivated);
 }
 
-void Thumbnail::setOnDeactivated(std::function<void(Thumbnail*)> inOnDeactivated)
+void Thumbnail::setOnDeactivated(
+    std::function<void(Thumbnail*)> inOnDeactivated)
 {
     onDeactivated = std::move(inOnDeactivated);
 }
@@ -215,7 +219,7 @@ bool Thumbnail::onMouseButtonDown(SDL_MouseButtonEvent& event)
                 isSelected = false;
             }
         }
-        else if (!isSelected){
+        else if (!isSelected) {
             // This was a single click, if we aren't already selected, select
             // this component.
             select();

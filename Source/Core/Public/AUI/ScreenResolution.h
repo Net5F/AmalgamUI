@@ -1,7 +1,7 @@
 #pragma once
 
-namespace AUI {
-
+namespace AUI
+{
 /**
  * Represents a screen's resolution.
  */
@@ -13,14 +13,16 @@ struct ScreenResolution {
     /**
      * Compares the width and height of both resolutions.
      */
-    bool operator==(const ScreenResolution& rhs) {
+    bool operator==(const ScreenResolution& rhs)
+    {
         return (width == rhs.width) && (height == rhs.height);
     }
 
     /**
      * Compares the width and height of both resolutions.
      */
-    bool operator!=(const ScreenResolution& rhs) {
+    bool operator!=(const ScreenResolution& rhs)
+    {
         return (width != rhs.width) || (height != rhs.height);
     }
 
@@ -28,7 +30,9 @@ struct ScreenResolution {
     //       When support for other aspect ratios is added, we'll have to
     //       first do some math to see what 16:9 resolution fits into the given
     //       resolutions, and compare the width of those.
-    friend bool operator<(const ScreenResolution& lhs, const ScreenResolution& rhs) {
+    friend bool operator<(const ScreenResolution& lhs,
+                          const ScreenResolution& rhs)
+    {
         return lhs.width < rhs.width;
     }
 };

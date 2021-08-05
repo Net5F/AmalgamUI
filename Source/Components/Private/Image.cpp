@@ -1,28 +1,32 @@
 #include "AUI/Image.h"
 #include "AUI/Core.h"
 
-namespace AUI {
-
-Image::Image(Screen& inScreen, const SDL_Rect& inLogicalExtent, const std::string& inDebugName)
+namespace AUI
+{
+Image::Image(Screen& inScreen, const SDL_Rect& inLogicalExtent,
+             const std::string& inDebugName)
 : Component(inScreen, inLogicalExtent, inDebugName)
 , currentTexture{nullptr}
 , currentTexExtent{}
 {
 }
 
-void Image::addResolution(const ScreenResolution& resolution, const std::shared_ptr<SDL_Texture>& texture)
+void Image::addResolution(const ScreenResolution& resolution,
+                          const std::shared_ptr<SDL_Texture>& texture)
 {
     // Start constructing the TextureData.
     TextureData textureData;
     textureData.texture = texture;
 
     // Default the texture extent to the actual texture size.
-    SDL_QueryTexture(textureData.texture.get(), nullptr, nullptr, &(textureData.extent.w), &(textureData.extent.h));
+    SDL_QueryTexture(textureData.texture.get(), nullptr, nullptr,
+                     &(textureData.extent.w), &(textureData.extent.h));
 
     // If we already have the given resolution, fail.
     if (resolutionMap.find(resolution) != resolutionMap.end()) {
         AUI_LOG_ERROR("Tried to add image resolution that is already in use. "
-        "DebugName: %s, Resolution: (%d, %d)", debugName.c_str(), resolution.width, resolution.height);
+                      "DebugName: %s, Resolution: (%d, %d)",
+                      debugName.c_str(), resolution.width, resolution.height);
     }
 
     // Add the resolution to the map.
@@ -32,7 +36,9 @@ void Image::addResolution(const ScreenResolution& resolution, const std::shared_
     refreshChosenResolution();
 }
 
-void Image::addResolution(const ScreenResolution& resolution, const std::shared_ptr<SDL_Texture>& texture, const SDL_Rect& inTexExtent)
+void Image::addResolution(const ScreenResolution& resolution,
+                          const std::shared_ptr<SDL_Texture>& texture,
+                          const SDL_Rect& inTexExtent)
 {
     // Do all the same steps from the less specific overload.
     addResolution(resolution, texture);
@@ -64,12 +70,13 @@ void Image::render(const SDL_Point& parentOffset)
 
     // If we don't have a texture to render, fail.
     if (currentTexture == nullptr) {
-        AUI_LOG_ERROR("Tried to render Image with no texture. DebugName: %s", debugName.c_str());
+        AUI_LOG_ERROR("Tried to render Image with no texture. DebugName: %s",
+                      debugName.c_str());
     }
 
     // Render the image.
-    SDL_RenderCopy(Core::getRenderer(), currentTexture.get()
-        , &currentTexExtent, &lastRenderedExtent);
+    SDL_RenderCopy(Core::getRenderer(), currentTexture.get(), &currentTexExtent,
+                   &lastRenderedExtent);
 }
 
 void Image::clearTextures()

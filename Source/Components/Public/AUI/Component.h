@@ -7,8 +7,8 @@
 #include <string>
 #include <array>
 
-namespace AUI {
-
+namespace AUI
+{
 class Screen;
 
 /**
@@ -111,7 +111,8 @@ public:
     virtual void render(const SDL_Point& parentOffset = {});
 
 protected:
-    Component(Screen& inScreen, const SDL_Rect& inLogicalExtent, const std::string& inDebugName = "");
+    Component(Screen& inScreen, const SDL_Rect& inLogicalExtent,
+              const std::string& inDebugName = "");
 
     /**
      * Registers this component as a listener for the given event type.
@@ -140,7 +141,8 @@ protected:
      * Returns an extent equal to sourceExtent, adjusted to not go beyond the
      * bounds of clipExtent.
      */
-    SDL_Rect calcClippedExtent(const SDL_Rect& sourceExtent, const SDL_Rect& clipExtent);
+    SDL_Rect calcClippedExtent(const SDL_Rect& sourceExtent,
+                               const SDL_Rect& clipExtent);
 
     /** A reference to the screen that this component is a part of. Used for
         registering/unregistering named components, and accessing other

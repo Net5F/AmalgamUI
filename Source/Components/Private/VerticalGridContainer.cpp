@@ -3,9 +3,11 @@
 #include "AUI/Internal/Log.h"
 #include <cmath>
 
-namespace AUI {
-
-VerticalGridContainer::VerticalGridContainer(Screen& screen, const SDL_Rect& inLogicalExtent, const std::string& inDebugName)
+namespace AUI
+{
+VerticalGridContainer::VerticalGridContainer(Screen& screen,
+                                             const SDL_Rect& inLogicalExtent,
+                                             const std::string& inDebugName)
 : Container(screen, inLogicalExtent, inDebugName)
 , numColumns{1}
 , logicalCellWidth{100}
@@ -87,7 +89,8 @@ void VerticalGridContainer::render(const SDL_Point& parentOffset)
 
         // If this element is offscreen, make it invisible (to ignore events)
         // and continue to the next.
-        if ((cellRow < rowScroll) || (cellRow >= (maxVisibleRows + rowScroll))) {
+        if ((cellRow < rowScroll)
+            || (cellRow >= (maxVisibleRows + rowScroll))) {
             elements[i]->setIsVisible(false);
             continue;
         }
@@ -127,7 +130,8 @@ bool VerticalGridContainer::refreshScaling()
 void VerticalGridContainer::scrollElements(bool scrollUp)
 {
     // Calc how many rows are currently present.
-    int currentRows = std::ceil(elements.size() / static_cast<float>(numColumns));
+    int currentRows
+        = std::ceil(elements.size() / static_cast<float>(numColumns));
 
     // Calc how many rows can fit onscreen at once.
     int maxVisibleRows = logicalExtent.h / logicalCellHeight;

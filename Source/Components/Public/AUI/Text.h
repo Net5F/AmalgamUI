@@ -6,8 +6,8 @@
 #include <string_view>
 #include <string>
 
-namespace AUI {
-
+namespace AUI
+{
 /**
  * Displays a line of text.
  *
@@ -45,25 +45,18 @@ public:
     /**
      * Vertical text alignment. See setVerticalAlignment().
      */
-    enum class VerticalAlignment {
-        Top,
-        Center,
-        Bottom
-    };
+    enum class VerticalAlignment { Top, Center, Bottom };
 
     /**
      * Horizontal text alignment. See setHorizontalAlignment().
      */
-    enum class HorizontalAlignment {
-        Left,
-        Center,
-        Right
-    };
+    enum class HorizontalAlignment { Left, Center, Right };
 
     //-------------------------------------------------------------------------
     // Public interface
     //-------------------------------------------------------------------------
-    Text(Screen& screen, const SDL_Rect& inLogicalExtent, const std::string& inDebugName = "");
+    Text(Screen& screen, const SDL_Rect& inLogicalExtent,
+         const std::string& inDebugName = "");
 
     /**
      * Sets the font and size. Uses the internal ID format "font_size".
@@ -220,9 +213,7 @@ private:
 
     /** A deleter to use with fontTexture. */
     struct TextureDeleter {
-        void operator() (SDL_Texture* p) {
-            SDL_DestroyTexture(p);
-        }
+        void operator()(SDL_Texture* p) { SDL_DestroyTexture(p); }
     };
 
     /** The current texture; shows our text in the desired font.

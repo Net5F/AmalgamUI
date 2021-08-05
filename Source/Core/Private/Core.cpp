@@ -3,16 +3,16 @@
 #include <SDL2/SDL_image.h>
 #include <SDL2/SDL_ttf.h>
 
-namespace AUI {
-
+namespace AUI
+{
 SDL_Renderer* Core::sdlRenderer{nullptr};
 ScreenResolution Core::logicalScreenSize{};
 ScreenResolution Core::actualScreenSize{};
 std::unique_ptr<AssetCache> Core::assetCache{nullptr};
 std::atomic<int> Core::componentCount{0};
 
-void Core::initialize(SDL_Renderer* inSdlRenderer
-                      , ScreenResolution inLogicalScreenSize)
+void Core::initialize(SDL_Renderer* inSdlRenderer,
+                      ScreenResolution inLogicalScreenSize)
 {
     sdlRenderer = inSdlRenderer;
     assetCache = std::make_unique<AssetCache>();
@@ -37,7 +37,8 @@ void Core::quit()
     // segfault when trying to close their resources.
     if (componentCount != 0) {
         AUI_LOG_ERROR("Please destruct all UI components before calling "
-        "AUI::Core::Quit(). Component count: %d", componentCount.load());
+                      "AUI::Core::Quit(). Component count: %d",
+                      componentCount.load());
     }
 
     sdlRenderer = nullptr;

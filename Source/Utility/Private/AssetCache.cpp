@@ -22,7 +22,7 @@ FontHandle AssetCache::loadFont(const std::string& filePath, int size)
     }
 
     // Wrap the font in a shared_ptr.
-    FontHandle handle = FontHandle(font, [](TTF_Font* p){TTF_CloseFont(p);});
+    FontHandle handle = FontHandle(font, [](TTF_Font* p) { TTF_CloseFont(p); });
 
     // Save the font in the cache.
     fontCache[idString] = handle;

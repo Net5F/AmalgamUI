@@ -1,13 +1,12 @@
 #pragma once
 
 #include "AUI/ScreenResolution.h"
-#include <string>
 
 // Forward declarations.
 struct SDL_Renderer;
 
-namespace AUI {
-
+namespace AUI
+{
 /**
  * Helper class for calling Core::Initialize() and Core::Quit() at the
  * appropriate times.

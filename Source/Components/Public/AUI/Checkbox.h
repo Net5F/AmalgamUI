@@ -4,8 +4,8 @@
 #include "AUI/Text.h"
 #include <functional>
 
-namespace AUI {
-
+namespace AUI
+{
 /**
  * A simple checkbox.
  */
@@ -18,10 +18,7 @@ public:
     /**
      * Used to track the button's visual and logical state.
      */
-    enum class State {
-        Unchecked,
-        Checked
-    };
+    enum class State { Unchecked, Checked };
 
     /**
      * Sets this checkbox's state to the given state.
@@ -34,7 +31,8 @@ public:
     //-------------------------------------------------------------------------
     // Public interface
     //-------------------------------------------------------------------------
-    Checkbox(Screen& inScreen, const SDL_Rect& inLogicalExtent, const std::string& inDebugName = "");
+    Checkbox(Screen& inScreen, const SDL_Rect& inLogicalExtent,
+             const std::string& inDebugName = "");
 
     virtual ~Checkbox() = default;
 

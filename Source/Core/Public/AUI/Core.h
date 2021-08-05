@@ -9,8 +9,8 @@
 // Forward declarations.
 struct SDL_Renderer;
 
-namespace AUI {
-
+namespace AUI
+{
 /**
  * Fulfills two responsibilities:
  *   1. Allows the consumer to configure the library.
@@ -29,8 +29,8 @@ public:
      *                       rendering.
      * @param inLogicalScreenSize  See ScalingHelpers.h class comment.
      */
-    static void initialize(SDL_Renderer* inSdlRenderer
-                           , ScreenResolution inLogicalScreenSize);
+    static void initialize(SDL_Renderer* inSdlRenderer,
+                           ScreenResolution inLogicalScreenSize);
 
     /**
      * Cleans up this library and SDL_image/SDL_ttf.

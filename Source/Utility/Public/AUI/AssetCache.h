@@ -10,7 +10,6 @@
 
 namespace AUI
 {
-
 // I don't like obfuscating the shared_ptr, but this alias is useful in case
 // we decide to change the type.
 using FontHandle = std::shared_ptr<TTF_Font>;

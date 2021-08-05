@@ -3,9 +3,10 @@
 #include "AUI/ScalingHelpers.h"
 #include <SDL2/SDL_Render.h>
 
-namespace AUI {
-
-Text::Text(Screen& inScreen, const SDL_Rect& inLogicalExtent, const std::string& inDebugName)
+namespace AUI
+{
+Text::Text(Screen& inScreen, const SDL_Rect& inLogicalExtent,
+           const std::string& inDebugName)
 : Component(inScreen, inLogicalExtent, inDebugName)
 , fontPath("")
 , logicalFontSize{10}
@@ -110,8 +111,8 @@ SDL_Rect Text::calcCharacterOffset(unsigned int index)
 
     // Get the x offset and height from the relevant characters.
     SDL_Rect offsetExtent{};
-    TTF_SizeText(&(*fontHandle), relevantChars.c_str(), &(offsetExtent.x)
-                 , &(offsetExtent.h));
+    TTF_SizeText(&(*fontHandle), relevantChars.c_str(), &(offsetExtent.x),
+                 &(offsetExtent.h));
 
     // Account for our alignment/position by adding the text extent's offset.
     offsetExtent.x += textExtent.x;
@@ -172,7 +173,8 @@ void Text::render(const SDL_Point& parentOffset)
     }
 
     if (textTexture == nullptr) {
-        AUI_LOG_ERROR("Tried to render Font with no texture. DebugName: %s", debugName.c_str());
+        AUI_LOG_ERROR("Tried to render Font with no texture. DebugName: %s",
+                      debugName.c_str());
     }
 
     // Account for the given offset.
@@ -192,7 +194,8 @@ void Text::render(const SDL_Point& parentOffset)
     SDL_Rect offsetTextExtent{textExtent};
     offsetTextExtent.x += (parentOffset.x + textOffset);
     offsetTextExtent.y += parentOffset.y;
-    SDL_Rect clippedTextExtent = calcClippedExtent(offsetTextExtent, offsetScaledExtent);
+    SDL_Rect clippedTextExtent
+        = calcClippedExtent(offsetTextExtent, offsetScaledExtent);
 
     // Calc where clippedTextExtent is in the text texture.
     SDL_Rect clippedTextureExtent{clippedTextExtent};
@@ -200,8 +203,8 @@ void Text::render(const SDL_Point& parentOffset)
     clippedTextureExtent.y -= offsetTextExtent.y;
 
     // Render the text texture.
-    SDL_RenderCopy(Core::getRenderer(), textTexture.get()
-        , &clippedTextureExtent, &clippedTextExtent);
+    SDL_RenderCopy(Core::getRenderer(), textTexture.get(),
+                   &clippedTextureExtent, &clippedTextExtent);
 }
 
 bool Text::refreshScaling()
@@ -233,7 +236,8 @@ void Text::refreshAlignment()
             break;
         }
         case VerticalAlignment::Center: {
-            textExtent.y = scaledExtent.y + ((scaledExtent.h - textureExtent.h) / 2);
+            textExtent.y
+                = scaledExtent.y + ((scaledExtent.h - textureExtent.h) / 2);
             break;
         }
         case VerticalAlignment::Bottom: {
@@ -249,7 +253,8 @@ void Text::refreshAlignment()
             break;
         }
         case HorizontalAlignment::Center: {
-            textExtent.x = scaledExtent.x + ((scaledExtent.w - textureExtent.w) / 2);
+            textExtent.x
+                = scaledExtent.x + ((scaledExtent.w - textureExtent.w) / 2);
             break;
         }
         case HorizontalAlignment::Right: {
@@ -272,8 +277,9 @@ void Text::refreshFontObject()
 void Text::refreshTexture()
 {
     if (!fontHandle) {
-        AUI_LOG_ERROR("Please call setFont() before refreshTexture(), so"
-        " that a valid font object can be used for texture generation.");
+        AUI_LOG_ERROR(
+            "Please call setFont() before refreshTexture(), so"
+            " that a valid font object can be used for texture generation.");
     }
 
     // If the text string is empty, render a space instead.
@@ -288,15 +294,18 @@ void Text::refreshTexture()
     SDL_Surface* surface{nullptr};
     switch (renderMode) {
         case RenderMode::Solid: {
-            surface = TTF_RenderText_Solid(&(*fontHandle), textToRender->c_str(), color);
+            surface = TTF_RenderText_Solid(&(*fontHandle),
+                                           textToRender->c_str(), color);
             break;
         }
         case RenderMode::Shaded: {
-            surface = TTF_RenderText_Shaded(&(*fontHandle), textToRender->c_str(), color, backgroundColor);
+            surface = TTF_RenderText_Shaded(
+                &(*fontHandle), textToRender->c_str(), color, backgroundColor);
             break;
         }
         case RenderMode::Blended: {
-            surface = TTF_RenderText_Blended(&(*fontHandle), textToRender->c_str(), color);
+            surface = TTF_RenderText_Blended(&(*fontHandle),
+                                             textToRender->c_str(), color);
             break;
         }
     }
@@ -305,7 +314,8 @@ void Text::refreshTexture()
     }
 
     // Move the image to a texture on the gpu.
-    SDL_Texture* texture = SDL_CreateTextureFromSurface(Core::getRenderer(), surface);
+    SDL_Texture* texture
+        = SDL_CreateTextureFromSurface(Core::getRenderer(), surface);
     SDL_FreeSurface(surface);
     if (texture == nullptr) {
         AUI_LOG_ERROR("Failed to create texture.");
@@ -315,7 +325,8 @@ void Text::refreshTexture()
     textTexture = std::unique_ptr<SDL_Texture, TextureDeleter>(texture);
 
     // Save the width and height of the new texture.
-    SDL_QueryTexture(textTexture.get(), nullptr, nullptr, &(textureExtent.w), &(textureExtent.h));
+    SDL_QueryTexture(textTexture.get(), nullptr, nullptr, &(textureExtent.w),
+                     &(textureExtent.h));
     textExtent = {0, 0, textureExtent.w, textureExtent.h};
 
     // Calc our new aligned position.

@@ -2,9 +2,10 @@
 #include "AUI/Screen.h"
 #include "AUI/Core.h"
 
-namespace AUI {
-
-Checkbox::Checkbox(Screen& inScreen, const SDL_Rect& inLogicalExtent, const std::string& inDebugName)
+namespace AUI
+{
+Checkbox::Checkbox(Screen& inScreen, const SDL_Rect& inLogicalExtent,
+                   const std::string& inDebugName)
 : Component(inScreen, inLogicalExtent, inDebugName)
 , uncheckedImage(inScreen, {0, 0, logicalExtent.w, logicalExtent.h})
 , checkedImage(inScreen, {0, 0, logicalExtent.w, logicalExtent.h})
@@ -42,7 +43,8 @@ bool Checkbox::onMouseButtonDown(SDL_MouseButtonEvent& event)
         if (currentState == State::Unchecked) {
             // Check if the user set a callback.
             if (onChecked == nullptr) {
-                AUI_LOG_ERROR("Checkbox tried to call empty onChecked() callback.");
+                AUI_LOG_ERROR(
+                    "Checkbox tried to call empty onChecked() callback.");
             }
 
             // Set our state to checked.
@@ -54,7 +56,8 @@ bool Checkbox::onMouseButtonDown(SDL_MouseButtonEvent& event)
         else if (currentState == State::Checked) {
             // We're checked, check if the user set a callback.
             if (onUnchecked == nullptr) {
-                AUI_LOG_ERROR("Checkbox tried to call empty onUnchecked() callback.");
+                AUI_LOG_ERROR(
+                    "Checkbox tried to call empty onUnchecked() callback.");
             }
 
             // Set our state to unchecked.

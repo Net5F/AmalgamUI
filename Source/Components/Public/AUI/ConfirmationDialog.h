@@ -5,8 +5,8 @@
 #include "AUI/Button.h"
 #include <functional>
 
-namespace AUI {
-
+namespace AUI
+{
 /**
  * A simple confirmation dialog.
  */
@@ -16,7 +16,8 @@ public:
     //-------------------------------------------------------------------------
     // Public interface
     //-------------------------------------------------------------------------
-    ConfirmationDialog(Screen& screen, const SDL_Rect& inLogicalExtent, const std::string& inDebugName = "");
+    ConfirmationDialog(Screen& screen, const SDL_Rect& inLogicalExtent,
+                       const std::string& inDebugName = "");
 
     virtual ~ConfirmationDialog() = default;
 

@@ -8,14 +8,14 @@
 /**
  * Use these macros instead of calling the functions directly.
  */
-#define AUI_LOG_INFO(...)                                                          \
+#define AUI_LOG_INFO(...)                                                      \
     {                                                                          \
-        AUI::Log::info(__VA_ARGS__);                                                \
+        AUI::Log::info(__VA_ARGS__);                                           \
     }
 
-#define AUI_LOG_ERROR(...)                                                         \
+#define AUI_LOG_ERROR(...)                                                     \
     {                                                                          \
-        AUI::Log::error(__FILE__, __LINE__, __VA_ARGS__);                           \
+        AUI::Log::error(__FILE__, __LINE__, __VA_ARGS__);                      \
         std::abort();                                                          \
     }
 

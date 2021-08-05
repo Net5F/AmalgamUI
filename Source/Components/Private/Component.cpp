@@ -5,9 +5,10 @@
 #include "AUI/ScalingHelpers.h"
 #include "AUI/Internal/Ignore.h"
 
-namespace AUI {
-
-Component::Component(Screen& inScreen, const SDL_Rect& inLogicalExtent, const std::string& inDebugName)
+namespace AUI
+{
+Component::Component(Screen& inScreen, const SDL_Rect& inLogicalExtent,
+                     const std::string& inDebugName)
 : screen(inScreen)
 , debugName{inDebugName}
 , logicalExtent{inLogicalExtent}
@@ -25,7 +26,8 @@ Component::~Component()
     // Unregister from any events that we were listening for.
     for (unsigned int i = 0; i < InternalEvent::NUM_TYPES; ++i) {
         if (listeningEventTypes[i]) {
-            screen.unregisterListener(static_cast<InternalEvent::Type>(i), this);
+            screen.unregisterListener(static_cast<InternalEvent::Type>(i),
+                                      this);
         }
     }
 
@@ -36,9 +38,9 @@ bool Component::containsPoint(const SDL_Point& actualPoint)
 {
     // Test if the point is within all 4 sides of our extent.
     if ((actualPoint.x > lastRenderedExtent.x)
-       && (actualPoint.x < (lastRenderedExtent.x + lastRenderedExtent.w))
-       && (actualPoint.y > lastRenderedExtent.y)
-       && (actualPoint.y < (lastRenderedExtent.y + lastRenderedExtent.h))) {
+        && (actualPoint.x < (lastRenderedExtent.x + lastRenderedExtent.w))
+        && (actualPoint.y > lastRenderedExtent.y)
+        && (actualPoint.y < (lastRenderedExtent.y + lastRenderedExtent.h))) {
         return true;
     }
     else {
@@ -50,8 +52,8 @@ bool Component::containsExtent(const SDL_Rect& actualExtent)
 {
     // Test if 2 diagonal corners of the extent are within our extent.
     if (containsPoint({actualExtent.x, actualExtent.y})
-        && containsPoint({(actualExtent.x + actualExtent.w)
-                        , (actualExtent.y + actualExtent.h)})) {
+        && containsPoint({(actualExtent.x + actualExtent.w),
+                          (actualExtent.y + actualExtent.h)})) {
         return true;
     }
     else {
@@ -102,14 +104,14 @@ void Component::render(const SDL_Point& parentOffset)
 {
     ignore(parentOffset);
     AUI_LOG_ERROR("Base class render called. Please override render() "
-    "in your derived class.");
+                  "in your derived class.");
 }
 
 bool Component::onMouseButtonDown(SDL_MouseButtonEvent& event)
 {
     ignore(event);
     AUI_LOG_ERROR("Base class callback called. Please override"
-    " onMouseButtonDown() in your derived class.");
+                  " onMouseButtonDown() in your derived class.");
 
     return false;
 }
@@ -118,7 +120,7 @@ bool Component::onMouseButtonUp(SDL_MouseButtonEvent& event)
 {
     ignore(event);
     AUI_LOG_ERROR("Base class callback called. Please override"
-    " onMouseButtonUp() in your derived class.");
+                  " onMouseButtonUp() in your derived class.");
 
     return false;
 }
@@ -127,7 +129,7 @@ bool Component::onMouseWheel(SDL_MouseWheelEvent& event)
 {
     ignore(event);
     AUI_LOG_ERROR("Base class callback called. Please override onMouseWheel() "
-    "in your derived class.");
+                  "in your derived class.");
 
     return false;
 }
@@ -136,14 +138,14 @@ void Component::onMouseMove(SDL_MouseMotionEvent& event)
 {
     ignore(event);
     AUI_LOG_ERROR("Base class callback called. Please override onMouseMove() "
-    "in your derived class.");
+                  "in your derived class.");
 }
 
 bool Component::onKeyDown(SDL_KeyboardEvent& event)
 {
     ignore(event);
     AUI_LOG_ERROR("Base class callback called. Please override onKeyDown() "
-    "in your derived class.");
+                  "in your derived class.");
 
     return false;
 }
@@ -152,7 +154,7 @@ bool Component::onTextInput(SDL_TextInputEvent& event)
 {
     ignore(event);
     AUI_LOG_ERROR("Base class callback called. Please override onTextInput() "
-    "in your derived class.");
+                  "in your derived class.");
 
     return false;
 }
@@ -161,7 +163,7 @@ void Component::onTick(double timestepS)
 {
     ignore(timestepS);
     AUI_LOG_ERROR("Base class callback called. Please override onTick() "
-    "in your derived class.");
+                  "in your derived class.");
 }
 
 void Component::registerListener(InternalEvent::Type eventType)
@@ -199,12 +201,13 @@ bool Component::refreshScaling()
     return false;
 }
 
-SDL_Rect Component::calcClippedExtent(const SDL_Rect& sourceExtent, const SDL_Rect& clipExtent)
+SDL_Rect Component::calcClippedExtent(const SDL_Rect& sourceExtent,
+                                      const SDL_Rect& clipExtent)
 {
     // If the clipping extent has no width or height, don't clip.
     if ((clipExtent.w == 0) || (clipExtent.h == 0)) {
         AUI_LOG_INFO("Tried to clip using a clipExtent with either no width or"
-        " no height.");
+                     " no height.");
         return sourceExtent;
     }
 
@@ -216,7 +219,8 @@ SDL_Rect Component::calcClippedExtent(const SDL_Rect& sourceExtent, const SDL_Re
     }
 
     // If we're beyond the right bound of clipExtent, decrease width to fit.
-    int rightDiff = (clippedExtent.x + clippedExtent.w) - (clipExtent.x + clipExtent.w);
+    int rightDiff
+        = (clippedExtent.x + clippedExtent.w) - (clipExtent.x + clipExtent.w);
     if (rightDiff > 0) {
         clippedExtent.w -= rightDiff;
     }
@@ -228,7 +232,8 @@ SDL_Rect Component::calcClippedExtent(const SDL_Rect& sourceExtent, const SDL_Re
     }
 
     // If we're beyond the bottom bound of clipExtent, decrease height to fit.
-    int bottomDiff = (clippedExtent.y + clippedExtent.h) - (clipExtent.y + clipExtent.h);
+    int bottomDiff
+        = (clippedExtent.y + clippedExtent.h) - (clipExtent.y + clipExtent.h);
     if (bottomDiff > 0) {
         clippedExtent.h -= bottomDiff;
     }

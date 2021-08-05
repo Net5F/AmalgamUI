@@ -2,9 +2,11 @@
 #include "AUI/Screen.h"
 #include "AUI/Core.h"
 
-namespace AUI {
-
-ConfirmationDialog::ConfirmationDialog(Screen& inScreen, const SDL_Rect& inLogicalExtent, const std::string& inDebugName)
+namespace AUI
+{
+ConfirmationDialog::ConfirmationDialog(Screen& inScreen,
+                                       const SDL_Rect& inLogicalExtent,
+                                       const std::string& inDebugName)
 : Component(inScreen, inLogicalExtent, inDebugName)
 , backgroundImage(inScreen, {0, 0, logicalExtent.w, logicalExtent.h})
 , bodyText(inScreen, {0, 0, logicalExtent.w, logicalExtent.h})
@@ -12,7 +14,7 @@ ConfirmationDialog::ConfirmationDialog(Screen& inScreen, const SDL_Rect& inLogic
 , cancelButton(inScreen, {0, 0, logicalExtent.w, logicalExtent.h})
 {
     // Set the default cancel button behavior.
-    cancelButton.setOnPressed([&](){
+    cancelButton.setOnPressed([&]() {
         // Remove the dialog.
         setIsVisible(false);
     });

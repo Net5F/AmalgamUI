@@ -1,7 +1,7 @@
 #pragma once
 
-namespace AUI {
-
+namespace AUI
+{
 /**
  * The types of internal events that our UI components can register to receive.
  *

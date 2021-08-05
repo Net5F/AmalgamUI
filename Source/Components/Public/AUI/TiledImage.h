@@ -2,8 +2,8 @@
 
 #include "AUI/Image.h"
 
-namespace AUI {
-
+namespace AUI
+{
 /**
  * Tiles an image across this component's extent.
  *
@@ -16,7 +16,8 @@ public:
     //-------------------------------------------------------------------------
     // Public interface
     //-------------------------------------------------------------------------
-    TiledImage(Screen& inScreen, const SDL_Rect& inLogicalExtent, const std::string& inDebugName = "");
+    TiledImage(Screen& inScreen, const SDL_Rect& inLogicalExtent,
+               const std::string& inDebugName = "");
 
     virtual ~TiledImage() = default;
 

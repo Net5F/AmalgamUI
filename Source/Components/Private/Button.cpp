@@ -2,9 +2,10 @@
 #include "AUI/Screen.h"
 #include "AUI/Core.h"
 
-namespace AUI {
-
-Button::Button(Screen& inScreen, const SDL_Rect& inLogicalExtent, const std::string& inDebugName)
+namespace AUI
+{
+Button::Button(Screen& inScreen, const SDL_Rect& inLogicalExtent,
+               const std::string& inDebugName)
 : Component(inScreen, inLogicalExtent, inDebugName)
 , normalImage(inScreen, {0, 0, logicalExtent.w, logicalExtent.h})
 , hoveredImage(inScreen, {0, 0, logicalExtent.w, logicalExtent.h})

@@ -4,11 +4,12 @@
 #include "AUI/ScalingHelpers.h"
 #include <cstring>
 
-namespace AUI {
-
+namespace AUI
+{
 int TextInput::focusedInputCount = 0;
 
-TextInput::TextInput(Screen& inScreen, const SDL_Rect& inLogicalExtent, const std::string& inDebugName)
+TextInput::TextInput(Screen& inScreen, const SDL_Rect& inLogicalExtent,
+                     const std::string& inDebugName)
 : Component(inScreen, inLogicalExtent, inDebugName)
 , normalImage(screen, {0, 0, logicalExtent.w, logicalExtent.h})
 , hoveredImage(screen, {0, 0, logicalExtent.w, logicalExtent.h})
@@ -43,9 +44,10 @@ void TextInput::setMargins(Margins inLogicalMargins)
 {
     // Set the text component to be the size of this component, minus the
     // margins.
-    text.setLogicalExtent({inLogicalMargins.left, inLogicalMargins.top
-                    , (logicalExtent.w - inLogicalMargins.left - inLogicalMargins.right)
-                    , (logicalExtent.h - inLogicalMargins.top - inLogicalMargins.bottom)});
+    text.setLogicalExtent(
+        {inLogicalMargins.left, inLogicalMargins.top,
+         (logicalExtent.w - inLogicalMargins.left - inLogicalMargins.right),
+         (logicalExtent.h - inLogicalMargins.top - inLogicalMargins.bottom)});
 
     // Refresh the text position to account for the change.
     refreshTextScrollOffset();
@@ -58,8 +60,8 @@ void TextInput::setCursorColor(const SDL_Color& inCursorColor)
 
 void TextInput::setCursorWidth(unsigned int inCursorWidth)
 {
-   logicalCursorWidth = inCursorWidth;
-   scaledCursorWidth = ScalingHelpers::logicalToActual(logicalCursorWidth);
+    logicalCursorWidth = inCursorWidth;
+    scaledCursorWidth = ScalingHelpers::logicalToActual(logicalCursorWidth);
 }
 
 TextInput::State TextInput::getCurrentState()
@@ -371,7 +373,8 @@ bool TextInput::handleCutEvent()
             // Refresh the text position to account for the change.
             refreshTextScrollOffset();
 
-            // If a callback is registered, signal that the the text was changed.
+            // If a callback is registered, signal that the the text was
+            // changed.
             if (onTextChanged) {
                 onTextChanged();
             }
@@ -401,7 +404,8 @@ bool TextInput::handlePasteEvent()
             // Refresh the text position to account for the change.
             refreshTextScrollOffset();
 
-            // If a callback is registered, signal that the the text was changed.
+            // If a callback is registered, signal that the the text was
+            // changed.
             if (onTextChanged) {
                 onTextChanged();
             }
@@ -547,7 +551,8 @@ void TextInput::refreshTextScrollOffset()
     else if (textOffset < 0) {
         // There's text hanging off the left side. Are we still pushed against
         // the right bound? (Relevant after a backspace.)
-        SDL_Rect lastCharOffset = text.calcCharacterOffset(text.asString().length());
+        SDL_Rect lastCharOffset
+            = text.calcCharacterOffset(text.asString().length());
         if (lastCharOffset.x < (textExtent.x + textExtent.w)) {
             // There's a gap to fill, scroll right.
             textOffset += ((textExtent.x + textExtent.w) - lastCharOffset.x);
@@ -590,8 +595,9 @@ void TextInput::renderTextCursor(const SDL_Point& childOffset)
 {
     // Save the current draw color to re-apply later.
     SDL_Color originalColor;
-    SDL_GetRenderDrawColor(Core::getRenderer(), &originalColor.r
-                           , &originalColor.g, &originalColor.b, &originalColor.a);
+    SDL_GetRenderDrawColor(Core::getRenderer(), &originalColor.r,
+                           &originalColor.g, &originalColor.b,
+                           &originalColor.a);
 
     // Calc where the cursor should be.
     SDL_Rect cursorOffsetExtent{text.calcCharacterOffset(cursorIndex)};
@@ -600,14 +606,14 @@ void TextInput::renderTextCursor(const SDL_Point& childOffset)
     cursorOffsetExtent.w = scaledCursorWidth;
 
     // Draw the cursor.
-    SDL_SetRenderDrawColor(Core::getRenderer()
-    , cursorColor.r, cursorColor.g, cursorColor.b, cursorColor.a);
+    SDL_SetRenderDrawColor(Core::getRenderer(), cursorColor.r, cursorColor.g,
+                           cursorColor.b, cursorColor.a);
 
     SDL_RenderFillRect(Core::getRenderer(), &cursorOffsetExtent);
 
     // Re-apply the original draw color.
-    SDL_SetRenderDrawColor(Core::getRenderer(), originalColor.r
-                           , originalColor.g, originalColor.b, originalColor.a);
+    SDL_SetRenderDrawColor(Core::getRenderer(), originalColor.r,
+                           originalColor.g, originalColor.b, originalColor.a);
 }
 
 } // namespace AUI

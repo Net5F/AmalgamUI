@@ -4,8 +4,8 @@
 #include "AUI/Text.h"
 #include <functional>
 
-namespace AUI {
-
+namespace AUI
+{
 /**
  * An interactable element with a thumbnail image and text.
  *
@@ -27,7 +27,8 @@ public:
     //-------------------------------------------------------------------------
     // Public interface
     //-------------------------------------------------------------------------
-    Thumbnail(Screen& screen, const SDL_Rect& inLogicalExtent, const std::string& inDebugName = "");
+    Thumbnail(Screen& screen, const SDL_Rect& inLogicalExtent,
+              const std::string& inDebugName = "");
 
     virtual ~Thumbnail() = default;
 
@@ -118,7 +119,8 @@ public:
      * When the text gets too large and starts clipping its bounds, we right-
      * align it to show the user the most relevant info.
      */
-    void setTextHorizontalAlignment(Text::HorizontalAlignment inHorizontalAlignment);
+    void setTextHorizontalAlignment(
+        Text::HorizontalAlignment inHorizontalAlignment);
 
     /** Calls text.setLogicalExtent(). */
     void setTextLogicalExtent(const SDL_Rect& inLogicalExtent);

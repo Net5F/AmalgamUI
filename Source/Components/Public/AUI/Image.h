@@ -2,7 +2,7 @@
 
 #include "AUI/Component.h"
 #include "AUI/ScreenResolution.h"
-#include <SDL2/SDL_Render.h>
+#include <SDL2/SDL_render.h>
 #include <map>
 #include <string>
 #include <memory>

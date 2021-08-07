@@ -1,6 +1,6 @@
 #include "AUI/TiledImage.h"
 #include "AUI/Core.h"
-#include <SDL2/SDL_Render.h>
+#include <SDL2/SDL_render.h>
 
 namespace AUI
 {

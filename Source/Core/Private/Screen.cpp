@@ -43,7 +43,7 @@ void Screen::unregisterListener(InternalEvent::Type eventType,
     }
 }
 
-bool Screen::handleEvent(SDL_Event& event)
+bool Screen::handleOSEvent(SDL_Event& event)
 {
     switch (event.type) {
         case SDL_MOUSEBUTTONDOWN: {

@@ -54,7 +54,7 @@ public:
      *
      * @return true if the event was handled, else false.
      */
-    bool handleEvent(SDL_Event& event);
+    bool handleOSEvent(SDL_Event& event);
 
     /**
      * Calls all Tick event listeners.

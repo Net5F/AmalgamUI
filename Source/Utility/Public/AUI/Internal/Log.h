@@ -13,9 +13,22 @@
         AUI::Log::info(__VA_ARGS__);                                           \
     }
 
-#define AUI_LOG_ERROR(...)                                                     \
+#ifndef NDEBUG
+#define AUI_LOG_ERROR(...)                                                         \
     {                                                                          \
-        AUI::Log::error(__FILE__, __LINE__, __VA_ARGS__);                      \
+        AUI::Log::error(__FILE__, __LINE__, __VA_ARGS__);                       \
+    }
+#else
+#define AUI_LOG_ERROR(...)                                                         \
+    {                                                                          \
+        AUI::Log::error(__FILE__, __LINE__, __VA_ARGS__);                       \
+        std::abort();                                                          \
+    }
+#endif
+
+#define AUI_LOG_FATAL(...)                                                         \
+    {                                                                          \
+        AUI::Log::error(__FILE__, __LINE__, __VA_ARGS__);                       \
         std::abort();                                                          \
     }
 

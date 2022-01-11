@@ -18,7 +18,7 @@ FontHandle AssetCache::loadFont(const std::string& filePath, int size)
     // Load the font.
     TTF_Font* font = TTF_OpenFont(filePath.c_str(), size);
     if (font == nullptr) {
-        AUI_LOG_ERROR("Failed to load font: %s", filePath.c_str());
+        AUI_LOG_FATAL("Failed to load font: %s", filePath.c_str());
     }
 
     // Wrap the font in a shared_ptr.

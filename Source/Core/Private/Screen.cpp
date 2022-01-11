@@ -39,7 +39,7 @@ void Screen::unregisterListener(InternalEvent::Type eventType,
         *it = nullptr;
     }
     else {
-        AUI_LOG_ERROR("Listener not found while trying to unregister.");
+        AUI_LOG_FATAL("Listener not found while trying to unregister.");
     }
 }
 

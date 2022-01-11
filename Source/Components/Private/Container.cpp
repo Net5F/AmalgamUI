@@ -18,7 +18,7 @@ void Container::push_back(std::unique_ptr<Component> newElement)
 void Container::erase(std::size_t index)
 {
     if (elements.size() <= index) {
-        AUI_LOG_ERROR("Tried to remove element that doesn't exist in "
+        AUI_LOG_FATAL("Tried to remove element that doesn't exist in "
                       "container. Index: %u, Size: %u",
                       index, elements.size());
         return;
@@ -42,7 +42,7 @@ void Container::erase(Component* component)
     }
     else {
         // We didn't find it, error.
-        AUI_LOG_ERROR("Tried to remove element that doesn't exist in "
+        AUI_LOG_FATAL("Tried to remove element that doesn't exist in "
                       "container. Container name: %s, element name: %s",
                       debugName.c_str(), component->getDebugName().c_str());
     }
@@ -56,7 +56,7 @@ void Container::clear()
 Component& Container::operator[](std::size_t index)
 {
     if (elements.size() <= index) {
-        AUI_LOG_ERROR("Given index is out of bounds. Index: %u, Size: %u",
+        AUI_LOG_FATAL("Given index is out of bounds. Index: %u, Size: %u",
                       index, elements.size());
     }
 

@@ -103,14 +103,14 @@ bool Component::getIsVisible()
 void Component::render(const SDL_Point& parentOffset)
 {
     ignore(parentOffset);
-    AUI_LOG_ERROR("Base class render called. Please override render() "
+    AUI_LOG_FATAL("Base class render called. Please override render() "
                   "in your derived class.");
 }
 
 bool Component::onMouseButtonDown(SDL_MouseButtonEvent& event)
 {
     ignore(event);
-    AUI_LOG_ERROR("Base class callback called. Please override"
+    AUI_LOG_FATAL("Base class callback called. Please override"
                   " onMouseButtonDown() in your derived class.");
 
     return false;
@@ -119,7 +119,7 @@ bool Component::onMouseButtonDown(SDL_MouseButtonEvent& event)
 bool Component::onMouseButtonUp(SDL_MouseButtonEvent& event)
 {
     ignore(event);
-    AUI_LOG_ERROR("Base class callback called. Please override"
+    AUI_LOG_FATAL("Base class callback called. Please override"
                   " onMouseButtonUp() in your derived class.");
 
     return false;
@@ -128,7 +128,7 @@ bool Component::onMouseButtonUp(SDL_MouseButtonEvent& event)
 bool Component::onMouseWheel(SDL_MouseWheelEvent& event)
 {
     ignore(event);
-    AUI_LOG_ERROR("Base class callback called. Please override onMouseWheel() "
+    AUI_LOG_FATAL("Base class callback called. Please override onMouseWheel() "
                   "in your derived class.");
 
     return false;
@@ -137,14 +137,14 @@ bool Component::onMouseWheel(SDL_MouseWheelEvent& event)
 void Component::onMouseMove(SDL_MouseMotionEvent& event)
 {
     ignore(event);
-    AUI_LOG_ERROR("Base class callback called. Please override onMouseMove() "
+    AUI_LOG_FATAL("Base class callback called. Please override onMouseMove() "
                   "in your derived class.");
 }
 
 bool Component::onKeyDown(SDL_KeyboardEvent& event)
 {
     ignore(event);
-    AUI_LOG_ERROR("Base class callback called. Please override onKeyDown() "
+    AUI_LOG_FATAL("Base class callback called. Please override onKeyDown() "
                   "in your derived class.");
 
     return false;
@@ -153,7 +153,7 @@ bool Component::onKeyDown(SDL_KeyboardEvent& event)
 bool Component::onTextInput(SDL_TextInputEvent& event)
 {
     ignore(event);
-    AUI_LOG_ERROR("Base class callback called. Please override onTextInput() "
+    AUI_LOG_FATAL("Base class callback called. Please override onTextInput() "
                   "in your derived class.");
 
     return false;
@@ -162,7 +162,7 @@ bool Component::onTextInput(SDL_TextInputEvent& event)
 void Component::onTick(double timestepS)
 {
     ignore(timestepS);
-    AUI_LOG_ERROR("Base class callback called. Please override onTick() "
+    AUI_LOG_FATAL("Base class callback called. Please override onTick() "
                   "in your derived class.");
 }
 

@@ -24,7 +24,7 @@ void Image::addResolution(const ScreenResolution& resolution,
 
     // If we already have the given resolution, fail.
     if (resolutionMap.find(resolution) != resolutionMap.end()) {
-        AUI_LOG_ERROR("Tried to add image resolution that is already in use. "
+        AUI_LOG_FATAL("Tried to add image resolution that is already in use. "
                       "DebugName: %s, Resolution: (%d, %d)",
                       debugName.c_str(), resolution.width, resolution.height);
     }
@@ -70,7 +70,7 @@ void Image::render(const SDL_Point& parentOffset)
 
     // If we don't have a texture to render, fail.
     if (currentTexture == nullptr) {
-        AUI_LOG_ERROR("Tried to render Image with no texture. DebugName: %s",
+        AUI_LOG_FATAL("Tried to render Image with no texture. DebugName: %s",
                       debugName.c_str());
     }
 

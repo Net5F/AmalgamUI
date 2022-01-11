@@ -30,7 +30,7 @@ void TiledImage::render(const SDL_Point& parentOffset)
 
     // If we don't have a texture to render, fail.
     if (!currentTexture) {
-        AUI_LOG_ERROR("Tried to render Image with no texture. DebugName: %s",
+        AUI_LOG_FATAL("Tried to render Image with no texture. DebugName: %s",
                       debugName.c_str());
     }
 

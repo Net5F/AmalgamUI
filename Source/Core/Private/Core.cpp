@@ -36,7 +36,7 @@ void Core::quit()
     // Components must be destructed before IMG_Quit()/TTF_Quit() or they may
     // segfault when trying to close their resources.
     if (componentCount != 0) {
-        AUI_LOG_ERROR("Please destruct all UI components before calling "
+        AUI_LOG_FATAL("Please destruct all UI components before calling "
                       "AUI::Core::Quit(). Component count: %d",
                       componentCount.load());
     }

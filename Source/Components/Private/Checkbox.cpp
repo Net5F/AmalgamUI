@@ -43,7 +43,7 @@ bool Checkbox::onMouseButtonDown(SDL_MouseButtonEvent& event)
         if (currentState == State::Unchecked) {
             // Check if the user set a callback.
             if (onChecked == nullptr) {
-                AUI_LOG_ERROR(
+                AUI_LOG_FATAL(
                     "Checkbox tried to call empty onChecked() callback.");
             }
 
@@ -56,7 +56,7 @@ bool Checkbox::onMouseButtonDown(SDL_MouseButtonEvent& event)
         else if (currentState == State::Checked) {
             // We're checked, check if the user set a callback.
             if (onUnchecked == nullptr) {
-                AUI_LOG_ERROR(
+                AUI_LOG_FATAL(
                     "Checkbox tried to call empty onUnchecked() callback.");
             }
 

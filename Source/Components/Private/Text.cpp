@@ -173,7 +173,7 @@ void Text::render(const SDL_Point& parentOffset)
     }
 
     if (textTexture == nullptr) {
-        AUI_LOG_ERROR("Tried to render Font with no texture. DebugName: %s",
+        AUI_LOG_FATAL("Tried to render Font with no texture. DebugName: %s",
                       debugName.c_str());
     }
 
@@ -277,7 +277,7 @@ void Text::refreshFontObject()
 void Text::refreshTexture()
 {
     if (!fontHandle) {
-        AUI_LOG_ERROR(
+        AUI_LOG_FATAL(
             "Please call setFont() before refreshTexture(), so"
             " that a valid font object can be used for texture generation.");
     }
@@ -310,7 +310,7 @@ void Text::refreshTexture()
         }
     }
     if (surface == nullptr) {
-        AUI_LOG_ERROR("Failed to create surface.");
+        AUI_LOG_FATAL("Failed to create surface.");
     }
 
     // Move the image to a texture on the gpu.
@@ -318,7 +318,7 @@ void Text::refreshTexture()
         = SDL_CreateTextureFromSurface(Core::getRenderer(), surface);
     SDL_FreeSurface(surface);
     if (texture == nullptr) {
-        AUI_LOG_ERROR("Failed to create texture.");
+        AUI_LOG_FATAL("Failed to create texture.");
     }
 
     // Give ownership of the texture pointer to our smart pointer.

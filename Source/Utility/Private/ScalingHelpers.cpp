@@ -48,7 +48,7 @@ SDL_Rect ScalingHelpers::logicalToActual(const SDL_Rect& logicalExtent)
     // Note: We'll eventually support other aspect ratios by centering the UI,
     //       but for now we just fail if you try to change the aspect ratio.
     if (xScale != yScale) {
-        AUI_LOG_ERROR("We currently only support scaling within the same aspect"
+        AUI_LOG_FATAL("We currently only support scaling within the same aspect"
                       " ratio.");
     }
 
@@ -73,7 +73,7 @@ SDL_Point ScalingHelpers::logicalToActual(const SDL_Point& logicalPoint)
     // Note: We'll eventually support other aspect ratios by centering the UI,
     //       but for now we just fail if you try to change the aspect ratio.
     if (xScale != yScale) {
-        AUI_LOG_ERROR("We currently only support scaling within the same aspect"
+        AUI_LOG_FATAL("We currently only support scaling within the same aspect"
                       " ratio.");
     }
 
@@ -129,7 +129,7 @@ SDL_Rect ScalingHelpers::actualToLogical(const SDL_Rect& actualExtent)
     // Note: We'll eventually support other aspect ratios by centering the UI,
     //       but for now we just fail if you try to change the aspect ratio.
     if (xScale != yScale) {
-        AUI_LOG_ERROR("We currently only support scaling within the same aspect"
+        AUI_LOG_FATAL("We currently only support scaling within the same aspect"
                       " ratio.");
     }
 
@@ -154,7 +154,7 @@ SDL_Point ScalingHelpers::actualToLogical(const SDL_Point& actualPoint)
     // Note: We'll eventually support other aspect ratios by centering the UI,
     //       but for now we just fail if you try to change the aspect ratio.
     if (xScale != yScale) {
-        AUI_LOG_ERROR("We currently only support scaling within the same aspect"
+        AUI_LOG_FATAL("We currently only support scaling within the same aspect"
                       " ratio.");
     }
 

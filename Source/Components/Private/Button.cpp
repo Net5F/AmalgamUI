@@ -56,7 +56,7 @@ bool Button::onMouseButtonDown(SDL_MouseButtonEvent& event)
     if (containsPoint({event.x, event.y})) {
         // Check if the user set a callback.
         if (onPressed == nullptr) {
-            AUI_LOG_ERROR("Button tried to call empty onPressed() callback.");
+            AUI_LOG_FATAL("Button tried to call empty onPressed() callback.");
         }
 
         // Set our state to pressed.

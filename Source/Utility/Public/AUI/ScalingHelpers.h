@@ -32,7 +32,8 @@ public:
     /** Overload for unsigned int. See logicalToActual(int). */
     static unsigned int logicalToActual(unsigned int logicalInt);
 
-    static float logicalToActual(float logicalFLoat);
+    /** Overload for float. See logicalToActual(int). */
+    static float logicalToActual(float logicalFloat);
 
     /** Overload for SDL_Rect. See logicalToActual(int). */
     static SDL_Rect logicalToActual(const SDL_Rect& logicalExtent);

@@ -9,7 +9,7 @@ namespace AUI
  */
 struct InternalEvent {
     enum Type : unsigned int {
-        /** The mouse clicked within the window. */
+        /** The mouse was clicked within the window. */
         MouseButtonDown = 0,
         /** The mouse released a click within the window. */
         MouseButtonUp = 1,

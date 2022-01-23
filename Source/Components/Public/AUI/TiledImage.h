@@ -7,7 +7,7 @@ namespace AUI
 /**
  * Tiles an image across this component's extent.
  *
- * If the given image doesn't tile perfectly, it will be clipped at the left
+ * If the given image doesn't tile perfectly, it will be clipped at the right
  * and bottom edges.
  */
 class TiledImage : public Image

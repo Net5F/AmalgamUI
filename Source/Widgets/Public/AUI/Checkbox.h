@@ -20,14 +20,6 @@ public:
      */
     enum class State { Unchecked, Checked };
 
-    /**
-     * Sets this checkbox's state to the given state.
-     *
-     * Intended to be used for updating this widget to match the underlying
-     * data. As such, calling this doesn't trigger the associated callback.
-     */
-    void setCurrentState(State inState);
-
     //-------------------------------------------------------------------------
     // Public interface
     //-------------------------------------------------------------------------
@@ -35,6 +27,14 @@ public:
              const std::string& inDebugName = "");
 
     virtual ~Checkbox() = default;
+
+    /**
+     * Sets this checkbox's state to the given state.
+     *
+     * Intended to be used for updating this widget to match the underlying
+     * data. As such, calling this doesn't trigger the associated callback.
+     */
+    void setCurrentState(State inState);
 
     State getCurrentState();
 

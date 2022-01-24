@@ -6,7 +6,7 @@ namespace AUI
 {
 Checkbox::Checkbox(Screen& inScreen, const SDL_Rect& inLogicalExtent,
                    const std::string& inDebugName)
-: Component(inScreen, inLogicalExtent, inDebugName)
+: Widget(inScreen, inLogicalExtent, inDebugName)
 , uncheckedImage(inScreen, {0, 0, logicalExtent.w, logicalExtent.h})
 , checkedImage(inScreen, {0, 0, logicalExtent.w, logicalExtent.h})
 , currentState{State::Unchecked}
@@ -80,7 +80,7 @@ void Checkbox::render(const SDL_Point& parentOffset)
     // Keep our extent up to date.
     refreshScaling();
 
-    // Children should render at the parent's offset + this component's offset.
+    // Children should render at the parent's offset + this widget's offset.
     SDL_Point childOffset{parentOffset};
     childOffset.x += scaledExtent.x;
     childOffset.y += scaledExtent.y;
@@ -90,7 +90,7 @@ void Checkbox::render(const SDL_Point& parentOffset)
     lastRenderedExtent.x += parentOffset.x;
     lastRenderedExtent.y += parentOffset.y;
 
-    // If the component isn't visible, return without rendering.
+    // If the widget isn't visible, return without rendering.
     if (!isVisible) {
         return;
     }

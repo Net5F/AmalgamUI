@@ -6,7 +6,7 @@ namespace AUI
 {
 Button::Button(Screen& inScreen, const SDL_Rect& inLogicalExtent,
                const std::string& inDebugName)
-: Component(inScreen, inLogicalExtent, inDebugName)
+: Widget(inScreen, inLogicalExtent, inDebugName)
 , normalImage(inScreen, {0, 0, logicalExtent.w, logicalExtent.h})
 , hoveredImage(inScreen, {0, 0, logicalExtent.w, logicalExtent.h})
 , pressedImage(inScreen, {0, 0, logicalExtent.w, logicalExtent.h})
@@ -82,7 +82,7 @@ bool Button::onMouseButtonUp(SDL_MouseButtonEvent& event)
 
     // If we were being pressed.
     if (currentState == State::Pressed) {
-        // If the mouse is still over this component, go to hovered.
+        // If the mouse is still over this widget, go to hovered.
         if (containsPoint({event.x, event.y})) {
             currentState = State::Hovered;
         }
@@ -125,7 +125,7 @@ void Button::render(const SDL_Point& parentOffset)
     // Keep our extent up to date.
     refreshScaling();
 
-    // Children should render at the parent's offset + this component's offset.
+    // Children should render at the parent's offset + this widget's offset.
     SDL_Point childOffset{parentOffset};
     childOffset.x += scaledExtent.x;
     childOffset.y += scaledExtent.y;
@@ -135,7 +135,7 @@ void Button::render(const SDL_Point& parentOffset)
     lastRenderedExtent.x += parentOffset.x;
     lastRenderedExtent.y += parentOffset.y;
 
-    // If the component isn't visible, return without rendering.
+    // If the widget isn't visible, return without rendering.
     if (!isVisible) {
         return;
     }

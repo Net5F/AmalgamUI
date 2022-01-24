@@ -5,7 +5,7 @@ namespace AUI
 {
 Image::Image(Screen& inScreen, const SDL_Rect& inLogicalExtent,
              const std::string& inDebugName)
-: Component(inScreen, inLogicalExtent, inDebugName)
+: Widget(inScreen, inLogicalExtent, inDebugName)
 , currentTexture{nullptr}
 , currentTexExtent{}
 {
@@ -63,7 +63,7 @@ void Image::render(const SDL_Point& parentOffset)
     // Save the extent that we're going to render at.
     lastRenderedExtent = offsetExtent;
 
-    // If the component isn't visible, return without rendering.
+    // If the widget isn't visible, return without rendering.
     if (!isVisible) {
         return;
     }
@@ -89,7 +89,7 @@ void Image::clearTextures()
 bool Image::refreshScaling()
 {
     // If scaledExtent was refreshed, do our specialized refreshing.
-    if (Component::refreshScaling()) {
+    if (Widget::refreshScaling()) {
         // Re-calculate which resolution of texture to use.
         refreshChosenResolution();
 

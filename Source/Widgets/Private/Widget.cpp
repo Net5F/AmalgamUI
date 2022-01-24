@@ -1,4 +1,4 @@
-#include "AUI/Component.h"
+#include "AUI/Widget.h"
 #include "AUI/Screen.h"
 #include "AUI/Image.h"
 #include "AUI/Core.h"
@@ -7,7 +7,7 @@
 
 namespace AUI
 {
-Component::Component(Screen& inScreen, const SDL_Rect& inLogicalExtent,
+Widget::Widget(Screen& inScreen, const SDL_Rect& inLogicalExtent,
                      const std::string& inDebugName)
 : screen(inScreen)
 , debugName{inDebugName}
@@ -18,10 +18,10 @@ Component::Component(Screen& inScreen, const SDL_Rect& inLogicalExtent,
 , isVisible{true}
 , listeningEventTypes{}
 {
-    Core::incComponentCount();
+    Core::incWidgetCount();
 }
 
-Component::~Component()
+Widget::~Widget()
 {
     // Unregister from any events that we were listening for.
     for (unsigned int i = 0; i < InternalEvent::NUM_TYPES; ++i) {
@@ -31,10 +31,10 @@ Component::~Component()
         }
     }
 
-    Core::decComponentCount();
+    Core::decWidgetCount();
 }
 
-bool Component::containsPoint(const SDL_Point& actualPoint)
+bool Widget::containsPoint(const SDL_Point& actualPoint)
 {
     // Test if the point is within all 4 sides of our extent.
     if ((actualPoint.x > lastRenderedExtent.x)
@@ -48,7 +48,7 @@ bool Component::containsPoint(const SDL_Point& actualPoint)
     }
 }
 
-bool Component::containsExtent(const SDL_Rect& actualExtent)
+bool Widget::containsExtent(const SDL_Rect& actualExtent)
 {
     // Test if 2 diagonal corners of the extent are within our extent.
     if (containsPoint({actualExtent.x, actualExtent.y})
@@ -61,7 +61,7 @@ bool Component::containsExtent(const SDL_Rect& actualExtent)
     }
 }
 
-void Component::setLogicalExtent(const SDL_Rect& inLogicalExtent)
+void Widget::setLogicalExtent(const SDL_Rect& inLogicalExtent)
 {
     // Set our logical screen extent.
     logicalExtent = inLogicalExtent;
@@ -70,44 +70,44 @@ void Component::setLogicalExtent(const SDL_Rect& inLogicalExtent)
     scaledExtent = ScalingHelpers::logicalToActual(logicalExtent);
 }
 
-SDL_Rect Component::getLogicalExtent()
+SDL_Rect Widget::getLogicalExtent()
 {
     return logicalExtent;
 }
 
-SDL_Rect Component::getScaledExtent()
+SDL_Rect Widget::getScaledExtent()
 {
     return scaledExtent;
 }
 
-SDL_Rect Component::getLastRenderedExtent()
+SDL_Rect Widget::getLastRenderedExtent()
 {
     return lastRenderedExtent;
 }
 
-const std::string& Component::getDebugName()
+const std::string& Widget::getDebugName()
 {
     return debugName;
 }
 
-void Component::setIsVisible(bool inIsVisible)
+void Widget::setIsVisible(bool inIsVisible)
 {
     isVisible = inIsVisible;
 }
 
-bool Component::getIsVisible()
+bool Widget::getIsVisible()
 {
     return isVisible;
 }
 
-void Component::render(const SDL_Point& parentOffset)
+void Widget::render(const SDL_Point& parentOffset)
 {
     ignore(parentOffset);
     AUI_LOG_FATAL("Base class render called. Please override render() "
                   "in your derived class.");
 }
 
-bool Component::onMouseButtonDown(SDL_MouseButtonEvent& event)
+bool Widget::onMouseButtonDown(SDL_MouseButtonEvent& event)
 {
     ignore(event);
     AUI_LOG_FATAL("Base class callback called. Please override"
@@ -116,7 +116,7 @@ bool Component::onMouseButtonDown(SDL_MouseButtonEvent& event)
     return false;
 }
 
-bool Component::onMouseButtonUp(SDL_MouseButtonEvent& event)
+bool Widget::onMouseButtonUp(SDL_MouseButtonEvent& event)
 {
     ignore(event);
     AUI_LOG_FATAL("Base class callback called. Please override"
@@ -125,7 +125,7 @@ bool Component::onMouseButtonUp(SDL_MouseButtonEvent& event)
     return false;
 }
 
-bool Component::onMouseWheel(SDL_MouseWheelEvent& event)
+bool Widget::onMouseWheel(SDL_MouseWheelEvent& event)
 {
     ignore(event);
     AUI_LOG_FATAL("Base class callback called. Please override onMouseWheel() "
@@ -134,14 +134,14 @@ bool Component::onMouseWheel(SDL_MouseWheelEvent& event)
     return false;
 }
 
-void Component::onMouseMove(SDL_MouseMotionEvent& event)
+void Widget::onMouseMove(SDL_MouseMotionEvent& event)
 {
     ignore(event);
     AUI_LOG_FATAL("Base class callback called. Please override onMouseMove() "
                   "in your derived class.");
 }
 
-bool Component::onKeyDown(SDL_KeyboardEvent& event)
+bool Widget::onKeyDown(SDL_KeyboardEvent& event)
 {
     ignore(event);
     AUI_LOG_FATAL("Base class callback called. Please override onKeyDown() "
@@ -150,7 +150,7 @@ bool Component::onKeyDown(SDL_KeyboardEvent& event)
     return false;
 }
 
-bool Component::onTextInput(SDL_TextInputEvent& event)
+bool Widget::onTextInput(SDL_TextInputEvent& event)
 {
     ignore(event);
     AUI_LOG_FATAL("Base class callback called. Please override onTextInput() "
@@ -159,14 +159,14 @@ bool Component::onTextInput(SDL_TextInputEvent& event)
     return false;
 }
 
-void Component::onTick(double timestepS)
+void Widget::onTick(double timestepS)
 {
     ignore(timestepS);
     AUI_LOG_FATAL("Base class callback called. Please override onTick() "
                   "in your derived class.");
 }
 
-void Component::registerListener(InternalEvent::Type eventType)
+void Widget::registerListener(InternalEvent::Type eventType)
 {
     // Register with the screen as a listener for the given type.
     screen.registerListener(eventType, this);
@@ -175,7 +175,7 @@ void Component::registerListener(InternalEvent::Type eventType)
     listeningEventTypes[static_cast<unsigned int>(eventType)] = true;
 }
 
-void Component::unregisterListener(InternalEvent::Type eventType)
+void Widget::unregisterListener(InternalEvent::Type eventType)
 {
     // Unregister with the screen as a listener for the given type.
     // Note: Errors if we aren't listening to the given type.
@@ -185,7 +185,7 @@ void Component::unregisterListener(InternalEvent::Type eventType)
     listeningEventTypes[eventType] = false;
 }
 
-bool Component::refreshScaling()
+bool Widget::refreshScaling()
 {
     // If the screen size has changed.
     if (lastUsedScreenSize != Core::getActualScreenSize()) {
@@ -201,7 +201,7 @@ bool Component::refreshScaling()
     return false;
 }
 
-SDL_Rect Component::calcClippedExtent(const SDL_Rect& sourceExtent,
+SDL_Rect Widget::calcClippedExtent(const SDL_Rect& sourceExtent,
                                       const SDL_Rect& clipExtent)
 {
     // If the clipping extent has no width or height, don't clip.

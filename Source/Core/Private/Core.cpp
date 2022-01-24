@@ -9,7 +9,7 @@ SDL_Renderer* Core::sdlRenderer{nullptr};
 ScreenResolution Core::logicalScreenSize{};
 ScreenResolution Core::actualScreenSize{};
 std::unique_ptr<AssetCache> Core::assetCache{nullptr};
-std::atomic<int> Core::componentCount{0};
+std::atomic<int> Core::widgetCount{0};
 
 void Core::initialize(SDL_Renderer* inSdlRenderer,
                       ScreenResolution inLogicalScreenSize)
@@ -32,13 +32,13 @@ void Core::initialize(SDL_Renderer* inSdlRenderer,
 
 void Core::quit()
 {
-    // Check if any components are still alive.
-    // Components must be destructed before IMG_Quit()/TTF_Quit() or they may
+    // Check if any widgets are still alive.
+    // Widgets must be destructed before IMG_Quit()/TTF_Quit() or they may
     // segfault when trying to close their resources.
-    if (componentCount != 0) {
-        AUI_LOG_FATAL("Please destruct all UI components before calling "
-                      "AUI::Core::Quit(). Component count: %d",
-                      componentCount.load());
+    if (widgetCount != 0) {
+        AUI_LOG_FATAL("Please destruct all UI widgets before calling "
+                      "AUI::Core::Quit(). Widget count: %d",
+                      widgetCount.load());
     }
 
     sdlRenderer = nullptr;
@@ -73,14 +73,14 @@ ScreenResolution Core::getActualScreenSize()
     return actualScreenSize;
 }
 
-void Core::incComponentCount()
+void Core::incWidgetCount()
 {
-    componentCount++;
+    widgetCount++;
 }
 
-void Core::decComponentCount()
+void Core::decWidgetCount()
 {
-    componentCount--;
+    widgetCount--;
 }
 
 } // namespace AUI

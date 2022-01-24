@@ -1,6 +1,6 @@
 #pragma once
 
-#include "AUI/Component.h"
+#include "AUI/Widget.h"
 #include "AUI/AssetCache.h" // FontHandle
 #include <SDL2/SDL_ttf.h>
 #include <string_view>
@@ -11,19 +11,19 @@ namespace AUI
 /**
  * Displays a line of text.
  *
- * The Text component consists of two concepts: the component extent, and the
+ * The Text widget consists of two concepts: the widget extent, and the
  * text extent.
  *
- * The component extent is defined by logicalExtent/scaledExtent. This extent
- * defines the area that the component ultimately takes up. You can think of it
+ * The widget extent is defined by logicalExtent/scaledExtent. This extent
+ * defines the area that the widget ultimately takes up. You can think of it
  * as the area that the text goes in.
  *
  * The text extent reflects the size and placement of the text.
- * This is placed within the component extent, offset through the alignment
- * and textOffset parameters, and is finally clipped by the component extent
+ * This is placed within the widget extent, offset through the alignment
+ * and textOffset parameters, and is finally clipped by the widget extent
  * before rendering.
  */
-class Text : public Component
+class Text : public Widget
 {
 public:
     //-------------------------------------------------------------------------
@@ -89,20 +89,20 @@ public:
     void setText(std::string_view inText);
 
     /**
-     * Sets the vertical alignment of the text texture within this component's
+     * Sets the vertical alignment of the text texture within this widget's
      * screenExtent.
      */
     void setVerticalAlignment(VerticalAlignment inVerticalAlignment);
 
     /**
      * Sets the horizontal alignment of the text texture within this
-     * component's screenExtent.
+     * widget's screenExtent.
      */
     void setHorizontalAlignment(HorizontalAlignment inHorizontalAlignment);
 
     /**
      * Sets the text texture's x-axis offset. Effectively, this moves the text
-     * in relation to this component's scaledExtent.
+     * in relation to this widget's scaledExtent.
      *
      * This is done after all other offsets but pre-clipping, allowing you to
      * scroll the text and have it be clipped appropriately.
@@ -125,7 +125,7 @@ public:
     const std::string& asString();
 
     /**
-     * Used to tell where within the component a particular character starts.
+     * Used to tell where within the widget a particular character starts.
      *
      * @param index  The index of the desired character in the underlying
      *               string.
@@ -137,7 +137,7 @@ public:
 
     /**
      * Calculates the width that the given string would have if rendered using
-     * this component's current font.
+     * this widget's current font.
      */
     int calcStringWidth(const std::string& string);
 
@@ -149,7 +149,7 @@ public:
     // Base class overrides
     //-------------------------------------------------------------------------
     /**
-     * Calls Component::setExtent(), then calls refreshAlignment().
+     * Calls Widget::setExtent(), then calls refreshAlignment().
      */
     void setLogicalExtent(const SDL_Rect& inLogicalExtent) override;
 
@@ -198,7 +198,7 @@ private:
     /** The render mode. Affects the quality of the rendered image. */
     RenderMode renderMode;
 
-    /** The text that this component will display. */
+    /** The text that this widget will display. */
     std::string text;
 
     /** Our current vertical alignment. See setVerticalAlignment(). */
@@ -218,7 +218,7 @@ private:
 
     /** The current texture; shows our text in the desired font.
         We manage the texture ourselves instead of passing it to the resource
-        manager because it'll only ever be used by this component. */
+        manager because it'll only ever be used by this widget. */
     std::unique_ptr<SDL_Texture, TextureDeleter> textTexture;
 
     /** The source extent of the image within the text texture.

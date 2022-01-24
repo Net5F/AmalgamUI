@@ -1,34 +1,34 @@
 #pragma once
 
-#include "AUI/Component.h"
+#include "AUI/Widget.h"
 #include <vector>
 #include <memory>
 
 namespace AUI
 {
 /**
- * Base class for container components.
+ * Base class for container widgets.
  *
- * Containers are used to lay out components according to some defined logic.
- * For example, a VerticalGridContainer will lay out components in a grid that
+ * Containers are used to lay out widgets according to some defined logic.
+ * For example, a VerticalGridContainer will lay out widgets in a grid that
  * grows vertically.
  */
-class Container : public Component
+class Container : public Widget
 {
 public:
-    using container_type = std::vector<std::unique_ptr<Component>>;
+    using container_type = std::vector<std::unique_ptr<Widget>>;
     using iterator = container_type::iterator;
     using const_iterator = container_type::const_iterator;
 
     virtual ~Container() = default;
 
     /**
-     * Pushes the given component to the back of the container.
+     * Pushes the given widget to the back of the container.
      */
-    void push_back(std::unique_ptr<Component> newElement);
+    void push_back(std::unique_ptr<Widget> newElement);
 
     /**
-     * Erases the component at the given index.
+     * Erases the widget at the given index.
      *
      * Errors in debug if the given index doesn't exist.
      * Does nothing in release if the given index doesn't exist.
@@ -36,13 +36,13 @@ public:
     void erase(std::size_t index);
 
     /**
-     * Erases the given component.
+     * Erases the given widget.
      *
-     * Errors in debug if the given component doesn't exist in this container.
-     * Does nothing in release if the given component doesn't exist in this
+     * Errors in debug if the given widget doesn't exist in this container.
+     * Does nothing in release if the given widget doesn't exist in this
      * container.
      */
-    void erase(Component* component);
+    void erase(Widget* widget);
 
     /**
      * Clears the container, removing all elements.
@@ -56,7 +56,7 @@ public:
      * Accessing a nonexistant element through this operator is undefined
      * behavior.
      */
-    Component& operator[](std::size_t index);
+    Widget& operator[](std::size_t index);
 
     /**
      * Returns the number of elements in this container.
@@ -74,7 +74,7 @@ protected:
 
     /** This container's child elements. This container owns the elements in
         this vector and must render them according to its layout logic. */
-    std::vector<std::unique_ptr<Component>> elements;
+    std::vector<std::unique_ptr<Widget>> elements;
 };
 
 } // namespace AUI

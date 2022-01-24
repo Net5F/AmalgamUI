@@ -7,7 +7,7 @@ namespace AUI
 {
 Thumbnail::Thumbnail(Screen& inScreen, const SDL_Rect& inLogicalExtent,
                      const std::string& inDebugName)
-: Component(inScreen, inLogicalExtent, inDebugName)
+: Widget(inScreen, inLogicalExtent, inDebugName)
 , hoveredImage(screen, {0, 0, logicalExtent.w, logicalExtent.h})
 , activeImage(screen, {0, 0, logicalExtent.w, logicalExtent.h})
 , backdropImage(screen, {0, 0, logicalExtent.w, logicalExtent.h})
@@ -208,7 +208,7 @@ bool Thumbnail::onMouseButtonDown(SDL_MouseButtonEvent& event)
     // If the click event was inside our extent.
     if (containsPoint({event.x, event.y})) {
         // If this was a double click (or more) and we aren't already active,
-        // activate this component.
+        // activate this widget.
         if (isActivateable && !isActive && (event.clicks >= 2)) {
             activate();
 
@@ -221,11 +221,11 @@ bool Thumbnail::onMouseButtonDown(SDL_MouseButtonEvent& event)
         }
         else if (!isSelected) {
             // This was a single click, if we aren't already selected, select
-            // this component.
+            // this widget.
             select();
         }
 
-        // The click event was inside our component, so flag it as handled.
+        // The click event was inside our widget, so flag it as handled.
         return true;
     }
     else {
@@ -259,7 +259,7 @@ void Thumbnail::render(const SDL_Point& parentOffset)
     // Keep our extent up to date.
     refreshScaling();
 
-    // Children should render at the parent's offset + this component's offset.
+    // Children should render at the parent's offset + this widget's offset.
     SDL_Point childOffset{parentOffset};
     childOffset.x += scaledExtent.x;
     childOffset.y += scaledExtent.y;
@@ -269,7 +269,7 @@ void Thumbnail::render(const SDL_Point& parentOffset)
     lastRenderedExtent.x += parentOffset.x;
     lastRenderedExtent.y += parentOffset.y;
 
-    // If the component isn't visible, return without rendering.
+    // If the widget isn't visible, return without rendering.
     if (!isVisible) {
         return;
     }

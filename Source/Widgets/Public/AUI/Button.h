@@ -7,9 +7,9 @@
 namespace AUI
 {
 /**
- * A simple checkbox.
+ * A simple button with text.
  */
-class Checkbox : public Component
+class Button : public Widget
 {
 public:
     //-------------------------------------------------------------------------
@@ -18,42 +18,59 @@ public:
     /**
      * Used to track the button's visual and logical state.
      */
-    enum class State { Unchecked, Checked };
-
-    /**
-     * Sets this checkbox's state to the given state.
-     *
-     * Intended to be used for updating this component to match the underlying
-     * data. As such, calling this doesn't trigger the associated callback.
-     */
-    void setCurrentState(State inState);
+    enum class State { Normal, Hovered, Pressed, Disabled };
 
     //-------------------------------------------------------------------------
     // Public interface
     //-------------------------------------------------------------------------
-    Checkbox(Screen& inScreen, const SDL_Rect& inLogicalExtent,
-             const std::string& inDebugName = "");
+    Button(Screen& inScreen, const SDL_Rect& inLogicalExtent,
+           const std::string& inDebugName = "");
 
-    virtual ~Checkbox() = default;
+    virtual ~Button() = default;
+
+    /**
+     * Enables this button.
+     *
+     * @post The button will visually be in the Normal state and will respond
+     *       to hover and click events.
+     */
+    void enable();
+
+    /**
+     * Disables this button.
+     *
+     * @post The button will visually be in the Disabled state and will
+     *       ignore all events.
+     */
+    void disable();
 
     State getCurrentState();
 
-    /** Image, unchecked state. */
-    Image uncheckedImage;
-    /** Image, checked state. */
-    Image checkedImage;
+    /** Background image, normal state. */
+    Image normalImage;
+    /** Background image, hovered state. */
+    Image hoveredImage;
+    /** Background image, pressed state. */
+    Image pressedImage;
+    /** Background image, disabled state. */
+    Image disabledImage;
+
+    /** Button text. */
+    Text text;
 
     //-------------------------------------------------------------------------
     // Callback registration
     //-------------------------------------------------------------------------
-    void setOnUnchecked(std::function<void(void)> inOnUnchecked);
-
-    void setOnChecked(std::function<void(void)> inOnChecked);
+    void setOnPressed(std::function<void(void)> inOnPressed);
 
     //-------------------------------------------------------------------------
     // Base class overrides
     //-------------------------------------------------------------------------
     bool onMouseButtonDown(SDL_MouseButtonEvent& event) override;
+
+    bool onMouseButtonUp(SDL_MouseButtonEvent& event) override;
+
+    void onMouseMove(SDL_MouseMotionEvent& event) override;
 
     void render(const SDL_Point& parentOffset = {}) override;
 
@@ -61,9 +78,7 @@ private:
     //-------------------------------------------------------------------------
     // Private members
     //-------------------------------------------------------------------------
-    std::function<void(void)> onChecked;
-
-    std::function<void(void)> onUnchecked;
+    std::function<void(void)> onPressed;
 
     /** Tracks this button's current visual and logical state. */
     State currentState;

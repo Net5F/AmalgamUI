@@ -2,7 +2,6 @@ target_sources(AmalgamUI
     PRIVATE
         Private/Button.cpp
         Private/Checkbox.cpp
-        Private/Component.cpp
         Private/ConfirmationDialog.cpp
         Private/Container.cpp
         Private/Image.cpp
@@ -11,12 +10,12 @@ target_sources(AmalgamUI
         Private/Thumbnail.cpp
         Private/TiledImage.cpp
         Private/VerticalGridContainer.cpp
+        Private/Widget.cpp
     PUBLIC
         # Note: We add the extra "AUI" directory so that consumers can include
         # files as "AUI/Xyz.h" for some extra clarity.
         Public/AUI/Button.h
         Public/AUI/Checkbox.h
-        Public/AUI/Component.h
         Public/AUI/ConfirmationDialog.h
         Public/AUI/Container.h
         Public/AUI/Image.h
@@ -25,6 +24,7 @@ target_sources(AmalgamUI
         Public/AUI/Thumbnail.h
         Public/AUI/TiledImage.h
         Public/AUI/VerticalGridContainer.h
+        Public/AUI/Widget.h
 )
 
 target_include_directories(AmalgamUI

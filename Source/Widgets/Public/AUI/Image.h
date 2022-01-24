@@ -1,6 +1,6 @@
 #pragma once
 
-#include "AUI/Component.h"
+#include "AUI/Widget.h"
 #include "AUI/ScreenResolution.h"
 #include <SDL2/SDL_render.h>
 #include <map>
@@ -12,7 +12,7 @@ namespace AUI
 /**
  * Displays a simple static image.
  */
-class Image : public Component
+class Image : public Widget
 {
 public:
     //-------------------------------------------------------------------------
@@ -26,7 +26,7 @@ public:
     /**
      * Adds the given texture to the map of available resolutions.
      *
-     * The texture that this component renders will be chosen by comparing
+     * The texture that this widget renders will be chosen by comparing
      * Core's current actualScreenSize to the available resolutions.
      *
      * Errors if the given image is nullptr or the given resolution is

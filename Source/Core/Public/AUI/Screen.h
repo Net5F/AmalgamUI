@@ -1,6 +1,6 @@
 #pragma once
 
-#include "AUI/Component.h"
+#include "AUI/Widget.h"
 #include "AUI/InternalEvent.h"
 #include "AUI/Internal/Log.h"
 #include <SDL2/SDL_events.h>
@@ -12,8 +12,8 @@ namespace AUI
 /**
  * This class represents a UI screen.
  *
- * Screens facilitate the organization of UI components, and provide an easy way
- * to switch between sets of components.
+ * Screens facilitate the organization of UI widgets, and provide an easy way
+ * to switch between sets of widgets.
  *
  * An appropriate screen may be a title screen, settings screen, or a world
  * screen that displays UI elements while allowing the user to see the world
@@ -33,7 +33,7 @@ public:
      * @param listener  The listening object. Must implement an appropriate
      *                  function to handle the given eventType.
      */
-    void registerListener(InternalEvent::Type eventType, Component* listener);
+    void registerListener(InternalEvent::Type eventType, Widget* listener);
 
     /**
      * Unregisters the given listener object from receiving the given event.
@@ -41,11 +41,11 @@ public:
      * References and iterators to the listenerMap are not invalidated.
      *
      * @param eventType  An event type, corresponding to SDL_Event.type.
-     * @param listener  The listening object. Must be derived from Component
+     * @param listener  The listening object. Must be derived from Widget
      *                  and implement an appropriate function to handle the
      *                  given eventType.
      */
-    void unregisterListener(InternalEvent::Type eventType, Component* listener);
+    void unregisterListener(InternalEvent::Type eventType, Widget* listener);
 
     /**
      * Offers the given event to this screen to be handled.
@@ -105,9 +105,9 @@ private:
         in real logic. */
     std::string debugName;
 
-    /** A map containing all of this screen's components that care to listen
+    /** A map containing all of this screen's widgets that care to listen
         for particular system events. */
-    std::unordered_map<InternalEvent::Type, std::vector<Component*>>
+    std::unordered_map<InternalEvent::Type, std::vector<Widget*>>
         listenerMap;
 };
 

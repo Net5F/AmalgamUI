@@ -10,7 +10,7 @@ int TextInput::focusedInputCount = 0;
 
 TextInput::TextInput(Screen& inScreen, const SDL_Rect& inLogicalExtent,
                      const std::string& inDebugName)
-: Component(inScreen, inLogicalExtent, inDebugName)
+: Widget(inScreen, inLogicalExtent, inDebugName)
 , normalImage(screen, {0, 0, logicalExtent.w, logicalExtent.h})
 , hoveredImage(screen, {0, 0, logicalExtent.w, logicalExtent.h})
 , selectedImage(screen, {0, 0, logicalExtent.w, logicalExtent.h})
@@ -42,7 +42,7 @@ TextInput::TextInput(Screen& inScreen, const SDL_Rect& inLogicalExtent,
 
 void TextInput::setMargins(Margins inLogicalMargins)
 {
-    // Set the text component to be the size of this component, minus the
+    // Set the text widget to be the size of this widget, minus the
     // margins.
     text.setLogicalExtent(
         {inLogicalMargins.left, inLogicalMargins.top,
@@ -248,7 +248,7 @@ void TextInput::render(const SDL_Point& parentOffset)
     // Keep our extent up to date.
     refreshScaling();
 
-    // Children should render at the parent's offset + this component's offset.
+    // Children should render at the parent's offset + this widget's offset.
     SDL_Point childOffset{parentOffset};
     childOffset.x += scaledExtent.x;
     childOffset.y += scaledExtent.y;
@@ -258,7 +258,7 @@ void TextInput::render(const SDL_Point& parentOffset)
     lastRenderedExtent.x += parentOffset.x;
     lastRenderedExtent.y += parentOffset.y;
 
-    // If the component isn't visible, return without rendering.
+    // If the widget isn't visible, return without rendering.
     if (!isVisible) {
         return;
     }
@@ -278,7 +278,7 @@ void TextInput::render(const SDL_Point& parentOffset)
 bool TextInput::refreshScaling()
 {
     // If actualScreenExtent was refreshed, do our specialized refreshing.
-    if (Component::refreshScaling()) {
+    if (Widget::refreshScaling()) {
         // Refresh our cursor size.
         scaledCursorWidth = ScalingHelpers::logicalToActual(logicalCursorWidth);
 

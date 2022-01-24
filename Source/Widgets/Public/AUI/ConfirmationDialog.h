@@ -10,7 +10,7 @@ namespace AUI
 /**
  * A simple confirmation dialog.
  */
-class ConfirmationDialog : public Component
+class ConfirmationDialog : public Widget
 {
 public:
     //-------------------------------------------------------------------------

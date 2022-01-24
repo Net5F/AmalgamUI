@@ -9,10 +9,10 @@ Screen::Screen(const std::string& inDebugName)
 }
 
 void Screen::registerListener(InternalEvent::Type eventType,
-                              Component* listener)
+                              Widget* listener)
 {
     // Try to find an empty index.
-    std::vector<Component*>& listeners = listenerMap[eventType];
+    std::vector<Widget*>& listeners = listenerMap[eventType];
     for (unsigned int i = 0; i < listeners.size(); ++i) {
         // If we found an empty index, add the listener to it.
         if (listeners[i] == nullptr) {
@@ -26,10 +26,10 @@ void Screen::registerListener(InternalEvent::Type eventType,
 }
 
 void Screen::unregisterListener(InternalEvent::Type eventType,
-                                Component* listener)
+                                Widget* listener)
 {
     // Find the given listener.
-    std::vector<Component*>& listeners = listenerMap[eventType];
+    std::vector<Widget*>& listeners = listenerMap[eventType];
     auto it = std::find(listeners.begin(), listeners.end(), listener);
 
     // If the listener was found, set it to nullptr.
@@ -77,7 +77,7 @@ bool Screen::handleOSEvent(SDL_Event& event)
 void Screen::tick(double timestepS)
 {
     // Call all listener callbacks.
-    for (Component* listener : listenerMap[InternalEvent::Tick]) {
+    for (Widget* listener : listenerMap[InternalEvent::Tick]) {
         // If the index is empty or the listener isn't visible, continue.
         if ((listener == nullptr) || !(listener->getIsVisible())) {
             continue;
@@ -95,7 +95,7 @@ void Screen::render()
 bool Screen::handleMouseButtonDown(SDL_MouseButtonEvent& event)
 {
     bool eventHandled{false};
-    for (Component* listener : listenerMap[InternalEvent::MouseButtonDown]) {
+    for (Widget* listener : listenerMap[InternalEvent::MouseButtonDown]) {
         // If the index is empty or the listener isn't visible, continue.
         if ((listener == nullptr) || !(listener->getIsVisible())) {
             continue;
@@ -113,7 +113,7 @@ bool Screen::handleMouseButtonDown(SDL_MouseButtonEvent& event)
 bool Screen::handleMouseButtonUp(SDL_MouseButtonEvent& event)
 {
     bool eventHandled{false};
-    for (Component* listener : listenerMap[InternalEvent::MouseButtonUp]) {
+    for (Widget* listener : listenerMap[InternalEvent::MouseButtonUp]) {
         // If the index is empty or the listener isn't visible, continue.
         if ((listener == nullptr) || !(listener->getIsVisible())) {
             continue;
@@ -131,7 +131,7 @@ bool Screen::handleMouseButtonUp(SDL_MouseButtonEvent& event)
 bool Screen::handleMouseWheel(SDL_MouseWheelEvent& event)
 {
     bool eventHandled{false};
-    for (Component* listener : listenerMap[InternalEvent::MouseWheel]) {
+    for (Widget* listener : listenerMap[InternalEvent::MouseWheel]) {
         // If the index is empty or the listener isn't visible, continue.
         if ((listener == nullptr) || !(listener->getIsVisible())) {
             continue;
@@ -148,7 +148,7 @@ bool Screen::handleMouseWheel(SDL_MouseWheelEvent& event)
 
 void Screen::handleMouseMove(SDL_MouseMotionEvent& event)
 {
-    for (Component* listener : listenerMap[InternalEvent::MouseMove]) {
+    for (Widget* listener : listenerMap[InternalEvent::MouseMove]) {
         // If the index is empty or the listener isn't visible, continue.
         if ((listener == nullptr) || !(listener->getIsVisible())) {
             continue;
@@ -162,7 +162,7 @@ void Screen::handleMouseMove(SDL_MouseMotionEvent& event)
 bool Screen::handleKeyDown(SDL_KeyboardEvent& event)
 {
     bool eventHandled{false};
-    for (Component* listener : listenerMap[InternalEvent::KeyDown]) {
+    for (Widget* listener : listenerMap[InternalEvent::KeyDown]) {
         // If the index is empty or the listener isn't visible, continue.
         if ((listener == nullptr) || !(listener->getIsVisible())) {
             continue;
@@ -180,7 +180,7 @@ bool Screen::handleKeyDown(SDL_KeyboardEvent& event)
 bool Screen::handleTextInput(SDL_TextInputEvent& event)
 {
     bool eventHandled{false};
-    for (Component* listener : listenerMap[InternalEvent::TextInput]) {
+    for (Widget* listener : listenerMap[InternalEvent::TextInput]) {
         // If the index is empty or the listener isn't visible, continue.
         if ((listener == nullptr) || !(listener->getIsVisible())) {
             continue;

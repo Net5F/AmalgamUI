@@ -7,7 +7,7 @@ namespace AUI
 {
 Text::Text(Screen& inScreen, const SDL_Rect& inLogicalExtent,
            const std::string& inDebugName)
-: Component(inScreen, inLogicalExtent, inDebugName)
+: Widget(inScreen, inLogicalExtent, inDebugName)
 , fontPath("")
 , logicalFontSize{10}
 , fontHandle()
@@ -152,7 +152,7 @@ int Text::getTextOffset()
 void Text::setLogicalExtent(const SDL_Rect& inLogicalExtent)
 {
     // Scale and set the extent.
-    Component::setLogicalExtent(inLogicalExtent);
+    Widget::setLogicalExtent(inLogicalExtent);
 
     // Refresh our alignment.
     refreshAlignment();
@@ -185,12 +185,12 @@ void Text::render(const SDL_Point& parentOffset)
     // Save the extent that we're going to render at.
     lastRenderedExtent = offsetScaledExtent;
 
-    // If the component isn't visible, return without rendering.
+    // If the widget isn't visible, return without rendering.
     if (!isVisible) {
         return;
     }
 
-    // Clip the text image's extent to not go beyond the component's extent.
+    // Clip the text image's extent to not go beyond the widget's extent.
     SDL_Rect offsetTextExtent{textExtent};
     offsetTextExtent.x += (parentOffset.x + textOffset);
     offsetTextExtent.y += parentOffset.y;
@@ -210,7 +210,7 @@ void Text::render(const SDL_Point& parentOffset)
 bool Text::refreshScaling()
 {
     // If scaledExtent was refreshed, do our specialized refreshing.
-    if (Component::refreshScaling()) {
+    if (Widget::refreshScaling()) {
         // Refresh our alignment since the extent has moved.
         refreshAlignment();
 

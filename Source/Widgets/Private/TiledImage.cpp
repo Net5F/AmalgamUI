@@ -23,7 +23,7 @@ void TiledImage::render(const SDL_Point& parentOffset)
     // Save the extent that we're going to render at.
     lastRenderedExtent = offsetExtent;
 
-    // If the component isn't visible, return without rendering.
+    // If the widget isn't visible, return without rendering.
     if (!isVisible) {
         return;
     }
@@ -34,7 +34,7 @@ void TiledImage::render(const SDL_Point& parentOffset)
                       debugName.c_str());
     }
 
-    // Tile the image to cover this component's extent.
+    // Tile the image to cover this widget's extent.
     for (int y = offsetExtent.y; y < (offsetExtent.y + offsetExtent.h);
          y += currentTexExtent.h) {
         for (int x = offsetExtent.x; x < (offsetExtent.x + offsetExtent.w);

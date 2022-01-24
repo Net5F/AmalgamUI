@@ -73,7 +73,7 @@ void VerticalGridContainer::render(const SDL_Point& parentOffset)
     // Save the extent that we're going to render at.
     lastRenderedExtent = offsetExtent;
 
-    // If the component isn't visible, return without rendering.
+    // If the widget isn't visible, return without rendering.
     if (!isVisible) {
         return;
     }
@@ -106,7 +106,7 @@ void VerticalGridContainer::render(const SDL_Point& parentOffset)
         // Move the Y offset based on our current scroll position.
         cellYOffset -= (rowScroll * scaledCellHeight);
 
-        // Add this component's offset to get our final offset.
+        // Add this widget's offset to get our final offset.
         int finalX = offsetExtent.x + cellXOffset;
         int finalY = offsetExtent.y + cellYOffset;
         elements[i]->render({finalX, finalY});
@@ -116,7 +116,7 @@ void VerticalGridContainer::render(const SDL_Point& parentOffset)
 bool VerticalGridContainer::refreshScaling()
 {
     // If actualScreenExtent was refreshed, do our specialized refreshing.
-    if (Component::refreshScaling()) {
+    if (Widget::refreshScaling()) {
         // Refresh the cell width and height.
         scaledCellWidth = ScalingHelpers::logicalToActual(logicalCellWidth);
         scaledCellHeight = ScalingHelpers::logicalToActual(logicalCellHeight);

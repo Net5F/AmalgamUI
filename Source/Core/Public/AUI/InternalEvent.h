@@ -3,7 +3,7 @@
 namespace AUI
 {
 /**
- * The types of internal events that our UI components can register to receive.
+ * The types of internal events that our UI widgets can register to receive.
  *
  * Note: Internal events are named to match their corresponding SDL2 events.
  */

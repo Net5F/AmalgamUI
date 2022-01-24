@@ -5,7 +5,7 @@
 namespace AUI
 {
 /**
- * Lays out components in a grid that grows vertically.
+ * Lays out widgets in a grid that grows vertically.
  */
 class VerticalGridContainer : public Container
 {
@@ -19,7 +19,7 @@ public:
     virtual ~VerticalGridContainer() = default;
 
     /**
-     * The number of columns to render components in. Rendering occurs across
+     * The number of columns to render widgets in. Rendering occurs across
      * the columns, then down to the next row.
      */
     void setNumColumns(unsigned int inNumColumns);
@@ -62,7 +62,7 @@ private:
      */
     void scrollElements(bool scrollUp);
 
-    /** The number of columns to render components in. */
+    /** The number of columns to render widgets in. */
     unsigned int numColumns;
 
     /** The width in logical space of a grid cell. */

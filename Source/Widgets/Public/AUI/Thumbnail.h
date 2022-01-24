@@ -11,17 +11,17 @@ namespace AUI
  *
  * Has a double-click Active state.
  *
- * The rendering order for this component's children is:
+ * The rendering order for this widget's children is:
  *   Background: activeImage, hoveredImage
  *   Middle-ground: backdropImage, selectedImage
  *   Foreground: thumbnailImage, text
  *
- * Note: This component may be immediately useful to you, but exists more as
+ * Note: This widget may be immediately useful to you, but exists more as
  *       an easily copyable example of how to make this sort of thing. With
  *       minor tweaks you can make any sort of thumbnail-based interactable
  *       UI element (e.g. items for an inventory).
  */
-class Thumbnail : public Component
+class Thumbnail : public Widget
 {
 public:
     //-------------------------------------------------------------------------
@@ -33,47 +33,47 @@ public:
     virtual ~Thumbnail() = default;
 
     /**
-     * Selects this component and calls onSelected.
+     * Selects this widget and calls onSelected.
      *
-     * If this component is already selected or isSelectable == false, does
+     * If this widget is already selected or isSelectable == false, does
      * nothing.
      *
-     * Note: This component selects itself when clicked. This function just
+     * Note: This widget selects itself when clicked. This function just
      *       exists in case you need to do it programatically.
      */
     void select();
 
     /**
-     * Deselects this component and calls onDeselected.
+     * Deselects this widget and calls onDeselected.
      *
-     * If this component isn't selected, does nothing.
+     * If this widget isn't selected, does nothing.
      *
-     * Note: This component doesn't deselect itself. The context that is
-     *       managing this component must detect when the component should be
+     * Note: This widget doesn't deselect itself. The context that is
+     *       managing this widget must detect when the widget should be
      *       deactivated and call this method.
      */
     void deselect();
 
     /**
-     * Activates this component and calls onActivated.
+     * Activates this widget and calls onActivated.
      *
-     * If this component is already active or isActivateable == false, does
+     * If this widget is already active or isActivateable == false, does
      * nothing.
      *
      * Disables hovering. Any active hover state will be removed.
      *
-     * Note: This component activates itself when double clicked. This function
+     * Note: This widget activates itself when double clicked. This function
      *       just exists in case you need to do it programatically.
      */
     void activate();
 
     /**
-     * Deactivates this component and calls onDeactivated.
+     * Deactivates this widget and calls onDeactivated.
      *
-     * If this component isn't active, does nothing.
+     * If this widget isn't active, does nothing.
      *
-     * Note: This component doesn't deactivate itself. The context that is
-     *       managing this component must detect when the component should be
+     * Note: This widget doesn't deactivate itself. The context that is
+     *       managing this widget must detect when the widget should be
      *       deactivated and call this method.
      */
     void deactivate();
@@ -82,13 +82,13 @@ public:
     bool getIsSelected();
     bool getIsActive();
 
-    /** If true, this component is able to be hovered. */
+    /** If true, this widget is able to be hovered. */
     void setIsHoverable(bool inIsHoverable);
 
-    /** If true, this component is able to be selected. */
+    /** If true, this widget is able to be selected. */
     void setIsSelectable(bool inIsSelectable);
 
-    /** If true, this component is able to be activated. */
+    /** If true, this widget is able to be activated. */
     void setIsActivateable(bool inIsActivateable);
 
     /** Background image, hovered state. */
@@ -105,7 +105,7 @@ public:
     Image thumbnailImage;
 
     //-------------------------------------------------------------------------
-    // Limited public interface of private components
+    // Limited public interface of private widgets
     //-------------------------------------------------------------------------
     /**
      * Calls text.setText().
@@ -135,26 +135,26 @@ public:
     // Callback registration
     //-------------------------------------------------------------------------
     /**
-     * @param inOnSelected  A callable that expects a pointer to the component
+     * @param inOnSelected  A callable that expects a pointer to the widget
      *                      that was selected.
      */
     void setOnSelected(std::function<void(Thumbnail*)> inOnSelected);
 
     /**
      * @param inOnDeselected  A callable that expects a pointer to the
-     *                        component that was deselected.
+     *                        widget that was deselected.
      */
     void setOnDeselected(std::function<void(Thumbnail*)> inOnDeselected);
 
     /**
-     * @param inOnActivated  A callable that expects a pointer to the component
+     * @param inOnActivated  A callable that expects a pointer to the widget
      *                       that was activated.
      */
     void setOnActivated(std::function<void(Thumbnail*)> inOnActivated);
 
     /**
      * @param inOnDeactivated  A callable that expects a pointer to the
-     *                         component that was deactivated.
+     *                         widget that was deactivated.
      */
     void setOnDeactivated(std::function<void(Thumbnail*)> inOnDeactivated);
 
@@ -174,7 +174,7 @@ private:
     // Private members
     //-------------------------------------------------------------------------
     /**
-     * Uses the given actual-space mouse position to check if this component
+     * Uses the given actual-space mouse position to check if this widget
      * should be hovered or unhovered.
      */
     bool updateHovered(SDL_Point actualMousePoint);
@@ -188,22 +188,22 @@ private:
     std::function<void(Thumbnail*)> onActivated;
     std::function<void(Thumbnail*)> onDeactivated;
 
-    /** If true, this component is able to be hovered. */
+    /** If true, this widget is able to be hovered. */
     bool isHoverable;
 
-    /** If true, this component is able to be selected. */
+    /** If true, this widget is able to be selected. */
     bool isSelectable;
 
-    /** If true, this component is able to be activated. */
+    /** If true, this widget is able to be activated. */
     bool isActivateable;
 
-    /** Tracks whether the mouse is currently hovering over this component. */
+    /** Tracks whether the mouse is currently hovering over this widget. */
     bool isHovered;
 
-    /** Tracks whether this component is currently selected. */
+    /** Tracks whether this widget is currently selected. */
     bool isSelected;
 
-    /** Tracks whether this component is currently active. */
+    /** Tracks whether this widget is currently active. */
     bool isActive;
 
     /** Stores the last set horizontal text alignment. We re-apply this

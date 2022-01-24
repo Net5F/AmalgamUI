@@ -12,8 +12,8 @@ namespace AUI
  * appropriate times.
  *
  * Put this class first in your initialization order so that its constructor is
- * called before any screens or components are constructed, and its destructor
- * is called after all of the screens and components are destructed.
+ * called before any screens or widgets are constructed, and its destructor
+ * is called after all of the screens and widgets are destructed.
  */
 class Initializer
 {

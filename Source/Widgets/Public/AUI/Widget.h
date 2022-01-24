@@ -12,24 +12,23 @@ namespace AUI
 class Screen;
 
 /**
- * The base class for all UI components.
+ * The base class for all UI widgets.
  *
- * Component data setting follows the pattern of:
- *   - In the constructor, pass through the data necessary for Component's
+ * Widget initialization follows the pattern:
+ *   - In the constructor, pass through the data necessary for Widget's
  *     constructor.
- *   - Use setters for all other data, which return a reference to the
- *     component to facilitate chaining if desired.
+ *   - Use setters for all other data.
  */
-class Component
+class Widget
 {
 public:
-    /** Component is not independently constructible. */
-    Component() = delete;
+    /** Widget is not independently constructible. */
+    Widget() = delete;
 
-    virtual ~Component();
+    virtual ~Widget();
 
     /**
-     * If this component's screen extent contains the given point, returns
+     * If this widget's screen extent contains the given point, returns
      * true. Else, returns false.
      *
      * @param actualPoint  A point in actual screen space.
@@ -37,7 +36,7 @@ public:
     bool containsPoint(const SDL_Point& actualPoint);
 
     /**
-     * If this component's screen extent fully contains the given extent,
+     * If this widget's screen extent fully contains the given extent,
      * returns true. Else, returns false.
      *
      * @param actualExtent  An extent in actual screen space.
@@ -45,16 +44,16 @@ public:
     bool containsExtent(const SDL_Rect& actualExtent);
 
     /**
-     * Sets the component's logical extent to the given extent and
+     * Sets the widget's logical extent to the given extent and
      * re-calculates its scaled extent.
      */
     virtual void setLogicalExtent(const SDL_Rect& inLogicalExtent);
 
-    /** See Component::logicalExtent. */
+    /** See Widget::logicalExtent. */
     SDL_Rect getLogicalExtent();
-    /** See Component::scaledExtent. */
+    /** See Widget::scaledExtent. */
     SDL_Rect getScaledExtent();
-    /** See Component::lastRenderedExtent. */
+    /** See Widget::lastRenderedExtent. */
     SDL_Rect getLastRenderedExtent();
 
     const std::string& getDebugName();
@@ -101,39 +100,39 @@ public:
     virtual void onTick(double timestepS);
 
     /**
-     * Renders this component to the current rendering target.
+     * Renders this widget to the current rendering target.
      * Directly calls SDL functions like SDL_RenderCopy().
      *
-     * @param parentOffset  The offset that should be added to this component's
+     * @param parentOffset  The offset that should be added to this widget's
      *                      position before rendering. Used by parent classes
      *                      to control the layout of their children.
      */
     virtual void render(const SDL_Point& parentOffset = {});
 
 protected:
-    Component(Screen& inScreen, const SDL_Rect& inLogicalExtent,
+    Widget(Screen& inScreen, const SDL_Rect& inLogicalExtent,
               const std::string& inDebugName = "");
 
     /**
-     * Registers this component as a listener for the given event type.
+     * Registers this widget as a listener for the given event type.
      *
-     * This component will internally track that the given event type is being
+     * This widget will internally track that the given event type is being
      * listened to, and will unregister itself during destruction.
      */
     void registerListener(InternalEvent::Type eventType);
 
     /**
-     * Unregisters this component as a listener for the given event type.
+     * Unregisters this widget as a listener for the given event type.
      */
     void unregisterListener(InternalEvent::Type eventType);
 
     /**
      * Checks if Core::actualScreenSize has changed since the last time this
-     * component's scaledExtent was calculated. If so, re-calculates
+     * widget's scaledExtent was calculated. If so, re-calculates
      * scaledExtent, scaling it to the new actualScreenSize.
      *
      * This implementation is sufficient for refreshing actualExtent, but must
-     * be overridden if your component has other scaling needs.
+     * be overridden if your widget has other scaling needs.
      */
     virtual bool refreshScaling();
 
@@ -144,39 +143,39 @@ protected:
     SDL_Rect calcClippedExtent(const SDL_Rect& sourceExtent,
                                const SDL_Rect& clipExtent);
 
-    /** A reference to the screen that this component is a part of. Used for
-        registering/unregistering named components, and accessing other
-        components. */
+    /** A reference to the screen that this widget is a part of. Used for
+        registering/unregistering named widgets, and accessing other
+        widgets. */
     Screen& screen;
 
-    /** An optional user-assigned name associated with this component.
+    /** An optional user-assigned name associated with this widget.
         Only useful for debugging. For performance reasons, avoid using it
         in real logic. */
     std::string debugName;
 
-    /** The component's logical screen extent, i.e. the position/size of the
-        component relative to the UI's logical size. */
+    /** The widget's logical screen extent, i.e. the position/size of the
+        widget relative to the UI's logical size. */
     SDL_Rect logicalExtent;
 
-    /** The component's logical screen extent, scaled to match the current UI
+    /** The widget's logical screen extent, scaled to match the current UI
         scaling. The position of this extent does not account for any offsets,
         such as those passed by parents. */
     SDL_Rect scaledExtent;
 
-    /** The actual screen extent of this component during the last render()
+    /** The actual screen extent of this widget during the last render()
         call. Generally equal to scaledScreenExtent + any offsets added by
-        parent components. Used in hit testing for event handling. */
+        parent widgets. Used in hit testing for event handling. */
     SDL_Rect lastRenderedExtent;
 
     /** The value of Core::actualScreenSize that was used the last time this
-        component calculated its actualScreenExtent.
+        widget calculated its actualScreenExtent.
         Used to detect when to re-calculate actualScreenExtent. */
     ScreenResolution lastUsedScreenSize;
 
-    /** If true, this component will be rendered and will respond to events. */
+    /** If true, this widget will be rendered and will respond to events. */
     bool isVisible;
 
-    /** Tracks the events that this component is currently listening for. */
+    /** Tracks the events that this widget is currently listening for. */
     std::array<bool, InternalEvent::NUM_TYPES> listeningEventTypes;
 };
 

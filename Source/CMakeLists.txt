@@ -1,4 +1,4 @@
-add_subdirectory(Components)
+add_subdirectory(Widgets)
 
 add_subdirectory(Core)
 

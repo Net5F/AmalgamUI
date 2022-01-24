@@ -8,8 +8,8 @@ namespace AUI
 /**
  * Static functions for scaling between logical and actual sizes.
  *
- * Note: UI components exist in two spaces: logical and actual.
- *       Logical screen space is used for all developer-given component
+ * Note: UI widgets exist in two spaces: logical and actual.
+ *       Logical screen space is used for all developer-given widget
  *       measurements, and is relative to the value of Core::logicalScreenSize.
  *       Actual screen space is what's actually used in rendering to the
  *       screen, and is relative to the value of Core::actualScreenSize.

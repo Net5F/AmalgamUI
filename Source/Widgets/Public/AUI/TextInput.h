@@ -10,7 +10,7 @@ namespace AUI
 /**
  * A box for displaying or inputting text.
  */
-class TextInput : public Component
+class TextInput : public Widget
 {
 public:
     // TODO: Mouse/ctrl+arrow text selection should be added. It should be
@@ -68,7 +68,7 @@ public:
     Image disabledImage;
 
     //-------------------------------------------------------------------------
-    // Limited public interface of private components
+    // Limited public interface of private widgets
     //-------------------------------------------------------------------------
     /**
      * Calls text.setText().
@@ -93,7 +93,7 @@ public:
 
     /**
      * Sets a callback to be called when either the enter key is pressed, or
-     * this component loses focus (the user clicks outside the box).
+     * this widget loses focus (the user clicks outside the box).
      */
     void setOnTextCommitted(std::function<void(void)> inOnTextChanged);
 
@@ -143,15 +143,15 @@ private:
     bool handleEnterEvent();
 
     /**
-     * Puts this component in a focused state. Changes the image displayed,
-     * activates the text cursor, and causes this component to start responding
+     * Puts this widget in a focused state. Changes the image displayed,
+     * activates the text cursor, and causes this widget to start responding
      * to and generating additional.
      */
     void assumeFocus();
 
     /**
-     * Puts this component back into a normal state. Changes the image
-     * displayed, de-activates the text cursor, and causes this component to
+     * Puts this widget back into a normal state. Changes the image
+     * displayed, de-activates the text cursor, and causes this widget to
      * stop responding to and generating events, other than those that can
      * result in re-assuming focus.
      * The onTextCommitted callback will be called, since losing focus is

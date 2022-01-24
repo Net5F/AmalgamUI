@@ -15,13 +15,13 @@ TextInput::TextInput(Screen& inScreen, const SDL_Rect& inLogicalExtent,
 , hoveredImage(screen, {0, 0, logicalExtent.w, logicalExtent.h})
 , selectedImage(screen, {0, 0, logicalExtent.w, logicalExtent.h})
 , disabledImage(screen, {0, 0, logicalExtent.w, logicalExtent.h})
-, text(screen, {0, 0, logicalExtent.w, logicalExtent.h})
 , currentState{State::Normal}
 , cursorColor{0, 0, 0, 255}
 , logicalCursorWidth{2}
 , scaledCursorWidth{ScalingHelpers::logicalToActual(logicalCursorWidth)}
 , cursorIndex{0}
 , cursorIsVisible{false}
+, text(screen, {0, 0, logicalExtent.w, logicalExtent.h})
 {
     // Default to left-justifying the text within the button. The user can set
     // it otherwise if they care to.

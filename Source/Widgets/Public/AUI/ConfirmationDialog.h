@@ -13,14 +13,14 @@ namespace AUI
 class ConfirmationDialog : public Widget
 {
 public:
-    //-------------------------------------------------------------------------
-    // Public interface
-    //-------------------------------------------------------------------------
     ConfirmationDialog(Screen& screen, const SDL_Rect& inLogicalExtent,
                        const std::string& inDebugName = "");
 
     virtual ~ConfirmationDialog() = default;
 
+    //-------------------------------------------------------------------------
+    // Public child widgets
+    //-------------------------------------------------------------------------
     /** Dialog background image. */
     AUI::Image backgroundImage;
 

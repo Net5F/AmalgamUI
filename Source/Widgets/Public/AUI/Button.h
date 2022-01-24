@@ -46,6 +46,9 @@ public:
 
     State getCurrentState();
 
+    //-------------------------------------------------------------------------
+    // Public child widgets
+    //-------------------------------------------------------------------------
     /** Background image, normal state. */
     Image normalImage;
     /** Background image, hovered state. */

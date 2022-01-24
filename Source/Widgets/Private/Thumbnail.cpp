@@ -13,7 +13,6 @@ Thumbnail::Thumbnail(Screen& inScreen, const SDL_Rect& inLogicalExtent,
 , backdropImage(screen, {0, 0, logicalExtent.w, logicalExtent.h})
 , selectedImage(screen, {0, 0, logicalExtent.w, logicalExtent.h})
 , thumbnailImage(screen, {0, 0, logicalExtent.w, logicalExtent.h})
-, text(screen, {0, 0, logicalExtent.w, logicalExtent.h})
 , isHoverable{true}
 , isSelectable{true}
 , isActivateable{true}
@@ -21,6 +20,7 @@ Thumbnail::Thumbnail(Screen& inScreen, const SDL_Rect& inLogicalExtent,
 , isSelected{false}
 , isActive{false}
 , savedTextAlignment{Text::HorizontalAlignment::Center}
+, text(screen, {0, 0, logicalExtent.w, logicalExtent.h})
 {
     // Default to centering the text. The user can set it otherwise if they
     // care to.

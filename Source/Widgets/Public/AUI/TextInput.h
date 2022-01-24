@@ -58,6 +58,9 @@ public:
 
     State getCurrentState();
 
+    //-------------------------------------------------------------------------
+    // Public child widgets
+    //-------------------------------------------------------------------------
     /** Background image, normal state. */
     Image normalImage;
     /** Background image, hovered state. */
@@ -175,10 +178,6 @@ private:
      */
     void renderTextCursor(const SDL_Point& childOffset);
 
-    /** The text that this box contains. Private since we must keep the cursor
-        in sync with the text. */
-    Text text;
-
     /** See setOnTextChanged(). */
     std::function<void(void)> onTextChanged;
 
@@ -212,6 +211,13 @@ private:
         can unfocus, we'll briefly have 2. In that case, we use this count to
         avoid calling SDL_StopTextInput() prematurely. */
     static int focusedInputCount;
+
+    //-------------------------------------------------------------------------
+    // Private child widgets
+    //-------------------------------------------------------------------------
+    /** The text that this box contains. Private since we must keep the cursor
+        in sync with the text. */
+    Text text;
 };
 
 } // namespace AUI

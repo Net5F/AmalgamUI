@@ -91,6 +91,9 @@ public:
     /** If true, this widget is able to be activated. */
     void setIsActivateable(bool inIsActivateable);
 
+    //-------------------------------------------------------------------------
+    // Public child widgets
+    //-------------------------------------------------------------------------
     /** Background image, hovered state. */
     Image hoveredImage;
     /** Background image, active state. */
@@ -179,10 +182,6 @@ private:
      */
     bool updateHovered(SDL_Point actualMousePoint);
 
-    /** The text that goes under the thumbnail image. Private since we need to
-        right-align the text if it gets too large. */
-    Text text;
-
     std::function<void(Thumbnail*)> onSelected;
     std::function<void(Thumbnail*)> onDeselected;
     std::function<void(Thumbnail*)> onActivated;
@@ -210,6 +209,13 @@ private:
         alignment any time the text is set to a string that fits within its
         extent. */
     Text::HorizontalAlignment savedTextAlignment;
+
+    //-------------------------------------------------------------------------
+    // Private child widgets
+    //-------------------------------------------------------------------------
+    /** The text that goes under the thumbnail image. Private since we need to
+        right-align the text if it gets too large. */
+    Text text;
 };
 
 } // namespace AUI

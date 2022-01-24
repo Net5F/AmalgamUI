@@ -38,6 +38,9 @@ public:
 
     State getCurrentState();
 
+    //-------------------------------------------------------------------------
+    // Public child widgets
+    //-------------------------------------------------------------------------
     /** Image, unchecked state. */
     Image uncheckedImage;
     /** Image, checked state. */

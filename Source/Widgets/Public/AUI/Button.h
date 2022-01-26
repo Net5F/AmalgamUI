@@ -64,6 +64,9 @@ public:
     //-------------------------------------------------------------------------
     // Callback registration
     //-------------------------------------------------------------------------
+    /**
+     * @param inOnPressed  A callback for when this button is pressed.
+     */
     void setOnPressed(std::function<void(void)> inOnPressed);
 
     //-------------------------------------------------------------------------
@@ -78,9 +81,11 @@ public:
     void render(const SDL_Point& parentOffset = {}) override;
 
 private:
-    //-------------------------------------------------------------------------
-    // Private members
-    //-------------------------------------------------------------------------
+    /**
+     * Sets currentState and updates child widget visibility.
+     */
+    void setCurrentState(State inState);
+
     std::function<void(void)> onPressed;
 
     /** Tracks this button's current visual and logical state. */

@@ -65,8 +65,8 @@ public:
     Image normalImage;
     /** Background image, hovered state. */
     Image hoveredImage;
-    /** Background image, selected state. */
-    Image selectedImage;
+    /** Background image, focused state. */
+    Image focusedImage;
     /** Background image, disabled state. */
     Image disabledImage;
 
@@ -146,6 +146,11 @@ private:
     bool handleEnterEvent();
 
     /**
+     * Sets currentState and updates child widget visibility.
+     */
+    void setCurrentState(State inState);
+
+    /**
      * Puts this widget in a focused state. Changes the image displayed,
      * activates the text cursor, and causes this widget to start responding
      * to and generating additional.
@@ -167,11 +172,6 @@ private:
      * cursor index.
      */
     void refreshTextScrollOffset();
-
-    /**
-     * Renders the appropriate background image, based on the current State.
-     */
-    void renderAppropriateImage(const SDL_Point& childOffset);
 
     /**
      * Calcs where the text cursor should be and renders it.

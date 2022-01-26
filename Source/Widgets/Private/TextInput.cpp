@@ -13,7 +13,7 @@ TextInput::TextInput(Screen& inScreen, const SDL_Rect& inLogicalExtent,
 : Widget(inScreen, inLogicalExtent, inDebugName)
 , normalImage(screen, {0, 0, logicalExtent.w, logicalExtent.h})
 , hoveredImage(screen, {0, 0, logicalExtent.w, logicalExtent.h})
-, selectedImage(screen, {0, 0, logicalExtent.w, logicalExtent.h})
+, focusedImage(screen, {0, 0, logicalExtent.w, logicalExtent.h})
 , disabledImage(screen, {0, 0, logicalExtent.w, logicalExtent.h})
 , currentState{State::Normal}
 , cursorColor{0, 0, 0, 255}
@@ -23,6 +23,13 @@ TextInput::TextInput(Screen& inScreen, const SDL_Rect& inLogicalExtent,
 , cursorIsVisible{false}
 , text(screen, {0, 0, logicalExtent.w, logicalExtent.h})
 {
+    // Add our children so they're included in rendering, etc.
+    children.push_back(normalImage);
+    children.push_back(hoveredImage);
+    children.push_back(focusedImage);
+    children.push_back(disabledImage);
+    children.push_back(text);
+
     // Default to left-justifying the text within the button. The user can set
     // it otherwise if they care to.
     text.setVerticalAlignment(AUI::Text::VerticalAlignment::Center);
@@ -38,6 +45,11 @@ TextInput::TextInput(Screen& inScreen, const SDL_Rect& inLogicalExtent,
     registerListener(InternalEvent::KeyDown);
     registerListener(InternalEvent::TextInput);
     registerListener(InternalEvent::Tick);
+
+    // Make the backgrounds we aren't using invisible.
+    hoveredImage.setIsVisible(false);
+    focusedImage.setIsVisible(false);
+    disabledImage.setIsVisible(false);
 }
 
 void TextInput::setMargins(Margins inLogicalMargins)
@@ -143,13 +155,13 @@ void TextInput::onMouseMove(SDL_MouseMotionEvent& event)
     if (containsPoint({event.x, event.y})) {
         // If we're normal, change to hovered.
         if (currentState == State::Normal) {
-            currentState = State::Hovered;
+            setCurrentState(State::Hovered);
         }
     }
     else {
         // Else, the mouse isn't in our extent. If we're hovered, unhover.
         if (currentState == State::Hovered) {
-            currentState = State::Normal;
+            setCurrentState(State::Normal);
         }
     }
 }
@@ -263,11 +275,11 @@ void TextInput::render(const SDL_Point& parentOffset)
         return;
     }
 
-    // Render the appropriate background image for our current state.
-    renderAppropriateImage(childOffset);
-
-    // Render the text.
-    text.render({childOffset.x, childOffset.y});
+    // Render our children.
+    for (Widget& child : children)
+    {
+        child.render(childOffset);
+    }
 
     // Render the text cursor, if necessary.
     if (cursorIsVisible) {
@@ -489,10 +501,41 @@ bool TextInput::handleEnterEvent()
     return true;
 }
 
+void TextInput::setCurrentState(State inState)
+{
+    // Set the new state.
+    currentState = inState;
+
+    // Make the associated background visible and make the rest invisible.
+    normalImage.setIsVisible(false);
+    hoveredImage.setIsVisible(false);
+    focusedImage.setIsVisible(false);
+    disabledImage.setIsVisible(false);
+
+    switch (currentState) {
+        case State::Normal: {
+            normalImage.setIsVisible(true);
+            break;
+        }
+        case State::Hovered: {
+            hoveredImage.setIsVisible(true);
+            break;
+        }
+        case State::Focused: {
+            focusedImage.setIsVisible(true);
+            break;
+        }
+        case State::Disabled: {
+            disabledImage.setIsVisible(true);
+            break;
+        }
+    }
+}
+
 void TextInput::assumeFocus()
 {
     // Set our state to focused.
-    currentState = State::Focused;
+    setCurrentState(State::Focused);
     focusedInputCount++;
 
     // Begin generating text input events.
@@ -513,7 +556,7 @@ void TextInput::assumeFocus()
 void TextInput::removeFocus()
 {
     // Set our state back to normal.
-    currentState = State::Normal;
+    setCurrentState(State::Normal);
     focusedInputCount--;
 
     // If there are no other focused inputs, stop generating text input events.
@@ -566,29 +609,6 @@ void TextInput::refreshTextScrollOffset()
 
     // Set the new offset.
     text.setTextOffset(textOffset);
-}
-
-void TextInput::renderAppropriateImage(const SDL_Point& childOffset)
-{
-    // Render the appropriate background image for our current state.
-    switch (currentState) {
-        case State::Normal: {
-            normalImage.render(childOffset);
-            break;
-        }
-        case State::Hovered: {
-            hoveredImage.render(childOffset);
-            break;
-        }
-        case State::Focused: {
-            selectedImage.render(childOffset);
-            break;
-        }
-        case State::Disabled: {
-            disabledImage.render(childOffset);
-            break;
-        }
-    }
 }
 
 void TextInput::renderTextCursor(const SDL_Point& childOffset)

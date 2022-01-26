@@ -73,7 +73,10 @@ protected:
               const std::string& inDebugName = "");
 
     /** This container's child elements. This container owns the elements in
-        this vector and must render them according to its layout logic. */
+        this vector and must render them according to its layout logic.
+
+        We can't reuse Widget::children because it only contains references.
+        Containers must actually own their children. */
     std::vector<std::unique_ptr<Widget>> elements;
 };
 

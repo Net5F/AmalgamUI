@@ -161,7 +161,7 @@ void Text::setLogicalExtent(const SDL_Rect& inLogicalExtent)
 void Text::render(const SDL_Point& parentOffset)
 {
     // Keep our scaling up to date.
-    bool isRefreshed = refreshScaling();
+    bool isRefreshed{refreshScaling()};
 
     // If we didn't already refresh our texture.
     if (!isRefreshed) {

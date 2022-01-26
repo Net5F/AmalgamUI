@@ -13,6 +13,12 @@ ConfirmationDialog::ConfirmationDialog(Screen& inScreen,
 , confirmButton(inScreen, {0, 0, logicalExtent.w, logicalExtent.h})
 , cancelButton(inScreen, {0, 0, logicalExtent.w, logicalExtent.h})
 {
+    // Add our children so they're included in rendering, etc.
+    children.push_back(backgroundImage);
+    children.push_back(bodyText);
+    children.push_back(confirmButton);
+    children.push_back(cancelButton);
+
     // Set the default cancel button behavior.
     cancelButton.setOnPressed([&]() {
         // Remove the dialog.
@@ -41,10 +47,10 @@ void ConfirmationDialog::render(const SDL_Point& parentOffset)
     }
 
     // Render our children.
-    backgroundImage.render(childOffset);
-    bodyText.render(childOffset);
-    confirmButton.render(childOffset);
-    cancelButton.render(childOffset);
+    for (Widget& child : children)
+    {
+        child.render(childOffset);
+    }
 }
 
 } // namespace AUI

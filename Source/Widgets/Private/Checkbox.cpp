@@ -11,13 +11,36 @@ Checkbox::Checkbox(Screen& inScreen, const SDL_Rect& inLogicalExtent,
 , checkedImage(inScreen, {0, 0, logicalExtent.w, logicalExtent.h})
 , currentState{State::Unchecked}
 {
+    // Add our children so they're included in rendering, etc.
+    children.push_back(uncheckedImage);
+    children.push_back(checkedImage);
+
     // Register for the events that we want to listen for.
     registerListener(InternalEvent::MouseButtonDown);
+
+    // Make the images we aren't using invisible.
+    checkedImage.setIsVisible(false);
 }
 
 void Checkbox::setCurrentState(State inState)
 {
+    // Set the new state.
     currentState = inState;
+
+    // Make the associated image visible and make the rest invisible.
+    uncheckedImage.setIsVisible(false);
+    checkedImage.setIsVisible(false);
+
+    switch (currentState) {
+        case State::Unchecked: {
+            uncheckedImage.setIsVisible(true);
+            break;
+        }
+        case State::Checked: {
+            checkedImage.setIsVisible(true);
+            break;
+        }
+    }
 }
 
 Checkbox::State Checkbox::getCurrentState()
@@ -48,7 +71,7 @@ bool Checkbox::onMouseButtonDown(SDL_MouseButtonEvent& event)
             }
 
             // Set our state to checked.
-            currentState = State::Checked;
+            setCurrentState(State::Checked);
 
             // Call the user's onChecked callback.
             onChecked();
@@ -61,7 +84,7 @@ bool Checkbox::onMouseButtonDown(SDL_MouseButtonEvent& event)
             }
 
             // Set our state to unchecked.
-            currentState = State::Unchecked;
+            setCurrentState(State::Unchecked);
 
             // Call the user's onUnchecked callback.
             onUnchecked();
@@ -95,16 +118,10 @@ void Checkbox::render(const SDL_Point& parentOffset)
         return;
     }
 
-    // Render the appropriate background image for our current state.
-    switch (currentState) {
-        case State::Unchecked: {
-            uncheckedImage.render(childOffset);
-            break;
-        }
-        case State::Checked: {
-            checkedImage.render(childOffset);
-            break;
-        }
+    // Render our children.
+    for (Widget& child : children)
+    {
+        child.render(childOffset);
     }
 }
 

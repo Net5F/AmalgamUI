@@ -22,6 +22,14 @@ Thumbnail::Thumbnail(Screen& inScreen, const SDL_Rect& inLogicalExtent,
 , savedTextAlignment{Text::HorizontalAlignment::Center}
 , text(screen, {0, 0, logicalExtent.w, logicalExtent.h})
 {
+    // Add our children so they're included in rendering, etc.
+    children.push_back(hoveredImage);
+    children.push_back(activeImage);
+    children.push_back(backdropImage);
+    children.push_back(selectedImage);
+    children.push_back(thumbnailImage);
+    children.push_back(text);
+
     // Default to centering the text. The user can set it otherwise if they
     // care to.
     text.setHorizontalAlignment(AUI::Text::HorizontalAlignment::Center);
@@ -30,6 +38,11 @@ Thumbnail::Thumbnail(Screen& inScreen, const SDL_Rect& inLogicalExtent,
     registerListener(InternalEvent::MouseButtonDown);
     registerListener(InternalEvent::MouseWheel);
     registerListener(InternalEvent::MouseMove);
+
+    // Make the images we aren't using invisible.
+    hoveredImage.setIsVisible(false);
+    activeImage.setIsVisible(false);
+    selectedImage.setIsVisible(false);
 }
 
 void Thumbnail::select()
@@ -40,7 +53,7 @@ void Thumbnail::select()
     }
 
     // Flag that we're now selected.
-    isSelected = true;
+    setIsSelected(true);
 
     // If the user set a callback for this event, call it.
     if (onSelected != nullptr) {
@@ -56,7 +69,7 @@ void Thumbnail::deselect()
     }
 
     // Flag that we're not selected.
-    isSelected = false;
+    setIsSelected(false);
 
     // If the user set a callback for this event, call it.
     if (onDeselected != nullptr) {
@@ -72,10 +85,10 @@ void Thumbnail::activate()
     }
 
     // Flag that we're now active.
-    isActive = true;
+    setIsActive(true);
 
     // Flag that we aren't hovered (can't be hovered while active.)
-    isHovered = false;
+    setIsHovered(false);
 
     // If the user set a callback for this event, call it.
     if (onActivated != nullptr) {
@@ -91,7 +104,7 @@ void Thumbnail::deactivate()
     }
 
     // Flag that we're inactive.
-    isActive = false;
+    setIsActive(false);
 
     // If the user set a callback for this event, call it.
     if (onDeactivated != nullptr) {
@@ -216,7 +229,7 @@ bool Thumbnail::onMouseButtonDown(SDL_MouseButtonEvent& event)
             // Note: We don't call the deselected callback since this wasn't
             //       a normal deselect event.
             if (isSelected) {
-                isSelected = false;
+                setIsSelected(false);
             }
         }
         else if (!isSelected) {
@@ -274,28 +287,29 @@ void Thumbnail::render(const SDL_Point& parentOffset)
         return;
     }
 
-    // If we're active, render the active image.
-    if (isActive) {
-        activeImage.render(childOffset);
+    // Render our children.
+    for (Widget& child : children)
+    {
+        child.render(childOffset);
     }
-    else if (isHovered) {
-        // We aren't active and are hovered, render the hovered image.
-        hoveredImage.render(childOffset);
-    }
+}
 
-    // Render the thumbnail's backdrop image.
-    backdropImage.render(childOffset);
+void Thumbnail::setIsHovered(bool inIsHovered)
+{
+    isHovered = inIsHovered;
+    hoveredImage.setIsVisible(isHovered);
+}
 
-    // If we're selected, render the selected image.
-    if (isSelected) {
-        selectedImage.render(childOffset);
-    }
+void Thumbnail::setIsSelected(bool inIsSelected)
+{
+    isSelected = inIsSelected;
+    selectedImage.setIsVisible(isSelected);
+}
 
-    // Render the thumbnail image.
-    thumbnailImage.render(childOffset);
-
-    // Render the text.
-    text.render(childOffset);
+void Thumbnail::setIsActive(bool inIsActive)
+{
+    isActive = inIsActive;
+    activeImage.setIsVisible(isActive);
 }
 
 bool Thumbnail::updateHovered(SDL_Point actualMousePoint)
@@ -309,14 +323,14 @@ bool Thumbnail::updateHovered(SDL_Point actualMousePoint)
     if (containsPoint({actualMousePoint.x, actualMousePoint.y})) {
         // If we're not hovered, become hovered.
         if (!isHovered) {
-            isHovered = true;
+            setIsHovered(true);
             return true;
         }
     }
     else {
         // Else, the mouse isn't in our extent. If we're hovered, unhover.
         if (isHovered) {
-            isHovered = false;
+            setIsHovered(false);
         }
     }
 

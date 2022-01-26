@@ -202,7 +202,7 @@ bool Widget::refreshScaling()
 }
 
 SDL_Rect Widget::calcClippedExtent(const SDL_Rect& sourceExtent,
-                                      const SDL_Rect& clipExtent)
+                                   const SDL_Rect& clipExtent)
 {
     // If the clipping extent has no width or height, don't clip.
     if ((clipExtent.w == 0) || (clipExtent.h == 0)) {

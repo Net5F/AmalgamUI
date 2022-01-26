@@ -61,9 +61,6 @@ public:
     void render(const SDL_Point& parentOffset = {}) override;
 
 private:
-    //-------------------------------------------------------------------------
-    // Private members
-    //-------------------------------------------------------------------------
     std::function<void(void)> onChecked;
 
     std::function<void(void)> onUnchecked;

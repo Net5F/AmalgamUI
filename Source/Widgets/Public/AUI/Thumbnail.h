@@ -138,25 +138,25 @@ public:
     // Callback registration
     //-------------------------------------------------------------------------
     /**
-     * @param inOnSelected  A callable that expects a pointer to the widget
+     * @param inOnSelected  A callback that expects a pointer to the widget
      *                      that was selected.
      */
     void setOnSelected(std::function<void(Thumbnail*)> inOnSelected);
 
     /**
-     * @param inOnDeselected  A callable that expects a pointer to the
+     * @param inOnDeselected  A callback that expects a pointer to the
      *                        widget that was deselected.
      */
     void setOnDeselected(std::function<void(Thumbnail*)> inOnDeselected);
 
     /**
-     * @param inOnActivated  A callable that expects a pointer to the widget
+     * @param inOnActivated  A callback that expects a pointer to the widget
      *                       that was activated.
      */
     void setOnActivated(std::function<void(Thumbnail*)> inOnActivated);
 
     /**
-     * @param inOnDeactivated  A callable that expects a pointer to the
+     * @param inOnDeactivated  A callback that expects a pointer to the
      *                         widget that was deactivated.
      */
     void setOnDeactivated(std::function<void(Thumbnail*)> inOnDeactivated);
@@ -173,9 +173,13 @@ public:
     void render(const SDL_Point& parentOffset = {}) override;
 
 private:
-    //-------------------------------------------------------------------------
-    // Private members
-    //-------------------------------------------------------------------------
+    /** Sets isHovered and updates the visibility of hoveredImage. */
+    void setIsHovered(bool inIsHovered);
+    /** Sets isSelected and updates the visibility of selectedImage. */
+    void setIsSelected(bool inIsSelected);
+    /** Sets isActive and updates the visibility of activeImage. */
+    void setIsActive(bool inIsActive);
+
     /**
      * Uses the given actual-space mouse position to check if this widget
      * should be hovered or unhovered.

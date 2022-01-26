@@ -6,6 +6,8 @@
 #include <SDL2/SDL_events.h>
 #include <string>
 #include <array>
+#include <vector>
+#include <functional>
 
 namespace AUI
 {
@@ -177,6 +179,15 @@ protected:
 
     /** Tracks the events that this widget is currently listening for. */
     std::array<bool, InternalEvent::NUM_TYPES> listeningEventTypes;
+
+    /** An ordered list of references to this widget's children.
+        Widgets must be added to this list to be involved in layout, rendering,
+        and event propagation.
+        Child widgets must be separate members of the class. This list only
+        holds references to those members.
+        This list's elements are in rendering order (rendering happens from
+        front -> back, events propagate from back -> front). */
+    std::vector<std::reference_wrapper<Widget>> children;
 };
 
 } // namespace AUI

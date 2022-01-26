@@ -14,6 +14,13 @@ Button::Button(Screen& inScreen, const SDL_Rect& inLogicalExtent,
 , text(inScreen, {0, 0, logicalExtent.w, logicalExtent.h})
 , currentState{State::Normal}
 {
+    // Add our children so they're included in rendering, etc.
+    children.push_back(normalImage);
+    children.push_back(hoveredImage);
+    children.push_back(pressedImage);
+    children.push_back(disabledImage);
+    children.push_back(text);
+
     // Default to centering the text within the button. The user can set it
     // otherwise if they care to.
     text.setVerticalAlignment(Text::VerticalAlignment::Center);
@@ -23,16 +30,21 @@ Button::Button(Screen& inScreen, const SDL_Rect& inLogicalExtent,
     registerListener(InternalEvent::MouseButtonDown);
     registerListener(InternalEvent::MouseButtonUp);
     registerListener(InternalEvent::MouseMove);
+
+    // Make the backgrounds we aren't using invisible.
+    hoveredImage.setIsVisible(false);
+    pressedImage.setIsVisible(false);
+    disabledImage.setIsVisible(false);
 }
 
 void Button::enable()
 {
-    currentState = State::Normal;
+    setCurrentState(State::Normal);
 }
 
 void Button::disable()
 {
-    currentState = State::Disabled;
+    setCurrentState(State::Disabled);
 }
 
 Button::State Button::getCurrentState()
@@ -60,7 +72,7 @@ bool Button::onMouseButtonDown(SDL_MouseButtonEvent& event)
         }
 
         // Set our state to pressed.
-        currentState = State::Pressed;
+        setCurrentState(State::Pressed);
 
         // Call the user's onPressed callback.
         onPressed();
@@ -84,10 +96,10 @@ bool Button::onMouseButtonUp(SDL_MouseButtonEvent& event)
     if (currentState == State::Pressed) {
         // If the mouse is still over this widget, go to hovered.
         if (containsPoint({event.x, event.y})) {
-            currentState = State::Hovered;
+            setCurrentState(State::Hovered);
         }
         else {
-            currentState = State::Normal;
+            setCurrentState(State::Normal);
         }
 
         return true;
@@ -109,13 +121,13 @@ void Button::onMouseMove(SDL_MouseMotionEvent& event)
     if (containsPoint({event.x, event.y})) {
         // If we're normal, change to hovered.
         if (currentState == State::Normal) {
-            currentState = State::Hovered;
+            setCurrentState(State::Hovered);
         }
     }
     else {
         // Else, the mouse isn't in our extent. If we're hovered, unhover.
         if (currentState == State::Hovered) {
-            currentState = State::Normal;
+            setCurrentState(State::Normal);
         }
     }
 }
@@ -140,28 +152,42 @@ void Button::render(const SDL_Point& parentOffset)
         return;
     }
 
-    // Render the appropriate background image for our current state.
+    // Render our children.
+    for (Widget& child : children)
+    {
+        child.render(childOffset);
+    }
+}
+
+void Button::setCurrentState(State inState)
+{
+    // Set the new state.
+    currentState = inState;
+
+    // Make the associated background visible and make the rest invisible.
+    normalImage.setIsVisible(false);
+    hoveredImage.setIsVisible(false);
+    pressedImage.setIsVisible(false);
+    disabledImage.setIsVisible(false);
+
     switch (currentState) {
         case State::Normal: {
-            normalImage.render(childOffset);
+            normalImage.setIsVisible(true);
             break;
         }
         case State::Hovered: {
-            hoveredImage.render(childOffset);
+            hoveredImage.setIsVisible(true);
             break;
         }
         case State::Pressed: {
-            pressedImage.render(childOffset);
+            pressedImage.setIsVisible(true);
             break;
         }
         case State::Disabled: {
-            disabledImage.render(childOffset);
+            disabledImage.setIsVisible(true);
             break;
         }
     }
-
-    // Render the text.
-    text.render(childOffset);
 }
 
 } // namespace AUI

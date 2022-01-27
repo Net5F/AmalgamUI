@@ -69,6 +69,16 @@ public:
      */
     virtual void render();
 
+protected:
+    /** An ordered list of references to this widget's children.
+        Widgets must be added to this list to be involved in layout, rendering,
+        and event propagation.
+        Child widgets must be separate members of the class. This list only
+        holds references to those members.
+        This list's elements are in rendering order (rendering happens from
+        front -> back, events propagate from back -> front). */
+    std::vector<std::reference_wrapper<Widget>> children;
+
 private:
     /**
      * Passes the event to all MouseButtonDown listeners.

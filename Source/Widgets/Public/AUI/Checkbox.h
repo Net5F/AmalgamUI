@@ -58,8 +58,6 @@ public:
     //-------------------------------------------------------------------------
     bool onMouseButtonDown(SDL_MouseButtonEvent& event) override;
 
-    void render(const SDL_Point& parentOffset = {}) override;
-
 private:
     std::function<void(void)> onChecked;
 

@@ -78,8 +78,6 @@ public:
 
     void onMouseMove(SDL_MouseMotionEvent& event) override;
 
-    void render(const SDL_Point& parentOffset = {}) override;
-
 private:
     /**
      * Sets currentState and updates child widget visibility.

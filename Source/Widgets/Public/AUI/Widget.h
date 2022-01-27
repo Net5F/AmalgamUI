@@ -55,8 +55,8 @@ public:
     SDL_Rect getLogicalExtent();
     /** See Widget::scaledExtent. */
     SDL_Rect getScaledExtent();
-    /** See Widget::lastRenderedExtent. */
-    SDL_Rect getLastRenderedExtent();
+    /** See Widget::renderExtent. */
+    SDL_Rect getRenderExtent();
 
     const std::string& getDebugName();
 
@@ -102,14 +102,30 @@ public:
     virtual void onTick(double timestepS);
 
     /**
+     * Refreshes this widget's scaling, and updates its renderExtent.
+     *
+     * @param parentExtent  The parent widget's renderExtent.
+     *                      Child widgets should position themselves relative
+     *                      to their parent's position and clip themselves to
+     *                      their parent's bounds (unless intentionally
+     *                      overflowing).
+     * @post renderExtent is properly positioned for use in rendering and
+     *       hit testing.
+     */
+    virtual void updateLayout(const SDL_Rect& parentExtent);
+
+    /**
      * Renders this widget to the current rendering target.
-     * Directly calls SDL functions like SDL_RenderCopy().
+     *
+     * The default implementation simply calls render() on all widgets in our
+     * children list. Some overrides may directly call SDL functions like
+     * SDL_RenderCopy().
      *
      * @param parentOffset  The offset that should be added to this widget's
      *                      position before rendering. Used by parent classes
      *                      to control the layout of their children.
      */
-    virtual void render(const SDL_Point& parentOffset = {});
+    virtual void render();
 
 protected:
     Widget(Screen& inScreen, const SDL_Rect& inLogicalExtent,
@@ -164,10 +180,10 @@ protected:
         such as those passed by parents. */
     SDL_Rect scaledExtent;
 
-    /** The actual screen extent of this widget during the last render()
-        call. Generally equal to scaledScreenExtent + any offsets added by
-        parent widgets. Used in hit testing for event handling. */
-    SDL_Rect lastRenderedExtent;
+    /** The actual screen extent of this widget after last updateLayout()
+        call. Generally equal to scaledExtent + any offsets added by parent
+        widgets. Used in rendering and hit testing for events. */
+    SDL_Rect renderExtent;
 
     /** The value of Core::actualScreenSize that was used the last time this
         widget calculated its actualScreenExtent.

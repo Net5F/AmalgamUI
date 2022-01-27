@@ -113,7 +113,7 @@ public:
 
     void onTick(double timestepS) override;
 
-    void render(const SDL_Point& parentOffset = {}) override;
+    void render() override;
 
 protected:
     /**
@@ -176,7 +176,7 @@ private:
     /**
      * Calcs where the text cursor should be and renders it.
      */
-    void renderTextCursor(const SDL_Point& childOffset);
+    void renderTextCursor();
 
     /** See setOnTextChanged(). */
     std::function<void(void)> onTextChanged;

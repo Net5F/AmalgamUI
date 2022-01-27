@@ -267,33 +267,6 @@ void Thumbnail::onMouseMove(SDL_MouseMotionEvent& event)
     updateHovered({event.x, event.y});
 }
 
-void Thumbnail::render(const SDL_Point& parentOffset)
-{
-    // Keep our extent up to date.
-    refreshScaling();
-
-    // Children should render at the parent's offset + this widget's offset.
-    SDL_Point childOffset{parentOffset};
-    childOffset.x += scaledExtent.x;
-    childOffset.y += scaledExtent.y;
-
-    // Save the extent that we're going to render at.
-    lastRenderedExtent = scaledExtent;
-    lastRenderedExtent.x += parentOffset.x;
-    lastRenderedExtent.y += parentOffset.y;
-
-    // If the widget isn't visible, return without rendering.
-    if (!isVisible) {
-        return;
-    }
-
-    // Render our children.
-    for (Widget& child : children)
-    {
-        child.render(childOffset);
-    }
-}
-
 void Thumbnail::setIsHovered(bool inIsHovered)
 {
     isHovered = inIsHovered;

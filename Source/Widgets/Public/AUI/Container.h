@@ -68,6 +68,11 @@ public:
     iterator end() { return elements.end(); };
     const_iterator end() const { return elements.end(); };
 
+    //-------------------------------------------------------------------------
+    // Base class overrides
+    //-------------------------------------------------------------------------
+    void render() override;
+
 protected:
     Container(Screen& screen, const SDL_Rect& inLogicalExtent,
               const std::string& inDebugName = "");

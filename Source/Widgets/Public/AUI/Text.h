@@ -149,11 +149,16 @@ public:
     // Base class overrides
     //-------------------------------------------------------------------------
     /**
-     * Calls Widget::setExtent(), then calls refreshAlignment().
+     * Calls Widget::setLogicalExtent(), then calls refreshAlignment().
      */
     void setLogicalExtent(const SDL_Rect& inLogicalExtent) override;
 
-    void render(const SDL_Point& parentOffset = {}) override;
+    /**
+     * Calls Widget::updateLayout() and also updates offsetTextExtent.
+     */
+    void updateLayout(const SDL_Rect& parentExtent);
+
+    void render() override;
 
 protected:
     /**
@@ -216,7 +221,7 @@ private:
         void operator()(SDL_Texture* p) { SDL_DestroyTexture(p); }
     };
 
-    /** The current texture; shows our text in the desired font.
+    /** The current texture. Shows our text in the desired font.
         We manage the texture ourselves instead of passing it to the resource
         manager because it'll only ever be used by this widget. */
     std::unique_ptr<SDL_Texture, TextureDeleter> textTexture;
@@ -235,6 +240,16 @@ private:
         clipping. Effectively moves the text in relation to our scaledExtent.
         Used to scroll the text and have it be clipped appropriately. */
     int textOffset;
+
+    /** Our textExtent, offset to match the parentExtent given during
+        updateLayout() and clipped to renderExtent's bounds.
+        Calc'd during updateLayout() and only valid for that frame. */
+    SDL_Rect offsetClippedTextExtent;
+
+    /** Our offsetClippedTextExtent, pulled back into texture space
+        ((0, 0) origin). Tells us what part of the texture to render.
+        Calc'd during updateLayout() and only valid for that frame. */
+    SDL_Rect offsetClippedTextureExtent;
 };
 
 } // namespace AUI

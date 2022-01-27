@@ -34,11 +34,6 @@ public:
     /** Left-side cancel button. By default, closes the dialog without
         performing any action. */
     AUI::Button cancelButton;
-
-    //-------------------------------------------------------------------------
-    // Base class overrides
-    //-------------------------------------------------------------------------
-    void render(const SDL_Point& parentOffset = {}) override;
 };
 
 } // namespace AUI

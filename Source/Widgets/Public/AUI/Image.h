@@ -61,7 +61,7 @@ public:
     //-------------------------------------------------------------------------
     // Base class overrides
     //-------------------------------------------------------------------------
-    void render(const SDL_Point& parentOffset = {}) override;
+    void render() override;
 
 protected:
     /**

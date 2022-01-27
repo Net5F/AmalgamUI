@@ -255,35 +255,14 @@ void TextInput::onTick(double timestepS)
     }
 }
 
-void TextInput::render(const SDL_Point& parentOffset)
+void TextInput::render()
 {
-    // Keep our extent up to date.
-    refreshScaling();
-
-    // Children should render at the parent's offset + this widget's offset.
-    SDL_Point childOffset{parentOffset};
-    childOffset.x += scaledExtent.x;
-    childOffset.y += scaledExtent.y;
-
-    // Save the extent that we're going to render at.
-    lastRenderedExtent = scaledExtent;
-    lastRenderedExtent.x += parentOffset.x;
-    lastRenderedExtent.y += parentOffset.y;
-
-    // If the widget isn't visible, return without rendering.
-    if (!isVisible) {
-        return;
-    }
-
-    // Render our children.
-    for (Widget& child : children)
-    {
-        child.render(childOffset);
-    }
+    // Render our child widgets.
+    Widget::render();
 
     // Render the text cursor, if necessary.
     if (cursorIsVisible) {
-        renderTextCursor(childOffset);
+        renderTextCursor();
     }
 }
 
@@ -611,7 +590,7 @@ void TextInput::refreshTextScrollOffset()
     text.setTextOffset(textOffset);
 }
 
-void TextInput::renderTextCursor(const SDL_Point& childOffset)
+void TextInput::renderTextCursor()
 {
     // Save the current draw color to re-apply later.
     SDL_Color originalColor;
@@ -621,8 +600,8 @@ void TextInput::renderTextCursor(const SDL_Point& childOffset)
 
     // Calc where the cursor should be.
     SDL_Rect cursorOffsetExtent{text.calcCharacterOffset(cursorIndex)};
-    cursorOffsetExtent.x += childOffset.x;
-    cursorOffsetExtent.y += childOffset.y;
+    cursorOffsetExtent.x += renderExtent.x;
+    cursorOffsetExtent.y += renderExtent.y;
     cursorOffsetExtent.w = scaledCursorWidth;
 
     // Draw the cursor.

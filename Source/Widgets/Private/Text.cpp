@@ -22,6 +22,8 @@ Text::Text(Screen& inScreen, const SDL_Rect& inLogicalExtent,
 , textureExtent{}
 , textExtent{}
 , textOffset{0}
+, offsetClippedTextExtent{}
+, offsetClippedTextureExtent{}
 {
 }
 
@@ -158,18 +160,33 @@ void Text::setLogicalExtent(const SDL_Rect& inLogicalExtent)
     refreshAlignment();
 }
 
-void Text::render(const SDL_Point& parentOffset)
+void Text::updateLayout(const SDL_Rect& parentExtent)
 {
-    // Keep our scaling up to date.
-    bool isRefreshed{refreshScaling()};
+    // Do the normal layout updating.
+    Widget::updateLayout(parentExtent);
 
-    // If we didn't already refresh our texture.
-    if (!isRefreshed) {
-        // If a property has been changed, re-render our text texture.
-        if (textureIsDirty) {
-            refreshTexture();
-            textureIsDirty = false;
-        }
+    // Offset our textExtent to start at parentExtent.
+    SDL_Rect offsetTextExtent{textExtent};
+    offsetTextExtent.x += (parentExtent.x + textOffset);
+    offsetTextExtent.y += parentExtent.y;
+
+    // Clip the text image's extent to not go beyond this widget's extent.
+    offsetClippedTextExtent = calcClippedExtent(offsetTextExtent
+        , renderExtent);
+
+    // Pull offsetClippedTextExtent back into texture space ((0, 0) origin).
+    // This tells us what part of the text image texture to actually render.
+    offsetClippedTextureExtent = offsetClippedTextExtent;
+    offsetClippedTextureExtent.x -= offsetTextExtent.x;
+    offsetClippedTextureExtent.y -= offsetTextExtent.y;
+}
+
+void Text::render()
+{
+    // If a property has been changed, re-render our text texture.
+    if (textureIsDirty) {
+        refreshTexture();
+        textureIsDirty = false;
     }
 
     if (textTexture == nullptr) {
@@ -177,34 +194,9 @@ void Text::render(const SDL_Point& parentOffset)
                       debugName.c_str());
     }
 
-    // Account for the given offset.
-    SDL_Rect offsetScaledExtent{scaledExtent};
-    offsetScaledExtent.x += parentOffset.x;
-    offsetScaledExtent.y += parentOffset.y;
-
-    // Save the extent that we're going to render at.
-    lastRenderedExtent = offsetScaledExtent;
-
-    // If the widget isn't visible, return without rendering.
-    if (!isVisible) {
-        return;
-    }
-
-    // Clip the text image's extent to not go beyond the widget's extent.
-    SDL_Rect offsetTextExtent{textExtent};
-    offsetTextExtent.x += (parentOffset.x + textOffset);
-    offsetTextExtent.y += parentOffset.y;
-    SDL_Rect clippedTextExtent
-        = calcClippedExtent(offsetTextExtent, offsetScaledExtent);
-
-    // Calc where clippedTextExtent is in the text texture.
-    SDL_Rect clippedTextureExtent{clippedTextExtent};
-    clippedTextureExtent.x -= offsetTextExtent.x;
-    clippedTextureExtent.y -= offsetTextExtent.y;
-
     // Render the text texture.
     SDL_RenderCopy(Core::getRenderer(), textTexture.get(),
-                   &clippedTextureExtent, &clippedTextExtent);
+                   &offsetClippedTextureExtent, &offsetClippedTextExtent);
 }
 
 bool Text::refreshScaling()

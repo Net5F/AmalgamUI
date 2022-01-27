@@ -89,7 +89,19 @@ void Screen::tick(double timestepS)
 
 void Screen::render()
 {
-    // Rendering is left up to derived classes.
+    // Update our children's layouts.
+    for (Widget& child : children)
+    {
+        child.updateLayout({0, 0, 0, 0});
+    }
+
+    // Render our children.
+    for (Widget& child : children)
+    {
+        if (child.getIsVisible()) {
+            child.render();
+        }
+    }
 }
 
 bool Screen::handleMouseButtonDown(SDL_MouseButtonEvent& event)

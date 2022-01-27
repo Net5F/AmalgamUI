@@ -170,8 +170,6 @@ public:
 
     void onMouseMove(SDL_MouseMotionEvent& event) override;
 
-    void render(const SDL_Point& parentOffset = {}) override;
-
 private:
     /** Sets isHovered and updates the visibility of hoveredImage. */
     void setIsHovered(bool inIsHovered);

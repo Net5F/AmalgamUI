@@ -13,7 +13,7 @@ Widget::Widget(Screen& inScreen, const SDL_Rect& inLogicalExtent,
 , debugName{inDebugName}
 , logicalExtent{inLogicalExtent}
 , scaledExtent{ScalingHelpers::logicalToActual(logicalExtent)}
-, lastRenderedExtent{}
+, renderExtent{}
 , lastUsedScreenSize{Core::getActualScreenSize()}
 , isVisible{true}
 , listeningEventTypes{}
@@ -37,10 +37,10 @@ Widget::~Widget()
 bool Widget::containsPoint(const SDL_Point& actualPoint)
 {
     // Test if the point is within all 4 sides of our extent.
-    if ((actualPoint.x > lastRenderedExtent.x)
-        && (actualPoint.x < (lastRenderedExtent.x + lastRenderedExtent.w))
-        && (actualPoint.y > lastRenderedExtent.y)
-        && (actualPoint.y < (lastRenderedExtent.y + lastRenderedExtent.h))) {
+    if ((actualPoint.x > renderExtent.x)
+        && (actualPoint.x < (renderExtent.x + renderExtent.w))
+        && (actualPoint.y > renderExtent.y)
+        && (actualPoint.y < (renderExtent.y + renderExtent.h))) {
         return true;
     }
     else {
@@ -80,9 +80,9 @@ SDL_Rect Widget::getScaledExtent()
     return scaledExtent;
 }
 
-SDL_Rect Widget::getLastRenderedExtent()
+SDL_Rect Widget::getRenderExtent()
 {
-    return lastRenderedExtent;
+    return renderExtent;
 }
 
 const std::string& Widget::getDebugName()
@@ -98,13 +98,6 @@ void Widget::setIsVisible(bool inIsVisible)
 bool Widget::getIsVisible()
 {
     return isVisible;
-}
-
-void Widget::render(const SDL_Point& parentOffset)
-{
-    ignore(parentOffset);
-    AUI_LOG_FATAL("Base class render called. Please override render() "
-                  "in your derived class.");
 }
 
 bool Widget::onMouseButtonDown(SDL_MouseButtonEvent& event)
@@ -164,6 +157,35 @@ void Widget::onTick(double timestepS)
     ignore(timestepS);
     AUI_LOG_FATAL("Base class callback called. Please override onTick() "
                   "in your derived class.");
+}
+
+void Widget::updateLayout(const SDL_Rect& parentExtent)
+{
+    // Keep our extent up to date.
+    refreshScaling();
+
+    // Calculate our new extent to render at.
+    renderExtent = scaledExtent;
+    renderExtent.x += parentExtent.x;
+    renderExtent.y += parentExtent.y;
+    // TODO: Should we clip here to fit parentExtent?
+
+    // Update our children's layout.
+    for (Widget& child : children)
+    {
+        child.updateLayout(renderExtent);
+    }
+}
+
+void Widget::render()
+{
+    // Render all visible children.
+    for (Widget& child : children)
+    {
+        if (child.getIsVisible()) {
+            child.render();
+        }
+    }
 }
 
 void Widget::registerListener(InternalEvent::Type eventType)

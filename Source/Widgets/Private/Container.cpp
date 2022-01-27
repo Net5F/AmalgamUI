@@ -68,4 +68,15 @@ std::size_t Container::size()
     return elements.size();
 }
 
+void Container::render()
+{
+    // Render all visible elements.
+    for (std::unique_ptr<Widget>& element : elements)
+    {
+        if (element->getIsVisible()) {
+            element->render();
+        }
+    }
+}
+
 } // namespace AUI

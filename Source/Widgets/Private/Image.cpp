@@ -50,24 +50,8 @@ void Image::addResolution(const ScreenResolution& resolution,
     refreshChosenResolution();
 }
 
-void Image::render(const SDL_Point& parentOffset)
+void Image::render()
 {
-    // Keep our scaling up to date.
-    refreshScaling();
-
-    // Account for the given offset.
-    SDL_Rect offsetExtent{scaledExtent};
-    offsetExtent.x += parentOffset.x;
-    offsetExtent.y += parentOffset.y;
-
-    // Save the extent that we're going to render at.
-    lastRenderedExtent = offsetExtent;
-
-    // If the widget isn't visible, return without rendering.
-    if (!isVisible) {
-        return;
-    }
-
     // If we don't have a texture to render, fail.
     if (currentTexture == nullptr) {
         AUI_LOG_FATAL("Tried to render Image with no texture. DebugName: %s",
@@ -76,7 +60,7 @@ void Image::render(const SDL_Point& parentOffset)
 
     // Render the image.
     SDL_RenderCopy(Core::getRenderer(), currentTexture.get(), &currentTexExtent,
-                   &lastRenderedExtent);
+                   &renderExtent);
 }
 
 void Image::clearTextures()

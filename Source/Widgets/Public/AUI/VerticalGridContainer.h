@@ -41,7 +41,7 @@ public:
     //-------------------------------------------------------------------------
     bool onMouseWheel(SDL_MouseWheelEvent& event) override;
 
-    void render(const SDL_Point& parentOffset = {}) override;
+    void updateLayout(const SDL_Rect& parentExtent) override;
 
 protected:
     /**

@@ -60,32 +60,25 @@ bool VerticalGridContainer::onMouseWheel(SDL_MouseWheelEvent& event)
     return false;
 }
 
-void VerticalGridContainer::render(const SDL_Point& parentOffset)
+void VerticalGridContainer::updateLayout(const SDL_Rect& parentExtent)
 {
-    // Keep our scaling up to date.
+    // Keep our extent up to date.
     refreshScaling();
 
-    // Account for the given offset.
-    SDL_Rect offsetExtent{scaledExtent};
-    offsetExtent.x += parentOffset.x;
-    offsetExtent.y += parentOffset.y;
-
-    // Save the extent that we're going to render at.
-    lastRenderedExtent = offsetExtent;
-
-    // If the widget isn't visible, return without rendering.
-    if (!isVisible) {
-        return;
-    }
+    // Calculate our new extent to render at.
+    renderExtent = scaledExtent;
+    renderExtent.x += parentExtent.x;
+    renderExtent.y += parentExtent.y;
+    // TODO: Should we clip here to fit parentExtent?
 
     // Calc how many rows can fit onscreen at once.
-    int maxVisibleRows = logicalExtent.h / logicalCellHeight;
+    int maxVisibleRows{logicalExtent.h / logicalCellHeight};
 
-    // Render our elements in a vertical grid.
+    // Lay out our elements in a vertical grid.
     for (unsigned int i = 0; i < elements.size(); ++i) {
         // Get the cell coordinates for this element.
-        unsigned int cellColumn = i % numColumns;
-        unsigned int cellRow = i / numColumns;
+        unsigned int cellColumn{i % numColumns};
+        unsigned int cellRow{i / numColumns};
 
         // If this element is offscreen, make it invisible (to ignore events)
         // and continue to the next.
@@ -100,16 +93,17 @@ void VerticalGridContainer::render(const SDL_Point& parentOffset)
         }
 
         // Get the offsets for the cell at the calculated coordinates.
-        int cellXOffset = cellColumn * scaledCellWidth;
-        int cellYOffset = cellRow * scaledCellHeight;
+        int cellXOffset{static_cast<int>(cellColumn * scaledCellWidth)};
+        int cellYOffset{static_cast<int>(cellRow * scaledCellHeight)};
 
         // Move the Y offset based on our current scroll position.
         cellYOffset -= (rowScroll * scaledCellHeight);
 
         // Add this widget's offset to get our final offset.
-        int finalX = offsetExtent.x + cellXOffset;
-        int finalY = offsetExtent.y + cellYOffset;
-        elements[i]->render({finalX, finalY});
+        int finalX{renderExtent.x + cellXOffset};
+        int finalY{renderExtent.y + cellYOffset};
+        elements[i]->updateLayout({finalX, finalY
+            , (finalX + scaledCellWidth), (finalY + scaledCellHeight)});
     }
 }
 

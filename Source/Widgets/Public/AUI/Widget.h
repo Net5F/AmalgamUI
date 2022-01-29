@@ -16,7 +16,7 @@ class Screen;
 /**
  * The base class for all UI widgets.
  *
- * Widget initialization follows the pattern:
+ * A widget's initialization follows the pattern:
  *   - In the constructor, pass through the data necessary for Widget's
  *     constructor.
  *   - Use setters for all other data.

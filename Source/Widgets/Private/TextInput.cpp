@@ -294,7 +294,7 @@ bool TextInput::handleBackspaceEvent()
         // Refresh the text position to account for the change.
         refreshTextScrollOffset();
 
-        // If a callback is registered, signal that the the text was changed.
+        // If a callback is registered, signal that the text was changed.
         if (onTextChanged) {
             onTextChanged();
         }
@@ -559,9 +559,9 @@ void TextInput::refreshTextScrollOffset()
     SDL_Rect cursorOffsetExtent{text.calcCharacterOffset(cursorIndex)};
 
     // If the text isn't scrolled properly, fix it.
-    SDL_Rect textExtent = text.getScaledExtent();
-    int cursorX = cursorOffsetExtent.x;
-    int textOffset = text.getTextOffset();
+    SDL_Rect textExtent{text.getScaledExtent()};
+    int cursorX{cursorOffsetExtent.x};
+    int textOffset{text.getTextOffset()};
     if (cursorX < textExtent.x) {
         // Cursor is past the left bound, scroll right.
         textOffset += (textExtent.x - cursorX);
@@ -573,8 +573,7 @@ void TextInput::refreshTextScrollOffset()
     else if (textOffset < 0) {
         // There's text hanging off the left side. Are we still pushed against
         // the right bound? (Relevant after a backspace.)
-        SDL_Rect lastCharOffset
-            = text.calcCharacterOffset(text.asString().length());
+        SDL_Rect lastCharOffset{text.calcCharacterOffset(text.asString().length())};
         if (lastCharOffset.x < (textExtent.x + textExtent.w)) {
             // There's a gap to fill, scroll right.
             textOffset += ((textExtent.x + textExtent.w) - lastCharOffset.x);

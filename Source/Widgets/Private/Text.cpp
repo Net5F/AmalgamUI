@@ -162,6 +162,12 @@ void Text::setLogicalExtent(const SDL_Rect& inLogicalExtent)
 
 void Text::updateLayout(const SDL_Rect& parentExtent)
 {
+    // If a property has been changed, re-render our text texture.
+    if (textureIsDirty) {
+        refreshTexture();
+        textureIsDirty = false;
+    }
+
     // Do the normal layout updating.
     Widget::updateLayout(parentExtent);
 
@@ -183,12 +189,6 @@ void Text::updateLayout(const SDL_Rect& parentExtent)
 
 void Text::render()
 {
-    // If a property has been changed, re-render our text texture.
-    if (textureIsDirty) {
-        refreshTexture();
-        textureIsDirty = false;
-    }
-
     if (textTexture == nullptr) {
         AUI_LOG_FATAL("Tried to render Font with no texture. DebugName: %s",
                       debugName.c_str());

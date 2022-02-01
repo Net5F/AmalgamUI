@@ -39,13 +39,6 @@ TextInput::TextInput(Screen& inScreen, const SDL_Rect& inLogicalExtent,
     // else.
     text.setText("");
 
-    // Register for the events that we want to listen for.
-    registerListener(InternalEvent::MouseButtonDown);
-    registerListener(InternalEvent::MouseMove);
-    registerListener(InternalEvent::KeyDown);
-    registerListener(InternalEvent::TextInput);
-    registerListener(InternalEvent::Tick);
-
     // Make the backgrounds we aren't using invisible.
     hoveredImage.setIsVisible(false);
     focusedImage.setIsVisible(false);

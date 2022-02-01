@@ -68,6 +68,53 @@ std::size_t Container::size()
     return elements.size();
 }
 
+bool Container::handleOSEvent(SDL_Event& event)
+{
+    // Propagate the event through our visible elements.
+    for (auto it = elements.rbegin(); it != elements.rend(); ++it)
+    {
+        // If the element isn't visible, skip it.
+        std::unique_ptr<Widget>& element{*it};
+        if (!(element->getIsVisible())) {
+        }
+
+        // If the element consumed the event, return early.
+        if (element->handleOSEvent(event)) {
+            return true;
+        }
+    }
+
+    // None of our children handled the event. Try to handle it ourselves.
+    switch (event.type) {
+        case SDL_MOUSEBUTTONDOWN: {
+            return onMouseButtonDown(event.button);
+        }
+        case SDL_MOUSEBUTTONUP: {
+            return onMouseButtonUp(event.button);
+        }
+        case SDL_MOUSEMOTION: {
+            // We never block mouse motion events from propagating since
+            // the sim might care about the movement, even if the mouse is
+            // on top of the UI.
+            onMouseMove(event.motion);
+            return false;
+        }
+        case SDL_MOUSEWHEEL: {
+            return onMouseWheel(event.wheel);
+        }
+        case SDL_KEYDOWN: {
+            return onKeyDown(event.key);
+        }
+        case SDL_TEXTINPUT: {
+            return onTextInput(event.text);
+        }
+        default:
+            break;
+    }
+
+    return false;
+}
+
 void Container::render()
 {
     // Render all visible elements.

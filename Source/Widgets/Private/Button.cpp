@@ -26,11 +26,6 @@ Button::Button(Screen& inScreen, const SDL_Rect& inLogicalExtent,
     text.setVerticalAlignment(Text::VerticalAlignment::Center);
     text.setHorizontalAlignment(Text::HorizontalAlignment::Center);
 
-    // Register for the events that we want to listen for.
-    registerListener(InternalEvent::MouseButtonDown);
-    registerListener(InternalEvent::MouseButtonUp);
-    registerListener(InternalEvent::MouseMove);
-
     // Make the backgrounds we aren't using invisible.
     hoveredImage.setIsVisible(false);
     pressedImage.setIsVisible(false);

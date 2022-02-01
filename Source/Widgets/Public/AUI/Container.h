@@ -71,6 +71,8 @@ public:
     //-------------------------------------------------------------------------
     // Base class overrides
     //-------------------------------------------------------------------------
+    bool handleOSEvent(SDL_Event& event) override;
+
     void render() override;
 
 protected:

@@ -1,7 +1,6 @@
 #pragma once
 
 #include "AUI/ScreenResolution.h"
-#include "AUI/InternalEvent.h"
 #include <SDL2/SDL_rect.h>
 #include <SDL2/SDL_events.h>
 #include <string>
@@ -64,32 +63,47 @@ public:
     bool getIsVisible();
 
     /**
+     * Propagates the given event through this widget's children.
+     * If none of our children handled the event, attempts to handle it
+     * ourselves.
+     *
+     * @return true if the event was consumed, else false.
+     */
+    virtual bool handleOSEvent(SDL_Event& event);
+
+    /**
      * Called when a SDL_MOUSEBUTTONDOWN event occurs.
+     * @return true if the event was consumed, else false.
      */
     virtual bool onMouseButtonDown(SDL_MouseButtonEvent& event);
 
     /**
      * Called when a SDL_MOUSEBUTTONUP event occurs.
+     * @return true if the event was consumed, else false.
      */
     virtual bool onMouseButtonUp(SDL_MouseButtonEvent& event);
 
     /**
      * Called when a SDL_MOUSEWHEEL event occurs.
+     * @return true if the event was consumed, else false.
      */
     virtual bool onMouseWheel(SDL_MouseWheelEvent& event);
 
     /**
      * Called when a SDL_MOUSEMOTION event occurs.
+     * @return true if the event was consumed, else false.
      */
     virtual void onMouseMove(SDL_MouseMotionEvent& event);
 
     /**
      * Called when a SDL_KEYDOWN event occurs.
+     * @return true if the event was consumed, else false.
      */
     virtual bool onKeyDown(SDL_KeyboardEvent& event);
 
     /**
      * Called when a SDL_TEXTINPUT event occurs.
+     * @return true if the event was consumed, else false.
      */
     virtual bool onTextInput(SDL_TextInputEvent& event);
 
@@ -130,19 +144,6 @@ public:
 protected:
     Widget(Screen& inScreen, const SDL_Rect& inLogicalExtent,
               const std::string& inDebugName = "");
-
-    /**
-     * Registers this widget as a listener for the given event type.
-     *
-     * This widget will internally track that the given event type is being
-     * listened to, and will unregister itself during destruction.
-     */
-    void registerListener(InternalEvent::Type eventType);
-
-    /**
-     * Unregisters this widget as a listener for the given event type.
-     */
-    void unregisterListener(InternalEvent::Type eventType);
 
     /**
      * Checks if Core::actualScreenSize has changed since the last time this
@@ -192,9 +193,6 @@ protected:
 
     /** If true, this widget will be rendered and will respond to events. */
     bool isVisible;
-
-    /** Tracks the events that this widget is currently listening for. */
-    std::array<bool, InternalEvent::NUM_TYPES> listeningEventTypes;
 
     /** An ordered list of references to this widget's children.
         Widgets must be added to this list to be involved in layout, rendering,

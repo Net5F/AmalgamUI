@@ -16,21 +16,12 @@ Widget::Widget(Screen& inScreen, const SDL_Rect& inLogicalExtent,
 , renderExtent{}
 , lastUsedScreenSize{Core::getActualScreenSize()}
 , isVisible{true}
-, listeningEventTypes{}
 {
     Core::incWidgetCount();
 }
 
 Widget::~Widget()
 {
-    // Unregister from any events that we were listening for.
-    for (unsigned int i = 0; i < InternalEvent::NUM_TYPES; ++i) {
-        if (listeningEventTypes[i]) {
-            screen.unregisterListener(static_cast<InternalEvent::Type>(i),
-                                      this);
-        }
-    }
-
     Core::decWidgetCount();
 }
 
@@ -100,63 +91,91 @@ bool Widget::getIsVisible()
     return isVisible;
 }
 
+bool Widget::handleOSEvent(SDL_Event& event)
+{
+    // Propagate the event through our visible children.
+    for (auto it = children.rbegin(); it != children.rend(); ++it) {
+        // If the child isn't visible, skip it.
+        Widget& child{it->get()};
+        if (!(child.getIsVisible())) {
+            continue;
+        }
+
+        // If the child consumed the event, return early.
+        if (child.handleOSEvent(event)) {
+            return true;
+        }
+    }
+
+    // None of our children handled the event. Try to handle it ourselves.
+    switch (event.type) {
+        case SDL_MOUSEBUTTONDOWN: {
+            return onMouseButtonDown(event.button);
+        }
+        case SDL_MOUSEBUTTONUP: {
+            return onMouseButtonUp(event.button);
+        }
+        case SDL_MOUSEMOTION: {
+            // We never block mouse motion events from propagating since
+            // the sim might care about the movement, even if the mouse is
+            // on top of the UI.
+            onMouseMove(event.motion);
+            return false;
+        }
+        case SDL_MOUSEWHEEL: {
+            return onMouseWheel(event.wheel);
+        }
+        case SDL_KEYDOWN: {
+            return onKeyDown(event.key);
+        }
+        case SDL_TEXTINPUT: {
+            return onTextInput(event.text);
+        }
+        default:
+            break;
+    }
+
+    return false;
+}
+
 bool Widget::onMouseButtonDown(SDL_MouseButtonEvent& event)
 {
     ignore(event);
-    AUI_LOG_FATAL("Base class callback called. Please override"
-                  " onMouseButtonDown() in your derived class.");
-
     return false;
 }
 
 bool Widget::onMouseButtonUp(SDL_MouseButtonEvent& event)
 {
     ignore(event);
-    AUI_LOG_FATAL("Base class callback called. Please override"
-                  " onMouseButtonUp() in your derived class.");
-
     return false;
 }
 
 bool Widget::onMouseWheel(SDL_MouseWheelEvent& event)
 {
     ignore(event);
-    AUI_LOG_FATAL("Base class callback called. Please override onMouseWheel() "
-                  "in your derived class.");
-
     return false;
 }
 
 void Widget::onMouseMove(SDL_MouseMotionEvent& event)
 {
     ignore(event);
-    AUI_LOG_FATAL("Base class callback called. Please override onMouseMove() "
-                  "in your derived class.");
 }
 
 bool Widget::onKeyDown(SDL_KeyboardEvent& event)
 {
     ignore(event);
-    AUI_LOG_FATAL("Base class callback called. Please override onKeyDown() "
-                  "in your derived class.");
-
     return false;
 }
 
 bool Widget::onTextInput(SDL_TextInputEvent& event)
 {
     ignore(event);
-    AUI_LOG_FATAL("Base class callback called. Please override onTextInput() "
-                  "in your derived class.");
-
     return false;
 }
 
 void Widget::onTick(double timestepS)
 {
     ignore(timestepS);
-    AUI_LOG_FATAL("Base class callback called. Please override onTick() "
-                  "in your derived class.");
 }
 
 void Widget::updateLayout(const SDL_Rect& parentExtent)
@@ -186,25 +205,6 @@ void Widget::render()
             child.render();
         }
     }
-}
-
-void Widget::registerListener(InternalEvent::Type eventType)
-{
-    // Register with the screen as a listener for the given type.
-    screen.registerListener(eventType, this);
-
-    // Track that we're now listening to the given type.
-    listeningEventTypes[static_cast<unsigned int>(eventType)] = true;
-}
-
-void Widget::unregisterListener(InternalEvent::Type eventType)
-{
-    // Unregister with the screen as a listener for the given type.
-    // Note: Errors if we aren't listening to the given type.
-    screen.unregisterListener(eventType, this);
-
-    // Track that we're no longer listening to the given type.
-    listeningEventTypes[eventType] = false;
 }
 
 bool Widget::refreshScaling()

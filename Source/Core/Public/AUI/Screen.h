@@ -1,7 +1,6 @@
 #pragma once
 
 #include "AUI/Widget.h"
-#include "AUI/InternalEvent.h"
 #include "AUI/Internal/Log.h"
 #include <SDL2/SDL_events.h>
 #include <vector>
@@ -27,37 +26,14 @@ public:
     virtual ~Screen() = default;
 
     /**
-     * Registers the given object as listening for the given event type.
+     * Propagates the given event through this screen's children.
      *
-     * @param eventType  An event type, corresponding to SDL_Event.type.
-     * @param listener  The listening object. Must implement an appropriate
-     *                  function to handle the given eventType.
-     */
-    void registerListener(InternalEvent::Type eventType, Widget* listener);
-
-    /**
-     * Unregisters the given listener object from receiving the given event.
-     *
-     * References and iterators to the listenerMap are not invalidated.
-     *
-     * @param eventType  An event type, corresponding to SDL_Event.type.
-     * @param listener  The listening object. Must be derived from Widget
-     *                  and implement an appropriate function to handle the
-     *                  given eventType.
-     */
-    void unregisterListener(InternalEvent::Type eventType, Widget* listener);
-
-    /**
-     * Offers the given event to this screen to be handled.
-     *
-     * The event will be passed to any relevant registered listeners.
-     *
-     * @return true if the event was handled, else false.
+     * @return true if the event was consumed, else false.
      */
     bool handleOSEvent(SDL_Event& event);
 
     /**
-     * Calls all Tick event listeners.
+     * Call the onTick() of all of our visible children.
      *
      * @param timestepS  The amount of time that has passed since the last
      *                   tick() call, in seconds.
@@ -80,45 +56,10 @@ protected:
     std::vector<std::reference_wrapper<Widget>> children;
 
 private:
-    /**
-     * Passes the event to all MouseButtonDown listeners.
-     */
-    bool handleMouseButtonDown(SDL_MouseButtonEvent& event);
-
-    /**
-     * Passes the event to all MouseButtonUp listeners.
-     */
-    bool handleMouseButtonUp(SDL_MouseButtonEvent& event);
-
-    /**
-     * Passes the event to all MouseWheel listeners.
-     */
-    bool handleMouseWheel(SDL_MouseWheelEvent& event);
-
-    /**
-     * Passes the event to all MouseMove listeners.
-     */
-    void handleMouseMove(SDL_MouseMotionEvent& event);
-
-    /**
-     * Passes the event to all KeyDown listeners.
-     */
-    bool handleKeyDown(SDL_KeyboardEvent& event);
-
-    /**
-     * Passes the event to all TextInput listeners.
-     */
-    bool handleTextInput(SDL_TextInputEvent& event);
-
     /** The user-assigned name associated with this screen.
         Only useful for debugging. For performance reasons, avoid using it
         in real logic. */
     std::string debugName;
-
-    /** A map containing all of this screen's widgets that care to listen
-        for particular system events. */
-    std::unordered_map<InternalEvent::Type, std::vector<Widget*>>
-        listenerMap;
 };
 
 } // namespace AUI

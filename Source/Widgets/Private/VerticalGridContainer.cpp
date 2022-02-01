@@ -16,8 +16,6 @@ VerticalGridContainer::VerticalGridContainer(Screen& screen,
 , scaledCellHeight{ScalingHelpers::logicalToActual(logicalCellHeight)}
 , rowScroll{0}
 {
-    // Register for the events that we want to listen for.
-    registerListener(InternalEvent::MouseWheel);
 }
 
 void VerticalGridContainer::setNumColumns(unsigned int inNumColumns)

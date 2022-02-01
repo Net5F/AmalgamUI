@@ -34,11 +34,6 @@ Thumbnail::Thumbnail(Screen& inScreen, const SDL_Rect& inLogicalExtent,
     // care to.
     text.setHorizontalAlignment(AUI::Text::HorizontalAlignment::Center);
 
-    // Register for the events that we want to listen for.
-    registerListener(InternalEvent::MouseButtonDown);
-    registerListener(InternalEvent::MouseWheel);
-    registerListener(InternalEvent::MouseMove);
-
     // Make the images we aren't using invisible.
     hoveredImage.setIsVisible(false);
     activeImage.setIsVisible(false);

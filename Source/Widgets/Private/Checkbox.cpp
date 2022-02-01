@@ -15,9 +15,6 @@ Checkbox::Checkbox(Screen& inScreen, const SDL_Rect& inLogicalExtent,
     children.push_back(uncheckedImage);
     children.push_back(checkedImage);
 
-    // Register for the events that we want to listen for.
-    registerListener(InternalEvent::MouseButtonDown);
-
     // Make the images we aren't using invisible.
     checkedImage.setIsVisible(false);
 }

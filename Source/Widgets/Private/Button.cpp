@@ -52,11 +52,11 @@ void Button::setOnPressed(std::function<void(void)> inOnPressed)
     onPressed = std::move(inOnPressed);
 }
 
-bool Button::onMouseButtonDown(SDL_MouseButtonEvent& event)
+Widget* Button::onMouseButtonDown(SDL_MouseButtonEvent& event)
 {
     // If we're disabled, ignore the event.
     if (currentState == State::Disabled) {
-        return false;
+        return nullptr;
     }
 
     // If the mouse press was inside our extent.
@@ -72,19 +72,19 @@ bool Button::onMouseButtonDown(SDL_MouseButtonEvent& event)
         // Call the user's onPressed callback.
         onPressed();
 
-        return true;
+        return this;
     }
     else {
         // Else, the mouse press missed us.
-        return false;
+        return nullptr;
     }
 }
 
-bool Button::onMouseButtonUp(SDL_MouseButtonEvent& event)
+Widget* Button::onMouseButtonUp(SDL_MouseButtonEvent& event)
 {
     // If we're disabled, ignore the event.
     if (currentState == State::Disabled) {
-        return false;
+        return nullptr;
     }
 
     // If we were being pressed.
@@ -97,19 +97,19 @@ bool Button::onMouseButtonUp(SDL_MouseButtonEvent& event)
             setCurrentState(State::Normal);
         }
 
-        return true;
+        return this;
     }
     else {
         // We weren't being pressed.
-        return false;
+        return nullptr;
     }
 }
 
-void Button::onMouseMove(SDL_MouseMotionEvent& event)
+Widget* Button::onMouseMove(SDL_MouseMotionEvent& event)
 {
     // If we're disabled, ignore the event.
     if (currentState == State::Disabled) {
-        return;
+        return nullptr;
     }
 
     // If the mouse is inside our extent.
@@ -118,12 +118,16 @@ void Button::onMouseMove(SDL_MouseMotionEvent& event)
         if (currentState == State::Normal) {
             setCurrentState(State::Hovered);
         }
+
+        return this;
     }
     else {
         // Else, the mouse isn't in our extent. If we're hovered, unhover.
         if (currentState == State::Hovered) {
             setCurrentState(State::Normal);
         }
+
+        return nullptr;
     }
 }
 

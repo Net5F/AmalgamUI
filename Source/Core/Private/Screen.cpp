@@ -4,13 +4,14 @@
 namespace AUI
 {
 Screen::Screen(const std::string& inDebugName)
-: debugName{inDebugName}
+: lastHoveredWidget{nullptr}
+, lastClickedWidget{nullptr}
+, debugName{inDebugName}
 {
 }
 
 bool Screen::handleOSEvent(SDL_Event& event)
 {
-    bool eventHandled{false};
     for (auto it = children.rbegin(); it != children.rend(); ++it) {
         // If the child isn't visible, skip it.
         Widget& child{it->get()};
@@ -18,13 +19,56 @@ bool Screen::handleOSEvent(SDL_Event& event)
             continue;
         }
 
-        // Call the child's handler and track if the event was handled.
-        if (child.handleOSEvent(event)) {
-            eventHandled = true;
+        // If this child consumed this event, update our tracking and return
+        // true.
+        Widget* consumer{child.handleOSEvent(event)};
+        if (consumer != nullptr) {
+            if (event.type == SDL_MOUSEMOTION) {
+                // If a new widget was hovered, send the MouseMove to the last
+                // hovered widget so it can unhover itself.
+                if ((lastHoveredWidget != nullptr)
+                    && (consumer != lastHoveredWidget)) {
+                    lastHoveredWidget->handleOSEvent(event);
+                }
+
+                // Track the hovered widget.
+                lastHoveredWidget = consumer;
+            }
+            else if (event.type == SDL_MOUSEBUTTONDOWN) {
+                // If a new widget was clicked, send the MouseDown to the last
+                // clicked widget so it can deselect itself.
+                if ((lastClickedWidget != nullptr)
+                    && (consumer != lastClickedWidget)) {
+                    lastClickedWidget->handleOSEvent(event);
+                }
+
+                // Track the clicked widget.
+                lastClickedWidget = consumer;
+            }
+            else if (event.type == SDL_MOUSEBUTTONUP) {
+                // If the mouse wasn't released over our last clicked widget,
+                // send it the MouseUp event so it can resolve its state.
+                if (consumer != lastClickedWidget) {
+                    lastClickedWidget->handleOSEvent(event);
+                }
+            }
+
+            return true;
         }
     }
 
-    return eventHandled;
+    // If the mouse moved outside of the hovered widget, clear it.
+    if ((event.type == SDL_MOUSEMOTION)
+        && (lastHoveredWidget != nullptr)) {
+        lastHoveredWidget = nullptr;
+    }
+    // If the mouse clicked outside of the clicked widget, clear it.
+    else if ((event.type == SDL_MOUSEBUTTONDOWN)
+        && (lastClickedWidget != nullptr)) {
+        lastClickedWidget = nullptr;
+    }
+
+    return false;
 }
 
 void Screen::tick(double timestepS)

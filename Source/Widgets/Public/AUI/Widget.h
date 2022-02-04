@@ -67,45 +67,52 @@ public:
      * If none of our children handled the event, attempts to handle it
      * ourselves.
      *
-     * @return true if the event was consumed, else false.
+     * @return nullptr if the widget wasn't consumed, else returns a pointer
+     *         to the widget that consumed the event.
      */
-    virtual bool handleOSEvent(SDL_Event& event);
+    virtual Widget* handleOSEvent(SDL_Event& event);
 
     /**
      * Called when a SDL_MOUSEBUTTONDOWN event occurs.
-     * @return true if the event was consumed, else false.
+     * @return nullptr if the widget wasn't consumed, else returns a pointer
+     *         to the widget that consumed the event.
      */
-    virtual bool onMouseButtonDown(SDL_MouseButtonEvent& event);
+    virtual Widget* onMouseButtonDown(SDL_MouseButtonEvent& event);
 
     /**
      * Called when a SDL_MOUSEBUTTONUP event occurs.
-     * @return true if the event was consumed, else false.
+     * @return nullptr if the widget wasn't consumed, else returns a pointer
+     *         to the widget that consumed the event.
      */
-    virtual bool onMouseButtonUp(SDL_MouseButtonEvent& event);
+    virtual Widget* onMouseButtonUp(SDL_MouseButtonEvent& event);
 
     /**
      * Called when a SDL_MOUSEWHEEL event occurs.
-     * @return true if the event was consumed, else false.
+     * @return nullptr if the widget wasn't consumed, else returns a pointer
+     *         to the widget that consumed the event.
      */
-    virtual bool onMouseWheel(SDL_MouseWheelEvent& event);
+    virtual Widget* onMouseWheel(SDL_MouseWheelEvent& event);
 
     /**
      * Called when a SDL_MOUSEMOTION event occurs.
-     * @return true if the event was consumed, else false.
+     * @return nullptr if the widget wasn't consumed, else returns a pointer
+     *         to the widget that consumed the event.
      */
-    virtual void onMouseMove(SDL_MouseMotionEvent& event);
+    virtual Widget* onMouseMove(SDL_MouseMotionEvent& event);
 
     /**
      * Called when a SDL_KEYDOWN event occurs.
-     * @return true if the event was consumed, else false.
+     * @return nullptr if the widget wasn't consumed, else returns a pointer
+     *         to the widget that consumed the event.
      */
-    virtual bool onKeyDown(SDL_KeyboardEvent& event);
+    virtual Widget* onKeyDown(SDL_KeyboardEvent& event);
 
     /**
      * Called when a SDL_TEXTINPUT event occurs.
-     * @return true if the event was consumed, else false.
+     * @return nullptr if the widget wasn't consumed, else returns a pointer
+     *         to the widget that consumed the event.
      */
-    virtual bool onTextInput(SDL_TextInputEvent& event);
+    virtual Widget* onTextInput(SDL_TextInputEvent& event);
 
     /**
      * Called when the current screen's tick() is called.

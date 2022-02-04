@@ -56,7 +56,7 @@ public:
     //-------------------------------------------------------------------------
     // Base class overrides
     //-------------------------------------------------------------------------
-    bool onMouseButtonDown(SDL_MouseButtonEvent& event) override;
+    Widget* onMouseButtonDown(SDL_MouseButtonEvent& event) override;
 
 private:
     std::function<void(void)> onChecked;

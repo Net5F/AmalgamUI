@@ -56,6 +56,12 @@ protected:
     std::vector<std::reference_wrapper<Widget>> children;
 
 private:
+    /** The last widget that consumed a MouseMove event. */
+    Widget* lastHoveredWidget;
+    /** The last widget that consumed a MouseButtonDown event.
+        Cleared when the corresponding MouseButtonUp occurs. */
+    Widget* lastClickedWidget;
+
     /** The user-assigned name associated with this screen.
         Only useful for debugging. For performance reasons, avoid using it
         in real logic. */

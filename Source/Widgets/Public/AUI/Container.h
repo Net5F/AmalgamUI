@@ -71,7 +71,7 @@ public:
     //-------------------------------------------------------------------------
     // Base class overrides
     //-------------------------------------------------------------------------
-    bool handleOSEvent(SDL_Event& event) override;
+    Widget* handleOSEvent(SDL_Event& event) override;
 
     void render() override;
 

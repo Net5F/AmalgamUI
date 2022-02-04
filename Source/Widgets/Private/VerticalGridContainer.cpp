@@ -35,7 +35,7 @@ void VerticalGridContainer::setCellHeight(unsigned int inLogicalCellHeight)
     scaledCellHeight = ScalingHelpers::logicalToActual(logicalCellHeight);
 }
 
-bool VerticalGridContainer::onMouseWheel(SDL_MouseWheelEvent& event)
+Widget* VerticalGridContainer::onMouseWheel(SDL_MouseWheelEvent& event)
 {
     // Get the mouse position since the event doesn't report it.
     SDL_Point mousePosition{};
@@ -52,10 +52,10 @@ bool VerticalGridContainer::onMouseWheel(SDL_MouseWheelEvent& event)
             scrollElements(false);
         }
 
-        return true;
+        return this;
     }
 
-    return false;
+    return nullptr;
 }
 
 void VerticalGridContainer::updateLayout(const SDL_Rect& parentExtent)

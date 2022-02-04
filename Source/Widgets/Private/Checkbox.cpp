@@ -55,7 +55,7 @@ void Checkbox::setOnUnchecked(std::function<void(void)> inOnUnchecked)
     onUnchecked = std::move(inOnUnchecked);
 }
 
-bool Checkbox::onMouseButtonDown(SDL_MouseButtonEvent& event)
+Widget* Checkbox::onMouseButtonDown(SDL_MouseButtonEvent& event)
 {
     // If the mouse press was inside our extent.
     if (containsPoint({event.x, event.y})) {
@@ -87,11 +87,11 @@ bool Checkbox::onMouseButtonDown(SDL_MouseButtonEvent& event)
             onUnchecked();
         }
 
-        return true;
+        return this;
     }
     else {
         // Else, the mouse press missed us.
-        return false;
+        return nullptr;
     }
 }
 

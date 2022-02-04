@@ -89,8 +89,8 @@ void TextInput::setText(std::string_view inText)
     // Set the text member's text.
     text.setText(inText);
 
-    // Move the cursor to the front (seems to be the most expected behavior.)
-    cursorIndex = 0;
+    // Move the cursor to the back (seems to be the most expected behavior.)
+    cursorIndex = text.asString().length();
 
     // Refresh the text position to account for the change.
     refreshTextScrollOffset();
@@ -111,21 +111,21 @@ void TextInput::setOnTextCommitted(std::function<void(void)> inOnTextCommitted)
     onTextCommitted = std::move(inOnTextCommitted);
 }
 
-bool TextInput::onMouseButtonDown(SDL_MouseButtonEvent& event)
+Widget* TextInput::onMouseButtonDown(SDL_MouseButtonEvent& event)
 {
     // If we're disabled, ignore the event.
     if (currentState == State::Disabled) {
-        return false;
+        return nullptr;
     }
 
-    // If the mouse press was inside our extent, assume focus.
+    // If the mouse press was inside our extent.
     if (containsPoint({event.x, event.y})) {
         // If we don't have focus, assume focus.
         if (currentState != State::Focused) {
             assumeFocus();
         }
 
-        return true;
+        return this;
     }
     else {
         // Else the click was outside our extent. If we have focus, remove it.
@@ -133,15 +133,15 @@ bool TextInput::onMouseButtonDown(SDL_MouseButtonEvent& event)
             removeFocus();
         }
 
-        return false;
+        return nullptr;
     }
 }
 
-void TextInput::onMouseMove(SDL_MouseMotionEvent& event)
+Widget* TextInput::onMouseMove(SDL_MouseMotionEvent& event)
 {
     // If we're disabled, ignore the event.
     if (currentState == State::Disabled) {
-        return;
+        return nullptr;
     }
 
     // If the mouse is inside our extent.
@@ -150,20 +150,24 @@ void TextInput::onMouseMove(SDL_MouseMotionEvent& event)
         if (currentState == State::Normal) {
             setCurrentState(State::Hovered);
         }
+
+        return this;
     }
     else {
         // Else, the mouse isn't in our extent. If we're hovered, unhover.
         if (currentState == State::Hovered) {
             setCurrentState(State::Normal);
         }
+
+        return nullptr;
     }
 }
 
-bool TextInput::onKeyDown(SDL_KeyboardEvent& event)
+Widget* TextInput::onKeyDown(SDL_KeyboardEvent& event)
 {
     // If we don't have focus, ignore the event.
     if (currentState != State::Focused) {
-        return false;
+        return nullptr;
     }
 
     switch (event.keysym.sym) {
@@ -199,14 +203,14 @@ bool TextInput::onKeyDown(SDL_KeyboardEvent& event)
         }
     }
 
-    return false;
+    return nullptr;
 }
 
-bool TextInput::onTextInput(SDL_TextInputEvent& event)
+Widget* TextInput::onTextInput(SDL_TextInputEvent& event)
 {
     // If we don't have focus, ignore the event.
     if (currentState != State::Focused) {
-        return false;
+        return nullptr;
     }
 
     // Append the user's new character to the end of the text.
@@ -223,7 +227,7 @@ bool TextInput::onTextInput(SDL_TextInputEvent& event)
     cursorIsVisible = true;
     accumulatedBlinkTime = 0;
 
-    return true;
+    return this;
 }
 
 void TextInput::onTick(double timestepS)
@@ -272,7 +276,7 @@ bool TextInput::refreshScaling()
     return false;
 }
 
-bool TextInput::handleBackspaceEvent()
+Widget* TextInput::handleBackspaceEvent()
 {
     // If there's any text, delete the last character.
     if (text.eraseCharacter(cursorIndex - 1)) {
@@ -292,13 +296,13 @@ bool TextInput::handleBackspaceEvent()
             onTextChanged();
         }
 
-        return true;
+        return this;
     }
 
-    return false;
+    return nullptr;
 }
 
-bool TextInput::handleDeleteEvent()
+Widget* TextInput::handleDeleteEvent()
 {
     // If there's a character after the cursor, delete it.
     if (text.eraseCharacter(cursorIndex)) {
@@ -315,13 +319,13 @@ bool TextInput::handleDeleteEvent()
             onTextChanged();
         }
 
-        return true;
+        return this;
     }
 
-    return false;
+    return nullptr;
 }
 
-bool TextInput::handleCopyEvent()
+Widget* TextInput::handleCopyEvent()
 {
     // If this was a CTRL+c copy command.
     if (SDL_GetModState() & KMOD_CTRL) {
@@ -332,13 +336,13 @@ bool TextInput::handleCopyEvent()
             SDL_SetClipboardText(textString.c_str());
         }
 
-        return true;
+        return this;
     }
 
-    return false;
+    return nullptr;
 }
 
-bool TextInput::handleCutEvent()
+Widget* TextInput::handleCutEvent()
 {
     // If this was a CTRL+x cut command
     if (SDL_GetModState() & KMOD_CTRL) {
@@ -364,13 +368,13 @@ bool TextInput::handleCutEvent()
             }
         }
 
-        return true;
+        return this;
     }
 
-    return false;
+    return nullptr;
 }
 
-bool TextInput::handlePasteEvent()
+Widget* TextInput::handlePasteEvent()
 {
     // If this was a CTRL+v paste command.
     if (SDL_GetModState() & KMOD_CTRL) {
@@ -395,13 +399,13 @@ bool TextInput::handlePasteEvent()
             }
         }
 
-        return true;
+        return this;
     }
 
-    return false;
+    return nullptr;
 }
 
-bool TextInput::handleLeftEvent()
+Widget* TextInput::handleLeftEvent()
 {
     // If we can, move the cursor left.
     bool movedCursor{false};
@@ -418,10 +422,10 @@ bool TextInput::handleLeftEvent()
     cursorIsVisible = true;
     accumulatedBlinkTime = 0;
 
-    return movedCursor;
+    return (movedCursor ? this : nullptr);
 }
 
-bool TextInput::handleRightEvent()
+Widget* TextInput::handleRightEvent()
 {
     // If we can, move the cursor right.
     bool movedCursor{false};
@@ -438,10 +442,10 @@ bool TextInput::handleRightEvent()
     cursorIsVisible = true;
     accumulatedBlinkTime = 0;
 
-    return movedCursor;
+    return (movedCursor ? this : nullptr);
 }
 
-bool TextInput::handleHomeEvent()
+Widget* TextInput::handleHomeEvent()
 {
     // Move the cursor to the front.
     cursorIndex = 0;
@@ -449,10 +453,10 @@ bool TextInput::handleHomeEvent()
     // Refresh the text position to account for the change.
     refreshTextScrollOffset();
 
-    return true;
+    return this;
 }
 
-bool TextInput::handleEndEvent()
+Widget* TextInput::handleEndEvent()
 {
     // Move the cursor to the end.
     cursorIndex = text.asString().length();
@@ -460,17 +464,17 @@ bool TextInput::handleEndEvent()
     // Refresh the text position to account for the change.
     refreshTextScrollOffset();
 
-    return true;
+    return this;
 }
 
-bool TextInput::handleEnterEvent()
+Widget* TextInput::handleEnterEvent()
 {
     // If we have focus, remove it.
     if (currentState == State::Focused) {
         removeFocus();
     }
 
-    return true;
+    return this;
 }
 
 void TextInput::setCurrentState(State inState)
@@ -510,8 +514,11 @@ void TextInput::assumeFocus()
     setCurrentState(State::Focused);
     focusedInputCount++;
 
-    // Begin generating text input events.
-    SDL_StartTextInput();
+    // If there wasn't already a focused input, begin generating text input
+    // events.
+    if (focusedInputCount == 1) {
+        SDL_StartTextInput();
+    }
 
     // Reset the text cursor's state.
     // Show the text cursor immediately so the user can see where they're at.

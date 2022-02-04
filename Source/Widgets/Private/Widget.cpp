@@ -91,7 +91,7 @@ bool Widget::getIsVisible()
     return isVisible;
 }
 
-bool Widget::handleOSEvent(SDL_Event& event)
+Widget* Widget::handleOSEvent(SDL_Event& event)
 {
     // Propagate the event through our visible children.
     for (auto it = children.rbegin(); it != children.rend(); ++it) {
@@ -102,8 +102,9 @@ bool Widget::handleOSEvent(SDL_Event& event)
         }
 
         // If the child consumed the event, return early.
-        if (child.handleOSEvent(event)) {
-            return true;
+        Widget* consumer{child.handleOSEvent(event)};
+        if (consumer != nullptr) {
+            return consumer;
         }
     }
 
@@ -116,11 +117,7 @@ bool Widget::handleOSEvent(SDL_Event& event)
             return onMouseButtonUp(event.button);
         }
         case SDL_MOUSEMOTION: {
-            // We never block mouse motion events from propagating since
-            // the sim might care about the movement, even if the mouse is
-            // on top of the UI.
-            onMouseMove(event.motion);
-            return false;
+            return onMouseMove(event.motion);
         }
         case SDL_MOUSEWHEEL: {
             return onMouseWheel(event.wheel);
@@ -135,42 +132,43 @@ bool Widget::handleOSEvent(SDL_Event& event)
             break;
     }
 
-    return false;
+    return nullptr;
 }
 
-bool Widget::onMouseButtonDown(SDL_MouseButtonEvent& event)
+Widget* Widget::onMouseButtonDown(SDL_MouseButtonEvent& event)
 {
     ignore(event);
-    return false;
+    return nullptr;
 }
 
-bool Widget::onMouseButtonUp(SDL_MouseButtonEvent& event)
+Widget* Widget::onMouseButtonUp(SDL_MouseButtonEvent& event)
 {
     ignore(event);
-    return false;
+    return nullptr;
 }
 
-bool Widget::onMouseWheel(SDL_MouseWheelEvent& event)
+Widget* Widget::onMouseWheel(SDL_MouseWheelEvent& event)
 {
     ignore(event);
-    return false;
+    return nullptr;
 }
 
-void Widget::onMouseMove(SDL_MouseMotionEvent& event)
+Widget* Widget::onMouseMove(SDL_MouseMotionEvent& event)
 {
     ignore(event);
+    return nullptr;
 }
 
-bool Widget::onKeyDown(SDL_KeyboardEvent& event)
+Widget* Widget::onKeyDown(SDL_KeyboardEvent& event)
 {
     ignore(event);
-    return false;
+    return nullptr;
 }
 
-bool Widget::onTextInput(SDL_TextInputEvent& event)
+Widget* Widget::onTextInput(SDL_TextInputEvent& event)
 {
     ignore(event);
-    return false;
+    return nullptr;
 }
 
 void Widget::onTick(double timestepS)

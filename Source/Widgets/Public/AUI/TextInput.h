@@ -103,13 +103,13 @@ public:
     //-------------------------------------------------------------------------
     // Base class overrides
     //-------------------------------------------------------------------------
-    bool onMouseButtonDown(SDL_MouseButtonEvent& event) override;
+    Widget* onMouseButtonDown(SDL_MouseButtonEvent& event) override;
 
-    void onMouseMove(SDL_MouseMotionEvent& event) override;
+    Widget* onMouseMove(SDL_MouseMotionEvent& event) override;
 
-    bool onKeyDown(SDL_KeyboardEvent& event) override;
+    Widget* onKeyDown(SDL_KeyboardEvent& event) override;
 
-    bool onTextInput(SDL_TextInputEvent& event) override;
+    Widget* onTextInput(SDL_TextInputEvent& event) override;
 
     void onTick(double timestepS) override;
 
@@ -134,16 +134,16 @@ private:
     // Private members
     //-------------------------------------------------------------------------
     // Event handlers for key press events.
-    bool handleBackspaceEvent();
-    bool handleDeleteEvent();
-    bool handleCopyEvent();
-    bool handleCutEvent();
-    bool handlePasteEvent();
-    bool handleLeftEvent();
-    bool handleRightEvent();
-    bool handleHomeEvent();
-    bool handleEndEvent();
-    bool handleEnterEvent();
+    Widget* handleBackspaceEvent();
+    Widget* handleDeleteEvent();
+    Widget* handleCopyEvent();
+    Widget* handleCutEvent();
+    Widget* handlePasteEvent();
+    Widget* handleLeftEvent();
+    Widget* handleRightEvent();
+    Widget* handleHomeEvent();
+    Widget* handleEndEvent();
+    Widget* handleEnterEvent();
 
     /**
      * Sets currentState and updates child widget visibility.

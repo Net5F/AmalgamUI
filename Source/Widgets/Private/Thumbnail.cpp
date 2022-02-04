@@ -206,11 +206,11 @@ void Thumbnail::setOnDeactivated(
     onDeactivated = std::move(inOnDeactivated);
 }
 
-bool Thumbnail::onMouseButtonDown(SDL_MouseButtonEvent& event)
+Widget* Thumbnail::onMouseButtonDown(SDL_MouseButtonEvent& event)
 {
     // If we're already selected and active, do nothing.
     if (isSelected && isActive) {
-        return false;
+        return nullptr;
     }
 
     // If the click event was inside our extent.
@@ -234,15 +234,15 @@ bool Thumbnail::onMouseButtonDown(SDL_MouseButtonEvent& event)
         }
 
         // The click event was inside our widget, so flag it as handled.
-        return true;
+        return this;
     }
     else {
         // Else, the mouse press missed us.
-        return false;
+        return nullptr;
     }
 }
 
-bool Thumbnail::onMouseWheel(SDL_MouseWheelEvent& event)
+Widget* Thumbnail::onMouseWheel(SDL_MouseWheelEvent& event)
 {
     // We don't care about the scroll itself, just about updating our
     // hovered state since we may have moved.
@@ -256,10 +256,10 @@ bool Thumbnail::onMouseWheel(SDL_MouseWheelEvent& event)
     return updateHovered(mousePosition);
 }
 
-void Thumbnail::onMouseMove(SDL_MouseMotionEvent& event)
+Widget* Thumbnail::onMouseMove(SDL_MouseMotionEvent& event)
 {
     // Update our hovered state if necessary.
-    updateHovered({event.x, event.y});
+    return updateHovered({event.x, event.y});
 }
 
 void Thumbnail::setIsHovered(bool inIsHovered)
@@ -280,11 +280,11 @@ void Thumbnail::setIsActive(bool inIsActive)
     activeImage.setIsVisible(isActive);
 }
 
-bool Thumbnail::updateHovered(SDL_Point actualMousePoint)
+Widget* Thumbnail::updateHovered(SDL_Point actualMousePoint)
 {
     // If we're active, don't change to hovered.
     if (isActive) {
-        return false;
+        return nullptr;
     }
 
     // If the mouse is inside our extent.
@@ -292,17 +292,18 @@ bool Thumbnail::updateHovered(SDL_Point actualMousePoint)
         // If we're not hovered, become hovered.
         if (!isHovered) {
             setIsHovered(true);
-            return true;
         }
+
+        return this;
     }
     else {
         // Else, the mouse isn't in our extent. If we're hovered, unhover.
         if (isHovered) {
             setIsHovered(false);
         }
-    }
 
-    return false;
+        return nullptr;
+    }
 }
 
 } // namespace AUI

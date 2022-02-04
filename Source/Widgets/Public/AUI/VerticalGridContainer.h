@@ -39,7 +39,7 @@ public:
     //-------------------------------------------------------------------------
     // Base class overrides
     //-------------------------------------------------------------------------
-    bool onMouseWheel(SDL_MouseWheelEvent& event) override;
+    Widget* onMouseWheel(SDL_MouseWheelEvent& event) override;
 
     void updateLayout(const SDL_Rect& parentExtent) override;
 

@@ -34,6 +34,17 @@ public:
     /** Left-side cancel button. By default, closes the dialog without
         performing any action. */
     AUI::Button cancelButton;
+
+    //-------------------------------------------------------------------------
+    // Base class overrides
+    //-------------------------------------------------------------------------
+    // This dialog blocks all events.
+    Widget* onMouseButtonDown(SDL_MouseButtonEvent& event) override;
+    Widget* onMouseButtonUp(SDL_MouseButtonEvent& event) override;
+    Widget* onMouseWheel(SDL_MouseWheelEvent& event) override;
+    Widget* onMouseMove(SDL_MouseMotionEvent& event) override;
+    Widget* onKeyDown(SDL_KeyboardEvent& event) override;
+    Widget* onTextInput(SDL_TextInputEvent& event) override;
 };
 
 } // namespace AUI

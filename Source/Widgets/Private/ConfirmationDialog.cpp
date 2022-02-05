@@ -1,6 +1,7 @@
 #include "AUI/ConfirmationDialog.h"
 #include "AUI/Screen.h"
 #include "AUI/Core.h"
+#include "AUI/Internal/Ignore.h"
 
 namespace AUI
 {
@@ -24,6 +25,42 @@ ConfirmationDialog::ConfirmationDialog(Screen& inScreen,
         // Remove the dialog.
         setIsVisible(false);
     });
+}
+
+Widget* ConfirmationDialog::onMouseButtonDown(SDL_MouseButtonEvent& event)
+{
+    ignore(event);
+    return this;
+}
+
+Widget* ConfirmationDialog::onMouseButtonUp(SDL_MouseButtonEvent& event)
+{
+    ignore(event);
+    return this;
+}
+
+Widget* ConfirmationDialog::onMouseWheel(SDL_MouseWheelEvent& event)
+{
+    ignore(event);
+    return this;
+}
+
+Widget* ConfirmationDialog::onMouseMove(SDL_MouseMotionEvent& event)
+{
+    ignore(event);
+    return this;
+}
+
+Widget* ConfirmationDialog::onKeyDown(SDL_KeyboardEvent& event)
+{
+    ignore(event);
+    return this;
+}
+
+Widget* ConfirmationDialog::onTextInput(SDL_TextInputEvent& event)
+{
+    ignore(event);
+    return this;
 }
 
 } // namespace AUI

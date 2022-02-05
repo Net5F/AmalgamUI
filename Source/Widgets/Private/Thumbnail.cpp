@@ -238,6 +238,12 @@ Widget* Thumbnail::onMouseButtonDown(SDL_MouseButtonEvent& event)
     }
     else {
         // Else, the mouse press missed us.
+
+        // If we were selected, clear the selection.
+        if (isSelected) {
+            deselect();
+        }
+
         return nullptr;
     }
 }

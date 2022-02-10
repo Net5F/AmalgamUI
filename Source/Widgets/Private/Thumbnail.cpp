@@ -238,28 +238,14 @@ Widget* Thumbnail::onMouseButtonDown(SDL_MouseButtonEvent& event)
     }
     else {
         // Else, the mouse press missed us.
-
-        // If we were selected, clear the selection.
-        if (isSelected) {
-            deselect();
-        }
-
+        // Note: It would make sense to deselect ourselves here, but it seems
+        //       like every use case for "select a thumbnail" prefers leaving
+        //       the thumbnail selected and controlling it from the outside.
+        //       E.g. for both build mode and multi-select scenarios, we want
+        //       the thumbnail to stay selected until the parent tells it to
+        //       deselect.
         return nullptr;
     }
-}
-
-Widget* Thumbnail::onMouseWheel(SDL_MouseWheelEvent& event)
-{
-    // We don't care about the scroll itself, just about updating our
-    // hovered state since we may have moved.
-    ignore(event);
-
-    // Get the mouse position since the event doesn't report it.
-    SDL_Point mousePosition{};
-    SDL_GetMouseState(&(mousePosition.x), &(mousePosition.y));
-
-    // Update our hovered state if necessary.
-    return updateHovered(mousePosition);
 }
 
 Widget* Thumbnail::onMouseMove(SDL_MouseMotionEvent& event)

@@ -1,55 +1,57 @@
 #include "AUI/Screen.h"
-#include <algorithm>
+#include "AUI/Internal/Log.h"
 
 namespace AUI
 {
 Screen::Screen(const std::string& inDebugName)
-: lastHoveredWidget{nullptr}
-, lastClickedWidget{nullptr}
+: lastHoveredWindow{nullptr}
+, lastClickedWindow{nullptr}
 , debugName{inDebugName}
 {
 }
 
 bool Screen::handleOSEvent(SDL_Event& event)
 {
-    for (auto it = children.rbegin(); it != children.rend(); ++it) {
-        // If the child isn't visible, skip it.
-        Widget& child{it->get()};
-        if (!(child.getIsVisible())) {
+    // Propagate the event through our visible windows.
+    for (auto it = windows.rbegin(); it != windows.rend(); ++it) {
+        // If the window isn't visible, skip it.
+        Window& window{it->get()};
+        if (!(window.getIsVisible())) {
             continue;
         }
 
-        // If this child consumed this event, update our tracking and return
+        // If the window consumed this event, update our tracking and return
         // true.
-        Widget* consumer{child.handleOSEvent(event)};
+        Widget* consumer{window.handleOSEvent(event)};
         if (consumer != nullptr) {
             if (event.type == SDL_MOUSEMOTION) {
-                // If a new widget was hovered, send the MouseMove to the last
-                // hovered widget so it can unhover itself.
-                if ((lastHoveredWidget != nullptr)
-                    && (consumer != lastHoveredWidget)) {
-                    lastHoveredWidget->handleOSEvent(event);
+                // If a new window was hovered, send the MouseMove to the last
+                // hovered window so it can unhover itself.
+                if ((lastHoveredWindow != nullptr)
+                    && (&window != lastHoveredWindow)) {
+                    lastHoveredWindow->handleOSEvent(event);
                 }
 
-                // Track the hovered widget.
-                lastHoveredWidget = consumer;
+                // Track the hovered window.
+                lastHoveredWindow = &window;
             }
             else if (event.type == SDL_MOUSEBUTTONDOWN) {
-                // If a new widget was clicked, send the MouseDown to the last
-                // clicked widget so it can deselect itself.
-                if ((lastClickedWidget != nullptr)
-                    && (consumer != lastClickedWidget)) {
-                    lastClickedWidget->handleOSEvent(event);
+                // If a new window was clicked, send the MouseDown to the last
+                // clicked window so it can deselect itself.
+                if ((lastClickedWindow != nullptr)
+                    && (&window != lastClickedWindow)) {
+                    lastClickedWindow->handleOSEvent(event);
                 }
 
-                // Track the clicked widget.
-                lastClickedWidget = consumer;
+                // Track the clicked window.
+                lastClickedWindow = &window;
             }
             else if (event.type == SDL_MOUSEBUTTONUP) {
-                // If the mouse wasn't released over our last clicked widget,
+                // If the mouse wasn't released over our last clicked window,
                 // send it the MouseUp event so it can resolve its state.
-                if (consumer != lastClickedWidget) {
-                    lastClickedWidget->handleOSEvent(event);
+                if ((lastClickedWindow != nullptr)
+                    && (&window != lastClickedWindow)) {
+                    lastClickedWindow->handleOSEvent(event);
                 }
             }
 
@@ -57,15 +59,19 @@ bool Screen::handleOSEvent(SDL_Event& event)
         }
     }
 
-    // If the mouse moved outside of the hovered widget, clear it.
+    // If the mouse moved outside of a hovered window, alert it and clear our
+    // tracking.
     if ((event.type == SDL_MOUSEMOTION)
-        && (lastHoveredWidget != nullptr)) {
-        lastHoveredWidget = nullptr;
+        && (lastHoveredWindow != nullptr)) {
+        lastHoveredWindow->handleOSEvent(event);
+        lastHoveredWindow = nullptr;
     }
-    // If the mouse clicked outside of the clicked widget, clear it.
+    // If the mouse clicked outside of a clicked window, alert it and clear our
+    // tracking.
     else if ((event.type == SDL_MOUSEBUTTONDOWN)
-        && (lastClickedWidget != nullptr)) {
-        lastClickedWidget = nullptr;
+        && (lastClickedWindow != nullptr)) {
+        lastClickedWindow->handleOSEvent(event);
+        lastClickedWindow = nullptr;
     }
 
     return false;
@@ -73,30 +79,32 @@ bool Screen::handleOSEvent(SDL_Event& event)
 
 void Screen::tick(double timestepS)
 {
-    // Call every widget's tick.
-    for (Widget& child : children) {
-        // If the child isn't visible, skip it.
-        if (!(child.getIsVisible())) {
+    // Call every window's tick.
+    for (Window& window : windows) {
+        // If the window isn't visible, skip it.
+        if (!(window.getIsVisible())) {
             continue;
         }
 
-        child.onTick(timestepS);
+        window.tick(timestepS);
     }
 }
 
 void Screen::render()
 {
-    // Update our children's layouts.
-    for (Widget& child : children)
+    // Update our visible window's layouts.
+    for (Window& window : windows)
     {
-        child.updateLayout({0, 0, 0, 0});
+        if (window.getIsVisible()) {
+            window.updateLayout({0, 0, 0, 0});
+        }
     }
 
-    // Render our children.
-    for (Widget& child : children)
+    // Render our visible windows.
+    for (Window& window : windows)
     {
-        if (child.getIsVisible()) {
-            child.render();
+        if (window.getIsVisible()) {
+            window.render();
         }
     }
 }

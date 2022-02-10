@@ -6,6 +6,9 @@ namespace AUI
 {
 /**
  * Lays out widgets in a grid that grows vertically.
+ *
+ * TODO: After scrolling the list, our elements still have hover states based
+ *       on their pre-scroll positions. We need to find a way to update them.
  */
 class VerticalGridContainer : public Container
 {

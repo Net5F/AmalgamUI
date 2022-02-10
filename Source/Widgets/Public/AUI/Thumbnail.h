@@ -166,8 +166,6 @@ public:
     //-------------------------------------------------------------------------
     Widget* onMouseButtonDown(SDL_MouseButtonEvent& event) override;
 
-    Widget* onMouseWheel(SDL_MouseWheelEvent& event) override;
-
     Widget* onMouseMove(SDL_MouseMotionEvent& event) override;
 
 private:

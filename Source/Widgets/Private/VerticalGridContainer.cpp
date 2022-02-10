@@ -122,11 +122,11 @@ bool VerticalGridContainer::refreshScaling()
 void VerticalGridContainer::scrollElements(bool scrollUp)
 {
     // Calc how many rows are currently present.
-    int currentRows
-        = std::ceil(elements.size() / static_cast<float>(numColumns));
+    int currentRows{static_cast<int>(
+        std::ceil(elements.size() / static_cast<float>(numColumns)))};
 
     // Calc how many rows can fit onscreen at once.
-    int maxVisibleRows = logicalExtent.h / logicalCellHeight;
+    int maxVisibleRows{logicalExtent.h / logicalCellHeight};
 
     // If we're being asked to scroll up and we've scrolled down previously.
     if (scrollUp && (rowScroll > 0)) {
@@ -136,13 +136,14 @@ void VerticalGridContainer::scrollElements(bool scrollUp)
     else if (!scrollUp) {
         // Else if we've being asked to scroll down, calculate if there are
         // any rows below to scroll to.
-        int rowsBelow = currentRows - maxVisibleRows - rowScroll;
+        int rowsBelow{currentRows - maxVisibleRows - static_cast<int>(rowScroll)};
 
         // If there are any elements offscreen below, scroll down 1 row.
         if (rowsBelow > 0) {
             rowScroll++;
         }
     }
+
 }
 
 } // namespace AUI

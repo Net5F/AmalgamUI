@@ -187,10 +187,12 @@ void Widget::updateLayout(const SDL_Rect& parentExtent)
     renderExtent.y += parentExtent.y;
     // TODO: Should we clip here to fit parentExtent?
 
-    // Update our children's layout.
+    // Update our visible children's layout.
     for (Widget& child : children)
     {
-        child.updateLayout(renderExtent);
+        if (child.getIsVisible()) {
+            child.updateLayout(renderExtent);
+        }
     }
 }
 

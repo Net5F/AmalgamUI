@@ -15,10 +15,18 @@ class Screen;
 /**
  * The base class for all UI widgets.
  *
- * A widget's initialization follows the pattern:
+ * Widgets are the third layer of UI construct used by this library. Screens
+ * own a stack of Windows, Windows own a list of Widgets (and Widgets can
+ * own child Widgets).
+ *
+ * Users can initialize a widget by following the pattern:
  *   - In the constructor, pass through the data necessary for Widget's
  *     constructor.
  *   - Use setters for all other data.
+ *
+ * Note: Widgets have no concept of reordering their children based on events.
+ *       For example, if you want a widget to come to the front of the screen
+ *       when it's clicked, you should instead put it in a separate Window.
  */
 class Widget
 {

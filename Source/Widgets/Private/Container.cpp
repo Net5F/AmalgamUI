@@ -76,6 +76,7 @@ Widget* Container::handleOSEvent(SDL_Event& event)
         // If the element isn't visible, skip it.
         std::unique_ptr<Widget>& element{*it};
         if (!(element->getIsVisible())) {
+            continue;
         }
 
         // If the element consumed the event, return early.

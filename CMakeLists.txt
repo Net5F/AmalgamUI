@@ -1,7 +1,23 @@
 cmake_minimum_required(VERSION 3.14)
+
 project(AmalgamUI)
 
+###############################################################################
+# Build Options
+###############################################################################
+option(AUI_BUILD_TESTS "Build AUI unit tests." OFF)
+###############################################################################
+
 message(STATUS "Configuring AmalgamUI")
+
+# Tell CMake where the CMake folder is, since our source dir isn't the base dir.
+set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${PROJECT_SOURCE_DIR}/CMake/")
+
+# Find SDL2 and associated libs.
+find_package(SDL2 REQUIRED)
+find_package(SDL2_image REQUIRED)
+find_package(SDL2_ttf REQUIRED)
+find_package(SDL2_gfx REQUIRED)
 
 # Add our library target
 add_library(AmalgamUI STATIC "")
@@ -29,3 +45,8 @@ target_compile_options(AmalgamUI PUBLIC -Wall -Wextra)
 
 # Add sources to our library target.
 add_subdirectory(Source)
+
+# Optionally build our unit tests.
+if (AUI_BUILD_TESTS)
+    add_subdirectory(Tests)
+endif()

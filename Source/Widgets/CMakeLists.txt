@@ -10,8 +10,6 @@ target_sources(AmalgamUI
         Private/Thumbnail.cpp
         Private/TiledImage.cpp
         Private/VerticalGridContainer.cpp
-        Private/Widget.cpp
-		Private/Window.cpp
     PUBLIC
         # Note: We add the extra "AUI" directory so that consumers can include
         # files as "AUI/Xyz.h" for some extra clarity.
@@ -25,8 +23,6 @@ target_sources(AmalgamUI
         Public/AUI/Thumbnail.h
         Public/AUI/TiledImage.h
         Public/AUI/VerticalGridContainer.h
-        Public/AUI/Widget.h
-		Public/AUI/Window.h
 )
 
 target_include_directories(AmalgamUI

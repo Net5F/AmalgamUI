@@ -11,6 +11,7 @@
 namespace AUI
 {
 class Screen;
+class WidgetWeakRef;
 
 /**
  * The base class for all UI widgets.
@@ -156,6 +157,24 @@ public:
      */
     virtual void render();
 
+    /**
+     * Internal library function.
+     * Used by WidgetWeakRef to register a reference.
+     */
+    void trackRef(WidgetWeakRef* ref);
+
+    /**
+     * Internal library function.
+     * Used by WidgetWeakRef to unregister a reference.
+     */
+    void untrackRef(WidgetWeakRef* ref);
+
+    /**
+     * Internal library function.
+     * Used by tests to verify that refs are being tracked correctly.
+     */
+    std::size_t getRefCount();
+
 protected:
     Widget(Screen& inScreen, const SDL_Rect& inLogicalExtent,
               const std::string& inDebugName = "");
@@ -196,9 +215,10 @@ protected:
         such as those passed by parents. */
     SDL_Rect scaledExtent;
 
-    /** The actual screen extent of this widget after last updateLayout()
-        call. Generally equal to scaledExtent + any offsets added by parent
-        widgets. Used in rendering and hit testing for events. */
+    /** The actual screen extent of this widget after the last updateLayout()
+        call. This is the actual location that this widget will be rendered at.
+        Generally equal to scaledExtent + any offsets added by parent widgets.
+        Used in rendering and hit testing for events. */
     SDL_Rect renderExtent;
 
     /** The value of Core::actualScreenSize that was used the last time this
@@ -217,6 +237,12 @@ protected:
         This list's elements are in rendering order (rendering happens from
         front -> back, events propagate from back -> front). */
     std::vector<std::reference_wrapper<Widget>> children;
+
+    /** The weak references to this widget.
+        When this widget is destructed, it will invalidate itself in these
+        refs. When one of these refs is destructed, it will tell us to stop
+        tracking it. */
+    std::vector<WidgetWeakRef*> trackedRefs;
 };
 
 } // namespace AUI

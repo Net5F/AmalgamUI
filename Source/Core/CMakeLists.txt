@@ -3,6 +3,8 @@ target_sources(AmalgamUI
 		Private/Core.cpp
 		Private/Initializer.cpp
 		Private/Screen.cpp
+		Private/Widget.cpp
+		Private/Window.cpp
 	PUBLIC
         # Note: We add the extra "AUI" directory so that consumers can include
         # files as "AUI/Xyz.h" for some extra clarity.
@@ -10,6 +12,8 @@ target_sources(AmalgamUI
 		Public/AUI/Initializer.h
 		Public/AUI/Screen.h
 		Public/AUI/ScreenResolution.h
+		Public/AUI/Widget.h
+		Public/AUI/Window.h
 )
 
 target_include_directories(AmalgamUI

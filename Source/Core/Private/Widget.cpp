@@ -3,7 +3,11 @@
 #include "AUI/Image.h"
 #include "AUI/Core.h"
 #include "AUI/ScalingHelpers.h"
+#include "AUI/WidgetWeakRef.h"
 #include "AUI/Internal/Ignore.h"
+#include "AUI/Internal/Log.h"
+#include "AUI/Internal/Assert.h"
+#include <algorithm>
 
 namespace AUI
 {
@@ -22,6 +26,11 @@ Widget::Widget(Screen& inScreen, const SDL_Rect& inLogicalExtent,
 
 Widget::~Widget()
 {
+    for (WidgetWeakRef* ref : trackedRefs)
+    {
+        ref->invalidate();
+    }
+
     Core::decWidgetCount();
 }
 
@@ -205,6 +214,23 @@ void Widget::render()
             child.render();
         }
     }
+}
+
+void Widget::trackRef(WidgetWeakRef* ref)
+{
+    trackedRefs.push_back(ref);
+}
+
+void Widget::untrackRef(WidgetWeakRef* ref)
+{
+    auto it{std::find(trackedRefs.begin(), trackedRefs.end(), ref)};
+    AUI_ASSERT(it != trackedRefs.end(), "Tried to untrack ref that didn't exist in list.");
+    trackedRefs.erase(it);
+}
+
+std::size_t Widget::getRefCount()
+{
+    return trackedRefs.size();
 }
 
 bool Widget::refreshScaling()

@@ -11,6 +11,8 @@ TEST_CASE("TestWidgetPath")
 {
     Screen screen{"TestScreen"};
 
+    // Note: We skip testing any functions that just forward to std::vector,
+    //       unless there's some interesting interaction to test.
     SECTION("Ref count updates properly.")
     {
         Button widget1{screen, {}};
@@ -63,5 +65,22 @@ TEST_CASE("TestWidgetPath")
         for (const WidgetWeakRef& ref : path) {
             REQUIRE(!(ref.isValid()));
         }
+    }
+
+    SECTION("Widget order is correct")
+    {
+        WidgetPath path;
+
+        Button widget1{screen, {}};
+        Button widget2{screen, {}};
+        Button widget3{screen, {}};
+
+        path.push_back(widget1);
+        path.push_back(widget2);
+        path.push_back(widget3);
+
+        REQUIRE(&(path[0].get()) == &widget1);
+        REQUIRE(&(path[1].get()) == &widget2);
+        REQUIRE(&(path[2].get()) == &widget3);
     }
 }

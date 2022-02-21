@@ -16,27 +16,52 @@ TEST_CASE("TestWidgetPath")
         Button widget1{screen, {}};
         std::unique_ptr<Widget> widget2{std::make_unique<Button>(screen, SDL_Rect{})};
         Button widget3{screen, {}};
+
         {
             WidgetPath path;
-            path.add(&widget1);
-            path.add(widget2.get());
-            path.insert(&widget3, 1);
+            path.push_back(widget1);
+            path.push_back(*widget2.get());
+            path.insert(path.begin() + 1, widget3);
             REQUIRE(widget1.getRefCount() == 1);
             REQUIRE(widget2->getRefCount() == 1);
             REQUIRE(widget3.getRefCount() == 1);
 
-            path.remove(&widget3);
+            path.erase(path.begin() + 1);
             REQUIRE(widget1.getRefCount() == 1);
             REQUIRE(widget2->getRefCount() == 1);
             REQUIRE(widget3.getRefCount() == 0);
 
-            path.remove(widget2.get());
+            path.erase(path.end() - 1);
             REQUIRE(widget1.getRefCount() == 1);
             REQUIRE(widget2->getRefCount() == 0);
             REQUIRE(widget3.getRefCount() == 0);
         }
+
         REQUIRE(widget1.getRefCount() == 0);
         REQUIRE(widget2->getRefCount() == 0);
         REQUIRE(widget3.getRefCount() == 0);
+    }
+
+    SECTION("Ref validity updates properly")
+    {
+        WidgetPath path;
+
+        {
+            Button widget1{screen, {}};
+            Button widget2{screen, {}};
+            Button widget3{screen, {}};
+
+            path.push_back(widget1);
+            path.push_back(widget2);
+            path.push_back(widget3);
+
+            for (const WidgetWeakRef& ref : path) {
+                REQUIRE(ref.isValid());
+            }
+        }
+
+        for (const WidgetWeakRef& ref : path) {
+            REQUIRE(!(ref.isValid()));
+        }
     }
 }

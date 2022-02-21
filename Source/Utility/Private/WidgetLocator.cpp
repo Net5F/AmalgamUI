@@ -94,7 +94,7 @@ WidgetPath WidgetLocator::getPathUnderPoint(const SDL_Point& actualPoint)
 
         // If the widget contains the point, add it to the path.
         if (widget.containsPoint(actualPoint)) {
-            returnPath.add(widgetWeakRef);
+            returnPath.push_back(widget);
         }
     }
 

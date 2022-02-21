@@ -41,7 +41,7 @@ public:
      * Returns true if the associated widget is still valid (i.e. if it's
      * still alive).
      */
-    bool isValid();
+    bool isValid() const;
 
     /**
      * Returns a reference to the associated widget.

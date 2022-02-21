@@ -71,7 +71,7 @@ WidgetWeakRef& WidgetWeakRef::operator=(WidgetWeakRef&& other)
     return *this;
 }
 
-bool WidgetWeakRef::isValid()
+bool WidgetWeakRef::isValid() const
 {
     return widgetIsValid;
 }

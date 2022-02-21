@@ -3,11 +3,15 @@ target_sources(AmalgamUI
         Private/Log.cpp
         Private/AssetCache.cpp
         Private/ScalingHelpers.cpp
+        Private/SDLHelpers.cpp
+        Private/WidgetLocator.cpp
         Private/WidgetPath.cpp
         Private/WidgetWeakRef.cpp
     PUBLIC
         Public/AUI/AssetCache.h
         Public/AUI/ScalingHelpers.h
+        Public/AUI/SDLHelpers.h
+        Public/AUI/WidgetLocator.h
         Public/AUI/WidgetPath.h
         Public/AUI/WidgetWeakRef.h
 

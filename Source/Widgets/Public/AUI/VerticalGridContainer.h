@@ -44,7 +44,7 @@ public:
     //-------------------------------------------------------------------------
     Widget* onMouseWheel(SDL_MouseWheelEvent& event) override;
 
-    void updateLayout(const SDL_Rect& parentExtent) override;
+    void updateLayout(const SDL_Rect& parentExtent, WidgetLocator* widgetLocator) override;
 
 protected:
     /**

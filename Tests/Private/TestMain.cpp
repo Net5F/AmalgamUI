@@ -3,11 +3,11 @@
 #include "AUI/Internal/Log.h"
 #include <SDL2/SDL.h>
 
+int SCREEN_WIDTH = 1920;
+int SCREEN_HEIGHT = 1080;
+
 int main(int argc, char* argv[])
 {
-    const int SCREEN_WIDTH{1920};
-    const int SCREEN_HEIGHT{1080};
-
     // Initialize SDL.
     if(SDL_Init(SDL_INIT_VIDEO) < 0)
     {

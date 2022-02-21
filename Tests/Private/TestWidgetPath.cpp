@@ -35,7 +35,6 @@ TEST_CASE("TestWidgetPath")
             REQUIRE(widget2->getRefCount() == 0);
             REQUIRE(widget3.getRefCount() == 0);
         }
-        AUI_LOG_INFO("After end");
         REQUIRE(widget1.getRefCount() == 0);
         REQUIRE(widget2->getRefCount() == 0);
         REQUIRE(widget3.getRefCount() == 0);

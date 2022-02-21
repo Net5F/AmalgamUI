@@ -1,4 +1,5 @@
 #include "AUI/Screen.h"
+#include "AUI/Core.h"
 #include "AUI/Internal/Log.h"
 
 namespace AUI
@@ -92,11 +93,14 @@ void Screen::tick(double timestepS)
 
 void Screen::render()
 {
+    // TODO: Combine the update and render into 1 loop and test.
     // Update our visible window's layouts.
     for (Window& window : windows)
     {
         if (window.getIsVisible()) {
-            window.updateLayout({0, 0, 0, 0});
+            ScreenResolution actualScreenSize{Core::getActualScreenSize()};
+            window.updateLayout({0, 0, actualScreenSize.width
+                , actualScreenSize.height});
         }
     }
 

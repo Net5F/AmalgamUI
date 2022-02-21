@@ -6,9 +6,56 @@ namespace AUI
 Window::Window(Screen& inScreen, const SDL_Rect& inLogicalExtent,
                      const std::string& inDebugName)
 : Widget(inScreen, inLogicalExtent, inDebugName)
+, widgetLocator{inLogicalExtent}
 , lastHoveredChild{nullptr}
 , lastClickedChild{nullptr}
 {
+}
+
+void Window::tick(double timestepS)
+{
+    // TODO: Fix this to call every child for real
+    // Call every child's tick.
+    for (Widget& child : children) {
+        // If the child isn't visible, skip it.
+        if (!(child.getIsVisible())) {
+            continue;
+        }
+
+        child.onTick(timestepS);
+    }
+}
+
+void Window::updateLayout(const SDL_Rect& parentExtent)
+{
+    // Keep our extent up to date.
+    refreshScaling();
+
+    // Calculate our new extent to render at.
+    renderExtent = scaledExtent;
+    renderExtent.x += parentExtent.x;
+    renderExtent.y += parentExtent.y;
+    // TODO: Should we clip here to fit parentExtent?
+
+    // Clear the stale widgets from the locator.
+    widgetLocator.clear();
+
+    // Update the locator to match our new screen extent.
+    widgetLocator.setExtent(renderExtent);
+
+    // Add ourself to the locator.
+    widgetLocator.addWidget(this);
+
+    // Update our visible children's layouts and add them to the locator.
+    // Note: We skip invisible children since they won't be rendered. If we
+    //       need to process invisible children (for the widget locator's use,
+    //       perhaps), we can change this.
+    for (Widget& child : children)
+    {
+        if (child.getIsVisible()) {
+            child.updateLayout(renderExtent, &widgetLocator);
+        }
+    }
 }
 
 Widget* Window::handleOSEvent(SDL_Event& event)
@@ -108,20 +155,6 @@ Widget* Window::passOSEventToChildren(SDL_Event& event)
     }
 
     return nullptr;
-}
-
-void Window::tick(double timestepS)
-{
-    // TODO: Fix this to call every child for real
-    // Call every child's tick.
-    for (Widget& child : children) {
-        // If the child isn't visible, skip it.
-        if (!(child.getIsVisible())) {
-            continue;
-        }
-
-        child.onTick(timestepS);
-    }
 }
 
 } // namespace AUI

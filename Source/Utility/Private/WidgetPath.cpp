@@ -10,6 +10,11 @@ void WidgetPath::add(Widget* widget)
     widgetRefs.emplace_back(*widget);
 }
 
+void WidgetPath::add(const WidgetWeakRef& widget)
+{
+    widgetRefs.push_back(widget);
+}
+
 void WidgetPath::insert(Widget* widget, unsigned int index)
 {
     AUI_ASSERT(widgetRefs.size() > index, "Index is out of bounds");
@@ -25,6 +30,11 @@ void WidgetPath::remove(Widget* widget)
             break;
         }
     }
+}
+
+std::size_t WidgetPath::size()
+{
+    return widgetRefs.size();
 }
 
 } // End namespace AUI

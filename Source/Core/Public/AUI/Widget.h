@@ -12,6 +12,7 @@ namespace AUI
 {
 class Screen;
 class WidgetWeakRef;
+class WidgetLocator;
 
 /**
  * The base class for all UI widgets.
@@ -44,14 +45,6 @@ public:
      * @param actualPoint  A point in actual screen space.
      */
     bool containsPoint(const SDL_Point& actualPoint);
-
-    /**
-     * If this widget's screen extent fully contains the given extent,
-     * returns true. Else, returns false.
-     *
-     * @param actualExtent  An extent in actual screen space.
-     */
-    bool containsExtent(const SDL_Rect& actualExtent);
 
     /**
      * Sets the widget's logical extent to the given extent and
@@ -139,10 +132,12 @@ public:
      *                      to their parent's position and clip themselves to
      *                      their parent's bounds (unless intentionally
      *                      overflowing).
+     * @param widgetLocator  (If non-nullptr) The widget locator for this
+     *                       widget to add itself to after updating.
      * @post renderExtent is properly positioned for use in rendering and
      *       hit testing.
      */
-    virtual void updateLayout(const SDL_Rect& parentExtent);
+    virtual void updateLayout(const SDL_Rect& parentExtent, WidgetLocator* widgetLocator);
 
     /**
      * Renders this widget to the current rendering target.
@@ -177,7 +172,7 @@ public:
 
 protected:
     Widget(Screen& inScreen, const SDL_Rect& inLogicalExtent,
-              const std::string& inDebugName = "");
+              const std::string& inDebugName = "Not set");
 
     /**
      * Checks if Core::actualScreenSize has changed since the last time this

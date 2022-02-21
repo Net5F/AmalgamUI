@@ -156,7 +156,7 @@ public:
     /**
      * Calls Widget::updateLayout() and also updates offsetTextExtent.
      */
-    void updateLayout(const SDL_Rect& parentExtent);
+    void updateLayout(const SDL_Rect& parentExtent, WidgetLocator* widgetLocator);
 
     void render() override;
 

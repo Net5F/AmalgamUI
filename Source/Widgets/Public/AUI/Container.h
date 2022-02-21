@@ -73,6 +73,8 @@ public:
     //-------------------------------------------------------------------------
     Widget* handleOSEvent(SDL_Event& event) override;
 
+    void updateLayout(const SDL_Rect& parentExtent, WidgetLocator* widgetLocator) override;
+
     void render() override;
 
 protected:

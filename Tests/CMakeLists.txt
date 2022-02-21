@@ -14,6 +14,7 @@ if (NOT TARGET Catch2::Catch2)
 # Add the executable.
 add_executable(AUIUnitTests
     Private/TestMain.cpp
+    Private/TestWidgetLocator.cpp
     Private/TestWidgetWeakRef.cpp
     Private/TestWidgetPath.cpp
 )

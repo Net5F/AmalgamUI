@@ -76,15 +76,14 @@ bool WidgetWeakRef::isValid()
     return widgetIsValid;
 }
 
-void WidgetWeakRef::invalidate()
-{
-    widget->untrackRef(this);
-    widgetIsValid = false;
-}
-
-Widget& WidgetWeakRef::get()
+Widget& WidgetWeakRef::get() const
 {
     return *widget;
+}
+
+void WidgetWeakRef::invalidate()
+{
+    widgetIsValid = false;
 }
 
 } // End namespace AUI

@@ -1,5 +1,6 @@
 #include "AUI/VerticalGridContainer.h"
 #include "AUI/ScalingHelpers.h"
+#include "AUI/WidgetLocator.h"
 #include "AUI/Internal/Log.h"
 #include <cmath>
 
@@ -58,16 +59,11 @@ Widget* VerticalGridContainer::onMouseWheel(SDL_MouseWheelEvent& event)
     return nullptr;
 }
 
-void VerticalGridContainer::updateLayout(const SDL_Rect& parentExtent)
+void VerticalGridContainer::updateLayout(const SDL_Rect& parentExtent, WidgetLocator* widgetLocator)
 {
-    // Keep our extent up to date.
-    refreshScaling();
-
-    // Calculate our new extent to render at.
-    renderExtent = scaledExtent;
-    renderExtent.x += parentExtent.x;
-    renderExtent.y += parentExtent.y;
-    // TODO: Should we clip here to fit parentExtent?
+    // Run the normal layout step (will update us, but won't process any of
+    // our elements).
+    Widget::updateLayout(parentExtent, widgetLocator);
 
     // Calc how many rows can fit onscreen at once.
     int maxVisibleRows{logicalExtent.h / logicalCellHeight};
@@ -101,7 +97,7 @@ void VerticalGridContainer::updateLayout(const SDL_Rect& parentExtent)
         int finalX{renderExtent.x + cellXOffset};
         int finalY{renderExtent.y + cellYOffset};
         elements[i]->updateLayout({finalX, finalY
-            , (finalX + scaledCellWidth), (finalY + scaledCellHeight)});
+            , (finalX + scaledCellWidth), (finalY + scaledCellHeight)}, widgetLocator);
     }
 }
 

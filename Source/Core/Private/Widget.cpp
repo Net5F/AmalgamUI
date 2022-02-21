@@ -3,7 +3,9 @@
 #include "AUI/Image.h"
 #include "AUI/Core.h"
 #include "AUI/ScalingHelpers.h"
+#include "AUI/SDLHelpers.h"
 #include "AUI/WidgetWeakRef.h"
+#include "AUI/WidgetLocator.h"
 #include "AUI/Internal/Ignore.h"
 #include "AUI/Internal/Log.h"
 #include "AUI/Internal/Assert.h"
@@ -36,29 +38,7 @@ Widget::~Widget()
 
 bool Widget::containsPoint(const SDL_Point& actualPoint)
 {
-    // Test if the point is within all 4 sides of our extent.
-    if ((actualPoint.x > renderExtent.x)
-        && (actualPoint.x < (renderExtent.x + renderExtent.w))
-        && (actualPoint.y > renderExtent.y)
-        && (actualPoint.y < (renderExtent.y + renderExtent.h))) {
-        return true;
-    }
-    else {
-        return false;
-    }
-}
-
-bool Widget::containsExtent(const SDL_Rect& actualExtent)
-{
-    // Test if 2 diagonal corners of the extent are within our extent.
-    if (containsPoint({actualExtent.x, actualExtent.y})
-        && containsPoint({(actualExtent.x + actualExtent.w),
-                          (actualExtent.y + actualExtent.h)})) {
-        return true;
-    }
-    else {
-        return false;
-    }
+    return SDLHelpers::pointInRect(actualPoint, renderExtent);
 }
 
 void Widget::setLogicalExtent(const SDL_Rect& inLogicalExtent)
@@ -185,7 +165,7 @@ void Widget::onTick(double timestepS)
     ignore(timestepS);
 }
 
-void Widget::updateLayout(const SDL_Rect& parentExtent)
+void Widget::updateLayout(const SDL_Rect& parentExtent, WidgetLocator* widgetLocator)
 {
     // Keep our extent up to date.
     refreshScaling();
@@ -196,11 +176,19 @@ void Widget::updateLayout(const SDL_Rect& parentExtent)
     renderExtent.y += parentExtent.y;
     // TODO: Should we clip here to fit parentExtent?
 
-    // Update our visible children's layout.
+    // If we were given a valid locator, add ourselves to it.
+    if (widgetLocator != nullptr) {
+        widgetLocator->addWidget(this);
+    }
+
+    // Update our visible children's layouts and add them to the locator.
+    // Note: We skip invisible children since they won't be rendered. If we
+    //       need to process invisible children (for the widget locator's use,
+    //       perhaps), we can do so.
     for (Widget& child : children)
     {
         if (child.getIsVisible()) {
-            child.updateLayout(renderExtent);
+            child.updateLayout(renderExtent, widgetLocator);
         }
     }
 }
@@ -224,7 +212,8 @@ void Widget::trackRef(WidgetWeakRef* ref)
 void Widget::untrackRef(WidgetWeakRef* ref)
 {
     auto it{std::find(trackedRefs.begin(), trackedRefs.end(), ref)};
-    AUI_ASSERT(it != trackedRefs.end(), "Tried to untrack ref that didn't exist in list.");
+    AUI_ASSERT(it != trackedRefs.end(), "Tried to untrack ref that didn't "
+               "exist in list of widget: %s - %p", debugName.c_str(), ref);
     trackedRefs.erase(it);
 }
 

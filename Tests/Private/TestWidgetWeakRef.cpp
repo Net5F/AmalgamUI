@@ -82,7 +82,7 @@ TEST_CASE("TestWidgetWeakRef")
         REQUIRE(widget1.getRefCount() == 0);
     }
 
-    SECTION("Invalidate")
+    SECTION("Invalidate single ref")
     {
         std::unique_ptr<Widget> widget1{std::make_unique<Button>(screen, SDL_Rect{})};
         std::unique_ptr<Widget> widget2{std::make_unique<Button>(screen, SDL_Rect{})};
@@ -99,5 +99,22 @@ TEST_CASE("TestWidgetWeakRef")
         widget2 = nullptr;
         REQUIRE(!ref1.isValid());
         REQUIRE(!ref2.isValid());
+    }
+
+    SECTION("Invalidate multiple refs")
+    {
+        std::unique_ptr<Widget> widget1{std::make_unique<Button>(screen, SDL_Rect{})};
+
+        WidgetWeakRef ref1{*widget1};
+        WidgetWeakRef ref2{*widget1};
+        WidgetWeakRef ref3{*widget1};
+        REQUIRE(ref1.isValid());
+        REQUIRE(ref2.isValid());
+        REQUIRE(ref3.isValid());
+
+        widget1 = nullptr;
+        REQUIRE(!ref1.isValid());
+        REQUIRE(!ref2.isValid());
+        REQUIRE(!ref3.isValid());
     }
 }

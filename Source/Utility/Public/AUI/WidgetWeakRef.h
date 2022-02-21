@@ -44,18 +44,18 @@ public:
     bool isValid();
 
     /**
+     * Returns a reference to the associated widget.
+     *
+     * Note: Always call isValid() first to check if the widget is still alive.
+     */
+    Widget& get() const;
+
+    /**
      * Marks the associated widget as invalid.
      *
      * Used by the Widget class. You likely don't want to call this directly.
      */
     void invalidate();
-
-    /**
-     * Returns a reference to the associated widget.
-     *
-     * Note: Always call isValid() first to check if the widget is still alive.
-     */
-    Widget& get();
 
 private:
     Widget* widget;

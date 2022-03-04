@@ -80,84 +80,52 @@ bool Widget::getIsVisible()
     return isVisible;
 }
 
-Widget* Widget::handleOSEvent(SDL_Event& event)
+EventResult Widget::onPreviewMouseDown(MouseButtonType buttonType, const SDL_Point& cursorPosition)
 {
-    // Propagate the event through our visible children.
-    for (auto it = children.rbegin(); it != children.rend(); ++it) {
-        // If the child isn't visible, skip it.
-        Widget& child{it->get()};
-        if (!(child.getIsVisible())) {
-            continue;
-        }
-
-        // If the child consumed the event, return early.
-        Widget* consumer{child.handleOSEvent(event)};
-        if (consumer != nullptr) {
-            return consumer;
-        }
-    }
-
-    // None of our children handled the event. Try to handle it ourselves.
-    switch (event.type) {
-        case SDL_MOUSEBUTTONDOWN: {
-            return onMouseButtonDown(event.button);
-        }
-        case SDL_MOUSEBUTTONUP: {
-            return onMouseButtonUp(event.button);
-        }
-        case SDL_MOUSEMOTION: {
-            return onMouseMove(event.motion);
-        }
-        case SDL_MOUSEWHEEL: {
-            return onMouseWheel(event.wheel);
-        }
-        case SDL_KEYDOWN: {
-            return onKeyDown(event.key);
-        }
-        case SDL_TEXTINPUT: {
-            return onTextInput(event.text);
-        }
-        default:
-            break;
-    }
-
-    return nullptr;
+    ignore(buttonType);
+    ignore(cursorPosition);
+    return EventResult{.wasConsumed{false}};
 }
 
-Widget* Widget::onMouseButtonDown(SDL_MouseButtonEvent& event)
+EventResult Widget::onMouseDown(MouseButtonType buttonType, const SDL_Point& cursorPosition)
 {
-    ignore(event);
-    return nullptr;
+    ignore(buttonType);
+    ignore(cursorPosition);
+    return EventResult{.wasConsumed{false}};
 }
 
-Widget* Widget::onMouseButtonUp(SDL_MouseButtonEvent& event)
+EventResult Widget::onMouseUp(MouseButtonType buttonType, const SDL_Point& cursorPosition)
 {
-    ignore(event);
-    return nullptr;
+    ignore(buttonType);
+    ignore(cursorPosition);
+    return EventResult{.wasConsumed{false}};
 }
 
-Widget* Widget::onMouseWheel(SDL_MouseWheelEvent& event)
+EventResult Widget::onMouseDoubleClick(MouseButtonType buttonType, const SDL_Point& cursorPosition)
 {
-    ignore(event);
-    return nullptr;
+    ignore(buttonType);
+    ignore(cursorPosition);
+    return EventResult{.wasConsumed{false}};
 }
 
-Widget* Widget::onMouseMove(SDL_MouseMotionEvent& event)
+EventResult Widget::onMouseWheel(int amountScrolled)
 {
-    ignore(event);
-    return nullptr;
+    ignore(amountScrolled);
+    return EventResult{.wasConsumed{false}};
 }
 
-Widget* Widget::onKeyDown(SDL_KeyboardEvent& event)
+EventResult Widget::onMouseMove(const SDL_Point& cursorPosition)
 {
-    ignore(event);
-    return nullptr;
+    ignore(cursorPosition);
+    return EventResult{.wasConsumed{false}};
 }
 
-Widget* Widget::onTextInput(SDL_TextInputEvent& event)
+void Widget::onMouseEnter()
 {
-    ignore(event);
-    return nullptr;
+}
+
+void Widget::onMouseLeave()
+{
 }
 
 void Widget::onTick(double timestepS)

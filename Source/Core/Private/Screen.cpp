@@ -1,78 +1,43 @@
 #include "AUI/Screen.h"
 #include "AUI/Core.h"
+#include "AUI/SDLHelpers.h"
+#include "AUI/Internal/Ignore.h"
 #include "AUI/Internal/Log.h"
 
 namespace AUI
 {
 Screen::Screen(const std::string& inDebugName)
-: lastHoveredWindow{nullptr}
-, lastClickedWindow{nullptr}
-, debugName{inDebugName}
+: debugName{inDebugName}
+, eventRouter{*this}
 {
 }
 
 bool Screen::handleOSEvent(SDL_Event& event)
 {
-    // Propagate the event through our visible windows.
-    for (auto it = windows.rbegin(); it != windows.rend(); ++it) {
-        // If the window isn't visible, skip it.
-        Window& window{it->get()};
-        if (!(window.getIsVisible())) {
-            continue;
+    // TODO: Either here or in EventRouter, move clicked windows to the
+    //       top of the stack.
+    // Pass the event to the appropriate handler.
+    switch (event.type) {
+        case SDL_MOUSEBUTTONDOWN: {
+            return eventRouter.handleMouseButtonDown(event.button);
         }
-
-        // If the window consumed this event, update our tracking and return
-        // true.
-        Widget* consumer{window.handleOSEvent(event)};
-        if (consumer != nullptr) {
-            if (event.type == SDL_MOUSEMOTION) {
-                // If a new window was hovered, send the MouseMove to the last
-                // hovered window so it can unhover itself.
-                if ((lastHoveredWindow != nullptr)
-                    && (&window != lastHoveredWindow)) {
-                    lastHoveredWindow->handleOSEvent(event);
-                }
-
-                // Track the hovered window.
-                lastHoveredWindow = &window;
-            }
-            else if (event.type == SDL_MOUSEBUTTONDOWN) {
-                // If a new window was clicked, send the MouseDown to the last
-                // clicked window so it can deselect itself.
-                if ((lastClickedWindow != nullptr)
-                    && (&window != lastClickedWindow)) {
-                    lastClickedWindow->handleOSEvent(event);
-                }
-
-                // Track the clicked window.
-                lastClickedWindow = &window;
-            }
-            else if (event.type == SDL_MOUSEBUTTONUP) {
-                // If the mouse wasn't released over our last clicked window,
-                // send it the MouseUp event so it can resolve its state.
-                if ((lastClickedWindow != nullptr)
-                    && (&window != lastClickedWindow)) {
-                    lastClickedWindow->handleOSEvent(event);
-                }
-            }
-
-            return true;
+        case SDL_MOUSEBUTTONUP: {
+            return eventRouter.handleMouseButtonUp(event.button);
         }
-    }
-
-    // If the mouse moved outside of a hovered window, alert it and clear our
-    // tracking.
-    if ((event.type == SDL_MOUSEMOTION)
-        && (lastHoveredWindow != nullptr)) {
-        lastHoveredWindow->handleOSEvent(event);
-        lastHoveredWindow = nullptr;
-    }
-    // If the mouse clicked outside of a clicked window, alert it and clear our
-    // tracking.
-    else if ((event.type == SDL_MOUSEBUTTONDOWN)
-        && (lastClickedWindow != nullptr)) {
-        lastClickedWindow->handleOSEvent(event);
-        lastClickedWindow = nullptr;
+        case SDL_MOUSEMOTION: {
+            return eventRouter.handleMouseMove(event.motion);
+        }
+        case SDL_MOUSEWHEEL: {
+            return eventRouter.handleMouseWheel(event.wheel);
+        }
+        case SDL_KEYDOWN: {
+            return eventRouter.handleKeyDown(event.key);
+        }
+        case SDL_TEXTINPUT: {
+            return eventRouter.handleTextInput(event.text);
+        }
+        default:
+            break;
     }
 
     return false;
@@ -111,6 +76,24 @@ void Screen::render()
             window.render();
         }
     }
+}
+
+Window* Screen::getWindowUnderPoint(const SDL_Point& point)
+{
+    for (auto it = windows.rbegin(); it != windows.rend(); ++it) {
+        // If the window isn't visible, skip it.
+        Window& window{it->get()};
+        if (!(window.getIsVisible())) {
+            continue;
+        }
+
+        // If the window contains the given point, return it.
+        if (SDLHelpers::pointInRect(point, window.getRenderExtent())) {
+            return &window;
+        }
+    }
+
+    return nullptr;
 }
 
 } // namespace AUI

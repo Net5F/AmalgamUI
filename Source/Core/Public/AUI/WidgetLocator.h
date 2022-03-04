@@ -63,13 +63,13 @@ public:
 
     /**
      * Builds a path containing all tracked widgets that are underneath the
-     * given logical-space point.
+     * given actual-space point.
      *
      * The returned path is in the order that an event should travel.
      *
      * @param actualPoint  The point in actual space to test widgets with.
-     * @return A widget path, ordered with the bottom-most widget at the front
-     *         and the top-most widget at the back.
+     * @return A widget path, ordered with the root-most widget at the front
+     *         and the leaf-most widget at the back.
      */
     WidgetPath getPathUnderPoint(const SDL_Point& actualPoint);
 
@@ -124,6 +124,11 @@ private:
     {
         return (y * gridCellExtent.w) + x;
     }
+
+    /**
+     * Converts the given screen extent to a cell extent.
+     */
+    SDL_Rect screenToCellExtent(const SDL_Rect& screenExtent);
 
     /** The width of a grid cell in logical-space pixels. */
     float cellWidth;

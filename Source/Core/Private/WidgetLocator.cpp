@@ -25,17 +25,14 @@ void WidgetLocator::addWidget(Widget* widget)
         "Tried to add a widget that is outside this locator's bounds. Widget name: %s",
         widget->getDebugName().c_str());
 
-    // Find the cells that the widget intersects.
-    SDL_Rect widgetCellExtent;
-    widgetCellExtent.x = std::floor(widgetRenderExtent.x / cellWidth);
-    widgetCellExtent.y = std::floor(widgetRenderExtent.y / cellWidth);
-    widgetCellExtent.w = std::ceil(widgetRenderExtent.w / cellWidth);
-    widgetCellExtent.h = std::ceil(widgetRenderExtent.h / cellWidth);
+    // Since widgetRenderExtent is relative to the whole screen, offset it to
+    // be relative to our grid's extent (to match our cell coordinates).
+    SDL_Rect offsetWidgetExtent{widgetRenderExtent};
+    offsetWidgetExtent.x -= gridScreenExtent.x;
+    offsetWidgetExtent.y -= gridScreenExtent.y;
 
-    // Since widgetCellExtent is relative to the whole screen, offset it to
-    // be relative to our grid's extent.
-    widgetCellExtent.x -= gridCellExtent.x;
-    widgetCellExtent.y -= gridCellExtent.y;
+    // Find the cells that the widget intersects.
+    SDL_Rect widgetCellExtent{screenToCellExtent(offsetWidgetExtent)};
 
     // Add the widget to the map, or update it if it already exists for some
     // reason.
@@ -77,7 +74,7 @@ WidgetPath WidgetLocator::getPathUnderPoint(const SDL_Point& actualPoint)
     // Get the cell that contains the given point.
     unsigned int hitCellX{static_cast<unsigned int>((actualPoint.x - gridScreenExtent.x)
         / cellWidth)};
-    unsigned int hitCellY{static_cast<unsigned int>((actualPoint.x - gridScreenExtent.x)
+    unsigned int hitCellY{static_cast<unsigned int>((actualPoint.y - gridScreenExtent.y)
         / cellWidth)};
     unsigned int hitCellIndex{linearizeCellIndex(hitCellX, hitCellY)};
     std::vector<WidgetWeakRef>& widgetVec{widgetGrid[hitCellIndex]};
@@ -114,14 +111,7 @@ void WidgetLocator::setExtent(const SDL_Rect& inScreenExtent)
     gridScreenExtent = inScreenExtent;
 
     // Set our grid size to match the extent.
-    gridCellExtent.x =
-        static_cast<int>(std::floor(gridScreenExtent.x / cellWidth));
-    gridCellExtent.y =
-        static_cast<int>(std::floor(gridScreenExtent.y / cellWidth));
-    gridCellExtent.w =
-        static_cast<int>(std::ceil(gridScreenExtent.w / cellWidth));
-    gridCellExtent.h =
-        static_cast<int>(std::ceil(gridScreenExtent.h / cellWidth));
+    gridCellExtent = screenToCellExtent(gridScreenExtent);
 
     // Resize the grid to fit our new extent.
     widgetGrid.resize(gridCellExtent.w * gridCellExtent.h);
@@ -161,6 +151,25 @@ void WidgetLocator::clearWidgetLocation(Widget* widget, const SDL_Rect& cellClea
             }
         }
     }
+}
+
+SDL_Rect WidgetLocator::screenToCellExtent(const SDL_Rect& screenExtent)
+{
+    // Find the top left and bottom right cell coordinates for the screen
+    // extent.
+    SDL_Point topLeft{};
+    topLeft.x = static_cast<int>(std::floor(screenExtent.x / cellWidth));
+    topLeft.y = static_cast<int>(std::floor(screenExtent.y / cellWidth));
+
+    SDL_Point bottomRight{};
+    bottomRight.x = static_cast<int>(std::ceil((screenExtent.x
+        + screenExtent.w) / cellWidth));
+    bottomRight.y = static_cast<int>(std::ceil((screenExtent.y
+        + screenExtent.h) / cellWidth));
+
+    // Use the top left and bottom right to build the total cell extent.
+    return {topLeft.x, topLeft.y, (bottomRight.x - topLeft.x),
+            (bottomRight.y - topLeft.y)};
 }
 
 } // End namespace AUI

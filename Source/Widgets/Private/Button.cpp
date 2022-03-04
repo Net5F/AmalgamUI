@@ -1,6 +1,7 @@
 #include "AUI/Button.h"
 #include "AUI/Screen.h"
 #include "AUI/Core.h"
+#include "AUI/Internal/Ignore.h"
 
 namespace AUI
 {
@@ -52,82 +53,85 @@ void Button::setOnPressed(std::function<void(void)> inOnPressed)
     onPressed = std::move(inOnPressed);
 }
 
-Widget* Button::onMouseButtonDown(SDL_MouseButtonEvent& event)
+EventResult Button::onMouseDown(MouseButtonType buttonType, const SDL_Point& cursorPosition)
 {
+    ignore(cursorPosition);
+
+    // Only respond to the left mouse button.
+    if (buttonType != MouseButtonType::Left) {
+        return EventResult{.wasConsumed{false}};
+    }
     // If we're disabled, ignore the event.
-    if (currentState == State::Disabled) {
-        return nullptr;
+    else if (currentState == State::Disabled) {
+        return EventResult{.wasConsumed{false}};
     }
 
-    // If the mouse press was inside our extent.
-    if (containsPoint({event.x, event.y})) {
-        // Check if the user set a callback.
-        if (onPressed == nullptr) {
-            AUI_LOG_FATAL("Button tried to call empty onPressed() callback.");
-        }
-
-        // Set our state to pressed.
-        setCurrentState(State::Pressed);
-
-        // Call the user's onPressed callback.
-        onPressed();
-
-        return this;
+    // Check if the user set a callback.
+    if (onPressed == nullptr) {
+        AUI_LOG_FATAL("Button tried to call empty onPressed() callback.");
     }
-    else {
-        // Else, the mouse press missed us.
-        return nullptr;
-    }
+
+    // Set our state to pressed.
+    setCurrentState(State::Pressed);
+
+    // Call the user's onPressed callback.
+    onPressed();
+
+    // Set mouse capture so we get the associated MouseUp.
+    return EventResult{.wasConsumed{true}, .setMouseCapture{this}};
 }
 
-Widget* Button::onMouseButtonUp(SDL_MouseButtonEvent& event)
+EventResult Button::onMouseUp(MouseButtonType buttonType, const SDL_Point& cursorPosition)
 {
+    ignore(cursorPosition);
+
+    // Only respond to the left mouse button.
+    if (buttonType != MouseButtonType::Left) {
+        return EventResult{.wasConsumed{false}};
+    }
     // If we're disabled, ignore the event.
-    if (currentState == State::Disabled) {
-        return nullptr;
+    else if (currentState == State::Disabled) {
+        return EventResult{.wasConsumed{false}};
     }
 
     // If we were being pressed.
     if (currentState == State::Pressed) {
         // If the mouse is still over this widget, go to hovered.
-        if (containsPoint({event.x, event.y})) {
+        if (containsPoint(cursorPosition)) {
             setCurrentState(State::Hovered);
         }
         else {
+            // Mouse is gone, go to normal.
             setCurrentState(State::Normal);
         }
+    }
 
-        return this;
-    }
-    else {
-        // We weren't being pressed.
-        return nullptr;
-    }
+    return EventResult{.wasConsumed{true}, .releaseMouseCapture{true}};
 }
 
-Widget* Button::onMouseMove(SDL_MouseMotionEvent& event)
+void Button::onMouseEnter()
 {
     // If we're disabled, ignore the event.
     if (currentState == State::Disabled) {
-        return nullptr;
+        return;
     }
 
-    // If the mouse is inside our extent.
-    if (containsPoint({event.x, event.y})) {
-        // If we're normal, change to hovered.
-        if (currentState == State::Normal) {
-            setCurrentState(State::Hovered);
-        }
-
-        return this;
+    // If we're normal, change to hovered.
+    if (currentState == State::Normal) {
+        setCurrentState(State::Hovered);
     }
-    else {
-        // Else, the mouse isn't in our extent. If we're hovered, unhover.
-        if (currentState == State::Hovered) {
-            setCurrentState(State::Normal);
-        }
+}
 
-        return nullptr;
+void Button::onMouseLeave()
+{
+    // If we're disabled, ignore the event.
+    if (currentState == State::Disabled) {
+        return;
+    }
+
+    // If we're hovered, unhover.
+    if (currentState == State::Hovered) {
+        setCurrentState(State::Normal);
     }
 }
 

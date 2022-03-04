@@ -11,9 +11,9 @@ VerticalGridContainer::VerticalGridContainer(Screen& screen,
                                              const std::string& inDebugName)
 : Container(screen, inLogicalExtent, inDebugName)
 , numColumns{1}
-, logicalCellWidth{100}
+, logicalCellWidth{LOGICAL_DEFAULT_CELL_WIDTH}
 , scaledCellWidth{ScalingHelpers::logicalToActual(logicalCellWidth)}
-, logicalCellHeight{100}
+, logicalCellHeight{LOGICAL_DEFAULT_CELL_WIDTH}
 , scaledCellHeight{ScalingHelpers::logicalToActual(logicalCellHeight)}
 , rowScroll{0}
 {
@@ -36,27 +36,18 @@ void VerticalGridContainer::setCellHeight(unsigned int inLogicalCellHeight)
     scaledCellHeight = ScalingHelpers::logicalToActual(logicalCellHeight);
 }
 
-Widget* VerticalGridContainer::onMouseWheel(SDL_MouseWheelEvent& event)
+EventResult VerticalGridContainer::onMouseWheel(int amountScrolled)
 {
-    // Get the mouse position since the event doesn't report it.
-    SDL_Point mousePosition{};
-    SDL_GetMouseState(&(mousePosition.x), &(mousePosition.y));
-
-    // If the mouse is inside our extent.
-    if (containsPoint(mousePosition)) {
-        if (event.y > 0) {
-            // Scroll up.
-            scrollElements(true);
-        }
-        else if (event.y < 0) {
-            // Scroll down.
-            scrollElements(false);
-        }
-
-        return this;
+    if (amountScrolled > 0) {
+        // Scroll up.
+        scrollElements(true);
+    }
+    else {
+        // Scroll down.
+        scrollElements(false);
     }
 
-    return nullptr;
+    return EventResult{.wasConsumed{true}};
 }
 
 void VerticalGridContainer::updateLayout(const SDL_Rect& parentExtent, WidgetLocator* widgetLocator)

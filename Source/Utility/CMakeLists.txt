@@ -4,16 +4,10 @@ target_sources(AmalgamUI
         Private/AssetCache.cpp
         Private/ScalingHelpers.cpp
         Private/SDLHelpers.cpp
-        Private/WidgetLocator.cpp
-        Private/WidgetPath.cpp
-        Private/WidgetWeakRef.cpp
     PUBLIC
         Public/AUI/AssetCache.h
         Public/AUI/ScalingHelpers.h
         Public/AUI/SDLHelpers.h
-        Public/AUI/WidgetLocator.h
-        Public/AUI/WidgetPath.h
-        Public/AUI/WidgetWeakRef.h
 
         # Note: We add the extra "AUI/Internal" directory so that we don't
         #       pollute an IDE's suggestions with files that the consumer

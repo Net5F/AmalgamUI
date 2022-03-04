@@ -72,10 +72,10 @@ TEST_CASE("TestWidgetLocator")
 {
     Screen screen{"TestScreen"};
 
-    WidgetLocator widgetLocator({200, 200, 400, 400});
-
     SECTION("Grid cell extent")
     {
+        WidgetLocator widgetLocator({200, 200, 400, 400});
+
         SDL_Rect gridCellExtent{widgetLocator.getGridCellExtent()};
         REQUIRE(gridCellExtent.x == 1);
         REQUIRE(gridCellExtent.y == 1);
@@ -85,6 +85,8 @@ TEST_CASE("TestWidgetLocator")
 
     SECTION("Add and remove widgets")
     {
+        WidgetLocator widgetLocator({200, 200, 400, 400});
+
         Image image1{screen, {200, 200, 400, 400}, "Image1"};
         Image image2{screen, {200, 200, 200, 200}, "Image2"};
         Image image3{screen, {200, 200, 100, 100}, "Image3"};
@@ -102,6 +104,8 @@ TEST_CASE("TestWidgetLocator")
 
     SECTION("Basic widget path")
     {
+        WidgetLocator widgetLocator({200, 200, 400, 400});
+
         Image image1{screen, {200, 200, 400, 400}, "Image1"};
         Image image2{screen, {200, 200, 200, 200}, "Image2"};
         Image image3{screen, {200, 200, 100, 100}, "Image3"};
@@ -118,6 +122,8 @@ TEST_CASE("TestWidgetLocator")
 
     SECTION("More complicated widget path")
     {
+        WidgetLocator widgetLocator({200, 200, 400, 400});
+
         TestWidgetParent widget{screen};
 
         // Lay out the widgets to set their renderExtent and have them add
@@ -134,8 +140,52 @@ TEST_CASE("TestWidgetLocator")
         }
     }
 
+    SECTION("Widgets in 4 corners")
+    {
+        WidgetLocator widgetLocator({0, 0, SCREEN_WIDTH, SCREEN_HEIGHT});
+
+        Image topLeft{screen, {0, 0, 200, 200}, "TopLeft"};
+        Image topRight{screen, {(SCREEN_WIDTH - 200), 0, 200, 200}, "TopRight"};
+        Image bottomLeft{screen, {0, (SCREEN_HEIGHT - 200), 200, 200}, "BottomLeft"};
+        Image bottomRight{screen, {(SCREEN_WIDTH - 200), (SCREEN_HEIGHT - 200)
+            , 200, 200}, "BottomRight"};
+
+        // Lay out the widgets to set their renderExtent and have them add
+        // themselves to the locator.
+        topLeft.updateLayout({0, 0, SCREEN_WIDTH, SCREEN_HEIGHT}, &widgetLocator);
+        topRight.updateLayout({0, 0, SCREEN_WIDTH, SCREEN_HEIGHT}, &widgetLocator);
+        bottomLeft.updateLayout({0, 0, SCREEN_WIDTH, SCREEN_HEIGHT}, &widgetLocator);
+        bottomRight.updateLayout({0, 0, SCREEN_WIDTH, SCREEN_HEIGHT}, &widgetLocator);
+
+        {
+            WidgetPath widgetPath{widgetLocator.getPathUnderPoint({50, 50})};
+            REQUIRE(widgetPath.size() == 1);
+            REQUIRE(&(widgetPath.back().get()) == &topLeft);
+        }
+
+        {
+            WidgetPath widgetPath{widgetLocator.getPathUnderPoint({(SCREEN_WIDTH - 50), 50})};
+            REQUIRE(widgetPath.size() == 1);
+            REQUIRE(&(widgetPath.back().get()) == &topRight);
+        }
+
+        {
+            WidgetPath widgetPath{widgetLocator.getPathUnderPoint({50, (SCREEN_HEIGHT - 50)})};
+            REQUIRE(widgetPath.size() == 1);
+            REQUIRE(&(widgetPath.back().get()) == &bottomLeft);
+        }
+
+        {
+            WidgetPath widgetPath{widgetLocator.getPathUnderPoint({(SCREEN_WIDTH - 50), (SCREEN_HEIGHT - 50)})};
+            REQUIRE(widgetPath.size() == 1);
+            REQUIRE(&(widgetPath.back().get()) == &bottomRight);
+        }
+    }
+
     SECTION("Add and remove widgets with paths")
     {
+        WidgetLocator widgetLocator({200, 200, 400, 400});
+
         Image image1{screen, {200, 200, 400, 400}, "Image1"};
         Image image2{screen, {200, 200, 200, 200}, "Image2"};
         Image image3{screen, {200, 200, 100, 100}, "Image3"};

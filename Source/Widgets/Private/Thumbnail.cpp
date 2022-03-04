@@ -206,52 +206,87 @@ void Thumbnail::setOnDeactivated(
     onDeactivated = std::move(inOnDeactivated);
 }
 
-Widget* Thumbnail::onMouseButtonDown(SDL_MouseButtonEvent& event)
+EventResult Thumbnail::onMouseDown(MouseButtonType buttonType, const SDL_Point& cursorPosition)
 {
+    ignore(cursorPosition);
+
+    // Only respond to the left mouse button.
+    if (buttonType != MouseButtonType::Left) {
+        return EventResult{.wasConsumed{false}};
+    }
     // If we're already selected and active, do nothing.
-    if (isSelected && isActive) {
-        return nullptr;
+    else if (isSelected && isActive) {
+        return EventResult{.wasConsumed{false}};
     }
 
-    // If the click event was inside our extent.
-    if (containsPoint({event.x, event.y})) {
-        // If this was a double click (or more) and we aren't already active,
-        // activate this widget.
-        if (isActivateable && !isActive && (event.clicks >= 2)) {
-            activate();
+    if (isSelectable && !isSelected) {
+        // This was a single click, if we aren't already selected, select
+        // this widget.
+        select();
 
-            // If we were selected, clear the selection.
-            // Note: We don't call the deselected callback since this wasn't
-            //       a normal deselect event.
-            if (isSelected) {
-                setIsSelected(false);
-            }
-        }
-        else if (!isSelected) {
-            // This was a single click, if we aren't already selected, select
-            // this widget.
-            select();
-        }
-
-        // The click event was inside our widget, so flag it as handled.
-        return this;
-    }
-    else {
-        // Else, the mouse press missed us.
-        // Note: It would make sense to deselect ourselves here, but it seems
-        //       like every use case for "select a thumbnail" prefers leaving
-        //       the thumbnail selected and controlling it from the outside.
+        // Note: It would make sense to request focus and deselect when we
+        //       lose focus, but it seems like every use case for "select a
+        //       thumbnail" prefers leaving the thumbnail selected and
+        //       controlling it from the outside.
         //       E.g. for both build mode and multi-select scenarios, we want
         //       the thumbnail to stay selected until the parent tells it to
         //       deselect.
-        return nullptr;
+
+        return EventResult{.wasConsumed{true}};
+    }
+
+    return EventResult{.wasConsumed{false}};
+}
+
+EventResult Thumbnail::onMouseDoubleClick(MouseButtonType buttonType, const SDL_Point& cursorPosition)
+{
+    ignore(cursorPosition);
+
+    // Only respond to the left mouse button.
+    if (buttonType != MouseButtonType::Left) {
+        return EventResult{.wasConsumed{false}};
+    }
+
+    // If we aren't already active, activate.
+    if (isActivateable && !isActive) {
+        activate();
+
+        // If we were selected, clear the selection.
+        // Note: We don't call the deselected callback since this wasn't
+        //       a normal deselect event.
+        if (isSelected) {
+            setIsSelected(false);
+        }
+
+        return EventResult{.wasConsumed{true}};
+    }
+
+    return EventResult{.wasConsumed{false}};
+}
+
+void Thumbnail::onMouseEnter()
+{
+    // If we're active, don't change to hovered.
+    if (isActive) {
+        return;
+    }
+
+    // If we're not hovered, become hovered.
+    if (!isHovered) {
+        setIsHovered(true);
+    }
+    else {
+        // We're hovered, unhover.
+        setIsHovered(false);
     }
 }
 
-Widget* Thumbnail::onMouseMove(SDL_MouseMotionEvent& event)
+void Thumbnail::onMouseLeave()
 {
-    // Update our hovered state if necessary.
-    return updateHovered({event.x, event.y});
+    // If we're hovered, unhover.
+    if (isHovered) {
+        setIsHovered(false);
+    }
 }
 
 void Thumbnail::setIsHovered(bool inIsHovered)
@@ -270,32 +305,6 @@ void Thumbnail::setIsActive(bool inIsActive)
 {
     isActive = inIsActive;
     activeImage.setIsVisible(isActive);
-}
-
-Widget* Thumbnail::updateHovered(SDL_Point actualMousePoint)
-{
-    // If we're active, don't change to hovered.
-    if (isActive) {
-        return nullptr;
-    }
-
-    // If the mouse is inside our extent.
-    if (containsPoint({actualMousePoint.x, actualMousePoint.y})) {
-        // If we're not hovered, become hovered.
-        if (!isHovered) {
-            setIsHovered(true);
-        }
-
-        return this;
-    }
-    else {
-        // Else, the mouse isn't in our extent. If we're hovered, unhover.
-        if (isHovered) {
-            setIsHovered(false);
-        }
-
-        return nullptr;
-    }
 }
 
 } // namespace AUI

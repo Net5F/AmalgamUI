@@ -23,6 +23,11 @@ public:
     using const_reverse_iterator = std::vector<WidgetWeakRef>::const_reverse_iterator;
 
     //-------------------------------------------------------------------------
+    // Non-STL interface
+    //-------------------------------------------------------------------------
+    //TODO: Add contains()
+
+    //-------------------------------------------------------------------------
     // Modifiers
     //-------------------------------------------------------------------------
     /**
@@ -41,6 +46,11 @@ public:
      */
     iterator erase(iterator pos);
     iterator erase(const_iterator pos);
+
+    /**
+     * Erases all widgets from the path.
+     */
+    void clear();
 
     //-------------------------------------------------------------------------
     // Element access
@@ -72,6 +82,11 @@ public:
     //-------------------------------------------------------------------------
     // Capacity
     //-------------------------------------------------------------------------
+    /**
+     * Returns true if the path is empty.
+     */
+    bool empty() const;
+
     /**
      * Returns the number of widgets in this path.
      */

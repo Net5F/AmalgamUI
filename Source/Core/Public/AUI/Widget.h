@@ -1,6 +1,8 @@
 #pragma once
 
 #include "AUI/ScreenResolution.h"
+#include "AUI/MouseButtonType.h"
+#include "AUI/EventResult.h"
 #include <SDL2/SDL_rect.h>
 #include <SDL2/SDL_events.h>
 #include <string>
@@ -65,56 +67,55 @@ public:
     bool getIsVisible();
 
     /**
-     * Propagates the given event through this widget's children.
-     * If none of our children handled the event, attempts to handle it
-     * ourselves.
+     * Called during the tunneling preview pass for a MouseDown event.
      *
-     * @return nullptr if the widget wasn't consumed, else returns a pointer
-     *         to the widget that consumed the event.
+     * Note: If this event is consumed, it will also stop the MouseDown event
+     *       from bubbling afterwards.
      */
-    virtual Widget* handleOSEvent(SDL_Event& event);
+    virtual EventResult onPreviewMouseDown(MouseButtonType buttonType, const SDL_Point& cursorPosition);
 
     /**
-     * Called when a SDL_MOUSEBUTTONDOWN event occurs.
-     * @return nullptr if the widget wasn't consumed, else returns a pointer
-     *         to the widget that consumed the event.
+     * Called when a mouse click occurs on this widget.
      */
-    virtual Widget* onMouseButtonDown(SDL_MouseButtonEvent& event);
+    virtual EventResult onMouseDown(MouseButtonType buttonType, const SDL_Point& cursorPosition);
 
     /**
-     * Called when a SDL_MOUSEBUTTONUP event occurs.
-     * @return nullptr if the widget wasn't consumed, else returns a pointer
-     *         to the widget that consumed the event.
+     * Called when a mouse click that previously occurred on this widget is
+     * released.
      */
-    virtual Widget* onMouseButtonUp(SDL_MouseButtonEvent& event);
+    virtual EventResult onMouseUp(MouseButtonType buttonType, const SDL_Point& cursorPosition);
 
     /**
-     * Called when a SDL_MOUSEWHEEL event occurs.
-     * @return nullptr if the widget wasn't consumed, else returns a pointer
-     *         to the widget that consumed the event.
+     * Called when a mouse double click (or triple click, or more) occurs on
+     * this widget.
      */
-    virtual Widget* onMouseWheel(SDL_MouseWheelEvent& event);
+    virtual EventResult onMouseDoubleClick(MouseButtonType buttonType, const SDL_Point& cursorPosition);
 
     /**
-     * Called when a SDL_MOUSEMOTION event occurs.
-     * @return nullptr if the widget wasn't consumed, else returns a pointer
-     *         to the widget that consumed the event.
+     * Called when the mouse wheel is scrolled while the cursor is over a
+     * widget.
+     *
+     * @param amountScrolled  The amount that the wheel was scrolled. Movements
+     *                        up (scroll forward) generate positive values,
+     *                        movements down (scroll backward) generate
+     *                        negative values.
      */
-    virtual Widget* onMouseMove(SDL_MouseMotionEvent& event);
+    virtual EventResult onMouseWheel(int amountScrolled);
 
     /**
-     * Called when a SDL_KEYDOWN event occurs.
-     * @return nullptr if the widget wasn't consumed, else returns a pointer
-     *         to the widget that consumed the event.
+     * Called when the mouse cursor moves within a widget's bounds.
      */
-    virtual Widget* onKeyDown(SDL_KeyboardEvent& event);
+    virtual EventResult onMouseMove(const SDL_Point& cursorPosition);
 
     /**
-     * Called when a SDL_TEXTINPUT event occurs.
-     * @return nullptr if the widget wasn't consumed, else returns a pointer
-     *         to the widget that consumed the event.
+     * Called when the mouse cursor first enters a widget's bounds.
      */
-    virtual Widget* onTextInput(SDL_TextInputEvent& event);
+    virtual void onMouseEnter();
+
+    /**
+     * Called when the mouse cursor leaves a widget's bounds.
+     */
+    virtual void onMouseLeave();
 
     /**
      * Called when the current screen's tick() is called.

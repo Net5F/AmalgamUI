@@ -1,6 +1,7 @@
 #include "AUI/Checkbox.h"
 #include "AUI/Screen.h"
 #include "AUI/Core.h"
+#include "AUI/Internal/Ignore.h"
 
 namespace AUI
 {
@@ -55,44 +56,44 @@ void Checkbox::setOnUnchecked(std::function<void(void)> inOnUnchecked)
     onUnchecked = std::move(inOnUnchecked);
 }
 
-Widget* Checkbox::onMouseButtonDown(SDL_MouseButtonEvent& event)
+EventResult Checkbox::onMouseDown(MouseButtonType buttonType, const SDL_Point& cursorPosition)
 {
-    // If the mouse press was inside our extent.
-    if (containsPoint({event.x, event.y})) {
-        // If we're unchecked.
-        if (currentState == State::Unchecked) {
-            // Check if the user set a callback.
-            if (onChecked == nullptr) {
-                AUI_LOG_FATAL(
-                    "Checkbox tried to call empty onChecked() callback.");
-            }
+    ignore(cursorPosition);
 
-            // Set our state to checked.
-            setCurrentState(State::Checked);
+    // Only respond to the left mouse button.
+    if (buttonType != MouseButtonType::Left) {
+        return EventResult{.wasConsumed{false}};
+    }
 
-            // Call the user's onChecked callback.
-            onChecked();
-        }
-        else if (currentState == State::Checked) {
-            // We're checked, check if the user set a callback.
-            if (onUnchecked == nullptr) {
-                AUI_LOG_FATAL(
-                    "Checkbox tried to call empty onUnchecked() callback.");
-            }
-
-            // Set our state to unchecked.
-            setCurrentState(State::Unchecked);
-
-            // Call the user's onUnchecked callback.
-            onUnchecked();
+    // If we're unchecked.
+    if (currentState == State::Unchecked) {
+        // Check if the user set a callback.
+        if (onChecked == nullptr) {
+            AUI_LOG_FATAL(
+                "Checkbox tried to call empty onChecked() callback.");
         }
 
-        return this;
+        // Set our state to checked.
+        setCurrentState(State::Checked);
+
+        // Call the user's onChecked callback.
+        onChecked();
     }
-    else {
-        // Else, the mouse press missed us.
-        return nullptr;
+    else if (currentState == State::Checked) {
+        // We're checked, check if the user set a callback.
+        if (onUnchecked == nullptr) {
+            AUI_LOG_FATAL(
+                "Checkbox tried to call empty onUnchecked() callback.");
+        }
+
+        // Set our state to unchecked.
+        setCurrentState(State::Unchecked);
+
+        // Call the user's onUnchecked callback.
+        onUnchecked();
     }
+
+    return EventResult{.wasConsumed{true}};
 }
 
 } // namespace AUI

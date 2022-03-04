@@ -29,40 +29,4 @@ ConfirmationDialog::ConfirmationDialog(Screen& inScreen,
     });
 }
 
-Widget* ConfirmationDialog::onMouseButtonDown(SDL_MouseButtonEvent& event)
-{
-    ignore(event);
-    return this;
-}
-
-Widget* ConfirmationDialog::onMouseButtonUp(SDL_MouseButtonEvent& event)
-{
-    ignore(event);
-    return this;
-}
-
-Widget* ConfirmationDialog::onMouseWheel(SDL_MouseWheelEvent& event)
-{
-    ignore(event);
-    return this;
-}
-
-Widget* ConfirmationDialog::onMouseMove(SDL_MouseMotionEvent& event)
-{
-    ignore(event);
-    return this;
-}
-
-Widget* ConfirmationDialog::onKeyDown(SDL_KeyboardEvent& event)
-{
-    ignore(event);
-    return this;
-}
-
-Widget* ConfirmationDialog::onTextInput(SDL_TextInputEvent& event)
-{
-    ignore(event);
-    return this;
-}
-
 } // namespace AUI

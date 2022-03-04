@@ -2,6 +2,7 @@
 #include "AUI/Screen.h"
 #include "AUI/Core.h"
 #include "AUI/ScalingHelpers.h"
+#include "AUI/Internal/Ignore.h"
 #include <cstring>
 
 namespace AUI
@@ -111,124 +112,119 @@ void TextInput::setOnTextCommitted(std::function<void(void)> inOnTextCommitted)
     onTextCommitted = std::move(inOnTextCommitted);
 }
 
-Widget* TextInput::onMouseButtonDown(SDL_MouseButtonEvent& event)
+EventResult TextInput::onMouseDown(MouseButtonType buttonType, const SDL_Point& cursorPosition)
+{
+    ignore(cursorPosition);
+
+    // Only respond to the left mouse button.
+    if (buttonType != MouseButtonType::Left) {
+        return EventResult{.wasConsumed{false}};
+    }
+    // If we're disabled, ignore the event.
+    else if (currentState == State::Disabled) {
+        return EventResult{.wasConsumed{false}};
+    }
+
+    // If we don't have focus, assume focus.
+    if (currentState != State::Focused) {
+        assumeFocus();
+    }
+
+    return EventResult{.wasConsumed{true}};
+}
+
+void TextInput::onMouseEnter()
 {
     // If we're disabled, ignore the event.
     if (currentState == State::Disabled) {
-        return nullptr;
+        return;
     }
 
-    // If the mouse press was inside our extent.
-    if (containsPoint({event.x, event.y})) {
-        // If we don't have focus, assume focus.
-        if (currentState != State::Focused) {
-            assumeFocus();
-        }
-
-        return this;
-    }
-    else {
-        // Else the click was outside our extent. If we have focus, remove it.
-        if (currentState == State::Focused) {
-            removeFocus();
-        }
-
-        return nullptr;
+    // If we're normal, change to hovered.
+    if (currentState == State::Normal) {
+        setCurrentState(State::Hovered);
     }
 }
 
-Widget* TextInput::onMouseMove(SDL_MouseMotionEvent& event)
+void TextInput::onMouseLeave()
 {
     // If we're disabled, ignore the event.
     if (currentState == State::Disabled) {
-        return nullptr;
+        return;
     }
 
-    // If the mouse is inside our extent.
-    if (containsPoint({event.x, event.y})) {
-        // If we're normal, change to hovered.
-        if (currentState == State::Normal) {
-            setCurrentState(State::Hovered);
-        }
-
-        return this;
-    }
-    else {
-        // Else, the mouse isn't in our extent. If we're hovered, unhover.
-        if (currentState == State::Hovered) {
-            setCurrentState(State::Normal);
-        }
-
-        return nullptr;
+    // If we're hovered, unhover.
+    if (currentState == State::Hovered) {
+        setCurrentState(State::Normal);
     }
 }
 
-Widget* TextInput::onKeyDown(SDL_KeyboardEvent& event)
-{
-    // If we don't have focus, ignore the event.
-    if (currentState != State::Focused) {
-        return nullptr;
-    }
-
-    switch (event.keysym.sym) {
-        case SDLK_BACKSPACE: {
-            return handleBackspaceEvent();
-        }
-        case SDLK_DELETE: {
-            return handleDeleteEvent();
-        }
-        case SDLK_c: {
-            return handleCopyEvent();
-        }
-        case SDLK_x: {
-            return handleCutEvent();
-        }
-        case SDLK_v: {
-            return handlePasteEvent();
-        }
-        case SDLK_LEFT: {
-            return handleLeftEvent();
-        }
-        case SDLK_RIGHT: {
-            return handleRightEvent();
-        }
-        case SDLK_HOME: {
-            return handleHomeEvent();
-        }
-        case SDLK_END: {
-            return handleEndEvent();
-        }
-        case SDLK_RETURN: {
-            return handleEnterEvent();
-        }
-    }
-
-    return nullptr;
-}
-
-Widget* TextInput::onTextInput(SDL_TextInputEvent& event)
-{
-    // If we don't have focus, ignore the event.
-    if (currentState != State::Focused) {
-        return nullptr;
-    }
-
-    // Append the user's new character to the end of the text.
-    text.insertText(event.text, cursorIndex);
-
-    // Move the cursor forwards.
-    cursorIndex++;
-
-    // Refresh the text position to account for the change.
-    refreshTextScrollOffset();
-
-    // Make the cursor visible and reset the blink time so it stays solid
-    // while interacting.
-    cursorIsVisible = true;
-    accumulatedBlinkTime = 0;
-
-    return this;
-}
+//Widget* TextInput::onKeyDown(SDL_KeyboardEvent& event)
+//{
+//    // If we don't have focus, ignore the event.
+//    if (currentState != State::Focused) {
+//        return nullptr;
+//    }
+//
+//    switch (event.keysym.sym) {
+//        case SDLK_BACKSPACE: {
+//            return handleBackspaceEvent();
+//        }
+//        case SDLK_DELETE: {
+//            return handleDeleteEvent();
+//        }
+//        case SDLK_c: {
+//            return handleCopyEvent();
+//        }
+//        case SDLK_x: {
+//            return handleCutEvent();
+//        }
+//        case SDLK_v: {
+//            return handlePasteEvent();
+//        }
+//        case SDLK_LEFT: {
+//            return handleLeftEvent();
+//        }
+//        case SDLK_RIGHT: {
+//            return handleRightEvent();
+//        }
+//        case SDLK_HOME: {
+//            return handleHomeEvent();
+//        }
+//        case SDLK_END: {
+//            return handleEndEvent();
+//        }
+//        case SDLK_RETURN: {
+//            return handleEnterEvent();
+//        }
+//    }
+//
+//    return nullptr;
+//}
+//
+//Widget* TextInput::onTextInput(SDL_TextInputEvent& event)
+//{
+//    // If we don't have focus, ignore the event.
+//    if (currentState != State::Focused) {
+//        return nullptr;
+//    }
+//
+//    // Append the user's new character to the end of the text.
+//    text.insertText(event.text, cursorIndex);
+//
+//    // Move the cursor forwards.
+//    cursorIndex++;
+//
+//    // Refresh the text position to account for the change.
+//    refreshTextScrollOffset();
+//
+//    // Make the cursor visible and reset the blink time so it stays solid
+//    // while interacting.
+//    cursorIsVisible = true;
+//    accumulatedBlinkTime = 0;
+//
+//    return this;
+//}
 
 void TextInput::onTick(double timestepS)
 {

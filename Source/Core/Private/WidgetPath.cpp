@@ -30,6 +30,11 @@ WidgetPath::iterator WidgetPath::erase(const_iterator pos)
     return widgetRefs.erase(pos);
 }
 
+void WidgetPath::clear()
+{
+    widgetRefs.clear();
+}
+
 WidgetWeakRef& WidgetPath::at(std::size_t pos)
 {
     return widgetRefs.at(pos);
@@ -68,6 +73,11 @@ WidgetWeakRef& WidgetPath::back()
 const WidgetWeakRef& WidgetPath::back() const
 {
     return widgetRefs.back();
+}
+
+bool WidgetPath::empty() const
+{
+    return widgetRefs.empty();
 }
 
 std::size_t WidgetPath::size()

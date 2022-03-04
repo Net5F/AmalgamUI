@@ -72,11 +72,13 @@ public:
     //-------------------------------------------------------------------------
     // Base class overrides
     //-------------------------------------------------------------------------
-    Widget* onMouseButtonDown(SDL_MouseButtonEvent& event) override;
+    EventResult onMouseDown(MouseButtonType buttonType, const SDL_Point& cursorPosition) override;
 
-    Widget* onMouseButtonUp(SDL_MouseButtonEvent& event) override;
+    EventResult onMouseUp(MouseButtonType buttonType, const SDL_Point& cursorPosition) override;
 
-    Widget* onMouseMove(SDL_MouseMotionEvent& event) override;
+    void onMouseEnter() override;
+
+    void onMouseLeave() override;
 
 private:
     /**

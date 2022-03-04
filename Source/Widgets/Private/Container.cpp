@@ -68,51 +68,6 @@ std::size_t Container::size()
     return elements.size();
 }
 
-Widget* Container::handleOSEvent(SDL_Event& event)
-{
-    // Propagate the event through our visible elements.
-    for (auto it = elements.rbegin(); it != elements.rend(); ++it)
-    {
-        // If the element isn't visible, skip it.
-        std::unique_ptr<Widget>& element{*it};
-        if (!(element->getIsVisible())) {
-            continue;
-        }
-
-        // If the element consumed the event, return early.
-        Widget* consumer{element->handleOSEvent(event)};
-        if (consumer != nullptr) {
-            return element.get();
-        }
-    }
-
-    // None of our children handled the event. Try to handle it ourselves.
-    switch (event.type) {
-        case SDL_MOUSEBUTTONDOWN: {
-            return onMouseButtonDown(event.button);
-        }
-        case SDL_MOUSEBUTTONUP: {
-            return onMouseButtonUp(event.button);
-        }
-        case SDL_MOUSEMOTION: {
-            return onMouseMove(event.motion);
-        }
-        case SDL_MOUSEWHEEL: {
-            return onMouseWheel(event.wheel);
-        }
-        case SDL_KEYDOWN: {
-            return onKeyDown(event.key);
-        }
-        case SDL_TEXTINPUT: {
-            return onTextInput(event.text);
-        }
-        default:
-            break;
-    }
-
-    return nullptr;
-}
-
 void Container::updateLayout(const SDL_Rect& parentExtent, WidgetLocator* widgetLocator)
 {
     // Run the normal layout step (will update us, but won't process any of

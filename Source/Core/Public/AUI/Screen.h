@@ -1,13 +1,14 @@
 #pragma once
 
 #include "AUI/Window.h"
+#include "AUI/EventRouter.h"
 #include <SDL2/SDL_events.h>
 #include <vector>
 
 namespace AUI
 {
 /**
- * This class represents a UI screen.
+ * Represents a UI screen.
  *
  * Screens are the first layer of UI construct used by this library. Screens
  * own a stack of Windows, Windows own a list of Widgets (and Widgets can
@@ -28,7 +29,8 @@ public:
     virtual ~Screen() = default;
 
     /**
-     * Propagates the given event through this screen's windows.
+     * Passes the given SDL event to the EventRouter, where translation and
+     * routing occurs.
      *
      * @return true if the event was consumed, else false.
      */
@@ -47,7 +49,18 @@ public:
      */
     virtual void render();
 
+    /**
+     * @return The topmost window under the given point if one was found, else
+     *         nullptr.
+     */
+    Window* getWindowUnderPoint(const SDL_Point& point);
+
 protected:
+    /** The user-assigned name associated with this screen.
+        Only useful for debugging. For performance reasons, avoid using it
+        in real logic. */
+    std::string debugName;
+
     /** An ordered list of references to this screen's windows.
         Windows must be added to this list to be involved in layout, rendering,
         and event propagation.
@@ -57,17 +70,8 @@ protected:
         front -> back, events propagate from back -> front). */
     std::vector<std::reference_wrapper<Window>> windows;
 
-private:
-    /** The last window that consumed a MouseMove event. */
-    Window* lastHoveredWindow;
-    /** The last window that consumed a MouseButtonDown event.
-        Cleared when the corresponding MouseButtonUp occurs. */
-    Window* lastClickedWindow;
-
-    /** The user-assigned name associated with this screen.
-        Only useful for debugging. For performance reasons, avoid using it
-        in real logic. */
-    std::string debugName;
+    /** Translates SDL events to AUI events and handles routing them. */
+    EventRouter eventRouter;
 };
 
 } // namespace AUI

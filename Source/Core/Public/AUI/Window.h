@@ -32,6 +32,18 @@ public:
     virtual ~Window() = default;
 
     /**
+     * Builds a path containing all tracked widgets that are underneath the
+     * given actual-space point.
+     *
+     * The returned path is in the order that an event should travel.
+     *
+     * @param actualPoint  The point in actual space to test widgets with.
+     * @return A widget path, ordered with the root-most widget at the front
+     *         and the leaf-most widget at the back.
+     */
+    WidgetPath getPathUnderPoint(const SDL_Point& actualPoint);
+
+    /**
      * Calls the onTick() of all of our children.
      */
     void tick(double timestepS);
@@ -45,18 +57,7 @@ public:
      */
     void updateLayout(const SDL_Rect& parentExtent);
 
-    //-------------------------------------------------------------------------
-    // Base class overrides
-    //-------------------------------------------------------------------------
-    Widget* handleOSEvent(SDL_Event& event) override;
-
 protected:
-    /**
-     * Propagates the given event through our child widgets.
-     * If a child handles the event, updates our internal tracking.
-     */
-    Widget* passOSEventToChildren(SDL_Event& event);
-
     /**
      * Used to efficiently build an in-order list of widgets that were hit by
      * e.g. a mouse click event.
@@ -66,12 +67,6 @@ protected:
      * widgets to use for hit testing.
      */
     WidgetLocator widgetLocator;
-
-    /** The last child widget that consumed a MouseMove event. */
-    Widget* lastHoveredChild;
-    /** The last child widget that consumed a MouseButtonDown event.
-        Cleared when the corresponding MouseButtonUp occurs. */
-    Widget* lastClickedChild;
 };
 
 } // namespace AUI

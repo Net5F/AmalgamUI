@@ -42,7 +42,7 @@ public:
     //-------------------------------------------------------------------------
     // Base class overrides
     //-------------------------------------------------------------------------
-    Widget* onMouseWheel(SDL_MouseWheelEvent& event) override;
+    EventResult onMouseWheel(int amountScrolled) override;
 
     void updateLayout(const SDL_Rect& parentExtent, WidgetLocator* widgetLocator) override;
 
@@ -53,6 +53,9 @@ protected:
     bool refreshScaling() override;
 
 private:
+    /** The default logical pixel width of this container's cells. */
+    static constexpr int LOGICAL_DEFAULT_CELL_WIDTH = 100;
+
     /**
      * Scrolls the visible elements in the container up or down, bringing
      * offscreen elements onto the screen.

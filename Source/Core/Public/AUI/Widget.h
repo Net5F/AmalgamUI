@@ -28,6 +28,8 @@ class WidgetLocator;
  *     constructor.
  *   - Use setters for all other data.
  *
+ * Note: Widgets must not overlap their siblings (extents must not intersect).
+ *       Parents must fully overlap their children.
  * Note: Widgets have no concept of reordering their children based on events.
  *       For example, if you want a widget to come to the front of the screen
  *       when it's clicked, you should instead put it in a separate Window.
@@ -55,16 +57,20 @@ public:
     virtual void setLogicalExtent(const SDL_Rect& inLogicalExtent);
 
     /** See Widget::logicalExtent. */
-    SDL_Rect getLogicalExtent();
+    SDL_Rect getLogicalExtent() const;
     /** See Widget::scaledExtent. */
-    SDL_Rect getScaledExtent();
+    SDL_Rect getScaledExtent() const;
     /** See Widget::renderExtent. */
-    SDL_Rect getRenderExtent();
+    SDL_Rect getRenderExtent() const;
 
-    const std::string& getDebugName();
+    const std::string& getDebugName() const;
 
+    /** See Widget::isVisible. */
     virtual void setIsVisible(bool inIsVisible);
-    bool getIsVisible();
+    bool getIsVisible() const;
+
+    /** See Widget::isFocusable. */
+    bool getIsFocusable() const;
 
     /**
      * Called during the tunneling preview pass for a MouseDown event.
@@ -76,24 +82,32 @@ public:
 
     /**
      * Called when a mouse click occurs on this widget.
+     *
+     * This event is bubbled to widgets under the mouse.
      */
     virtual EventResult onMouseDown(MouseButtonType buttonType, const SDL_Point& cursorPosition);
 
     /**
-     * Called when a mouse click that previously occurred on this widget is
-     * released.
+     * Called when a mouse click is released.
+     *
+     * This event is only routed to the widget that is capturing the mouse.
      */
     virtual EventResult onMouseUp(MouseButtonType buttonType, const SDL_Point& cursorPosition);
 
     /**
      * Called when a mouse double click (or triple click, or more) occurs on
      * this widget.
+     *
+     * This event is bubbled to widgets under the mouse.
      */
     virtual EventResult onMouseDoubleClick(MouseButtonType buttonType, const SDL_Point& cursorPosition);
 
     /**
-     * Called when the mouse wheel is scrolled while the cursor is over a
+     * Called when the mouse wheel is scrolled while the cursor is over this
      * widget.
+     *
+     * This event is routed to the widget that is capturing the mouse. If
+     * there's no mouse captor, it's bubbled to widgets under the mouse.
      *
      * @param amountScrolled  The amount that the wheel was scrolled. Movements
      *                        up (scroll forward) generate positive values,
@@ -103,19 +117,43 @@ public:
     virtual EventResult onMouseWheel(int amountScrolled);
 
     /**
-     * Called when the mouse cursor moves within a widget's bounds.
+     * Called when the mouse cursor moves within this widget's bounds.
+     *
+     * This event is routed to the widget that is capturing the mouse. If
+     * there's no mouse captor, it's bubbled to widgets under the mouse.
      */
     virtual EventResult onMouseMove(const SDL_Point& cursorPosition);
 
     /**
-     * Called when the mouse cursor first enters a widget's bounds.
+     * Called when the mouse cursor first enters this widget's bounds.
+     *
+     * This event is routed to widgets that are newly under the mouse.
      */
     virtual void onMouseEnter();
 
     /**
-     * Called when the mouse cursor leaves a widget's bounds.
+     * Called when the mouse cursor leaves this widget's bounds.
+     *
+     * This event is routed to widgets that were previously under the mouse.
      */
     virtual void onMouseLeave();
+
+    /**
+     * Called when this widget is focused.
+     *
+     * This event is routed to the newly focused widget when focus is set.
+     *
+     * See Widget::isFocusable.
+     */
+    virtual EventResult onFocusGained();
+
+    /**
+     * Called when focus is lost on this widget.
+     *
+     * This event is routed to the previously focused widget when focus is
+     * cleared or changed.
+     */
+    virtual void onFocusLost();
 
     /**
      * Called when the current screen's tick() is called.
@@ -224,6 +262,14 @@ protected:
 
     /** If true, this widget will be rendered and will respond to events. */
     bool isVisible;
+
+    /** If true, this widget is keyboard focusable.
+        Focusable widgets can be focused by left clicking on them, or by
+        explicitly setting focus through an EventResult. Focus can be removed
+        by clicking elsewhere, or by hitting the escape key.
+        When a widget is focused, it will receive key press and character
+        events. */
+    bool isFocusable;
 
     /** An ordered list of references to this widget's children.
         Widgets must be added to this list to be involved in layout, rendering,

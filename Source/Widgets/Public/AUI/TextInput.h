@@ -109,6 +109,14 @@ public:
 
     void onMouseLeave() override;
 
+    EventResult onFocusGained() override;
+
+    /**
+     * The onTextCommitted callback will be called, since losing focus is
+     * counted as an implicit commit.
+     */
+    void onFocusLost() override;
+
 //    Widget* onKeyDown(SDL_KeyboardEvent& event) override;
 
 //    Widget* onTextInput(SDL_TextInputEvent& event) override;
@@ -151,23 +159,6 @@ private:
      * Sets currentState and updates child widget visibility.
      */
     void setCurrentState(State inState);
-
-    /**
-     * Puts this widget in a focused state. Changes the image displayed,
-     * activates the text cursor, and causes this widget to start responding
-     * to and generating additional.
-     */
-    void assumeFocus();
-
-    /**
-     * Puts this widget back into a normal state. Changes the image
-     * displayed, de-activates the text cursor, and causes this widget to
-     * stop responding to and generating events, other than those that can
-     * result in re-assuming focus.
-     * The onTextCommitted callback will be called, since losing focus is
-     * counted as an implicit commit.
-     */
-    void removeFocus();
 
     /**
      * Re-calculates where the text should be scrolled to, based on the current

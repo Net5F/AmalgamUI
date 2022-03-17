@@ -65,7 +65,7 @@ public:
      * Builds a path containing all tracked widgets that are underneath the
      * given actual-space point.
      *
-     * The returned path is in the order that an event should travel.
+     * The returned path is ordered from root-most -> leaf-most.
      *
      * @param actualPoint  The point in actual space to test widgets with.
      * @return A widget path, ordered with the root-most widget at the front

@@ -1,10 +1,10 @@
 #include "AUI/EventRouter.h"
-#include "AUI/EventResult.h"
 #include "AUI/Screen.h"
 #include "AUI/Window.h"
 #include "AUI/Widget.h"
 #include "AUI/Internal/Ignore.h"
 #include "AUI/Internal/Log.h"
+#include "AUI/Internal/Assert.h"
 #include <algorithm>
 
 namespace AUI
@@ -18,7 +18,7 @@ EventRouter::EventRouter(Screen& inScreen)
 bool EventRouter::handleMouseButtonDown(SDL_MouseButtonEvent& event)
 {
     // Check if the cursor is over an AUI window, or if it missed.
-    EventResult eventResult{};
+    HandlerReturn handlerReturn{};
     SDL_Point cursorPosition{event.x, event.y};
     WidgetPath clickPath{getPathUnderCursor(cursorPosition)};
     if (!(clickPath.empty())) {
@@ -29,18 +29,30 @@ bool EventRouter::handleMouseButtonDown(SDL_MouseButtonEvent& event)
         if (event.clicks == 1) {
             // TODO: Subtract the widget's renderExtent from cursorPosition
             //       before passing it in.
-            eventResult = handleMouseDown(buttonType, cursorPosition, clickPath);
+            handlerReturn = handleMouseDown(buttonType, cursorPosition, clickPath);
         }
         else {
-            eventResult =  handleMouseDoubleClick(buttonType, cursorPosition, clickPath);
+            handlerReturn = handleMouseDoubleClick(buttonType, cursorPosition, clickPath);
         }
 
-        processEventResult(eventResult);
+        processEventResult(handlerReturn.eventResult);
 
-        return eventResult.wasConsumed;
+        // If the event was handled and it didn't explicitly set keyboard
+        // focus, see if any of the clicked widgets can take focus.
+        if (handlerReturn.eventResult.wasHandled && (handlerReturn.eventResult.setFocus == nullptr)) {
+            // Build a path that ends at the widget that handled the event.
+            WidgetPath truncatedPath(clickPath.begin(), (handlerReturn.handlerWidget + 1));
+
+            setFocusIfFocusable(truncatedPath);
+        }
     }
 
-    return false;
+    // If the click wasn't handled and a widget has focus, drop it.
+    if (!(handlerReturn.eventResult.wasHandled)) {
+        handleDropFocus();
+    }
+
+    return handlerReturn.eventResult.wasHandled;
 }
 
 bool EventRouter::handleMouseButtonUp(SDL_MouseButtonEvent& event)
@@ -61,7 +73,7 @@ bool EventRouter::handleMouseButtonUp(SDL_MouseButtonEvent& event)
 
     processEventResult(eventResult);
 
-    return eventResult.wasConsumed;
+    return eventResult.wasHandled;
 }
 
 bool EventRouter::handleMouseWheel(SDL_MouseWheelEvent& event)
@@ -102,8 +114,8 @@ bool EventRouter::handleMouseWheel(SDL_MouseWheelEvent& event)
                 Widget& widget{widgetWeakRef.get()};
                 eventResult = widget.onMouseWheel(amountScrolled);
 
-                // If the event was consumed, break early.
-                if (eventResult.wasConsumed) {
+                // If the event was handled, break early.
+                if (eventResult.wasHandled) {
                     break;
                 }
             }
@@ -112,7 +124,7 @@ bool EventRouter::handleMouseWheel(SDL_MouseWheelEvent& event)
 
     processEventResult(eventResult);
 
-    return eventResult.wasConsumed;
+    return eventResult.wasHandled;
 }
 
 bool EventRouter::handleMouseMove(SDL_MouseMotionEvent& event)
@@ -147,7 +159,7 @@ bool EventRouter::handleMouseMove(SDL_MouseMotionEvent& event)
 
     processEventResult(eventResult);
 
-    return eventResult.wasConsumed;
+    return eventResult.wasHandled;
 }
 
 bool EventRouter::handleKeyDown(SDL_KeyboardEvent& event)
@@ -200,11 +212,28 @@ WidgetPath EventRouter::getPathUnderCursor(const SDL_Point& cursorPosition)
     return WidgetPath{};
 }
 
-EventResult EventRouter::handleMouseDown(MouseButtonType buttonType,
+WidgetPath EventRouter::getPathUnderWidget(const Widget* widget)
+{
+    // Calc the center of the given widget.
+    SDL_Rect widgetExtent{widget->getRenderExtent()};
+    SDL_Point widgetCenter{};
+    widgetCenter.x = widgetExtent.x + (widgetExtent.w / 2);
+    widgetCenter.y = widgetExtent.y + (widgetExtent.h / 2);
+
+    // Get the widget's parent window.
+    Window* hoveredWindow{screen.getWindowUnderPoint(widgetCenter)};
+    AUI_ASSERT((hoveredWindow != nullptr), "Widget was somehow not within a Window.");
+
+    // Return the path under the widget.
+    return hoveredWindow->getPathUnderPoint(widgetCenter);
+}
+
+EventRouter::HandlerReturn EventRouter::handleMouseDown(MouseButtonType buttonType,
                                   const SDL_Point& cursorPosition, WidgetPath& clickPath)
 {
     // Perform the tunneling pass (root -> leaf, PreviewMouseDown).
     EventResult eventResult{};
+    WidgetPath::iterator handlerWidget{nullptr};
     for (auto it = clickPath.begin(); it != clickPath.end(); ++it) {
         // If the widget is gone, skip it.
         WidgetWeakRef& widgetWeakRef{*it};
@@ -216,16 +245,17 @@ EventResult EventRouter::handleMouseDown(MouseButtonType buttonType,
         Widget& widget{widgetWeakRef.get()};
         eventResult = widget.onPreviewMouseDown(buttonType, cursorPosition);
 
-        // If the event was consumed, break early.
-        if (eventResult.wasConsumed) {
+        // If the event was handled, break early.
+        if (eventResult.wasHandled) {
+            handlerWidget = it;
             break;
         }
     }
 
-    // If a widget didn't consume the event during the preview pass, perform
+    // If a widget didn't handle the event during the preview pass, perform
     // the bubbling pass (leaf -> root, MouseDown).
-    if (!(eventResult.wasConsumed)) {
-        for (auto it = clickPath.rbegin(); it != clickPath.rend(); ++it) {
+    if (!(eventResult.wasHandled)) {
+        for (auto it = (clickPath.end() - 1); it != clickPath.begin(); --it) {
             // If the widget is gone, skip it.
             WidgetWeakRef& widgetWeakRef{*it};
             if (!(widgetWeakRef.isValid())) {
@@ -237,23 +267,25 @@ EventResult EventRouter::handleMouseDown(MouseButtonType buttonType,
             AUI_LOG_INFO("Sending MouseDown to %s", widget.getDebugName().c_str());
             eventResult = widget.onMouseDown(buttonType, cursorPosition);
 
-            // If the event was consumed, break early.
-            if (eventResult.wasConsumed) {
+            // If the event was handled, break early.
+            if (eventResult.wasHandled) {
+                handlerWidget = it;
                 break;
             }
         }
     }
 
-    AUI_LOG_INFO("eventResult.wasConsumed: %u", eventResult.wasConsumed);
-    return eventResult;
+    AUI_LOG_INFO("eventResult.wasHandled: %u", eventResult.wasHandled);
+    return {eventResult, handlerWidget};
 }
 
-EventResult EventRouter::handleMouseDoubleClick(MouseButtonType buttonType,
+EventRouter::HandlerReturn EventRouter::handleMouseDoubleClick(MouseButtonType buttonType,
                                   const SDL_Point& cursorPosition, WidgetPath& clickPath)
 {
     // Perform the bubbling pass (leaf -> root, MouseDoubleClick).
     EventResult eventResult{};
-    for (auto it = clickPath.rbegin(); it != clickPath.rend(); ++it) {
+    WidgetPath::iterator handlerWidget;
+    for (auto it = (clickPath.end() - 1); it != clickPath.begin(); --it) {
         // If the widget is gone, skip it.
         WidgetWeakRef& widgetWeakRef{*it};
         if (!(widgetWeakRef.isValid())) {
@@ -264,13 +296,14 @@ EventResult EventRouter::handleMouseDoubleClick(MouseButtonType buttonType,
         Widget& widget{widgetWeakRef.get()};
         eventResult = widget.onMouseDoubleClick(buttonType, cursorPosition);
 
-        // If the event was consumed, break early.
-        if (eventResult.wasConsumed) {
+        // If the event was handled, break early.
+        if (eventResult.wasHandled) {
+            handlerWidget = it;
             break;
         }
     }
 
-    return eventResult;
+    return {eventResult, handlerWidget};
 }
 
 void EventRouter::handleMouseEnterAndLeave(WidgetPath& hoverPath)
@@ -331,8 +364,8 @@ EventResult EventRouter::handleUncapturedMouseMove(const SDL_Point& cursorPositi
         Widget& widget{widgetWeakRef.get()};
         eventResult = widget.onMouseMove(cursorPosition);
 
-        // If the event was consumed, break early.
-        if (eventResult.wasConsumed) {
+        // If the event was handled, break early.
+        if (eventResult.wasHandled) {
             break;
         }
     }
@@ -368,6 +401,75 @@ void EventRouter::processEventResult(const EventResult& eventResult)
     // If mouse capture release was requested.
     if (eventResult.releaseMouseCapture) {
         mouseCapturePath.clear();
+    }
+
+    // If focus was requested.
+    if (eventResult.setFocus != nullptr) {
+        AUI_ASSERT(eventResult.setFocus->getIsFocusable(), "Tried to set focus to a "
+            "widget that isn't focusable.");
+
+        // Set focus to the new path.
+        WidgetPath newFocusPath{getPathUnderWidget(eventResult.setFocus)};
+        handleSetFocus(newFocusPath);
+    }
+}
+
+void EventRouter::setFocusIfFocusable(WidgetPath& eventPath)
+{
+    // Reverse iterate eventPath, looking for a focusable widget.
+    for (auto it = (eventPath.end() - 1); it != eventPath.begin(); --it) {
+        WidgetWeakRef& widgetWeakRef{*it};
+        if (!(widgetWeakRef.isValid())) {
+            continue;
+        }
+
+        // If this widget is focusable, set the path from eventPath's root
+        // to this widget as the focus path.
+        Widget& widget{widgetWeakRef.get()};
+        if (widget.getIsFocusable()) {
+            WidgetPath newFocusPath(eventPath.begin(), (it + 1));
+            handleSetFocus(newFocusPath);
+            return;
+        }
+    }
+}
+
+void EventRouter::handleSetFocus(WidgetPath& newFocusPath)
+{
+    // If the given path is valid for focusing.
+    if (!(newFocusPath.empty()) && newFocusPath.back().isValid()) {
+        // If there's an existing focused widget, pass a FocusLost event to it.
+        if (!(focusPath.empty()) && focusPath.back().isValid()) {
+            Widget& oldFocusedWidget{focusPath.back().get()};
+
+            oldFocusedWidget.onFocusLost();
+        }
+
+        // Pass a FocusGained event to the new widget.
+        Widget& newFocusedWidget{newFocusPath.back().get()};
+        EventResult eventResult{newFocusedWidget.onFocusGained()};
+
+        AUI_ASSERT((eventResult.setFocus != &newFocusedWidget), "Tried to "
+            "recursively set focus.");
+
+        processEventResult(eventResult);
+
+        // Save the new path as the current focus path.
+        focusPath = newFocusPath;
+    }
+}
+
+void EventRouter::handleDropFocus()
+{
+    // If a widget is focused.
+    if (!(focusPath.empty())) {
+        // If the focused widget is still alive, pass a FocusLost event to it.
+        if (focusPath.back().isValid()) {
+            Widget& oldFocusedWidget{focusPath.back().get()};
+            oldFocusedWidget.onFocusLost();
+        }
+
+        focusPath.clear();
     }
 }
 

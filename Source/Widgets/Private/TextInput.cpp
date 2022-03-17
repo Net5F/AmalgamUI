@@ -31,6 +31,9 @@ TextInput::TextInput(Screen& inScreen, const SDL_Rect& inLogicalExtent,
     children.push_back(disabledImage);
     children.push_back(text);
 
+    // Flag ourselves as keyboard focusable, so we can receive keyboard events.
+    isFocusable = true;
+
     // Default to left-justifying the text within the button. The user can set
     // it otherwise if they care to.
     text.setVerticalAlignment(AUI::Text::VerticalAlignment::Center);
@@ -118,19 +121,15 @@ EventResult TextInput::onMouseDown(MouseButtonType buttonType, const SDL_Point& 
 
     // Only respond to the left mouse button.
     if (buttonType != MouseButtonType::Left) {
-        return EventResult{.wasConsumed{false}};
+        return EventResult{.wasHandled{false}};
     }
     // If we're disabled, ignore the event.
     else if (currentState == State::Disabled) {
-        return EventResult{.wasConsumed{false}};
+        return EventResult{.wasHandled{false}};
     }
 
-    // If we don't have focus, assume focus.
-    if (currentState != State::Focused) {
-        assumeFocus();
-    }
-
-    return EventResult{.wasConsumed{true}};
+    // Note: Since we're handling a MouseDown, we'll be given focus.
+    return EventResult{.wasHandled{true}};
 }
 
 void TextInput::onMouseEnter()
@@ -156,6 +155,53 @@ void TextInput::onMouseLeave()
     // If we're hovered, unhover.
     if (currentState == State::Hovered) {
         setCurrentState(State::Normal);
+    }
+}
+
+EventResult TextInput::onFocusGained()
+{
+    AUI_LOG_INFO("TextInput onFocusGained()");
+    // Set our state to focused.
+    setCurrentState(State::Focused);
+    focusedInputCount++;
+
+    // If there wasn't already a focused input, begin generating text input
+    // events.
+    if (focusedInputCount == 1) {
+        SDL_StartTextInput();
+    }
+
+    // Reset the text cursor's state.
+    // Show the text cursor immediately so the user can see where they're at.
+    cursorIsVisible = true;
+    accumulatedBlinkTime = 0;
+
+    // Move the cursor to the end.
+    cursorIndex = text.asString().length();
+
+    // Refresh the text position to account for the change.
+    refreshTextScrollOffset();
+
+    return EventResult{.wasHandled{true}};
+}
+
+void TextInput::onFocusLost()
+{
+    // Set our state back to normal.
+    setCurrentState(State::Normal);
+    focusedInputCount--;
+
+    // If there are no other focused inputs, stop generating text input events.
+    if (focusedInputCount == 0) {
+        SDL_StopTextInput();
+    }
+
+    // Reset the text cursor's state.
+    cursorIsVisible = false;
+
+    // If a callback is registered, signal that the the text was committed.
+    if (onTextCommitted) {
+        onTextCommitted();
     }
 }
 
@@ -467,7 +513,7 @@ Widget* TextInput::handleEnterEvent()
 {
     // If we have focus, remove it.
     if (currentState == State::Focused) {
-        removeFocus();
+//        removeFocus();
     }
 
     return this;
@@ -501,50 +547,6 @@ void TextInput::setCurrentState(State inState)
             disabledImage.setIsVisible(true);
             break;
         }
-    }
-}
-
-void TextInput::assumeFocus()
-{
-    // Set our state to focused.
-    setCurrentState(State::Focused);
-    focusedInputCount++;
-
-    // If there wasn't already a focused input, begin generating text input
-    // events.
-    if (focusedInputCount == 1) {
-        SDL_StartTextInput();
-    }
-
-    // Reset the text cursor's state.
-    // Show the text cursor immediately so the user can see where they're at.
-    cursorIsVisible = true;
-    accumulatedBlinkTime = 0;
-
-    // Move the cursor to the end.
-    cursorIndex = text.asString().length();
-
-    // Refresh the text position to account for the change.
-    refreshTextScrollOffset();
-}
-
-void TextInput::removeFocus()
-{
-    // Set our state back to normal.
-    setCurrentState(State::Normal);
-    focusedInputCount--;
-
-    // If there are no other focused inputs, stop generating text input events.
-    if (focusedInputCount == 0) {
-        SDL_StopTextInput();
-    }
-
-    // Reset the text cursor's state.
-    cursorIsVisible = false;
-
-    // If a callback is registered, signal that the the text was committed.
-    if (onTextCommitted) {
-        onTextCommitted();
     }
 }
 

@@ -3,13 +3,13 @@
 #include "AUI/WidgetPath.h"
 #include "AUI/WidgetWeakRef.h"
 #include "AUI/MouseButtonType.h"
+#include "AUI/EventResult.h"
 #include <SDL2/SDL_events.h>
 
 namespace AUI
 {
 
 class Screen;
-struct EventResult;
 
 /**
  * Translates SDL events to AUI events and handles their routing.
@@ -62,27 +62,52 @@ public:
 
 private:
     /**
+     * Used for passing data from a specific event handler function back up to
+     * a general event handler function.
+     */
+    struct HandlerReturn
+    {
+        EventResult eventResult{};
+        /** If eventResult.wasHandled == true, this points to the widget that
+            handled the event. */
+        WidgetPath::iterator handlerWidget;
+    };
+
+    /**
      * Translates the given SDL button type to our MouseButtonType.
      */
     MouseButtonType translateSDLButtonType(Uint8 sdlButtonType);
 
     /**
-     * @return A widget path containing all widgets that are underneath the
-     *         given cursorPosition.
-     *         If no widgets are under the cursor, returns an empty path.
+     * Returns a widget path containing all widgets that are underneath the
+     * given cursor position.
+     *
+     * If no widgets are under the cursor, returns an empty path.
      */
     WidgetPath getPathUnderCursor(const SDL_Point& cursorPosition);
 
     /**
+     * Returns a path that traces from the root-most tracked relative of the
+     * given widget, down to the given widget (inclusive).
+     *
+     * If all relevant widgets are being tracked by this locator, this will
+     * return the path from the widget's parent Window down to the widget.
+     *
+     * Note: This relies on our rules: parent widgets must fully overlap their
+     *       children, and it's invalid for sibling widgets to overlap.
+     */
+    WidgetPath getPathUnderWidget(const Widget* widget);
+
+    /**
      * Routes a MouseDown to the given widget path.
      */
-    EventResult handleMouseDown(MouseButtonType buttonType, const SDL_Point& cursorPosition,
+    HandlerReturn handleMouseDown(MouseButtonType buttonType, const SDL_Point& cursorPosition,
                          WidgetPath& clickPath);
 
     /**
      * Routes a MouseDoubleClick to the given widget path.
      */
-    EventResult handleMouseDoubleClick(MouseButtonType buttonType,
+    HandlerReturn handleMouseDoubleClick(MouseButtonType buttonType,
                                   const SDL_Point& cursorPosition, WidgetPath& clickPath);
 
     /**
@@ -104,8 +129,29 @@ private:
 
     /**
      * Processes the given event result. May update mouse capture, etc.
+     *
+     * @param eventResult  The event result to process.
      */
     void processEventResult(const EventResult& eventResult);
+
+    /**
+     * If eventPath has any focusable widgets, sets focus to the path from
+     * eventPath's root to its leafmost focusable widget.
+     */
+    void setFocusIfFocusable(WidgetPath& eventPath);
+
+    /**
+     * Sets up newFocusPath as the new focus path.
+     * If focus is set, routes a FocusLost to the leafmost widget in focusPath.
+     * Routes a FocusGained to the leafmost widget in newFocusPath.
+     */
+    void handleSetFocus(WidgetPath& newFocusPath);
+
+    /**
+     * If focusPath is set, clears it and routes a FocusLost to the leafmost
+     * widget.
+     */
+    void handleDropFocus();
 
     /** Used to interact with the Window stack. */
     Screen& screen;
@@ -121,6 +167,16 @@ private:
         Note: This path just holds the captor widget. We use a path instead
               of using a single ref because the semantics are more clear. */
     WidgetPath mouseCapturePath;
+
+    /** If non-empty, holds the widget that is currently focused.
+        Focused widgets will receive key and character events.
+        Focus is gained on left mouse click or when requested.
+        Focus is dropped if the mouse is clicked on an area that isn't the
+        focused widget, or the escape key is pressed, or when requested.
+        Note: This path holds all widgets from the Window to the focused
+              widget. KeyDown events will be tunneled then bubbled through
+              the entire path. */
+    WidgetPath focusPath;
 };
 
 } // End namespace AUI

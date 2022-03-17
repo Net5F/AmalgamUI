@@ -15,13 +15,14 @@ namespace AUI
 {
 Widget::Widget(Screen& inScreen, const SDL_Rect& inLogicalExtent,
                      const std::string& inDebugName)
-: screen(inScreen)
+: screen{inScreen}
 , debugName{inDebugName}
 , logicalExtent{inLogicalExtent}
 , scaledExtent{ScalingHelpers::logicalToActual(logicalExtent)}
 , renderExtent{}
 , lastUsedScreenSize{Core::getActualScreenSize()}
 , isVisible{true}
+, isFocusable{false}
 {
     Core::incWidgetCount();
 }
@@ -50,22 +51,22 @@ void Widget::setLogicalExtent(const SDL_Rect& inLogicalExtent)
     scaledExtent = ScalingHelpers::logicalToActual(logicalExtent);
 }
 
-SDL_Rect Widget::getLogicalExtent()
+SDL_Rect Widget::getLogicalExtent() const
 {
     return logicalExtent;
 }
 
-SDL_Rect Widget::getScaledExtent()
+SDL_Rect Widget::getScaledExtent() const
 {
     return scaledExtent;
 }
 
-SDL_Rect Widget::getRenderExtent()
+SDL_Rect Widget::getRenderExtent() const
 {
     return renderExtent;
 }
 
-const std::string& Widget::getDebugName()
+const std::string& Widget::getDebugName() const
 {
     return debugName;
 }
@@ -75,49 +76,54 @@ void Widget::setIsVisible(bool inIsVisible)
     isVisible = inIsVisible;
 }
 
-bool Widget::getIsVisible()
+bool Widget::getIsVisible() const
 {
     return isVisible;
+}
+
+bool Widget::getIsFocusable() const
+{
+    return isFocusable;
 }
 
 EventResult Widget::onPreviewMouseDown(MouseButtonType buttonType, const SDL_Point& cursorPosition)
 {
     ignore(buttonType);
     ignore(cursorPosition);
-    return EventResult{.wasConsumed{false}};
+    return EventResult{.wasHandled{false}};
 }
 
 EventResult Widget::onMouseDown(MouseButtonType buttonType, const SDL_Point& cursorPosition)
 {
     ignore(buttonType);
     ignore(cursorPosition);
-    return EventResult{.wasConsumed{false}};
+    return EventResult{.wasHandled{false}};
 }
 
 EventResult Widget::onMouseUp(MouseButtonType buttonType, const SDL_Point& cursorPosition)
 {
     ignore(buttonType);
     ignore(cursorPosition);
-    return EventResult{.wasConsumed{false}};
+    return EventResult{.wasHandled{false}};
 }
 
 EventResult Widget::onMouseDoubleClick(MouseButtonType buttonType, const SDL_Point& cursorPosition)
 {
     ignore(buttonType);
     ignore(cursorPosition);
-    return EventResult{.wasConsumed{false}};
+    return EventResult{.wasHandled{false}};
 }
 
 EventResult Widget::onMouseWheel(int amountScrolled)
 {
     ignore(amountScrolled);
-    return EventResult{.wasConsumed{false}};
+    return EventResult{.wasHandled{false}};
 }
 
 EventResult Widget::onMouseMove(const SDL_Point& cursorPosition)
 {
     ignore(cursorPosition);
-    return EventResult{.wasConsumed{false}};
+    return EventResult{.wasHandled{false}};
 }
 
 void Widget::onMouseEnter()
@@ -125,6 +131,15 @@ void Widget::onMouseEnter()
 }
 
 void Widget::onMouseLeave()
+{
+}
+
+EventResult Widget::onFocusGained()
+{
+    return EventResult{.wasHandled{false}};
+}
+
+void Widget::onFocusLost()
 {
 }
 

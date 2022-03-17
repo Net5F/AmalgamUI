@@ -16,15 +16,23 @@ class Widget;
  */
 struct EventResult {
 public:
-    /** If true, this event was consumed and should not propagate any
+    /** If true, this event was handled and should not propagate any
         further. */
-    bool wasConsumed{false};
+    bool wasHandled{false};
 
     /** If non-nullptr, mouse capture should be set to the provided widget. */
     Widget* setMouseCapture{nullptr};
 
     /** If true, mouse capture should be released. */
     bool releaseMouseCapture{false};
+
+    /** If non-nullptr, keyboard focus should be set to the provided widget.
+        If focus is already set to a different widget, it will be dropped
+        and set to the provided widget. */
+    Widget* setFocus{nullptr};
+
+    /** If true, keyboard focus should be dropped. */
+    bool dropFocus{false};
 };
 
 } // namespace AUI

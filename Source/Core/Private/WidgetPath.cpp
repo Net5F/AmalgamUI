@@ -5,6 +5,39 @@
 namespace AUI
 {
 
+WidgetPath::WidgetPath()
+{
+}
+
+WidgetPath::WidgetPath(const WidgetPath& other)
+: widgetRefs{other.widgetRefs}
+{
+}
+
+WidgetPath::WidgetPath(WidgetPath&& other)
+: widgetRefs{std::move(other.widgetRefs)}
+{
+}
+
+WidgetPath::WidgetPath(iterator first, iterator last)
+{
+    for (iterator it = first; it != last; ++it) {
+        widgetRefs.push_back(*it);
+    }
+}
+
+WidgetPath& WidgetPath::operator=(const WidgetPath& other)
+{
+    widgetRefs = other.widgetRefs;
+    return *this;
+}
+
+WidgetPath& WidgetPath::operator=(WidgetPath&& other)
+{
+    widgetRefs = other.widgetRefs;
+    return *this;
+}
+
 void WidgetPath::push_back(Widget& widget)
 {
     widgetRefs.emplace_back(widget);
@@ -83,6 +116,39 @@ bool WidgetPath::empty() const
 std::size_t WidgetPath::size()
 {
     return widgetRefs.size();
+}
+
+WidgetPath::iterator WidgetPath::find(const Widget* widget)
+{
+    for (auto it = widgetRefs.begin(); it != widgetRefs.end(); ++it) {
+        if (&(it->get()) == widget) {
+            return it;
+        }
+    }
+
+    return widgetRefs.end();
+}
+
+WidgetPath::const_iterator WidgetPath::find(const Widget* widget) const
+{
+    for (auto it = widgetRefs.begin(); it != widgetRefs.end(); ++it) {
+        if (&(it->get()) == widget) {
+            return it;
+        }
+    }
+
+    return widgetRefs.end();
+}
+
+bool WidgetPath::contains(const Widget* widget) const
+{
+    for (auto it = widgetRefs.begin(); it != widgetRefs.end(); ++it) {
+        if (&(it->get()) == widget) {
+            return true;
+        }
+    }
+
+    return false;
 }
 
 WidgetPath::iterator WidgetPath::begin()

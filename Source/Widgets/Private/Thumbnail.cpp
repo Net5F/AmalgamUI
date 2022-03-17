@@ -212,11 +212,11 @@ EventResult Thumbnail::onMouseDown(MouseButtonType buttonType, const SDL_Point& 
 
     // Only respond to the left mouse button.
     if (buttonType != MouseButtonType::Left) {
-        return EventResult{.wasConsumed{false}};
+        return EventResult{.wasHandled{false}};
     }
     // If we're already selected and active, do nothing.
     else if (isSelected && isActive) {
-        return EventResult{.wasConsumed{false}};
+        return EventResult{.wasHandled{false}};
     }
 
     if (isSelectable && !isSelected) {
@@ -232,10 +232,10 @@ EventResult Thumbnail::onMouseDown(MouseButtonType buttonType, const SDL_Point& 
         //       the thumbnail to stay selected until the parent tells it to
         //       deselect.
 
-        return EventResult{.wasConsumed{true}};
+        return EventResult{.wasHandled{true}};
     }
 
-    return EventResult{.wasConsumed{false}};
+    return EventResult{.wasHandled{false}};
 }
 
 EventResult Thumbnail::onMouseDoubleClick(MouseButtonType buttonType, const SDL_Point& cursorPosition)
@@ -244,7 +244,7 @@ EventResult Thumbnail::onMouseDoubleClick(MouseButtonType buttonType, const SDL_
 
     // Only respond to the left mouse button.
     if (buttonType != MouseButtonType::Left) {
-        return EventResult{.wasConsumed{false}};
+        return EventResult{.wasHandled{false}};
     }
 
     // If we aren't already active, activate.
@@ -258,10 +258,10 @@ EventResult Thumbnail::onMouseDoubleClick(MouseButtonType buttonType, const SDL_
             setIsSelected(false);
         }
 
-        return EventResult{.wasConsumed{true}};
+        return EventResult{.wasHandled{true}};
     }
 
-    return EventResult{.wasConsumed{false}};
+    return EventResult{.wasHandled{false}};
 }
 
 void Thumbnail::onMouseEnter()

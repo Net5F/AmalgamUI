@@ -59,11 +59,11 @@ EventResult Button::onMouseDown(MouseButtonType buttonType, const SDL_Point& cur
 
     // Only respond to the left mouse button.
     if (buttonType != MouseButtonType::Left) {
-        return EventResult{.wasConsumed{false}};
+        return EventResult{.wasHandled{false}};
     }
     // If we're disabled, ignore the event.
     else if (currentState == State::Disabled) {
-        return EventResult{.wasConsumed{false}};
+        return EventResult{.wasHandled{false}};
     }
 
     // Check if the user set a callback.
@@ -78,7 +78,7 @@ EventResult Button::onMouseDown(MouseButtonType buttonType, const SDL_Point& cur
     onPressed();
 
     // Set mouse capture so we get the associated MouseUp.
-    return EventResult{.wasConsumed{true}, .setMouseCapture{this}};
+    return EventResult{.wasHandled{true}, .setMouseCapture{this}};
 }
 
 EventResult Button::onMouseUp(MouseButtonType buttonType, const SDL_Point& cursorPosition)
@@ -87,11 +87,11 @@ EventResult Button::onMouseUp(MouseButtonType buttonType, const SDL_Point& curso
 
     // Only respond to the left mouse button.
     if (buttonType != MouseButtonType::Left) {
-        return EventResult{.wasConsumed{false}};
+        return EventResult{.wasHandled{false}};
     }
     // If we're disabled, ignore the event.
     else if (currentState == State::Disabled) {
-        return EventResult{.wasConsumed{false}};
+        return EventResult{.wasHandled{false}};
     }
 
     // If we were being pressed.
@@ -106,7 +106,7 @@ EventResult Button::onMouseUp(MouseButtonType buttonType, const SDL_Point& curso
         }
     }
 
-    return EventResult{.wasConsumed{true}, .releaseMouseCapture{true}};
+    return EventResult{.wasHandled{true}, .releaseMouseCapture{true}};
 }
 
 void Button::onMouseEnter()

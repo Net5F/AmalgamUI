@@ -47,7 +47,7 @@ EventResult VerticalGridContainer::onMouseWheel(int amountScrolled)
         scrollElements(false);
     }
 
-    return EventResult{.wasConsumed{true}};
+    return EventResult{.wasHandled{true}};
 }
 
 void VerticalGridContainer::updateLayout(const SDL_Rect& parentExtent, WidgetLocator* widgetLocator)

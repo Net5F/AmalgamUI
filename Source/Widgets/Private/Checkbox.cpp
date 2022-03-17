@@ -62,7 +62,7 @@ EventResult Checkbox::onMouseDown(MouseButtonType buttonType, const SDL_Point& c
 
     // Only respond to the left mouse button.
     if (buttonType != MouseButtonType::Left) {
-        return EventResult{.wasConsumed{false}};
+        return EventResult{.wasHandled{false}};
     }
 
     // If we're unchecked.
@@ -93,7 +93,7 @@ EventResult Checkbox::onMouseDown(MouseButtonType buttonType, const SDL_Point& c
         onUnchecked();
     }
 
-    return EventResult{.wasConsumed{true}};
+    return EventResult{.wasHandled{true}};
 }
 
 } // namespace AUI

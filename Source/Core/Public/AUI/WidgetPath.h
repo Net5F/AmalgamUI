@@ -23,9 +23,40 @@ public:
     using const_reverse_iterator = std::vector<WidgetWeakRef>::const_reverse_iterator;
 
     //-------------------------------------------------------------------------
-    // Non-STL interface
+    // Constructors, Assignment
     //-------------------------------------------------------------------------
-    //TODO: Add contains()
+    /**
+     * Constructs an empty path.
+     */
+    WidgetPath();
+
+    /**
+     * Copy constructor. Constructs the path with the contents of other.
+     */
+    WidgetPath(const WidgetPath& other);
+
+    /**
+     * Move constructor. Constructs the path with the contents of other using
+     * move semantics.
+     */
+    WidgetPath(WidgetPath&& other);
+
+    /**
+     * Constructs the path with the contents of the range [first, last).
+     */
+    WidgetPath(iterator first, iterator last);
+
+    /**
+     * Copy assignment operator. Replaces the contents of the path with the
+     * contents of other.
+     */
+    WidgetPath& operator=(const WidgetPath& other);
+
+    /**
+     * Move assignment operator. Replaces the contents of the path with the
+     * contents of other using move semantics.
+     */
+    WidgetPath& operator=(WidgetPath&& other);
 
     //-------------------------------------------------------------------------
     // Modifiers
@@ -91,6 +122,25 @@ public:
      * Returns the number of widgets in this path.
      */
     std::size_t size();
+
+    //-------------------------------------------------------------------------
+    // Lookup
+    //-------------------------------------------------------------------------
+    /**
+     * Iterator to the first element referencing the given widget. If no such
+     * element is found, past-the-end (see end()) iterator is returned.
+     *
+     * Note: Doesn't check if the widget reference is still valid.
+     */
+    iterator find(const Widget* widget);
+    const_iterator find(const Widget* widget) const;
+
+    /**
+     * true if the given widget was found in this path, otherwise false.
+     *
+     * Note: Doesn't check if the widget reference is still valid.
+     */
+    bool contains(const Widget* widget) const;
 
     //-------------------------------------------------------------------------
     // Iterators

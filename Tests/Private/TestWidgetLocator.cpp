@@ -36,7 +36,7 @@ private:
  *
  * Things are laid out such that a hit test in the top left corner should hit
  * (top to bottom) Image -> TestWidget -> VerticalGridContainer
- *                 -> TestParentWidget,
+ *                 -> TestWidgetParent,
  * while a hit test in the bottom right corner should only hit
  * TestWidgetParent.
  */
@@ -133,6 +133,10 @@ TEST_CASE("TestWidgetLocator")
         {
             WidgetPath widgetPath{widgetLocator.getPathUnderPoint({210, 210})};
             REQUIRE(widgetPath.size() == 4);
+            REQUIRE(widgetPath[0].get().getDebugName() == "TestWidgetParent");
+            REQUIRE(widgetPath[1].get().getDebugName() == "GridContainer");
+            REQUIRE(widgetPath[2].get().getDebugName() == "Widget1");
+            REQUIRE(widgetPath[3].get().getDebugName() == "Image");
         }
         {
             WidgetPath widgetPath{widgetLocator.getPathUnderPoint({580, 580})};

@@ -78,6 +78,9 @@ public:
      *
      * Note: If this event is handled, it will also stop the MouseDown event
      *       from bubbling afterwards.
+     *
+     * @param cursorPosition  The cursor's position, relative to the top left
+     *                        of the screen.
      */
     virtual EventResult onPreviewMouseDown(MouseButtonType buttonType, const SDL_Point& cursorPosition);
 
@@ -85,6 +88,9 @@ public:
      * Called when a mouse click occurs on this widget.
      *
      * This event is bubbled to widgets under the mouse.
+     *
+     * @param cursorPosition  The cursor's position, relative to the top left
+     *                        of the screen.
      */
     virtual EventResult onMouseDown(MouseButtonType buttonType, const SDL_Point& cursorPosition);
 
@@ -92,6 +98,9 @@ public:
      * Called when a mouse click is released.
      *
      * This event is only routed to the widget that is capturing the mouse.
+     *
+     * @param cursorPosition  The cursor's position, relative to the top left
+     *                        of the screen.
      */
     virtual EventResult onMouseUp(MouseButtonType buttonType, const SDL_Point& cursorPosition);
 
@@ -100,6 +109,9 @@ public:
      * this widget.
      *
      * This event is bubbled to widgets under the mouse.
+     *
+     * @param cursorPosition  The cursor's position, relative to the top left
+     *                        of the screen.
      */
     virtual EventResult onMouseDoubleClick(MouseButtonType buttonType, const SDL_Point& cursorPosition);
 
@@ -122,6 +134,9 @@ public:
      *
      * This event is routed to the widget that is capturing the mouse. If
      * there's no mouse captor, it's bubbled to widgets under the mouse.
+     *
+     * @param cursorPosition  The cursor's position, relative to the top left
+     *                        of the screen.
      */
     virtual EventResult onMouseMove(const SDL_Point& cursorPosition);
 

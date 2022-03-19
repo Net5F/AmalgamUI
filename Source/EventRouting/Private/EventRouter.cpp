@@ -26,8 +26,6 @@ bool EventRouter::handleMouseButtonDown(SDL_MouseButtonEvent& event)
         // clicks occurred.
         MouseButtonType buttonType{translateSDLButtonType(event.button)};
         if (event.clicks == 1) {
-            // TODO: Subtract the widget's renderExtent from cursorPosition
-            //       before passing it in.
             handlerReturn = handleMouseDown(buttonType, cursorPosition, clickPath);
         }
         else {
@@ -581,7 +579,6 @@ bool EventRouter::handleKeyUp(SDL_Keycode keyCode)
 
         // Pass the KeyUp event to the widget.
         Widget& widget{widgetWeakRef.get()};
-        AUI_LOG_INFO("Sending KeyUp to %s", widget.getDebugName().c_str());
         eventResult = widget.onKeyUp(keyCode);
 
         // If the event was handled, break early.

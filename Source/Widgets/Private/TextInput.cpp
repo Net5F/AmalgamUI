@@ -317,6 +317,9 @@ void TextInput::onTick(double timestepS)
             accumulatedBlinkTime -= CURSOR_BLINK_RATE_S;
         }
     }
+
+    // Call every visible child's onTick().
+    Widget::onTick(timestepS);
 }
 
 void TextInput::render()

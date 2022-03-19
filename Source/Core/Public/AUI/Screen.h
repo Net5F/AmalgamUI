@@ -64,7 +64,7 @@ protected:
     /** An ordered list of references to this screen's windows.
         Windows must be added to this list to be involved in layout, rendering,
         and event propagation.
-        Windows must be separate members of the class. This list only
+        Windows must be separate members of the derived class. This list only
         holds references to those members.
         This list's elements are in rendering order (rendering happens from
         front -> back, events propagate from back -> front). */

@@ -170,7 +170,13 @@ EventResult Widget::onTextInput(const std::string& inputText)
 
 void Widget::onTick(double timestepS)
 {
-    ignore(timestepS);
+    // Call every visible child's onTick().
+    for (Widget& child : children)
+    {
+        if (child.getIsVisible()) {
+            child.onTick(timestepS);
+        }
+    }
 }
 
 void Widget::updateLayout(const SDL_Rect& parentExtent, WidgetLocator* widgetLocator)

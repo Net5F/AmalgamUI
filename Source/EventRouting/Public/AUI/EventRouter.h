@@ -26,37 +26,37 @@ public:
     EventRouter(Screen& inScreen);
 
     /**
-     * Called when a SDL_MOUSEBUTTONDOWN event occurs.
+     * Call when a SDL_MOUSEBUTTONDOWN event occurs.
      * @return true if the event was consumed, else false.
      */
     bool handleMouseButtonDown(SDL_MouseButtonEvent& event);
 
     /**
-     * Called when a SDL_MOUSEBUTTONUP event occurs.
+     * Call when a SDL_MOUSEBUTTONUP event occurs.
      * @return true if the event was consumed, else false.
      */
     bool handleMouseButtonUp(SDL_MouseButtonEvent& event);
 
     /**
-     * Called when a SDL_MOUSEWHEEL event occurs.
+     * Call when a SDL_MOUSEWHEEL event occurs.
      * @return true if the event was consumed, else false.
      */
     bool handleMouseWheel(SDL_MouseWheelEvent& event);
 
     /**
-     * Called when a SDL_MOUSEMOTION event occurs.
+     * Call when a SDL_MOUSEMOTION event occurs.
      * @return true if the event was consumed, else false.
      */
     bool handleMouseMove(SDL_MouseMotionEvent& event);
 
     /**
-     * Called when a SDL_KEYDOWN event occurs.
+     * Call when a SDL_KEYDOWN event occurs.
      * @return true if the event was consumed, else false.
      */
     bool handleKeyDown(SDL_KeyboardEvent& event);
 
     /**
-     * Called when a SDL_TEXTINPUT event occurs.
+     * Call when a SDL_TEXTINPUT event occurs.
      * @return true if the event was consumed, else false.
      */
     bool handleTextInput(SDL_TextInputEvent& event);

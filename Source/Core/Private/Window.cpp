@@ -18,10 +18,8 @@ WidgetPath Window::getPathUnderPoint(const SDL_Point& actualPoint)
 
 void Window::tick(double timestepS)
 {
-    // TODO: Fix this to call every child for real
-    // Call every child's tick.
+    // Call every visible child's onTick().
     for (Widget& child : children) {
-        // If the child isn't visible, skip it.
         if (!(child.getIsVisible())) {
             continue;
         }

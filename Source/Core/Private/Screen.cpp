@@ -14,8 +14,8 @@ Screen::Screen(const std::string& inDebugName)
 
 bool Screen::handleOSEvent(SDL_Event& event)
 {
-    // TODO: Either here or in EventRouter, move clicked windows to the
-    //       top of the stack.
+    // TODO: Either here or in EventRouter, move windows to the
+    //       top of the stack when they're clicked.
     // Pass the event to the appropriate handler.
     switch (event.type) {
         case SDL_MOUSEBUTTONDOWN: {
@@ -45,14 +45,13 @@ bool Screen::handleOSEvent(SDL_Event& event)
 
 void Screen::tick(double timestepS)
 {
-    // Call every window's tick.
+    // Call every visible window's onTick().
     for (Window& window : windows) {
-        // If the window isn't visible, skip it.
         if (!(window.getIsVisible())) {
             continue;
         }
 
-        window.tick(timestepS);
+        window.onTick(timestepS);
     }
 }
 

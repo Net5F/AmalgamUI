@@ -68,6 +68,17 @@ std::size_t Container::size()
     return elements.size();
 }
 
+void Container::onTick(double timestepS)
+{
+    // Call every visible element's onTick().
+    for (std::unique_ptr<Widget>& element : elements)
+    {
+        if (element->getIsVisible()) {
+            element->onTick(timestepS);
+        }
+    }
+}
+
 void Container::updateLayout(const SDL_Rect& parentExtent, WidgetLocator* widgetLocator)
 {
     // Run the normal layout step (will update us, but won't process any of

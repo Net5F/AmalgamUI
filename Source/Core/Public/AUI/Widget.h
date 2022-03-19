@@ -206,6 +206,9 @@ public:
     /**
      * Called when the current screen's tick() is called.
      *
+     * Note: If you override this function, you must call onTick() on all of
+     *       your children. You can do this by calling Widget::onTick().
+     *
      * @param timestepS  The amount of time that has passed since the last
      *                   tick() call, in seconds.
      */

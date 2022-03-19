@@ -139,8 +139,33 @@ EventResult Widget::onFocusGained()
     return EventResult{.wasHandled{false}};
 }
 
-void Widget::onFocusLost()
+void Widget::onFocusLost(FocusLostType focusLostType)
 {
+    ignore(focusLostType);
+}
+
+EventResult Widget::onPreviewKeyDown(SDL_Keycode keyCode)
+{
+    ignore(keyCode);
+    return EventResult{.wasHandled{false}};
+}
+
+EventResult Widget::onKeyDown(SDL_Keycode keyCode)
+{
+    ignore(keyCode);
+    return EventResult{.wasHandled{false}};
+}
+
+EventResult Widget::onKeyUp(SDL_Keycode keyCode)
+{
+    ignore(keyCode);
+    return EventResult{.wasHandled{false}};
+}
+
+EventResult Widget::onTextInput(const std::string& inputText)
+{
+    ignore(inputText);
+    return EventResult{.wasHandled{false}};
 }
 
 void Widget::onTick(double timestepS)

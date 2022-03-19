@@ -2,6 +2,7 @@
 
 #include "AUI/ScreenResolution.h"
 #include "AUI/MouseButtonType.h"
+#include "AUI/FocusLostType.h"
 #include "AUI/EventResult.h"
 #include <SDL2/SDL_rect.h>
 #include <SDL2/SDL_events.h>
@@ -75,7 +76,7 @@ public:
     /**
      * Called during the tunneling preview pass for a MouseDown event.
      *
-     * Note: If this event is consumed, it will also stop the MouseDown event
+     * Note: If this event is handled, it will also stop the MouseDown event
      *       from bubbling afterwards.
      */
     virtual EventResult onPreviewMouseDown(MouseButtonType buttonType, const SDL_Point& cursorPosition);
@@ -153,7 +154,39 @@ public:
      * This event is routed to the previously focused widget when focus is
      * cleared or changed.
      */
-    virtual void onFocusLost();
+    virtual void onFocusLost(FocusLostType focusLostType);
+
+    /**
+     * Called during the tunneling preview pass for a KeyDown event.
+     *
+     * Note: If this event is handled, it will also stop the KeyDown event
+     *       from bubbling afterwards.
+     */
+    virtual EventResult onPreviewKeyDown(SDL_Keycode keyCode);
+
+    /**
+     * Called when a key is pressed while this widget has focus.
+     *
+     * This event is routed only to the currently focused widget.
+     */
+    virtual EventResult onKeyDown(SDL_Keycode keyCode);
+
+    /**
+     * Called when a key is released while this widget has focus.
+     *
+     * This event is routed only to the currently focused widget.
+     */
+    virtual EventResult onKeyUp(SDL_Keycode keyCode);
+
+    /**
+     * Called when a text character is committed.
+     *
+     * Note: This currently doesn't support text composition systems (such as
+     *       for Japanese text), but we will eventually add such support.
+     *
+     * @param inputText  The input text in UTF-8 encoding.
+     */
+    virtual EventResult onTextInput(const std::string& inputText);
 
     /**
      * Called when the current screen's tick() is called.

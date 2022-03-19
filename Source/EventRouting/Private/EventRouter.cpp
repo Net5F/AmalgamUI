@@ -22,7 +22,6 @@ bool EventRouter::handleMouseButtonDown(SDL_MouseButtonEvent& event)
     SDL_Point cursorPosition{event.x, event.y};
     WidgetPath clickPath{getPathUnderCursor(cursorPosition)};
     if (!(clickPath.empty())) {
-        AUI_LOG_INFO("cursorPosition: %d, %d", cursorPosition.x, cursorPosition.y);
         // Perform a MouseDown or MouseDoubleClick depending on how many
         // clicks occurred.
         MouseButtonType buttonType{translateSDLButtonType(event.button)};
@@ -49,7 +48,7 @@ bool EventRouter::handleMouseButtonDown(SDL_MouseButtonEvent& event)
 
     // If the click wasn't handled and a widget has focus, drop it.
     if (!(handlerReturn.eventResult.wasHandled)) {
-        handleDropFocus();
+        handleDropFocus(FocusLostType::Click);
     }
 
     return handlerReturn.eventResult.wasHandled;
@@ -164,14 +163,46 @@ bool EventRouter::handleMouseMove(SDL_MouseMotionEvent& event)
 
 bool EventRouter::handleKeyDown(SDL_KeyboardEvent& event)
 {
-    ignore(event);
-    return false;
+    // If we don't have a focus path or the focused widget is gone, return
+    // early.
+    if (focusPath.empty() || !(focusPath.back().isValid())) {
+        return false;
+    }
+
+    bool wasHandled{false};
+    if (event.type == SDL_KEYDOWN) {
+        wasHandled = handleKeyDownInternal(event.keysym.sym);
+    }
+    else {
+        AUI_LOG_INFO("Press was released");
+        wasHandled = handleKeyUp(event.keysym.sym);
+    }
+
+    return wasHandled;
 }
 
 bool EventRouter::handleTextInput(SDL_TextInputEvent& event)
 {
-    ignore(event);
-    return false;
+    // Perform the bubbling pass (leaf -> root, TextInput).
+    EventResult eventResult{};
+    for (auto it = (focusPath.end() - 1); it != focusPath.begin(); --it) {
+        // If the widget is gone, skip it.
+        WidgetWeakRef& widgetWeakRef{*it};
+        if (!(widgetWeakRef.isValid())) {
+            continue;
+        }
+
+        // Pass the TextInput event to the widget.
+        Widget& widget{widgetWeakRef.get()};
+        eventResult = widget.onTextInput(event.text);
+
+        // If the event was handled, break early.
+        if (eventResult.wasHandled) {
+            break;
+        }
+    }
+
+    return eventResult.wasHandled;
 }
 
 MouseButtonType EventRouter::translateSDLButtonType(Uint8 sdlButtonType)
@@ -264,7 +295,6 @@ EventRouter::HandlerReturn EventRouter::handleMouseDown(MouseButtonType buttonTy
 
             // Pass the MouseDown event to the widget.
             Widget& widget{widgetWeakRef.get()};
-            AUI_LOG_INFO("Sending MouseDown to %s", widget.getDebugName().c_str());
             eventResult = widget.onMouseDown(buttonType, cursorPosition);
 
             // If the event was handled, break early.
@@ -275,7 +305,6 @@ EventRouter::HandlerReturn EventRouter::handleMouseDown(MouseButtonType buttonTy
         }
     }
 
-    AUI_LOG_INFO("eventResult.wasHandled: %u", eventResult.wasHandled);
     return {eventResult, handlerWidget};
 }
 
@@ -412,6 +441,10 @@ void EventRouter::processEventResult(const EventResult& eventResult)
         WidgetPath newFocusPath{getPathUnderWidget(eventResult.setFocus)};
         handleSetFocus(newFocusPath);
     }
+    // Else if dropping focus was requested.
+    else if (eventResult.dropFocus) {
+        handleDropFocus(FocusLostType::Requested);
+    }
 }
 
 void EventRouter::setFocusIfFocusable(WidgetPath& eventPath)
@@ -442,7 +475,12 @@ void EventRouter::handleSetFocus(WidgetPath& newFocusPath)
         if (!(focusPath.empty()) && focusPath.back().isValid()) {
             Widget& oldFocusedWidget{focusPath.back().get()};
 
-            oldFocusedWidget.onFocusLost();
+            oldFocusedWidget.onFocusLost(FocusLostType::NewFocus);
+        }
+        else if (focusPath.empty()) {
+            // If there was no focused widget, text input events will have been
+            // disabled. Enable them.
+            SDL_StartTextInput();
         }
 
         // Pass a FocusGained event to the new widget.
@@ -459,18 +497,102 @@ void EventRouter::handleSetFocus(WidgetPath& newFocusPath)
     }
 }
 
-void EventRouter::handleDropFocus()
+void EventRouter::handleDropFocus(FocusLostType focusLostType)
 {
     // If a widget is focused.
     if (!(focusPath.empty())) {
         // If the focused widget is still alive, pass a FocusLost event to it.
         if (focusPath.back().isValid()) {
             Widget& oldFocusedWidget{focusPath.back().get()};
-            oldFocusedWidget.onFocusLost();
+            oldFocusedWidget.onFocusLost(focusLostType);
         }
 
         focusPath.clear();
+
+        // Stop generating text input events, since there's no focused widget
+        // to handle them.
+        SDL_StopTextInput();
     }
+}
+
+bool EventRouter::handleKeyDownInternal(SDL_Keycode keyCode)
+{
+    // Perform the tunneling pass (root -> leaf, PreviewKeyDown).
+    EventResult eventResult{};
+    for (auto it = focusPath.begin(); it != focusPath.end(); ++it) {
+        // If the widget is gone, skip it.
+        WidgetWeakRef& widgetWeakRef{*it};
+        if (!(widgetWeakRef.isValid())) {
+            continue;
+        }
+
+        // Pass the PreviewKeyDown event to the widget.
+        Widget& widget{widgetWeakRef.get()};
+        eventResult = widget.onPreviewKeyDown(keyCode);
+
+        // If the event was handled, break early.
+        if (eventResult.wasHandled) {
+            break;
+        }
+    }
+
+    // If a widget didn't handle the event during the preview pass, perform
+    // the bubbling pass (leaf -> root, KeyDown).
+    if (!(eventResult.wasHandled)) {
+        for (auto it = (focusPath.end() - 1); it != focusPath.begin(); --it) {
+            // If the widget is gone, skip it.
+            WidgetWeakRef& widgetWeakRef{*it};
+            if (!(widgetWeakRef.isValid())) {
+                continue;
+            }
+
+            // Pass the KeyDown event to the widget.
+            Widget& widget{widgetWeakRef.get()};
+            eventResult = widget.onKeyDown(keyCode);
+
+            // If the event was handled, break early.
+            if (eventResult.wasHandled) {
+                break;
+            }
+        }
+    }
+
+    // If an escape key press wasn't handled, drop focus.
+    if (!(eventResult.wasHandled) && (keyCode == SDLK_ESCAPE)) {
+        handleDropFocus(FocusLostType::Escape);
+        eventResult.wasHandled = true;
+    }
+
+    processEventResult(eventResult);
+
+    return eventResult.wasHandled;
+}
+
+bool EventRouter::handleKeyUp(SDL_Keycode keyCode)
+{
+    // Perform the bubbling pass (leaf -> root, KeyUp).
+    EventResult eventResult{};
+    for (auto it = (focusPath.end() - 1); it != focusPath.begin(); --it) {
+        // If the widget is gone, skip it.
+        WidgetWeakRef& widgetWeakRef{*it};
+        if (!(widgetWeakRef.isValid())) {
+            continue;
+        }
+
+        // Pass the KeyUp event to the widget.
+        Widget& widget{widgetWeakRef.get()};
+        AUI_LOG_INFO("Sending KeyUp to %s", widget.getDebugName().c_str());
+        eventResult = widget.onKeyUp(keyCode);
+
+        // If the event was handled, break early.
+        if (eventResult.wasHandled) {
+            break;
+        }
+    }
+
+    processEventResult(eventResult);
+
+    return eventResult.wasHandled;
 }
 
 } // End namespace AUI

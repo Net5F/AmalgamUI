@@ -6,6 +6,7 @@ target_sources(AmalgamUI
         # files as "AUI/Xyz.h" for some extra clarity.
         Public/AUI/EventResult.h
         Public/AUI/EventRouter.h
+        Public/AUI/FocusLostType.h
         Public/AUI/MouseButtonType.h
 )
 

@@ -7,8 +7,6 @@
 
 namespace AUI
 {
-int TextInput::focusedInputCount = 0;
-
 TextInput::TextInput(Screen& inScreen, const SDL_Rect& inLogicalExtent,
                      const std::string& inDebugName)
 : Widget(inScreen, inLogicalExtent, inDebugName)
@@ -22,6 +20,7 @@ TextInput::TextInput(Screen& inScreen, const SDL_Rect& inLogicalExtent,
 , scaledCursorWidth{ScalingHelpers::logicalToActual(logicalCursorWidth)}
 , cursorIndex{0}
 , cursorIsVisible{false}
+, lastCommittedText{""}
 , text(screen, {0, 0, logicalExtent.w, logicalExtent.h})
 {
     // Add our children so they're included in rendering, etc.
@@ -90,11 +89,12 @@ void TextInput::setTextColor(const SDL_Color& inColor)
 
 void TextInput::setText(std::string_view inText)
 {
-    // Set the text member's text.
+    // Set the committed text.
+    lastCommittedText = inText;
     text.setText(inText);
 
-    // Move the cursor to the back (seems to be the most expected behavior.)
-    cursorIndex = text.asString().length();
+    // Move the cursor to the front (seems to be the most expected behavior).
+    cursorIndex = 0;
 
     // Refresh the text position to account for the change.
     refreshTextScrollOffset();
@@ -160,16 +160,8 @@ void TextInput::onMouseLeave()
 
 EventResult TextInput::onFocusGained()
 {
-    AUI_LOG_INFO("TextInput onFocusGained()");
     // Set our state to focused.
     setCurrentState(State::Focused);
-    focusedInputCount++;
-
-    // If there wasn't already a focused input, begin generating text input
-    // events.
-    if (focusedInputCount == 1) {
-        SDL_StartTextInput();
-    }
 
     // Reset the text cursor's state.
     // Show the text cursor immediately so the user can see where they're at.
@@ -185,92 +177,125 @@ EventResult TextInput::onFocusGained()
     return EventResult{.wasHandled{true}};
 }
 
-void TextInput::onFocusLost()
+void TextInput::onFocusLost(FocusLostType focusLostType)
 {
     // Set our state back to normal.
     setCurrentState(State::Normal);
-    focusedInputCount--;
-
-    // If there are no other focused inputs, stop generating text input events.
-    if (focusedInputCount == 0) {
-        SDL_StopTextInput();
-    }
 
     // Reset the text cursor's state.
     cursorIsVisible = false;
 
-    // If a callback is registered, signal that the the text was committed.
-    if (onTextCommitted) {
-        onTextCommitted();
+    // If we lost focus because of an Escape key press, revert to the last
+    // committed text state.
+    if (focusLostType == FocusLostType::Escape) {
+        // Note: Moves the cursor to the front.
+        setText(lastCommittedText);
+    }
+    else {
+        // We lost focus for some other reason, commit the current text.
+        lastCommittedText = text.asString();
+
+        // Move the cursor to the front (the most expected behavior).
+        cursorIndex = 0;
+
+        // Refresh the text position to account for the change.
+        refreshTextScrollOffset();
+
+        // If a callback is registered, signal that the the text was committed.
+        if (onTextCommitted) {
+            onTextCommitted();
+        }
     }
 }
 
-//Widget* TextInput::onKeyDown(SDL_KeyboardEvent& event)
-//{
-//    // If we don't have focus, ignore the event.
-//    if (currentState != State::Focused) {
-//        return nullptr;
-//    }
-//
-//    switch (event.keysym.sym) {
-//        case SDLK_BACKSPACE: {
-//            return handleBackspaceEvent();
-//        }
-//        case SDLK_DELETE: {
-//            return handleDeleteEvent();
-//        }
-//        case SDLK_c: {
-//            return handleCopyEvent();
-//        }
-//        case SDLK_x: {
-//            return handleCutEvent();
-//        }
-//        case SDLK_v: {
-//            return handlePasteEvent();
-//        }
-//        case SDLK_LEFT: {
-//            return handleLeftEvent();
-//        }
-//        case SDLK_RIGHT: {
-//            return handleRightEvent();
-//        }
-//        case SDLK_HOME: {
-//            return handleHomeEvent();
-//        }
-//        case SDLK_END: {
-//            return handleEndEvent();
-//        }
-//        case SDLK_RETURN: {
-//            return handleEnterEvent();
-//        }
-//    }
-//
-//    return nullptr;
-//}
-//
-//Widget* TextInput::onTextInput(SDL_TextInputEvent& event)
-//{
-//    // If we don't have focus, ignore the event.
-//    if (currentState != State::Focused) {
-//        return nullptr;
-//    }
-//
-//    // Append the user's new character to the end of the text.
-//    text.insertText(event.text, cursorIndex);
-//
-//    // Move the cursor forwards.
-//    cursorIndex++;
-//
-//    // Refresh the text position to account for the change.
-//    refreshTextScrollOffset();
-//
-//    // Make the cursor visible and reset the blink time so it stays solid
-//    // while interacting.
-//    cursorIsVisible = true;
-//    accumulatedBlinkTime = 0;
-//
-//    return this;
-//}
+EventResult TextInput::onKeyDown(SDL_Keycode keyCode)
+{
+    EventResult eventResult{};
+    switch (keyCode) {
+        case SDLK_BACKSPACE: {
+            eventResult = handleBackspaceEvent();
+            break;
+        }
+        case SDLK_DELETE: {
+            eventResult = handleDeleteEvent();
+            break;
+        }
+        case SDLK_c: {
+            eventResult = handleCopyEvent();
+            break;
+        }
+        case SDLK_x: {
+            eventResult = handleCutEvent();
+            break;
+        }
+        case SDLK_v: {
+            eventResult = handlePasteEvent();
+            break;
+        }
+        case SDLK_LEFT: {
+            eventResult = handleLeftEvent();
+            break;
+        }
+        case SDLK_RIGHT: {
+            eventResult = handleRightEvent();
+            break;
+        }
+        case SDLK_HOME: {
+            eventResult = handleHomeEvent();
+            break;
+        }
+        case SDLK_END: {
+            eventResult = handleEndEvent();
+            break;
+        }
+        case SDLK_RETURN: {
+            eventResult = handleEnterEvent();
+            break;
+        }
+        case SDLK_ESCAPE: {
+            // We let Escape key events go through since the EventRouter might
+            // use them to drop focus.
+            eventResult.wasHandled = false;
+            break;
+        }
+        default: {
+            // We need to handle all other key events so that parent widgets
+            // don't get them while we're working with the TextInput events.
+            eventResult.wasHandled = true;
+            break;
+        }
+    }
+
+    return eventResult;
+}
+
+EventResult TextInput::onKeyUp(SDL_Keycode keyCode)
+{
+    ignore(keyCode);
+
+    // We need to handle all key events so that parent widgets don't get them
+    // while we're working with the TextInput events.
+    return EventResult{.wasHandled{true}};
+}
+
+EventResult TextInput::onTextInput(const std::string& inputText)
+{
+    // Insert the user's new input text.
+    text.insertText(inputText, cursorIndex);
+
+    // Move the cursor forwards.
+    cursorIndex += inputText.length();
+
+    // Refresh the text position to account for the change.
+    refreshTextScrollOffset();
+
+    // Make the cursor visible and reset the blink time so it stays solid
+    // while interacting.
+    cursorIsVisible = true;
+    accumulatedBlinkTime = 0;
+
+    return EventResult{.wasHandled{true}};
+}
 
 void TextInput::onTick(double timestepS)
 {
@@ -318,7 +343,7 @@ bool TextInput::refreshScaling()
     return false;
 }
 
-Widget* TextInput::handleBackspaceEvent()
+EventResult TextInput::handleBackspaceEvent()
 {
     // If there's any text, delete the last character.
     if (text.eraseCharacter(cursorIndex - 1)) {
@@ -337,14 +362,12 @@ Widget* TextInput::handleBackspaceEvent()
         if (onTextChanged) {
             onTextChanged();
         }
-
-        return this;
     }
 
-    return nullptr;
+    return EventResult{.wasHandled{true}};
 }
 
-Widget* TextInput::handleDeleteEvent()
+EventResult TextInput::handleDeleteEvent()
 {
     // If there's a character after the cursor, delete it.
     if (text.eraseCharacter(cursorIndex)) {
@@ -360,36 +383,32 @@ Widget* TextInput::handleDeleteEvent()
         if (onTextChanged) {
             onTextChanged();
         }
-
-        return this;
     }
 
-    return nullptr;
+    return EventResult{.wasHandled{true}};
 }
 
-Widget* TextInput::handleCopyEvent()
+EventResult TextInput::handleCopyEvent()
 {
     // If this was a CTRL+c copy command.
     if (SDL_GetModState() & KMOD_CTRL) {
         // If there's text to copy.
-        const std::string& textString = text.asString();
+        const std::string& textString{text.asString()};
         if (textString.length() > 0) {
             // Copy the text to the clipboard.
             SDL_SetClipboardText(textString.c_str());
         }
-
-        return this;
     }
 
-    return nullptr;
+    return EventResult{.wasHandled{true}};
 }
 
-Widget* TextInput::handleCutEvent()
+EventResult TextInput::handleCutEvent()
 {
     // If this was a CTRL+x cut command
     if (SDL_GetModState() & KMOD_CTRL) {
         // If there's text to cut.
-        const std::string& textString = text.asString();
+        const std::string& textString{text.asString()};
         if (textString.length() > 0) {
             // Copy the text to the clipboard.
             SDL_SetClipboardText(textString.c_str());
@@ -409,21 +428,19 @@ Widget* TextInput::handleCutEvent()
                 onTextChanged();
             }
         }
-
-        return this;
     }
 
-    return nullptr;
+    return EventResult{.wasHandled{true}};
 }
 
-Widget* TextInput::handlePasteEvent()
+EventResult TextInput::handlePasteEvent()
 {
     // If this was a CTRL+v paste command.
     if (SDL_GetModState() & KMOD_CTRL) {
         // If there's text in the clipboard.
         if (SDL_HasClipboardText()) {
             // Paste the text from the clipboard to the cursor index.
-            char* clipboardText = SDL_GetClipboardText();
+            char* clipboardText{SDL_GetClipboardText()};
             text.insertText(clipboardText, cursorIndex);
 
             // Move the cursor to the end of the inserted text.
@@ -440,20 +457,16 @@ Widget* TextInput::handlePasteEvent()
                 onTextChanged();
             }
         }
-
-        return this;
     }
 
-    return nullptr;
+    return EventResult{.wasHandled{true}};
 }
 
-Widget* TextInput::handleLeftEvent()
+EventResult TextInput::handleLeftEvent()
 {
     // If we can, move the cursor left.
-    bool movedCursor{false};
     if (cursorIndex > 0) {
         cursorIndex--;
-        movedCursor = true;
 
         // Refresh the text position to account for the change.
         refreshTextScrollOffset();
@@ -464,16 +477,14 @@ Widget* TextInput::handleLeftEvent()
     cursorIsVisible = true;
     accumulatedBlinkTime = 0;
 
-    return (movedCursor ? this : nullptr);
+    return EventResult{.wasHandled{true}};
 }
 
-Widget* TextInput::handleRightEvent()
+EventResult TextInput::handleRightEvent()
 {
     // If we can, move the cursor right.
-    bool movedCursor{false};
     if (cursorIndex < text.asString().length()) {
         cursorIndex++;
-        movedCursor = true;
 
         // Refresh the text position to account for the change.
         refreshTextScrollOffset();
@@ -484,10 +495,10 @@ Widget* TextInput::handleRightEvent()
     cursorIsVisible = true;
     accumulatedBlinkTime = 0;
 
-    return (movedCursor ? this : nullptr);
+    return EventResult{.wasHandled{true}};
 }
 
-Widget* TextInput::handleHomeEvent()
+EventResult TextInput::handleHomeEvent()
 {
     // Move the cursor to the front.
     cursorIndex = 0;
@@ -495,10 +506,10 @@ Widget* TextInput::handleHomeEvent()
     // Refresh the text position to account for the change.
     refreshTextScrollOffset();
 
-    return this;
+    return EventResult{.wasHandled{true}};
 }
 
-Widget* TextInput::handleEndEvent()
+EventResult TextInput::handleEndEvent()
 {
     // Move the cursor to the end.
     cursorIndex = text.asString().length();
@@ -506,17 +517,14 @@ Widget* TextInput::handleEndEvent()
     // Refresh the text position to account for the change.
     refreshTextScrollOffset();
 
-    return this;
+    return EventResult{.wasHandled{true}};
 }
 
-Widget* TextInput::handleEnterEvent()
+EventResult TextInput::handleEnterEvent()
 {
-    // If we have focus, remove it.
-    if (currentState == State::Focused) {
-//        removeFocus();
-    }
-
-    return this;
+    // On Enter key press, we drop focus (which will call onFocusLost() to
+    // set our internal state and call onTextCommitted()).
+    return EventResult{.wasHandled{true}, .dropFocus{true}};
 }
 
 void TextInput::setCurrentState(State inState)

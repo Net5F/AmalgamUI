@@ -74,8 +74,9 @@ public:
     // Limited public interface of private widgets
     //-------------------------------------------------------------------------
     /**
-     * Calls text.setText().
-     * Keeps our cursor in sync with the newly set text.
+     * Sets our text to inText and updates the cursor.
+     *
+     * Note: This doesn't call onTextCommitted.
      */
     void setText(std::string_view inText);
 
@@ -112,14 +113,17 @@ public:
     EventResult onFocusGained() override;
 
     /**
-     * The onTextCommitted callback will be called, since losing focus is
-     * counted as an implicit commit.
+     * If focus was lost for any reason other than the Escape key being
+     * pressed, the onTextCommitted callback will be called (since losing
+     * focus is counted as an implicit commit).
      */
-    void onFocusLost() override;
+    void onFocusLost(FocusLostType focusLostType) override;
 
-//    Widget* onKeyDown(SDL_KeyboardEvent& event) override;
+    EventResult onKeyDown(SDL_Keycode keyCode) override;
 
-//    Widget* onTextInput(SDL_TextInputEvent& event) override;
+    EventResult onKeyUp(SDL_Keycode keyCode) override;
+
+    EventResult onTextInput(const std::string& inputText) override;
 
     void onTick(double timestepS) override;
 
@@ -144,16 +148,16 @@ private:
     // Private members
     //-------------------------------------------------------------------------
     // Event handlers for key press events.
-    Widget* handleBackspaceEvent();
-    Widget* handleDeleteEvent();
-    Widget* handleCopyEvent();
-    Widget* handleCutEvent();
-    Widget* handlePasteEvent();
-    Widget* handleLeftEvent();
-    Widget* handleRightEvent();
-    Widget* handleHomeEvent();
-    Widget* handleEndEvent();
-    Widget* handleEnterEvent();
+    EventResult handleBackspaceEvent();
+    EventResult handleDeleteEvent();
+    EventResult handleCopyEvent();
+    EventResult handleCutEvent();
+    EventResult handlePasteEvent();
+    EventResult handleLeftEvent();
+    EventResult handleRightEvent();
+    EventResult handleHomeEvent();
+    EventResult handleEndEvent();
+    EventResult handleEnterEvent();
 
     /**
      * Sets currentState and updates child widget visibility.
@@ -199,11 +203,10 @@ private:
     /** Tracks whether the text cursor should be drawn or not. */
     bool cursorIsVisible;
 
-    /** Tracks the number of inputs that are currently focused. If an unfocused
-        TextInput receives a MouseDown event before a currently-focused one
-        can unfocus, we'll briefly have 2. In that case, we use this count to
-        avoid calling SDL_StopTextInput() prematurely. */
-    static int focusedInputCount;
+    /** The last text string that was committed to this text input.
+        Text is committed on Enter key press or focus loss (click away),
+        but text is reverted to this string on Escape key press. */
+    std::string lastCommittedText;
 
     //-------------------------------------------------------------------------
     // Private child widgets

@@ -228,9 +228,8 @@ EventResult Thumbnail::onMouseDown(MouseButtonType buttonType, const SDL_Point& 
         //       lose focus, but it seems like every use case for "select a
         //       thumbnail" prefers leaving the thumbnail selected and
         //       controlling it from the outside.
-        //       E.g. for both build mode and multi-select scenarios, we want
-        //       the thumbnail to stay selected until the parent tells it to
-        //       deselect.
+        //       E.g. for build mode, we want the thumbnail to stay selected
+        //       until the parent tells it to deselect.
 
         return EventResult{.wasHandled{true}};
     }

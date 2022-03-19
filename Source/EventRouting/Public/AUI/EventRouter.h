@@ -3,6 +3,7 @@
 #include "AUI/WidgetPath.h"
 #include "AUI/WidgetWeakRef.h"
 #include "AUI/MouseButtonType.h"
+#include "AUI/FocusLostType.h"
 #include "AUI/EventResult.h"
 #include <SDL2/SDL_events.h>
 
@@ -151,7 +152,25 @@ private:
      * If focusPath is set, clears it and routes a FocusLost to the leafmost
      * widget.
      */
-    void handleDropFocus();
+    void handleDropFocus(FocusLostType focusLostType);
+
+    /**
+     * Routes a KeyDown through the current focus path.
+     *
+     * If the Escape key was pressed and the KeyDown event wasn't handled,
+     * handles the event and drops focus (if we had a focused widget).
+     *
+     * @pre focusPath.back() must be a valid widget reference.
+     * @return true if the event was handled, else false.
+     */
+    bool handleKeyDownInternal(SDL_Keycode keyCode);
+
+    /**
+     * Routes a KeyUp through the current focus path.
+     * @pre focusPath.back() must be a valid widget reference.
+     * @return true if the event was handled, else false.
+     */
+    bool handleKeyUp(SDL_Keycode keyCode);
 
     /** Used to interact with the Window stack. */
     Screen& screen;

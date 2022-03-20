@@ -30,7 +30,7 @@ public:
     // Public interface
     //-------------------------------------------------------------------------
     Image(Screen& inScreen, const SDL_Rect& inLogicalExtent,
-          const std::string& inDebugName = "");
+          const std::string& inDebugName = "Image");
 
     virtual ~Image() = default;
 

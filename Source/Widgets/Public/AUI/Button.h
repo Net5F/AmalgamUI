@@ -24,7 +24,7 @@ public:
     // Public interface
     //-------------------------------------------------------------------------
     Button(Screen& inScreen, const SDL_Rect& inLogicalExtent,
-           const std::string& inDebugName = "");
+           const std::string& inDebugName = "Button");
 
     virtual ~Button() = default;
 

@@ -79,7 +79,7 @@ public:
 
 protected:
     Container(Screen& screen, const SDL_Rect& inLogicalExtent,
-              const std::string& inDebugName = "");
+              const std::string& inDebugName = "Container");
 
     /** This container's child elements. This container owns the elements in
         this vector and must render them according to its layout logic.

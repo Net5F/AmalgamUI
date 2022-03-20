@@ -22,13 +22,7 @@ bool SDLHelpers::rectInRect(const SDL_Rect& rectA, const SDL_Rect& rectB)
     // Test if 2 diagonal corners of rectA are within rectB
     SDL_Point topLeft{rectA.x, rectA.y};
     SDL_Point bottomRight{(rectA.x + rectA.w), (rectA.y + rectA.h)};
-    if (pointInRect(topLeft, rectB)
-        && pointInRect(bottomRight, rectB)) {
-        return true;
-    }
-    else {
-        return false;
-    }
+    return (pointInRect(topLeft, rectB) && pointInRect(bottomRight, rectB));
 }
 
 } // namespace AUI

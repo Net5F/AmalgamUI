@@ -16,13 +16,45 @@ class Screen;
  * Translates SDL events to AUI events and handles their routing.
  *
  * Holds state relevant to event routing (current focused widget path, etc).
+ *
+ * Routing:
+ *   Events are routed in various ways:
+ *     Tunneling (Rootmost -> Leafmost) (Tunneled events are called Preview)
+ *     Bubbling (Leafmost -> Rootmost)
+ *     Direct (Leafmost)
+ *
+ *   See the handler comments in Widget.h for specifics on which routing
+ *   strategy is used for each event.
+ *
+ * EventResult:
+ *   In certain event handlers, Widgets can direct the EventRouter by setting
+ *   fields in the EventResult return type. This can be used for things like
+ *   setting mouse capture, explicitly setting focus, or marking the event as
+ *   handled. See EventResult.h for more info.
+ *
+ * Key Events and Focus:
+ *   In order for a widget to receive KeyDown, KeyUp, or TextInput events, it
+ *   must have keyboard focus.
+ *   If a widget is marked as isFocusable, it will receive focus when clicked.
+ *   It can also be explicitly given focus using the setFocus field in
+ *   EventResult.
+ *
+ *   Focus is lost when either the escape key is pressed, or a click occurs
+ *   outside of the focused widget. Focus can also be dropped explicitly by
+ *   setting the dropFocus field in EventResult, or implicitly by using the
+ *   setFocus field to switch focus to a new widget.
+ *
+ *   KeyDown events can also be received by registering as a listener. If the
+ *   focus target doesn't handle the KeyDown, it will then be routed to any
+ *   registered listeners. TODO: Explain how to register
+ *   KeyDown listeners are necessary in certain cases, e.g. to open a menu when
+ *   a button is pressed. In such cases, the widget in charge of handling the
+ *   event likely won't be the focus target, so it needs to explicitly register
+ *   to receive it.
  */
 class EventRouter
 {
 public:
-    // TODO: Fully comment how tunneling/bubbling and preview and events
-    //       work in here
-
     EventRouter(Screen& inScreen);
 
     /**

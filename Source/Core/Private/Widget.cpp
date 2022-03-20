@@ -8,7 +8,7 @@
 #include "AUI/WidgetLocator.h"
 #include "AUI/Internal/Ignore.h"
 #include "AUI/Internal/Log.h"
-#include "AUI/Internal/Assert.h"
+#include "AUI/Internal/AUIAssert.h"
 #include <algorithm>
 
 namespace AUI

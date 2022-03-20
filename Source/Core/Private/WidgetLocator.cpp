@@ -3,7 +3,7 @@
 #include "AUI/ScalingHelpers.h"
 #include "AUI/SDLHelpers.h"
 #include "AUI/Internal/Log.h"
-#include "AUI/Internal/Assert.h"
+#include "AUI/Internal/AUIAssert.h"
 #include <cmath>
 #include <algorithm>
 

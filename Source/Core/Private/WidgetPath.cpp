@@ -1,6 +1,6 @@
 #include "AUI/WidgetPath.h"
 #include "AUI/Widget.h"
-#include "AUI/Internal/Assert.h"
+#include "AUI/Internal/AUIAssert.h"
 
 namespace AUI
 {

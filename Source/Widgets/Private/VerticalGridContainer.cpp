@@ -1,5 +1,6 @@
 #include "AUI/VerticalGridContainer.h"
 #include "AUI/ScalingHelpers.h"
+#include "AUI/WidgetLocator.h"
 #include "AUI/Internal/Log.h"
 #include <cmath>
 
@@ -10,9 +11,9 @@ VerticalGridContainer::VerticalGridContainer(Screen& screen,
                                              const std::string& inDebugName)
 : Container(screen, inLogicalExtent, inDebugName)
 , numColumns{1}
-, logicalCellWidth{100}
+, logicalCellWidth{LOGICAL_DEFAULT_CELL_WIDTH}
 , scaledCellWidth{ScalingHelpers::logicalToActual(logicalCellWidth)}
-, logicalCellHeight{100}
+, logicalCellHeight{LOGICAL_DEFAULT_CELL_WIDTH}
 , scaledCellHeight{ScalingHelpers::logicalToActual(logicalCellHeight)}
 , rowScroll{0}
 {
@@ -35,39 +36,25 @@ void VerticalGridContainer::setCellHeight(unsigned int inLogicalCellHeight)
     scaledCellHeight = ScalingHelpers::logicalToActual(logicalCellHeight);
 }
 
-bool VerticalGridContainer::onMouseWheel(SDL_MouseWheelEvent& event)
+EventResult VerticalGridContainer::onMouseWheel(int amountScrolled)
 {
-    // Get the mouse position since the event doesn't report it.
-    SDL_Point mousePosition{};
-    SDL_GetMouseState(&(mousePosition.x), &(mousePosition.y));
-
-    // If the mouse is inside our extent.
-    if (containsPoint(mousePosition)) {
-        if (event.y > 0) {
-            // Scroll up.
-            scrollElements(true);
-        }
-        else if (event.y < 0) {
-            // Scroll down.
-            scrollElements(false);
-        }
-
-        return true;
+    if (amountScrolled > 0) {
+        // Scroll up.
+        scrollElements(true);
+    }
+    else {
+        // Scroll down.
+        scrollElements(false);
     }
 
-    return false;
+    return EventResult{.wasHandled{true}};
 }
 
-void VerticalGridContainer::updateLayout(const SDL_Rect& parentExtent)
+void VerticalGridContainer::updateLayout(const SDL_Rect& parentExtent, WidgetLocator* widgetLocator)
 {
-    // Keep our extent up to date.
-    refreshScaling();
-
-    // Calculate our new extent to render at.
-    renderExtent = scaledExtent;
-    renderExtent.x += parentExtent.x;
-    renderExtent.y += parentExtent.y;
-    // TODO: Should we clip here to fit parentExtent?
+    // Run the normal layout step (will update us, but won't process any of
+    // our elements).
+    Widget::updateLayout(parentExtent, widgetLocator);
 
     // Calc how many rows can fit onscreen at once.
     int maxVisibleRows{logicalExtent.h / logicalCellHeight};
@@ -101,7 +88,7 @@ void VerticalGridContainer::updateLayout(const SDL_Rect& parentExtent)
         int finalX{renderExtent.x + cellXOffset};
         int finalY{renderExtent.y + cellYOffset};
         elements[i]->updateLayout({finalX, finalY
-            , (finalX + scaledCellWidth), (finalY + scaledCellHeight)});
+            , (finalX + scaledCellWidth), (finalY + scaledCellHeight)}, widgetLocator);
     }
 }
 
@@ -122,11 +109,11 @@ bool VerticalGridContainer::refreshScaling()
 void VerticalGridContainer::scrollElements(bool scrollUp)
 {
     // Calc how many rows are currently present.
-    int currentRows
-        = std::ceil(elements.size() / static_cast<float>(numColumns));
+    int currentRows{static_cast<int>(
+        std::ceil(elements.size() / static_cast<float>(numColumns)))};
 
     // Calc how many rows can fit onscreen at once.
-    int maxVisibleRows = logicalExtent.h / logicalCellHeight;
+    int maxVisibleRows{logicalExtent.h / logicalCellHeight};
 
     // If we're being asked to scroll up and we've scrolled down previously.
     if (scrollUp && (rowScroll > 0)) {
@@ -136,13 +123,14 @@ void VerticalGridContainer::scrollElements(bool scrollUp)
     else if (!scrollUp) {
         // Else if we've being asked to scroll down, calculate if there are
         // any rows below to scroll to.
-        int rowsBelow = currentRows - maxVisibleRows - rowScroll;
+        int rowsBelow{currentRows - maxVisibleRows - static_cast<int>(rowScroll)};
 
         // If there are any elements offscreen below, scroll down 1 row.
         if (rowsBelow > 0) {
             rowScroll++;
         }
     }
+
 }
 
 } // namespace AUI

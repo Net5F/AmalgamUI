@@ -56,7 +56,7 @@ public:
     // Public interface
     //-------------------------------------------------------------------------
     Text(Screen& screen, const SDL_Rect& inLogicalExtent,
-         const std::string& inDebugName = "");
+         const std::string& inDebugName = "Text");
 
     /**
      * Sets the font and size. Uses the internal ID format "font_size".
@@ -156,7 +156,7 @@ public:
     /**
      * Calls Widget::updateLayout() and also updates offsetTextExtent.
      */
-    void updateLayout(const SDL_Rect& parentExtent);
+    void updateLayout(const SDL_Rect& parentExtent, WidgetLocator* widgetLocator);
 
     void render() override;
 

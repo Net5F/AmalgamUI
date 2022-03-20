@@ -24,7 +24,7 @@ public:
     // Public interface
     //-------------------------------------------------------------------------
     Button(Screen& inScreen, const SDL_Rect& inLogicalExtent,
-           const std::string& inDebugName = "");
+           const std::string& inDebugName = "Button");
 
     virtual ~Button() = default;
 
@@ -72,11 +72,13 @@ public:
     //-------------------------------------------------------------------------
     // Base class overrides
     //-------------------------------------------------------------------------
-    bool onMouseButtonDown(SDL_MouseButtonEvent& event) override;
+    EventResult onMouseDown(MouseButtonType buttonType, const SDL_Point& cursorPosition) override;
 
-    bool onMouseButtonUp(SDL_MouseButtonEvent& event) override;
+    EventResult onMouseUp(MouseButtonType buttonType, const SDL_Point& cursorPosition) override;
 
-    void onMouseMove(SDL_MouseMotionEvent& event) override;
+    void onMouseEnter() override;
+
+    void onMouseLeave() override;
 
 private:
     /**

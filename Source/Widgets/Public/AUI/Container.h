@@ -71,13 +71,15 @@ public:
     //-------------------------------------------------------------------------
     // Base class overrides
     //-------------------------------------------------------------------------
-    bool handleOSEvent(SDL_Event& event) override;
+    void onTick(double timestepS) override;
+
+    void updateLayout(const SDL_Rect& parentExtent, WidgetLocator* widgetLocator) override;
 
     void render() override;
 
 protected:
     Container(Screen& screen, const SDL_Rect& inLogicalExtent,
-              const std::string& inDebugName = "");
+              const std::string& inDebugName = "Container");
 
     /** This container's child elements. This container owns the elements in
         this vector and must render them according to its layout logic.

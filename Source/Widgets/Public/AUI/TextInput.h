@@ -36,7 +36,7 @@ public:
     // Public interface
     //-------------------------------------------------------------------------
     TextInput(Screen& screen, const SDL_Rect& inLogicalExtent,
-              const std::string& inDebugName = "");
+              const std::string& inDebugName = "TextInput");
 
     virtual ~TextInput() = default;
 
@@ -74,8 +74,9 @@ public:
     // Limited public interface of private widgets
     //-------------------------------------------------------------------------
     /**
-     * Calls text.setText().
-     * Keeps our cursor in sync with the newly set text.
+     * Sets our text to inText and updates the cursor.
+     *
+     * Note: This doesn't call onTextCommitted.
      */
     void setText(std::string_view inText);
 
@@ -103,13 +104,26 @@ public:
     //-------------------------------------------------------------------------
     // Base class overrides
     //-------------------------------------------------------------------------
-    bool onMouseButtonDown(SDL_MouseButtonEvent& event) override;
+    EventResult onMouseDown(MouseButtonType buttonType, const SDL_Point& cursorPosition) override;
 
-    void onMouseMove(SDL_MouseMotionEvent& event) override;
+    void onMouseEnter() override;
 
-    bool onKeyDown(SDL_KeyboardEvent& event) override;
+    void onMouseLeave() override;
 
-    bool onTextInput(SDL_TextInputEvent& event) override;
+    EventResult onFocusGained() override;
+
+    /**
+     * If focus was lost for any reason other than the Escape key being
+     * pressed, the onTextCommitted callback will be called (since losing
+     * focus is counted as an implicit commit).
+     */
+    void onFocusLost(FocusLostType focusLostType) override;
+
+    EventResult onKeyDown(SDL_Keycode keyCode) override;
+
+    EventResult onKeyUp(SDL_Keycode keyCode) override;
+
+    EventResult onTextInput(const std::string& inputText) override;
 
     void onTick(double timestepS) override;
 
@@ -134,38 +148,21 @@ private:
     // Private members
     //-------------------------------------------------------------------------
     // Event handlers for key press events.
-    bool handleBackspaceEvent();
-    bool handleDeleteEvent();
-    bool handleCopyEvent();
-    bool handleCutEvent();
-    bool handlePasteEvent();
-    bool handleLeftEvent();
-    bool handleRightEvent();
-    bool handleHomeEvent();
-    bool handleEndEvent();
-    bool handleEnterEvent();
+    EventResult handleBackspaceEvent();
+    EventResult handleDeleteEvent();
+    EventResult handleCopyEvent();
+    EventResult handleCutEvent();
+    EventResult handlePasteEvent();
+    EventResult handleLeftEvent();
+    EventResult handleRightEvent();
+    EventResult handleHomeEvent();
+    EventResult handleEndEvent();
+    EventResult handleEnterEvent();
 
     /**
      * Sets currentState and updates child widget visibility.
      */
     void setCurrentState(State inState);
-
-    /**
-     * Puts this widget in a focused state. Changes the image displayed,
-     * activates the text cursor, and causes this widget to start responding
-     * to and generating additional.
-     */
-    void assumeFocus();
-
-    /**
-     * Puts this widget back into a normal state. Changes the image
-     * displayed, de-activates the text cursor, and causes this widget to
-     * stop responding to and generating events, other than those that can
-     * result in re-assuming focus.
-     * The onTextCommitted callback will be called, since losing focus is
-     * counted as an implicit commit.
-     */
-    void removeFocus();
 
     /**
      * Re-calculates where the text should be scrolled to, based on the current
@@ -206,11 +203,10 @@ private:
     /** Tracks whether the text cursor should be drawn or not. */
     bool cursorIsVisible;
 
-    /** Tracks the number of inputs that are currently focused. If an unfocused
-        TextInput receives a MouseDown event before a currently-focused one
-        can unfocus, we'll briefly have 2. In that case, we use this count to
-        avoid calling SDL_StopTextInput() prematurely. */
-    static int focusedInputCount;
+    /** The last text string that was committed to this text input.
+        Text is committed on Enter key press or focus loss (click away),
+        but text is reverted to this string on Escape key press. */
+    std::string lastCommittedText;
 
     //-------------------------------------------------------------------------
     // Private child widgets

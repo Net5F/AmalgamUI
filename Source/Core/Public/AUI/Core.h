@@ -15,6 +15,17 @@ namespace AUI
  * Fulfills two responsibilities:
  *   1. Allows the consumer to configure the library.
  *   2. Maintains common data that library objects need.
+ *
+ * Note: UI widgets exist in two spaces: logical and actual.
+ *       Logical screen space is used for all developer-given widget
+ *       measurements, and is relative to the value of Core::logicalScreenSize.
+ *       Actual screen space is what's actually used in rendering to the
+ *       screen, and is relative to the value of Core::actualScreenSize.
+ *
+ *       The intent is that the developer will set a logical screen size and
+ *       give all width, height, position, etc values in reference to that
+ *       logical size. Then, the user can select a new actual size and the UI
+ *       will intelligently scale to match it.
  */
 class Core
 {

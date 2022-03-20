@@ -6,31 +6,32 @@
 #include <string>
 
 /**
- * Use these macros instead of calling the functions directly.
+ * Logging macros.
+ * Use these macros instead of calling the Log functions directly.
  */
 #define AUI_LOG_INFO(...)                                                      \
-    {                                                                          \
+    do {                                                                          \
         AUI::Log::info(__VA_ARGS__);                                           \
-    }
+    } while (false)
 
 #ifndef NDEBUG
 #define AUI_LOG_ERROR(...)                                                         \
-    {                                                                          \
-        AUI::Log::error(__FILE__, __LINE__, __VA_ARGS__);                       \
-    }
-#else
-#define AUI_LOG_ERROR(...)                                                         \
-    {                                                                          \
-        AUI::Log::error(__FILE__, __LINE__, __VA_ARGS__);                       \
+    do {                                                                       \
+        AUI::Log::error(__FILE__, __LINE__, __VA_ARGS__);                      \
         std::abort();                                                          \
-    }
+    } while (false)
+#else
+#define AUI_LOG_ERROR(...)                                                    \
+    do {                                                                          \
+        AUI::Log::error(__FILE__, __LINE__, __VA_ARGS__);                       \
+    } while (false)
 #endif
 
-#define AUI_LOG_FATAL(...)                                                         \
-    {                                                                          \
-        AUI::Log::error(__FILE__, __LINE__, __VA_ARGS__);                       \
+#define AUI_LOG_FATAL(...)                                                    \
+    do {                                                                       \
+        AUI::Log::error(__FILE__, __LINE__, __VA_ARGS__);                      \
         std::abort();                                                          \
-    }
+    } while (false)
 
 namespace AUI
 {

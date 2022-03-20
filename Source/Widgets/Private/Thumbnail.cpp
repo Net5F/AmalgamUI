@@ -206,60 +206,86 @@ void Thumbnail::setOnDeactivated(
     onDeactivated = std::move(inOnDeactivated);
 }
 
-bool Thumbnail::onMouseButtonDown(SDL_MouseButtonEvent& event)
+EventResult Thumbnail::onMouseDown(MouseButtonType buttonType, const SDL_Point& cursorPosition)
 {
+    ignore(cursorPosition);
+
+    // Only respond to the left mouse button.
+    if (buttonType != MouseButtonType::Left) {
+        return EventResult{.wasHandled{false}};
+    }
     // If we're already selected and active, do nothing.
-    if (isSelected && isActive) {
-        return false;
+    else if (isSelected && isActive) {
+        return EventResult{.wasHandled{false}};
     }
 
-    // If the click event was inside our extent.
-    if (containsPoint({event.x, event.y})) {
-        // If this was a double click (or more) and we aren't already active,
-        // activate this widget.
-        if (isActivateable && !isActive && (event.clicks >= 2)) {
-            activate();
+    if (isSelectable && !isSelected) {
+        // This was a single click, if we aren't already selected, select
+        // this widget.
+        select();
 
-            // If we were selected, clear the selection.
-            // Note: We don't call the deselected callback since this wasn't
-            //       a normal deselect event.
-            if (isSelected) {
-                setIsSelected(false);
-            }
-        }
-        else if (!isSelected) {
-            // This was a single click, if we aren't already selected, select
-            // this widget.
-            select();
+        // Note: It would make sense to request focus and deselect when we
+        //       lose focus, but it seems like every use case for "select a
+        //       thumbnail" prefers leaving the thumbnail selected and
+        //       controlling it from the outside.
+        //       E.g. for build mode, we want the thumbnail to stay selected
+        //       until the parent tells it to deselect.
+
+        return EventResult{.wasHandled{true}};
+    }
+
+    return EventResult{.wasHandled{false}};
+}
+
+EventResult Thumbnail::onMouseDoubleClick(MouseButtonType buttonType, const SDL_Point& cursorPosition)
+{
+    ignore(cursorPosition);
+
+    // Only respond to the left mouse button.
+    if (buttonType != MouseButtonType::Left) {
+        return EventResult{.wasHandled{false}};
+    }
+
+    // If we aren't already active, activate.
+    if (isActivateable && !isActive) {
+        activate();
+
+        // If we were selected, clear the selection.
+        // Note: We don't call the deselected callback since this wasn't
+        //       a normal deselect event.
+        if (isSelected) {
+            setIsSelected(false);
         }
 
-        // The click event was inside our widget, so flag it as handled.
-        return true;
+        return EventResult{.wasHandled{true}};
+    }
+
+    return EventResult{.wasHandled{false}};
+}
+
+void Thumbnail::onMouseEnter()
+{
+    // If we're active, don't change to hovered.
+    if (isActive) {
+        return;
+    }
+
+    // If we're not hovered, become hovered.
+    if (!isHovered) {
+        setIsHovered(true);
     }
     else {
-        // Else, the mouse press missed us.
-        return false;
+        // We're hovered, unhover.
+        setIsHovered(false);
     }
 }
 
-bool Thumbnail::onMouseWheel(SDL_MouseWheelEvent& event)
+void Thumbnail::onMouseLeave()
 {
-    // We don't care about the scroll itself, just about updating our
-    // hovered state since we may have moved.
-    ignore(event);
-
-    // Get the mouse position since the event doesn't report it.
-    SDL_Point mousePosition{};
-    SDL_GetMouseState(&(mousePosition.x), &(mousePosition.y));
-
-    // Update our hovered state if necessary.
-    return updateHovered(mousePosition);
-}
-
-void Thumbnail::onMouseMove(SDL_MouseMotionEvent& event)
-{
-    // Update our hovered state if necessary.
-    updateHovered({event.x, event.y});
+    // If we're hovered, unhover.
+    if (isHovered) {
+        setIsHovered(false);
+    }
 }
 
 void Thumbnail::setIsHovered(bool inIsHovered)
@@ -278,31 +304,6 @@ void Thumbnail::setIsActive(bool inIsActive)
 {
     isActive = inIsActive;
     activeImage.setIsVisible(isActive);
-}
-
-bool Thumbnail::updateHovered(SDL_Point actualMousePoint)
-{
-    // If we're active, don't change to hovered.
-    if (isActive) {
-        return false;
-    }
-
-    // If the mouse is inside our extent.
-    if (containsPoint({actualMousePoint.x, actualMousePoint.y})) {
-        // If we're not hovered, become hovered.
-        if (!isHovered) {
-            setIsHovered(true);
-            return true;
-        }
-    }
-    else {
-        // Else, the mouse isn't in our extent. If we're hovered, unhover.
-        if (isHovered) {
-            setIsHovered(false);
-        }
-    }
-
-    return false;
 }
 
 } // namespace AUI

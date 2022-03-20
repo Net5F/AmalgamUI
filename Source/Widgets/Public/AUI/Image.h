@@ -11,6 +11,17 @@ namespace AUI
 {
 /**
  * Displays a simple static image.
+ *
+ * To use:
+ *   1. Add one or more resolutions of your image using addResolution().
+ *   2. Set your screen size through Core::setActualScreenSize().
+ *
+ *   This Image will render the added image texture that matches the actual
+ *   screen size. If no added resolution matches, the largest one will be used
+ *   (for the best chance at looking nice after scaling).
+ *
+ * Note: addResolution() takes a shared_ptr to an SDL_Texture so that you can
+ *       use your own asset manager.
  */
 class Image : public Widget
 {
@@ -19,7 +30,7 @@ public:
     // Public interface
     //-------------------------------------------------------------------------
     Image(Screen& inScreen, const SDL_Rect& inLogicalExtent,
-          const std::string& inDebugName = "");
+          const std::string& inDebugName = "Image");
 
     virtual ~Image() = default;
 

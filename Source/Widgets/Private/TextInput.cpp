@@ -2,12 +2,11 @@
 #include "AUI/Screen.h"
 #include "AUI/Core.h"
 #include "AUI/ScalingHelpers.h"
+#include "AUI/Internal/Ignore.h"
 #include <cstring>
 
 namespace AUI
 {
-int TextInput::focusedInputCount = 0;
-
 TextInput::TextInput(Screen& inScreen, const SDL_Rect& inLogicalExtent,
                      const std::string& inDebugName)
 : Widget(inScreen, inLogicalExtent, inDebugName)
@@ -21,6 +20,7 @@ TextInput::TextInput(Screen& inScreen, const SDL_Rect& inLogicalExtent,
 , scaledCursorWidth{ScalingHelpers::logicalToActual(logicalCursorWidth)}
 , cursorIndex{0}
 , cursorIsVisible{false}
+, lastCommittedText{""}
 , text(screen, {0, 0, logicalExtent.w, logicalExtent.h})
 {
     // Add our children so they're included in rendering, etc.
@@ -29,6 +29,9 @@ TextInput::TextInput(Screen& inScreen, const SDL_Rect& inLogicalExtent,
     children.push_back(focusedImage);
     children.push_back(disabledImage);
     children.push_back(text);
+
+    // Flag ourselves as keyboard focusable, so we can receive keyboard events.
+    isFocusable = true;
 
     // Default to left-justifying the text within the button. The user can set
     // it otherwise if they care to.
@@ -86,10 +89,11 @@ void TextInput::setTextColor(const SDL_Color& inColor)
 
 void TextInput::setText(std::string_view inText)
 {
-    // Set the text member's text.
+    // Set the committed text.
+    lastCommittedText = inText;
     text.setText(inText);
 
-    // Move the cursor to the front (seems to be the most expected behavior.)
+    // Move the cursor to the front (seems to be the most expected behavior).
     cursorIndex = 0;
 
     // Refresh the text position to account for the change.
@@ -111,109 +115,176 @@ void TextInput::setOnTextCommitted(std::function<void(void)> inOnTextCommitted)
     onTextCommitted = std::move(inOnTextCommitted);
 }
 
-bool TextInput::onMouseButtonDown(SDL_MouseButtonEvent& event)
+EventResult TextInput::onMouseDown(MouseButtonType buttonType, const SDL_Point& cursorPosition)
 {
+    ignore(cursorPosition);
+
+    // Only respond to the left mouse button.
+    if (buttonType != MouseButtonType::Left) {
+        return EventResult{.wasHandled{false}};
+    }
     // If we're disabled, ignore the event.
-    if (currentState == State::Disabled) {
-        return false;
+    else if (currentState == State::Disabled) {
+        return EventResult{.wasHandled{false}};
     }
 
-    // If the mouse press was inside our extent, assume focus.
-    if (containsPoint({event.x, event.y})) {
-        // If we don't have focus, assume focus.
-        if (currentState != State::Focused) {
-            assumeFocus();
-        }
-
-        return true;
-    }
-    else {
-        // Else the click was outside our extent. If we have focus, remove it.
-        if (currentState == State::Focused) {
-            removeFocus();
-        }
-
-        return false;
-    }
+    // Note: Since we're handling a MouseDown, we'll be given focus.
+    return EventResult{.wasHandled{true}};
 }
 
-void TextInput::onMouseMove(SDL_MouseMotionEvent& event)
+void TextInput::onMouseEnter()
 {
     // If we're disabled, ignore the event.
     if (currentState == State::Disabled) {
         return;
     }
 
-    // If the mouse is inside our extent.
-    if (containsPoint({event.x, event.y})) {
-        // If we're normal, change to hovered.
-        if (currentState == State::Normal) {
-            setCurrentState(State::Hovered);
-        }
+    // If we're normal, change to hovered.
+    if (currentState == State::Normal) {
+        setCurrentState(State::Hovered);
+    }
+}
+
+void TextInput::onMouseLeave()
+{
+    // If we're disabled, ignore the event.
+    if (currentState == State::Disabled) {
+        return;
+    }
+
+    // If we're hovered, unhover.
+    if (currentState == State::Hovered) {
+        setCurrentState(State::Normal);
+    }
+}
+
+EventResult TextInput::onFocusGained()
+{
+    // Set our state to focused.
+    setCurrentState(State::Focused);
+
+    // Reset the text cursor's state.
+    // Show the text cursor immediately so the user can see where they're at.
+    cursorIsVisible = true;
+    accumulatedBlinkTime = 0;
+
+    // Move the cursor to the end.
+    cursorIndex = text.asString().length();
+
+    // Refresh the text position to account for the change.
+    refreshTextScrollOffset();
+
+    return EventResult{.wasHandled{true}};
+}
+
+void TextInput::onFocusLost(FocusLostType focusLostType)
+{
+    // Set our state back to normal.
+    setCurrentState(State::Normal);
+
+    // Reset the text cursor's state.
+    cursorIsVisible = false;
+
+    // If we lost focus because of an Escape key press, revert to the last
+    // committed text state.
+    if (focusLostType == FocusLostType::Escape) {
+        // Note: Moves the cursor to the front.
+        setText(lastCommittedText);
     }
     else {
-        // Else, the mouse isn't in our extent. If we're hovered, unhover.
-        if (currentState == State::Hovered) {
-            setCurrentState(State::Normal);
+        // We lost focus for some other reason, commit the current text.
+        lastCommittedText = text.asString();
+
+        // Move the cursor to the front (the most expected behavior).
+        cursorIndex = 0;
+
+        // Refresh the text position to account for the change.
+        refreshTextScrollOffset();
+
+        // If a callback is registered, signal that the the text was committed.
+        if (onTextCommitted) {
+            onTextCommitted();
         }
     }
 }
 
-bool TextInput::onKeyDown(SDL_KeyboardEvent& event)
+EventResult TextInput::onKeyDown(SDL_Keycode keyCode)
 {
-    // If we don't have focus, ignore the event.
-    if (currentState != State::Focused) {
-        return false;
-    }
-
-    switch (event.keysym.sym) {
+    EventResult eventResult{};
+    switch (keyCode) {
         case SDLK_BACKSPACE: {
-            return handleBackspaceEvent();
+            eventResult = handleBackspaceEvent();
+            break;
         }
         case SDLK_DELETE: {
-            return handleDeleteEvent();
+            eventResult = handleDeleteEvent();
+            break;
         }
         case SDLK_c: {
-            return handleCopyEvent();
+            eventResult = handleCopyEvent();
+            break;
         }
         case SDLK_x: {
-            return handleCutEvent();
+            eventResult = handleCutEvent();
+            break;
         }
         case SDLK_v: {
-            return handlePasteEvent();
+            eventResult = handlePasteEvent();
+            break;
         }
         case SDLK_LEFT: {
-            return handleLeftEvent();
+            eventResult = handleLeftEvent();
+            break;
         }
         case SDLK_RIGHT: {
-            return handleRightEvent();
+            eventResult = handleRightEvent();
+            break;
         }
         case SDLK_HOME: {
-            return handleHomeEvent();
+            eventResult = handleHomeEvent();
+            break;
         }
         case SDLK_END: {
-            return handleEndEvent();
+            eventResult = handleEndEvent();
+            break;
         }
         case SDLK_RETURN: {
-            return handleEnterEvent();
+            eventResult = handleEnterEvent();
+            break;
+        }
+        case SDLK_ESCAPE: {
+            // We let Escape key events go through since the EventRouter might
+            // use them to drop focus.
+            eventResult.wasHandled = false;
+            break;
+        }
+        default: {
+            // We need to handle all other key events so that parent widgets
+            // don't get them while we're working with the TextInput events.
+            eventResult.wasHandled = true;
+            break;
         }
     }
 
-    return false;
+    return eventResult;
 }
 
-bool TextInput::onTextInput(SDL_TextInputEvent& event)
+EventResult TextInput::onKeyUp(SDL_Keycode keyCode)
 {
-    // If we don't have focus, ignore the event.
-    if (currentState != State::Focused) {
-        return false;
-    }
+    ignore(keyCode);
 
-    // Append the user's new character to the end of the text.
-    text.insertText(event.text, cursorIndex);
+    // We need to handle all key events so that parent widgets don't get them
+    // while we're working with the TextInput events.
+    return EventResult{.wasHandled{true}};
+}
+
+EventResult TextInput::onTextInput(const std::string& inputText)
+{
+    // Insert the user's new input text.
+    text.insertText(inputText, cursorIndex);
 
     // Move the cursor forwards.
-    cursorIndex++;
+    cursorIndex += inputText.length();
 
     // Refresh the text position to account for the change.
     refreshTextScrollOffset();
@@ -223,7 +294,7 @@ bool TextInput::onTextInput(SDL_TextInputEvent& event)
     cursorIsVisible = true;
     accumulatedBlinkTime = 0;
 
-    return true;
+    return EventResult{.wasHandled{true}};
 }
 
 void TextInput::onTick(double timestepS)
@@ -246,6 +317,9 @@ void TextInput::onTick(double timestepS)
             accumulatedBlinkTime -= CURSOR_BLINK_RATE_S;
         }
     }
+
+    // Call every visible child's onTick().
+    Widget::onTick(timestepS);
 }
 
 void TextInput::render()
@@ -272,7 +346,7 @@ bool TextInput::refreshScaling()
     return false;
 }
 
-bool TextInput::handleBackspaceEvent()
+EventResult TextInput::handleBackspaceEvent()
 {
     // If there's any text, delete the last character.
     if (text.eraseCharacter(cursorIndex - 1)) {
@@ -291,14 +365,12 @@ bool TextInput::handleBackspaceEvent()
         if (onTextChanged) {
             onTextChanged();
         }
-
-        return true;
     }
 
-    return false;
+    return EventResult{.wasHandled{true}};
 }
 
-bool TextInput::handleDeleteEvent()
+EventResult TextInput::handleDeleteEvent()
 {
     // If there's a character after the cursor, delete it.
     if (text.eraseCharacter(cursorIndex)) {
@@ -314,36 +386,32 @@ bool TextInput::handleDeleteEvent()
         if (onTextChanged) {
             onTextChanged();
         }
-
-        return true;
     }
 
-    return false;
+    return EventResult{.wasHandled{true}};
 }
 
-bool TextInput::handleCopyEvent()
+EventResult TextInput::handleCopyEvent()
 {
     // If this was a CTRL+c copy command.
     if (SDL_GetModState() & KMOD_CTRL) {
         // If there's text to copy.
-        const std::string& textString = text.asString();
+        const std::string& textString{text.asString()};
         if (textString.length() > 0) {
             // Copy the text to the clipboard.
             SDL_SetClipboardText(textString.c_str());
         }
-
-        return true;
     }
 
-    return false;
+    return EventResult{.wasHandled{true}};
 }
 
-bool TextInput::handleCutEvent()
+EventResult TextInput::handleCutEvent()
 {
     // If this was a CTRL+x cut command
     if (SDL_GetModState() & KMOD_CTRL) {
         // If there's text to cut.
-        const std::string& textString = text.asString();
+        const std::string& textString{text.asString()};
         if (textString.length() > 0) {
             // Copy the text to the clipboard.
             SDL_SetClipboardText(textString.c_str());
@@ -363,21 +431,19 @@ bool TextInput::handleCutEvent()
                 onTextChanged();
             }
         }
-
-        return true;
     }
 
-    return false;
+    return EventResult{.wasHandled{true}};
 }
 
-bool TextInput::handlePasteEvent()
+EventResult TextInput::handlePasteEvent()
 {
     // If this was a CTRL+v paste command.
     if (SDL_GetModState() & KMOD_CTRL) {
         // If there's text in the clipboard.
         if (SDL_HasClipboardText()) {
             // Paste the text from the clipboard to the cursor index.
-            char* clipboardText = SDL_GetClipboardText();
+            char* clipboardText{SDL_GetClipboardText()};
             text.insertText(clipboardText, cursorIndex);
 
             // Move the cursor to the end of the inserted text.
@@ -394,20 +460,16 @@ bool TextInput::handlePasteEvent()
                 onTextChanged();
             }
         }
-
-        return true;
     }
 
-    return false;
+    return EventResult{.wasHandled{true}};
 }
 
-bool TextInput::handleLeftEvent()
+EventResult TextInput::handleLeftEvent()
 {
     // If we can, move the cursor left.
-    bool movedCursor{false};
     if (cursorIndex > 0) {
         cursorIndex--;
-        movedCursor = true;
 
         // Refresh the text position to account for the change.
         refreshTextScrollOffset();
@@ -418,16 +480,14 @@ bool TextInput::handleLeftEvent()
     cursorIsVisible = true;
     accumulatedBlinkTime = 0;
 
-    return movedCursor;
+    return EventResult{.wasHandled{true}};
 }
 
-bool TextInput::handleRightEvent()
+EventResult TextInput::handleRightEvent()
 {
     // If we can, move the cursor right.
-    bool movedCursor{false};
     if (cursorIndex < text.asString().length()) {
         cursorIndex++;
-        movedCursor = true;
 
         // Refresh the text position to account for the change.
         refreshTextScrollOffset();
@@ -438,10 +498,10 @@ bool TextInput::handleRightEvent()
     cursorIsVisible = true;
     accumulatedBlinkTime = 0;
 
-    return movedCursor;
+    return EventResult{.wasHandled{true}};
 }
 
-bool TextInput::handleHomeEvent()
+EventResult TextInput::handleHomeEvent()
 {
     // Move the cursor to the front.
     cursorIndex = 0;
@@ -449,10 +509,10 @@ bool TextInput::handleHomeEvent()
     // Refresh the text position to account for the change.
     refreshTextScrollOffset();
 
-    return true;
+    return EventResult{.wasHandled{true}};
 }
 
-bool TextInput::handleEndEvent()
+EventResult TextInput::handleEndEvent()
 {
     // Move the cursor to the end.
     cursorIndex = text.asString().length();
@@ -460,17 +520,14 @@ bool TextInput::handleEndEvent()
     // Refresh the text position to account for the change.
     refreshTextScrollOffset();
 
-    return true;
+    return EventResult{.wasHandled{true}};
 }
 
-bool TextInput::handleEnterEvent()
+EventResult TextInput::handleEnterEvent()
 {
-    // If we have focus, remove it.
-    if (currentState == State::Focused) {
-        removeFocus();
-    }
-
-    return true;
+    // On Enter key press, we drop focus (which will call onFocusLost() to
+    // set our internal state and call onTextCommitted()).
+    return EventResult{.wasHandled{true}, .dropFocus{true}};
 }
 
 void TextInput::setCurrentState(State inState)
@@ -501,47 +558,6 @@ void TextInput::setCurrentState(State inState)
             disabledImage.setIsVisible(true);
             break;
         }
-    }
-}
-
-void TextInput::assumeFocus()
-{
-    // Set our state to focused.
-    setCurrentState(State::Focused);
-    focusedInputCount++;
-
-    // Begin generating text input events.
-    SDL_StartTextInput();
-
-    // Reset the text cursor's state.
-    // Show the text cursor immediately so the user can see where they're at.
-    cursorIsVisible = true;
-    accumulatedBlinkTime = 0;
-
-    // Move the cursor to the end.
-    cursorIndex = text.asString().length();
-
-    // Refresh the text position to account for the change.
-    refreshTextScrollOffset();
-}
-
-void TextInput::removeFocus()
-{
-    // Set our state back to normal.
-    setCurrentState(State::Normal);
-    focusedInputCount--;
-
-    // If there are no other focused inputs, stop generating text input events.
-    if (focusedInputCount == 0) {
-        SDL_StopTextInput();
-    }
-
-    // Reset the text cursor's state.
-    cursorIsVisible = false;
-
-    // If a callback is registered, signal that the the text was committed.
-    if (onTextCommitted) {
-        onTextCommitted();
     }
 }
 

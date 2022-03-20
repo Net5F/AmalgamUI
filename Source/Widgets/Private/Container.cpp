@@ -68,51 +68,33 @@ std::size_t Container::size()
     return elements.size();
 }
 
-bool Container::handleOSEvent(SDL_Event& event)
+void Container::onTick(double timestepS)
 {
-    // Propagate the event through our visible elements.
-    for (auto it = elements.rbegin(); it != elements.rend(); ++it)
+    // Call every visible element's onTick().
+    for (std::unique_ptr<Widget>& element : elements)
     {
-        // If the element isn't visible, skip it.
-        std::unique_ptr<Widget>& element{*it};
-        if (!(element->getIsVisible())) {
-        }
-
-        // If the element consumed the event, return early.
-        if (element->handleOSEvent(event)) {
-            return true;
+        if (element->getIsVisible()) {
+            element->onTick(timestepS);
         }
     }
+}
 
-    // None of our children handled the event. Try to handle it ourselves.
-    switch (event.type) {
-        case SDL_MOUSEBUTTONDOWN: {
-            return onMouseButtonDown(event.button);
+void Container::updateLayout(const SDL_Rect& parentExtent, WidgetLocator* widgetLocator)
+{
+    // Run the normal layout step (will update us, but won't process any of
+    // our elements).
+    Widget::updateLayout(parentExtent, widgetLocator);
+
+    // Update our visible element's layouts and add them to the locator.
+    // Note: We skip invisible elements since they won't be rendered. If we
+    //       need to process invisible elements (for the widget locator's use,
+    //       perhaps), we can do so.
+    for (std::unique_ptr<Widget>& element : elements)
+    {
+        if (element->getIsVisible()) {
+            element->updateLayout(renderExtent, widgetLocator);
         }
-        case SDL_MOUSEBUTTONUP: {
-            return onMouseButtonUp(event.button);
-        }
-        case SDL_MOUSEMOTION: {
-            // We never block mouse motion events from propagating since
-            // the sim might care about the movement, even if the mouse is
-            // on top of the UI.
-            onMouseMove(event.motion);
-            return false;
-        }
-        case SDL_MOUSEWHEEL: {
-            return onMouseWheel(event.wheel);
-        }
-        case SDL_KEYDOWN: {
-            return onKeyDown(event.key);
-        }
-        case SDL_TEXTINPUT: {
-            return onTextInput(event.text);
-        }
-        default:
-            break;
     }
-
-    return false;
 }
 
 void Container::render()

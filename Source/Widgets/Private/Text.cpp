@@ -160,7 +160,7 @@ void Text::setLogicalExtent(const SDL_Rect& inLogicalExtent)
     refreshAlignment();
 }
 
-void Text::updateLayout(const SDL_Rect& parentExtent)
+void Text::updateLayout(const SDL_Rect& parentExtent, WidgetLocator* widgetLocator)
 {
     // If a property has been changed, re-render our text texture.
     if (textureIsDirty) {
@@ -169,7 +169,7 @@ void Text::updateLayout(const SDL_Rect& parentExtent)
     }
 
     // Do the normal layout updating.
-    Widget::updateLayout(parentExtent);
+    Widget::updateLayout(parentExtent, widgetLocator);
 
     // Offset our textExtent to start at parentExtent.
     SDL_Rect offsetTextExtent{textExtent};

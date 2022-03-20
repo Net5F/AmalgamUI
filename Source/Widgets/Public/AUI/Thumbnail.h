@@ -28,7 +28,7 @@ public:
     // Public interface
     //-------------------------------------------------------------------------
     Thumbnail(Screen& screen, const SDL_Rect& inLogicalExtent,
-              const std::string& inDebugName = "");
+              const std::string& inDebugName = "Thumbnail");
 
     virtual ~Thumbnail() = default;
 
@@ -164,11 +164,13 @@ public:
     //-------------------------------------------------------------------------
     // Base class overrides
     //-------------------------------------------------------------------------
-    bool onMouseButtonDown(SDL_MouseButtonEvent& event) override;
+    EventResult onMouseDown(MouseButtonType buttonType, const SDL_Point& cursorPosition) override;
 
-    bool onMouseWheel(SDL_MouseWheelEvent& event) override;
+    EventResult onMouseDoubleClick(MouseButtonType buttonType, const SDL_Point& cursorPosition) override;
 
-    void onMouseMove(SDL_MouseMotionEvent& event) override;
+    void onMouseEnter() override;
+
+    void onMouseLeave() override;
 
 private:
     /** Sets isHovered and updates the visibility of hoveredImage. */
@@ -182,7 +184,7 @@ private:
      * Uses the given actual-space mouse position to check if this widget
      * should be hovered or unhovered.
      */
-    bool updateHovered(SDL_Point actualMousePoint);
+    Widget* updateHovered(SDL_Point actualMousePoint);
 
     std::function<void(Thumbnail*)> onSelected;
     std::function<void(Thumbnail*)> onDeselected;

@@ -45,7 +45,7 @@ public:
     void tick(double timestepS);
 
     /**
-     * Renders all graphics for this screen to the current rendering target.
+     * Renders all UI graphics for this screen to the current rendering target.
      */
     virtual void render();
 

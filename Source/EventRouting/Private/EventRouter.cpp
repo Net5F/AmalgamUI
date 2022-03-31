@@ -99,7 +99,6 @@ bool EventRouter::handleMouseWheel(SDL_MouseWheelEvent& event)
         WidgetPath hoverPath{getPathUnderCursor(cursorPosition)};
         if (!(hoverPath.empty())) {
             // Perform the bubbling pass (leaf -> root, MouseWheel).
-            EventResult eventResult{};
             for (auto it = hoverPath.rbegin(); it != hoverPath.rend(); ++it) {
                 // If the widget is gone, skip it.
                 WidgetWeakRef& widgetWeakRef{*it};
@@ -172,7 +171,6 @@ bool EventRouter::handleKeyDown(SDL_KeyboardEvent& event)
         wasHandled = handleKeyDownInternal(event.keysym.sym);
     }
     else {
-        AUI_LOG_INFO("Press was released");
         wasHandled = handleKeyUp(event.keysym.sym);
     }
 
@@ -181,6 +179,12 @@ bool EventRouter::handleKeyDown(SDL_KeyboardEvent& event)
 
 bool EventRouter::handleTextInput(SDL_TextInputEvent& event)
 {
+    // If we don't have a focus path or the focused widget is gone, return
+    // early.
+    if (focusPath.empty() || !(focusPath.back().isValid())) {
+        return false;
+    }
+
     // Perform the bubbling pass (leaf -> root, TextInput).
     EventResult eventResult{};
     for (auto it = (focusPath.end() - 1); it != focusPath.begin(); --it) {

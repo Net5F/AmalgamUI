@@ -262,7 +262,7 @@ public:
 
 protected:
     Widget(Screen& inScreen, const SDL_Rect& inLogicalExtent,
-              const std::string& inDebugName = "Not set");
+              const std::string& inDebugName);
 
     /**
      * Checks if Core::actualScreenSize has changed since the last time this

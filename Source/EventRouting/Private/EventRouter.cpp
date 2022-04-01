@@ -187,7 +187,7 @@ bool EventRouter::handleTextInput(SDL_TextInputEvent& event)
 
     // Perform the bubbling pass (leaf -> root, TextInput).
     EventResult eventResult{};
-    for (auto it = (focusPath.end() - 1); it != focusPath.begin(); --it) {
+    for (auto it = focusPath.rbegin(); it != focusPath.rend(); ++it) {
         // If the widget is gone, skip it.
         WidgetWeakRef& widgetWeakRef{*it};
         if (!(widgetWeakRef.isValid())) {
@@ -288,9 +288,9 @@ EventRouter::HandlerReturn EventRouter::handleMouseDown(MouseButtonType buttonTy
     // If a widget didn't handle the event during the preview pass, perform
     // the bubbling pass (leaf -> root, MouseDown).
     if (!(eventResult.wasHandled)) {
-        for (auto it = (clickPath.end() - 1); it != clickPath.begin(); --it) {
+        for (unsigned int i = clickPath.size(); i-- > 0; ) {
             // If the widget is gone, skip it.
-            WidgetWeakRef& widgetWeakRef{*it};
+            WidgetWeakRef& widgetWeakRef{clickPath[i]};
             if (!(widgetWeakRef.isValid())) {
                 continue;
             }
@@ -301,7 +301,7 @@ EventRouter::HandlerReturn EventRouter::handleMouseDown(MouseButtonType buttonTy
 
             // If the event was handled, break early.
             if (eventResult.wasHandled) {
-                handlerWidget = it;
+                handlerWidget = (clickPath.begin() + i);
                 break;
             }
         }
@@ -316,9 +316,9 @@ EventRouter::HandlerReturn EventRouter::handleMouseDoubleClick(MouseButtonType b
     // Perform the bubbling pass (leaf -> root, MouseDoubleClick).
     EventResult eventResult{};
     WidgetPath::iterator handlerWidget;
-    for (auto it = (clickPath.end() - 1); it != clickPath.begin(); --it) {
+    for (unsigned int i = clickPath.size(); i-- > 0; ) {
         // If the widget is gone, skip it.
-        WidgetWeakRef& widgetWeakRef{*it};
+        WidgetWeakRef& widgetWeakRef{clickPath[i]};
         if (!(widgetWeakRef.isValid())) {
             continue;
         }
@@ -329,7 +329,7 @@ EventRouter::HandlerReturn EventRouter::handleMouseDoubleClick(MouseButtonType b
 
         // If the event was handled, break early.
         if (eventResult.wasHandled) {
-            handlerWidget = it;
+            handlerWidget = (clickPath.begin() + i);
             break;
         }
     }
@@ -452,8 +452,8 @@ void EventRouter::processEventResult(const EventResult& eventResult)
 void EventRouter::setFocusIfFocusable(WidgetPath& eventPath)
 {
     // Reverse iterate eventPath, looking for a focusable widget.
-    for (auto it = (eventPath.end() - 1); it != eventPath.begin(); --it) {
-        WidgetWeakRef& widgetWeakRef{*it};
+    for (unsigned int i = eventPath.size(); i-- > 0; ) {
+        WidgetWeakRef& widgetWeakRef{eventPath[i]};
         if (!(widgetWeakRef.isValid())) {
             continue;
         }
@@ -462,7 +462,8 @@ void EventRouter::setFocusIfFocusable(WidgetPath& eventPath)
         // to this widget as the focus path.
         Widget& widget{widgetWeakRef.get()};
         if (widget.getIsFocusable()) {
-            WidgetPath newFocusPath(eventPath.begin(), (it + 1));
+            auto endIt{eventPath.begin() + i + 1};
+            WidgetPath newFocusPath(eventPath.begin(), endIt);
             handleSetFocus(newFocusPath);
             return;
         }
@@ -541,7 +542,7 @@ bool EventRouter::handleKeyDownInternal(SDL_Keycode keyCode)
     // If a widget didn't handle the event during the preview pass, perform
     // the bubbling pass (leaf -> root, KeyDown).
     if (!(eventResult.wasHandled)) {
-        for (auto it = (focusPath.end() - 1); it != focusPath.begin(); --it) {
+        for (auto it = focusPath.rbegin(); it != focusPath.rend(); ++it) {
             // If the widget is gone, skip it.
             WidgetWeakRef& widgetWeakRef{*it};
             if (!(widgetWeakRef.isValid())) {
@@ -574,7 +575,7 @@ bool EventRouter::handleKeyUp(SDL_Keycode keyCode)
 {
     // Perform the bubbling pass (leaf -> root, KeyUp).
     EventResult eventResult{};
-    for (auto it = (focusPath.end() - 1); it != focusPath.begin(); --it) {
+    for (auto it = focusPath.rbegin(); it != focusPath.rend(); ++it) {
         // If the widget is gone, skip it.
         WidgetWeakRef& widgetWeakRef{*it};
         if (!(widgetWeakRef.isValid())) {

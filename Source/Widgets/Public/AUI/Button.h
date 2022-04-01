@@ -76,6 +76,8 @@ public:
 
     EventResult onMouseUp(MouseButtonType buttonType, const SDL_Point& cursorPosition) override;
 
+    EventResult onMouseDoubleClick(MouseButtonType buttonType, const SDL_Point& cursorPosition) override;
+
     void onMouseEnter() override;
 
     void onMouseLeave() override;

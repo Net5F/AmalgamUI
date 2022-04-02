@@ -12,6 +12,24 @@ Screen::Screen(const std::string& inDebugName)
 {
 }
 
+Window* Screen::getWindowUnderPoint(const SDL_Point& point)
+{
+    for (auto it = windows.rbegin(); it != windows.rend(); ++it) {
+        // If the window isn't visible, skip it.
+        Window& window{it->get()};
+        if (!(window.getIsVisible())) {
+            continue;
+        }
+
+        // If the window contains the given point, return it.
+        if (SDLHelpers::pointInRect(point, window.getRenderExtent())) {
+            return &window;
+        }
+    }
+
+    return nullptr;
+}
+
 bool Screen::handleOSEvent(SDL_Event& event)
 {
     // TODO: Either here or in EventRouter, move windows to the
@@ -40,6 +58,12 @@ bool Screen::handleOSEvent(SDL_Event& event)
             break;
     }
 
+    return false;
+}
+
+bool Screen::onKeyDown(SDL_Keycode keyCode)
+{
+    ignore(keyCode);
     return false;
 }
 
@@ -75,24 +99,6 @@ void Screen::render()
             window.render();
         }
     }
-}
-
-Window* Screen::getWindowUnderPoint(const SDL_Point& point)
-{
-    for (auto it = windows.rbegin(); it != windows.rend(); ++it) {
-        // If the window isn't visible, skip it.
-        Window& window{it->get()};
-        if (!(window.getIsVisible())) {
-            continue;
-        }
-
-        // If the window contains the given point, return it.
-        if (SDLHelpers::pointInRect(point, window.getRenderExtent())) {
-            return &window;
-        }
-    }
-
-    return nullptr;
 }
 
 } // namespace AUI

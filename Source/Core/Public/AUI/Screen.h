@@ -29,12 +29,32 @@ public:
     virtual ~Screen() = default;
 
     /**
+     * @return The topmost window under the given point if one was found, else
+     *         nullptr.
+     */
+    Window* getWindowUnderPoint(const SDL_Point& point);
+
+    /**
      * Passes the given SDL event to the EventRouter, where translation and
      * routing occurs.
      *
      * @return true if the event was consumed, else false.
      */
     bool handleOSEvent(SDL_Event& event);
+
+    /**
+     * Called when a key press isn't handled by any of our widgets.
+     *
+     * KeyDown events are first routed to the focused widgets. If they don't
+     * handle the event or no widgets are focused, the event will then be
+     * routed to this function.
+     *
+     * Note: This is intended to be used to open windows on key press, e.g.
+     *       opening a menu when the escape key is pressed.
+     *
+     * @return true if the KeyDown was handled, else false.
+     */
+    virtual bool onKeyDown(SDL_Keycode keyCode);
 
     /**
      * Call the onTick() of all of our visible windows.
@@ -49,13 +69,8 @@ public:
      */
     virtual void render();
 
-    /**
-     * @return The topmost window under the given point if one was found, else
-     *         nullptr.
-     */
-    Window* getWindowUnderPoint(const SDL_Point& point);
-
 protected:
+
     /** The user-assigned name associated with this screen.
         Only useful for debugging. For performance reasons, avoid using it
         in real logic. */

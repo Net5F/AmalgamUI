@@ -195,7 +195,7 @@ private:
      * @pre focusPath.back() must be a valid widget reference.
      * @return true if the event was handled, else false.
      */
-    bool handleKeyDownInternal(SDL_Keycode keyCode);
+    bool handleFocusedKeyDown(SDL_Keycode keyCode);
 
     /**
      * Routes a KeyUp through the current focus path.

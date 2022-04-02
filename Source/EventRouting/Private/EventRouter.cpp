@@ -160,18 +160,27 @@ bool EventRouter::handleMouseMove(SDL_MouseMotionEvent& event)
 
 bool EventRouter::handleKeyDown(SDL_KeyboardEvent& event)
 {
-    // If we don't have a focus path or the focused widget is gone, return
-    // early.
-    if (focusPath.empty() || !(focusPath.back().isValid())) {
-        return false;
+    // If we have a valid focused widget, route the event down the focus path.
+    bool wasHandled{false};
+    if (!(focusPath.empty()) && focusPath.back().isValid()) {
+        if (event.type == SDL_KEYDOWN) {
+            wasHandled = handleFocusedKeyDown(event.keysym.sym);
+        }
+        else {
+            wasHandled = handleKeyUp(event.keysym.sym);
+        }
     }
 
-    bool wasHandled{false};
-    if (event.type == SDL_KEYDOWN) {
-        wasHandled = handleKeyDownInternal(event.keysym.sym);
+    // If an escape key press wasn't handled, drop focus.
+    if ((event.type == SDL_KEYDOWN) && !wasHandled
+        && (event.keysym.sym == SDLK_ESCAPE)) {
+        handleDropFocus(FocusLostType::Escape);
+        wasHandled = true;
     }
-    else {
-        wasHandled = handleKeyUp(event.keysym.sym);
+
+    // If a KeyDown wasn't handled by our widgets, route it to the screen.
+    if ((event.type == SDL_KEYDOWN) && !wasHandled) {
+        wasHandled = screen.onKeyDown(event.keysym.sym);
     }
 
     return wasHandled;
@@ -518,7 +527,7 @@ void EventRouter::handleDropFocus(FocusLostType focusLostType)
     }
 }
 
-bool EventRouter::handleKeyDownInternal(SDL_Keycode keyCode)
+bool EventRouter::handleFocusedKeyDown(SDL_Keycode keyCode)
 {
     // Perform the tunneling pass (root -> leaf, PreviewKeyDown).
     EventResult eventResult{};
@@ -558,12 +567,6 @@ bool EventRouter::handleKeyDownInternal(SDL_Keycode keyCode)
                 break;
             }
         }
-    }
-
-    // If an escape key press wasn't handled, drop focus.
-    if (!(eventResult.wasHandled) && (keyCode == SDLK_ESCAPE)) {
-        handleDropFocus(FocusLostType::Escape);
-        eventResult.wasHandled = true;
     }
 
     processEventResult(eventResult);

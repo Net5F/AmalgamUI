@@ -4,9 +4,9 @@
 
 namespace AUI
 {
-Container::Container(Screen& inScreen, const SDL_Rect& inLogicalExtent,
+Container::Container(const SDL_Rect& inLogicalExtent,
                      const std::string& inDebugName)
-: Widget(inScreen, inLogicalExtent, inDebugName)
+: Widget(inLogicalExtent, inDebugName)
 {
 }
 

@@ -78,7 +78,7 @@ public:
     void render() override;
 
 protected:
-    Container(Screen& screen, const SDL_Rect& inLogicalExtent,
+    Container(const SDL_Rect& inLogicalExtent,
               const std::string& inDebugName = "Container");
 
     /** This container's child elements. This container owns the elements in

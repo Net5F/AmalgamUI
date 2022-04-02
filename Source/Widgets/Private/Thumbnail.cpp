@@ -5,14 +5,14 @@
 
 namespace AUI
 {
-Thumbnail::Thumbnail(Screen& inScreen, const SDL_Rect& inLogicalExtent,
+Thumbnail::Thumbnail(const SDL_Rect& inLogicalExtent,
                      const std::string& inDebugName)
-: Widget(inScreen, inLogicalExtent, inDebugName)
-, hoveredImage(screen, {0, 0, logicalExtent.w, logicalExtent.h})
-, activeImage(screen, {0, 0, logicalExtent.w, logicalExtent.h})
-, backdropImage(screen, {0, 0, logicalExtent.w, logicalExtent.h})
-, selectedImage(screen, {0, 0, logicalExtent.w, logicalExtent.h})
-, thumbnailImage(screen, {0, 0, logicalExtent.w, logicalExtent.h})
+: Widget(inLogicalExtent, inDebugName)
+, hoveredImage({0, 0, logicalExtent.w, logicalExtent.h})
+, activeImage({0, 0, logicalExtent.w, logicalExtent.h})
+, backdropImage({0, 0, logicalExtent.w, logicalExtent.h})
+, selectedImage({0, 0, logicalExtent.w, logicalExtent.h})
+, thumbnailImage({0, 0, logicalExtent.w, logicalExtent.h})
 , isHoverable{true}
 , isSelectable{true}
 , isActivateable{true}
@@ -20,7 +20,7 @@ Thumbnail::Thumbnail(Screen& inScreen, const SDL_Rect& inLogicalExtent,
 , isSelected{false}
 , isActive{false}
 , savedTextAlignment{Text::HorizontalAlignment::Center}
-, text(screen, {0, 0, logicalExtent.w, logicalExtent.h})
+, text({0, 0, logicalExtent.w, logicalExtent.h})
 {
     // Add our children so they're included in rendering, etc.
     children.push_back(hoveredImage);

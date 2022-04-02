@@ -55,7 +55,7 @@ public:
     //-------------------------------------------------------------------------
     // Public interface
     //-------------------------------------------------------------------------
-    Text(Screen& screen, const SDL_Rect& inLogicalExtent,
+    Text(const SDL_Rect& inLogicalExtent,
          const std::string& inDebugName = "Text");
 
     /**

@@ -13,10 +13,9 @@
 
 namespace AUI
 {
-Widget::Widget(Screen& inScreen, const SDL_Rect& inLogicalExtent,
+Widget::Widget(const SDL_Rect& inLogicalExtent,
                      const std::string& inDebugName)
-: screen{inScreen}
-, debugName{inDebugName}
+: debugName{inDebugName}
 , logicalExtent{inLogicalExtent}
 , scaledExtent{ScalingHelpers::logicalToActual(logicalExtent)}
 , renderExtent{}

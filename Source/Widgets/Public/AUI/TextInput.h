@@ -35,7 +35,7 @@ public:
     //-------------------------------------------------------------------------
     // Public interface
     //-------------------------------------------------------------------------
-    TextInput(Screen& screen, const SDL_Rect& inLogicalExtent,
+    TextInput(const SDL_Rect& inLogicalExtent,
               const std::string& inDebugName = "TextInput");
 
     virtual ~TextInput() = default;

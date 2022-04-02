@@ -5,11 +5,11 @@
 
 namespace AUI
 {
-Checkbox::Checkbox(Screen& inScreen, const SDL_Rect& inLogicalExtent,
+Checkbox::Checkbox(const SDL_Rect& inLogicalExtent,
                    const std::string& inDebugName)
-: Widget(inScreen, inLogicalExtent, inDebugName)
-, uncheckedImage(inScreen, {0, 0, logicalExtent.w, logicalExtent.h})
-, checkedImage(inScreen, {0, 0, logicalExtent.w, logicalExtent.h})
+: Widget(inLogicalExtent, inDebugName)
+, uncheckedImage({0, 0, logicalExtent.w, logicalExtent.h})
+, checkedImage({0, 0, logicalExtent.w, logicalExtent.h})
 , currentState{State::Unchecked}
 {
     // Add our children so they're included in rendering, etc.

@@ -4,9 +4,9 @@
 
 namespace AUI
 {
-TiledImage::TiledImage(Screen& inScreen, const SDL_Rect& inLogicalExtent,
+TiledImage::TiledImage(const SDL_Rect& inLogicalExtent,
                        const std::string& inDebugName)
-: Image(inScreen, inLogicalExtent, inDebugName)
+: Image(inLogicalExtent, inDebugName)
 {
 }
 

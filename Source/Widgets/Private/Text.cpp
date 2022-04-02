@@ -5,9 +5,9 @@
 
 namespace AUI
 {
-Text::Text(Screen& inScreen, const SDL_Rect& inLogicalExtent,
+Text::Text(const SDL_Rect& inLogicalExtent,
            const std::string& inDebugName)
-: Widget(inScreen, inLogicalExtent, inDebugName)
+: Widget(inLogicalExtent, inDebugName)
 , fontPath("")
 , logicalFontSize{10}
 , fontHandle()

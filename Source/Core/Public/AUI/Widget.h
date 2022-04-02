@@ -261,7 +261,7 @@ public:
     std::size_t getRefCount();
 
 protected:
-    Widget(Screen& inScreen, const SDL_Rect& inLogicalExtent,
+    Widget(const SDL_Rect& inLogicalExtent,
               const std::string& inDebugName);
 
     /**
@@ -280,11 +280,6 @@ protected:
      */
     SDL_Rect calcClippedExtent(const SDL_Rect& sourceExtent,
                                const SDL_Rect& clipExtent);
-
-    /** A reference to the screen that this widget is a part of. Used for
-        registering/unregistering named widgets, and accessing other
-        widgets. */
-    Screen& screen;
 
     /** An optional user-assigned name associated with this widget.
         Only useful for debugging. For performance reasons, avoid using it

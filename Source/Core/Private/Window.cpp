@@ -4,9 +4,9 @@
 
 namespace AUI
 {
-Window::Window(Screen& inScreen, const SDL_Rect& inLogicalExtent,
+Window::Window(const SDL_Rect& inLogicalExtent,
                      const std::string& inDebugName)
-: Widget(inScreen, inLogicalExtent, inDebugName)
+: Widget(inLogicalExtent, inDebugName)
 , widgetLocator{ScalingHelpers::logicalToActual(inLogicalExtent)}
 {
 }

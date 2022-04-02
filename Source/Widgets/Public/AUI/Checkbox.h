@@ -23,7 +23,7 @@ public:
     //-------------------------------------------------------------------------
     // Public interface
     //-------------------------------------------------------------------------
-    Checkbox(Screen& inScreen, const SDL_Rect& inLogicalExtent,
+    Checkbox(const SDL_Rect& inLogicalExtent,
              const std::string& inDebugName = "Checkbox");
 
     virtual ~Checkbox() = default;

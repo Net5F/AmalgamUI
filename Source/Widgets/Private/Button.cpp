@@ -5,14 +5,14 @@
 
 namespace AUI
 {
-Button::Button(Screen& inScreen, const SDL_Rect& inLogicalExtent,
+Button::Button(const SDL_Rect& inLogicalExtent,
                const std::string& inDebugName)
-: Widget(inScreen, inLogicalExtent, inDebugName)
-, normalImage(inScreen, {0, 0, logicalExtent.w, logicalExtent.h})
-, hoveredImage(inScreen, {0, 0, logicalExtent.w, logicalExtent.h})
-, pressedImage(inScreen, {0, 0, logicalExtent.w, logicalExtent.h})
-, disabledImage(inScreen, {0, 0, logicalExtent.w, logicalExtent.h})
-, text(inScreen, {0, 0, logicalExtent.w, logicalExtent.h})
+: Widget(inLogicalExtent, inDebugName)
+, normalImage({0, 0, logicalExtent.w, logicalExtent.h})
+, hoveredImage({0, 0, logicalExtent.w, logicalExtent.h})
+, pressedImage({0, 0, logicalExtent.w, logicalExtent.h})
+, disabledImage({0, 0, logicalExtent.w, logicalExtent.h})
+, text({0, 0, logicalExtent.w, logicalExtent.h})
 , currentState{State::Normal}
 {
     // Add our children so they're included in rendering, etc.

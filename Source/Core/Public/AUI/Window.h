@@ -26,7 +26,7 @@ namespace AUI
 class Window : public Widget
 {
 public:
-    Window(Screen& screen, const SDL_Rect& inLogicalExtent,
+    Window(const SDL_Rect& inLogicalExtent,
               const std::string& inDebugName);
 
     virtual ~Window() = default;

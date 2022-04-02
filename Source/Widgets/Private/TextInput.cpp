@@ -7,13 +7,13 @@
 
 namespace AUI
 {
-TextInput::TextInput(Screen& inScreen, const SDL_Rect& inLogicalExtent,
+TextInput::TextInput(const SDL_Rect& inLogicalExtent,
                      const std::string& inDebugName)
-: Widget(inScreen, inLogicalExtent, inDebugName)
-, normalImage(screen, {0, 0, logicalExtent.w, logicalExtent.h})
-, hoveredImage(screen, {0, 0, logicalExtent.w, logicalExtent.h})
-, focusedImage(screen, {0, 0, logicalExtent.w, logicalExtent.h})
-, disabledImage(screen, {0, 0, logicalExtent.w, logicalExtent.h})
+: Widget(inLogicalExtent, inDebugName)
+, normalImage({0, 0, logicalExtent.w, logicalExtent.h})
+, hoveredImage({0, 0, logicalExtent.w, logicalExtent.h})
+, focusedImage({0, 0, logicalExtent.w, logicalExtent.h})
+, disabledImage({0, 0, logicalExtent.w, logicalExtent.h})
 , currentState{State::Normal}
 , cursorColor{0, 0, 0, 255}
 , logicalCursorWidth{2}
@@ -21,7 +21,7 @@ TextInput::TextInput(Screen& inScreen, const SDL_Rect& inLogicalExtent,
 , cursorIndex{0}
 , cursorIsVisible{false}
 , lastCommittedText{""}
-, text(screen, {0, 0, logicalExtent.w, logicalExtent.h})
+, text({0, 0, logicalExtent.w, logicalExtent.h})
 {
     // Add our children so they're included in rendering, etc.
     children.push_back(normalImage);

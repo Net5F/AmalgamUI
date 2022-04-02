@@ -3,9 +3,9 @@
 
 namespace AUI
 {
-Image::Image(Screen& inScreen, const SDL_Rect& inLogicalExtent,
+Image::Image(const SDL_Rect& inLogicalExtent,
              const std::string& inDebugName)
-: Widget(inScreen, inLogicalExtent, inDebugName)
+: Widget(inLogicalExtent, inDebugName)
 , currentTexture{nullptr}
 , currentTexExtent{}
 {

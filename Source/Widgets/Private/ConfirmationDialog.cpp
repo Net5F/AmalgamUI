@@ -5,15 +5,15 @@
 
 namespace AUI
 {
-ConfirmationDialog::ConfirmationDialog(Screen& inScreen,
+ConfirmationDialog::ConfirmationDialog(
                                        const SDL_Rect& inLogicalExtent,
                                        const std::string& inDebugName)
-: Window(inScreen, inLogicalExtent, inDebugName)
-, shadowImage(inScreen, {0, 0, logicalExtent.w, logicalExtent.h})
-, backgroundImage(inScreen, {0, 0, logicalExtent.w, logicalExtent.h})
-, bodyText(inScreen, {0, 0, logicalExtent.w, logicalExtent.h})
-, confirmButton(inScreen, {0, 0, logicalExtent.w, logicalExtent.h})
-, cancelButton(inScreen, {0, 0, logicalExtent.w, logicalExtent.h})
+: Window(inLogicalExtent, inDebugName)
+, shadowImage({0, 0, logicalExtent.w, logicalExtent.h})
+, backgroundImage({0, 0, logicalExtent.w, logicalExtent.h})
+, bodyText({0, 0, logicalExtent.w, logicalExtent.h})
+, confirmButton({0, 0, logicalExtent.w, logicalExtent.h})
+, cancelButton({0, 0, logicalExtent.w, logicalExtent.h})
 {
     // Add our children so they're included in rendering, etc.
     children.push_back(shadowImage);

@@ -70,7 +70,6 @@ public:
     virtual void render();
 
 protected:
-
     /** The user-assigned name associated with this screen.
         Only useful for debugging. For performance reasons, avoid using it
         in real logic. */

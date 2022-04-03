@@ -6,10 +6,8 @@ namespace AUI
 bool SDLHelpers::pointInRect(const SDL_Point& point, const SDL_Rect& rect)
 {
     // Test if the point is within all 4 sides of the rect.
-    if ((point.x >= rect.x)
-        && (point.x <= (rect.x + rect.w))
-        && (point.y >= rect.y)
-        && (point.y <= (rect.y + rect.h))) {
+    if ((point.x >= rect.x) && (point.x <= (rect.x + rect.w))
+        && (point.y >= rect.y) && (point.y <= (rect.y + rect.h))) {
         return true;
     }
     else {

@@ -56,7 +56,8 @@ void Checkbox::setOnUnchecked(std::function<void(void)> inOnUnchecked)
     onUnchecked = std::move(inOnUnchecked);
 }
 
-EventResult Checkbox::onMouseDown(MouseButtonType buttonType, const SDL_Point& cursorPosition)
+EventResult Checkbox::onMouseDown(MouseButtonType buttonType,
+                                  const SDL_Point& cursorPosition)
 {
     ignore(cursorPosition);
 
@@ -69,8 +70,7 @@ EventResult Checkbox::onMouseDown(MouseButtonType buttonType, const SDL_Point& c
     if (currentState == State::Unchecked) {
         // Check if the user set a callback.
         if (onChecked == nullptr) {
-            AUI_LOG_FATAL(
-                "Checkbox tried to call empty onChecked() callback.");
+            AUI_LOG_FATAL("Checkbox tried to call empty onChecked() callback.");
         }
 
         // Set our state to checked.

@@ -3,8 +3,7 @@
 
 namespace AUI
 {
-Image::Image(const SDL_Rect& inLogicalExtent,
-             const std::string& inDebugName)
+Image::Image(const SDL_Rect& inLogicalExtent, const std::string& inDebugName)
 : Widget(inLogicalExtent, inDebugName)
 , currentTexture{nullptr}
 , currentTexExtent{}

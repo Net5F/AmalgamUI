@@ -33,7 +33,8 @@ public:
      * Text render mode, affects the quality of the rendered image.
      * See SDL_ttf documentation for more.
      */
-    enum class RenderMode {
+    enum class RenderMode
+    {
         /** Fastest, lowest quality. */
         Solid,
         /** Better quality, but has a box around it. */
@@ -45,12 +46,22 @@ public:
     /**
      * Vertical text alignment. See setVerticalAlignment().
      */
-    enum class VerticalAlignment { Top, Center, Bottom };
+    enum class VerticalAlignment
+    {
+        Top,
+        Center,
+        Bottom
+    };
 
     /**
      * Horizontal text alignment. See setHorizontalAlignment().
      */
-    enum class HorizontalAlignment { Left, Center, Right };
+    enum class HorizontalAlignment
+    {
+        Left,
+        Center,
+        Right
+    };
 
     //-------------------------------------------------------------------------
     // Public interface
@@ -156,7 +167,8 @@ public:
     /**
      * Calls Widget::updateLayout() and also updates offsetTextExtent.
      */
-    void updateLayout(const SDL_Rect& parentExtent, WidgetLocator* widgetLocator);
+    void updateLayout(const SDL_Rect& parentExtent,
+                      WidgetLocator* widgetLocator);
 
     void render() override;
 

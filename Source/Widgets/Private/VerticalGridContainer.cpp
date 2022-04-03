@@ -6,8 +6,7 @@
 
 namespace AUI
 {
-VerticalGridContainer::VerticalGridContainer(
-                                             const SDL_Rect& inLogicalExtent,
+VerticalGridContainer::VerticalGridContainer(const SDL_Rect& inLogicalExtent,
                                              const std::string& inDebugName)
 : Container(inLogicalExtent, inDebugName)
 , numColumns{1}
@@ -50,7 +49,8 @@ EventResult VerticalGridContainer::onMouseWheel(int amountScrolled)
     return EventResult{.wasHandled{true}};
 }
 
-void VerticalGridContainer::updateLayout(const SDL_Rect& parentExtent, WidgetLocator* widgetLocator)
+void VerticalGridContainer::updateLayout(const SDL_Rect& parentExtent,
+                                         WidgetLocator* widgetLocator)
 {
     // Run the normal layout step (will update us, but won't process any of
     // our elements).
@@ -87,8 +87,9 @@ void VerticalGridContainer::updateLayout(const SDL_Rect& parentExtent, WidgetLoc
         // Add this widget's offset to get our final offset.
         int finalX{renderExtent.x + cellXOffset};
         int finalY{renderExtent.y + cellYOffset};
-        elements[i]->updateLayout({finalX, finalY
-            , (finalX + scaledCellWidth), (finalY + scaledCellHeight)}, widgetLocator);
+        elements[i]->updateLayout({finalX, finalY, (finalX + scaledCellWidth),
+                                   (finalY + scaledCellHeight)},
+                                  widgetLocator);
     }
 }
 
@@ -123,14 +124,14 @@ void VerticalGridContainer::scrollElements(bool scrollUp)
     else if (!scrollUp) {
         // Else if we've being asked to scroll down, calculate if there are
         // any rows below to scroll to.
-        int rowsBelow{currentRows - maxVisibleRows - static_cast<int>(rowScroll)};
+        int rowsBelow{currentRows - maxVisibleRows
+                      - static_cast<int>(rowScroll)};
 
         // If there are any elements offscreen below, scroll down 1 row.
         if (rowsBelow > 0) {
             rowScroll++;
         }
     }
-
 }
 
 } // namespace AUI

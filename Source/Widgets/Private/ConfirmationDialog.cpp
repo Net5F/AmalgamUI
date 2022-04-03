@@ -5,8 +5,7 @@
 
 namespace AUI
 {
-ConfirmationDialog::ConfirmationDialog(
-                                       const SDL_Rect& inLogicalExtent,
+ConfirmationDialog::ConfirmationDialog(const SDL_Rect& inLogicalExtent,
                                        const std::string& inDebugName)
 : Window(inLogicalExtent, inDebugName)
 , shadowImage({0, 0, logicalExtent.w, logicalExtent.h})

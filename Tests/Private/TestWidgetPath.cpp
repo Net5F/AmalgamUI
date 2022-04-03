@@ -16,7 +16,8 @@ TEST_CASE("TestWidgetPath")
     SECTION("Ref count updates properly.")
     {
         Button widget1{screen, {}};
-        std::unique_ptr<Widget> widget2{std::make_unique<Button>(screen, SDL_Rect{})};
+        std::unique_ptr<Widget> widget2{
+            std::make_unique<Button>(screen, SDL_Rect{})};
         Button widget3{screen, {}};
 
         {

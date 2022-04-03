@@ -14,7 +14,8 @@ TEST_CASE("TestWidgetWeakRef")
     SECTION("Construction")
     {
         Button widget1{screen, {}};
-        std::unique_ptr<Widget> widget2{std::make_unique<Button>(screen, SDL_Rect{})};
+        std::unique_ptr<Widget> widget2{
+            std::make_unique<Button>(screen, SDL_Rect{})};
         Button widget3{screen, {}};
         {
             WidgetWeakRef ref1(widget1);
@@ -84,8 +85,10 @@ TEST_CASE("TestWidgetWeakRef")
 
     SECTION("Invalidate single ref")
     {
-        std::unique_ptr<Widget> widget1{std::make_unique<Button>(screen, SDL_Rect{})};
-        std::unique_ptr<Widget> widget2{std::make_unique<Button>(screen, SDL_Rect{})};
+        std::unique_ptr<Widget> widget1{
+            std::make_unique<Button>(screen, SDL_Rect{})};
+        std::unique_ptr<Widget> widget2{
+            std::make_unique<Button>(screen, SDL_Rect{})};
 
         WidgetWeakRef ref1{*widget1};
         WidgetWeakRef ref2{*widget2};
@@ -103,7 +106,8 @@ TEST_CASE("TestWidgetWeakRef")
 
     SECTION("Invalidate multiple refs")
     {
-        std::unique_ptr<Widget> widget1{std::make_unique<Button>(screen, SDL_Rect{})};
+        std::unique_ptr<Widget> widget1{
+            std::make_unique<Button>(screen, SDL_Rect{})};
 
         WidgetWeakRef ref1{*widget1};
         WidgetWeakRef ref2{*widget1};

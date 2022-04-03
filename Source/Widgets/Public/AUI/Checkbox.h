@@ -18,7 +18,11 @@ public:
     /**
      * Used to track the button's visual and logical state.
      */
-    enum class State { Unchecked, Checked };
+    enum class State
+    {
+        Unchecked,
+        Checked
+    };
 
     //-------------------------------------------------------------------------
     // Public interface
@@ -56,7 +60,8 @@ public:
     //-------------------------------------------------------------------------
     // Base class overrides
     //-------------------------------------------------------------------------
-    EventResult onMouseDown(MouseButtonType buttonType, const SDL_Point& cursorPosition) override;
+    EventResult onMouseDown(MouseButtonType buttonType,
+                            const SDL_Point& cursorPosition) override;
 
 private:
     std::function<void(void)> onChecked;

@@ -115,7 +115,8 @@ void TextInput::setOnTextCommitted(std::function<void(void)> inOnTextCommitted)
     onTextCommitted = std::move(inOnTextCommitted);
 }
 
-EventResult TextInput::onMouseDown(MouseButtonType buttonType, const SDL_Point& cursorPosition)
+EventResult TextInput::onMouseDown(MouseButtonType buttonType,
+                                   const SDL_Point& cursorPosition)
 {
     ignore(cursorPosition);
 
@@ -582,7 +583,8 @@ void TextInput::refreshTextScrollOffset()
     else if (textOffset < 0) {
         // There's text hanging off the left side. Are we still pushed against
         // the right bound? (Relevant after a backspace.)
-        SDL_Rect lastCharOffset{text.calcCharacterOffset(text.asString().length())};
+        SDL_Rect lastCharOffset{
+            text.calcCharacterOffset(text.asString().length())};
         if (lastCharOffset.x < (textExtent.x + textExtent.w)) {
             // There's a gap to fill, scroll right.
             textOffset += ((textExtent.x + textExtent.w) - lastCharOffset.x);

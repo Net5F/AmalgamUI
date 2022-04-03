@@ -17,7 +17,8 @@ public:
     // Public interface
     //-------------------------------------------------------------------------
     VerticalGridContainer(const SDL_Rect& inLogicalExtent,
-                          const std::string& inDebugName = "VerticalGridContainer");
+                          const std::string& inDebugName
+                          = "VerticalGridContainer");
 
     virtual ~VerticalGridContainer() = default;
 
@@ -44,7 +45,8 @@ public:
     //-------------------------------------------------------------------------
     EventResult onMouseWheel(int amountScrolled) override;
 
-    void updateLayout(const SDL_Rect& parentExtent, WidgetLocator* widgetLocator) override;
+    void updateLayout(const SDL_Rect& parentExtent,
+                      WidgetLocator* widgetLocator) override;
 
 protected:
     /**

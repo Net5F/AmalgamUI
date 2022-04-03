@@ -5,7 +5,8 @@ namespace AUI
 /**
  * Refers to the cause of a FocusLost event.
  */
-enum class FocusLostType {
+enum class FocusLostType
+{
     /** The Escape key was pressed. */
     Escape,
     /** A click occurred outside of the focused widget. */

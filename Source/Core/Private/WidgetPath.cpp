@@ -5,9 +5,7 @@
 namespace AUI
 {
 
-WidgetPath::WidgetPath()
-{
-}
+WidgetPath::WidgetPath() {}
 
 WidgetPath::WidgetPath(const WidgetPath& other)
 : widgetRefs{other.widgetRefs}

@@ -13,8 +13,7 @@
 
 namespace AUI
 {
-Widget::Widget(const SDL_Rect& inLogicalExtent,
-                     const std::string& inDebugName)
+Widget::Widget(const SDL_Rect& inLogicalExtent, const std::string& inDebugName)
 : debugName{inDebugName}
 , logicalExtent{inLogicalExtent}
 , scaledExtent{ScalingHelpers::logicalToActual(logicalExtent)}
@@ -28,8 +27,7 @@ Widget::Widget(const SDL_Rect& inLogicalExtent,
 
 Widget::~Widget()
 {
-    for (WidgetWeakRef* ref : trackedRefs)
-    {
+    for (WidgetWeakRef* ref : trackedRefs) {
         ref->invalidate();
     }
 
@@ -85,28 +83,32 @@ bool Widget::getIsFocusable() const
     return isFocusable;
 }
 
-EventResult Widget::onPreviewMouseDown(MouseButtonType buttonType, const SDL_Point& cursorPosition)
+EventResult Widget::onPreviewMouseDown(MouseButtonType buttonType,
+                                       const SDL_Point& cursorPosition)
 {
     ignore(buttonType);
     ignore(cursorPosition);
     return EventResult{.wasHandled{false}};
 }
 
-EventResult Widget::onMouseDown(MouseButtonType buttonType, const SDL_Point& cursorPosition)
+EventResult Widget::onMouseDown(MouseButtonType buttonType,
+                                const SDL_Point& cursorPosition)
 {
     ignore(buttonType);
     ignore(cursorPosition);
     return EventResult{.wasHandled{false}};
 }
 
-EventResult Widget::onMouseUp(MouseButtonType buttonType, const SDL_Point& cursorPosition)
+EventResult Widget::onMouseUp(MouseButtonType buttonType,
+                              const SDL_Point& cursorPosition)
 {
     ignore(buttonType);
     ignore(cursorPosition);
     return EventResult{.wasHandled{false}};
 }
 
-EventResult Widget::onMouseDoubleClick(MouseButtonType buttonType, const SDL_Point& cursorPosition)
+EventResult Widget::onMouseDoubleClick(MouseButtonType buttonType,
+                                       const SDL_Point& cursorPosition)
 {
     ignore(buttonType);
     ignore(cursorPosition);
@@ -125,13 +127,9 @@ EventResult Widget::onMouseMove(const SDL_Point& cursorPosition)
     return EventResult{.wasHandled{false}};
 }
 
-void Widget::onMouseEnter()
-{
-}
+void Widget::onMouseEnter() {}
 
-void Widget::onMouseLeave()
-{
-}
+void Widget::onMouseLeave() {}
 
 EventResult Widget::onFocusGained()
 {
@@ -170,15 +168,15 @@ EventResult Widget::onTextInput(const std::string& inputText)
 void Widget::onTick(double timestepS)
 {
     // Call every visible child's onTick().
-    for (Widget& child : children)
-    {
+    for (Widget& child : children) {
         if (child.getIsVisible()) {
             child.onTick(timestepS);
         }
     }
 }
 
-void Widget::updateLayout(const SDL_Rect& parentExtent, WidgetLocator* widgetLocator)
+void Widget::updateLayout(const SDL_Rect& parentExtent,
+                          WidgetLocator* widgetLocator)
 {
     // Keep our extent up to date.
     refreshScaling();
@@ -198,8 +196,7 @@ void Widget::updateLayout(const SDL_Rect& parentExtent, WidgetLocator* widgetLoc
     // Note: We skip invisible children since they won't be rendered. If we
     //       need to process invisible children (for the widget locator's use,
     //       perhaps), we can do so.
-    for (Widget& child : children)
-    {
+    for (Widget& child : children) {
         if (child.getIsVisible()) {
             child.updateLayout(renderExtent, widgetLocator);
         }
@@ -209,8 +206,7 @@ void Widget::updateLayout(const SDL_Rect& parentExtent, WidgetLocator* widgetLoc
 void Widget::render()
 {
     // Render all visible children.
-    for (Widget& child : children)
-    {
+    for (Widget& child : children) {
         if (child.getIsVisible()) {
             child.render();
         }
@@ -225,8 +221,10 @@ void Widget::trackRef(WidgetWeakRef* ref)
 void Widget::untrackRef(WidgetWeakRef* ref)
 {
     auto it{std::find(trackedRefs.begin(), trackedRefs.end(), ref)};
-    AUI_ASSERT(it != trackedRefs.end(), "Tried to untrack ref that didn't "
-               "exist in list of widget: %s - %p", debugName.c_str(), ref);
+    AUI_ASSERT(
+        it != trackedRefs.end(),
+        "Tried to untrack ref that didn't exist in list of widget: %s - %p",
+        debugName.c_str(), ref);
     trackedRefs.erase(it);
 }
 

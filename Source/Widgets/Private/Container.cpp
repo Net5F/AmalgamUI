@@ -71,15 +71,15 @@ std::size_t Container::size()
 void Container::onTick(double timestepS)
 {
     // Call every visible element's onTick().
-    for (std::unique_ptr<Widget>& element : elements)
-    {
+    for (std::unique_ptr<Widget>& element : elements) {
         if (element->getIsVisible()) {
             element->onTick(timestepS);
         }
     }
 }
 
-void Container::updateLayout(const SDL_Rect& parentExtent, WidgetLocator* widgetLocator)
+void Container::updateLayout(const SDL_Rect& parentExtent,
+                             WidgetLocator* widgetLocator)
 {
     // Run the normal layout step (will update us, but won't process any of
     // our elements).
@@ -89,8 +89,7 @@ void Container::updateLayout(const SDL_Rect& parentExtent, WidgetLocator* widget
     // Note: We skip invisible elements since they won't be rendered. If we
     //       need to process invisible elements (for the widget locator's use,
     //       perhaps), we can do so.
-    for (std::unique_ptr<Widget>& element : elements)
-    {
+    for (std::unique_ptr<Widget>& element : elements) {
         if (element->getIsVisible()) {
             element->updateLayout(renderExtent, widgetLocator);
         }
@@ -100,8 +99,7 @@ void Container::updateLayout(const SDL_Rect& parentExtent, WidgetLocator* widget
 void Container::render()
 {
     // Render all visible elements.
-    for (std::unique_ptr<Widget>& element : elements)
-    {
+    for (std::unique_ptr<Widget>& element : elements) {
         if (element->getIsVisible()) {
             element->render();
         }

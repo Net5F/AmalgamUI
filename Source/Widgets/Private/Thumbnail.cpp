@@ -206,7 +206,8 @@ void Thumbnail::setOnDeactivated(
     onDeactivated = std::move(inOnDeactivated);
 }
 
-EventResult Thumbnail::onMouseDown(MouseButtonType buttonType, const SDL_Point& cursorPosition)
+EventResult Thumbnail::onMouseDown(MouseButtonType buttonType,
+                                   const SDL_Point& cursorPosition)
 {
     ignore(cursorPosition);
 
@@ -237,7 +238,8 @@ EventResult Thumbnail::onMouseDown(MouseButtonType buttonType, const SDL_Point& 
     return EventResult{.wasHandled{false}};
 }
 
-EventResult Thumbnail::onMouseDoubleClick(MouseButtonType buttonType, const SDL_Point& cursorPosition)
+EventResult Thumbnail::onMouseDoubleClick(MouseButtonType buttonType,
+                                          const SDL_Point& cursorPosition)
 {
     ignore(cursorPosition);
 

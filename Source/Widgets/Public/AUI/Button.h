@@ -18,7 +18,13 @@ public:
     /**
      * Used to track the button's visual and logical state.
      */
-    enum class State { Normal, Hovered, Pressed, Disabled };
+    enum class State
+    {
+        Normal,
+        Hovered,
+        Pressed,
+        Disabled
+    };
 
     //-------------------------------------------------------------------------
     // Public interface
@@ -72,11 +78,14 @@ public:
     //-------------------------------------------------------------------------
     // Base class overrides
     //-------------------------------------------------------------------------
-    EventResult onMouseDown(MouseButtonType buttonType, const SDL_Point& cursorPosition) override;
+    EventResult onMouseDown(MouseButtonType buttonType,
+                            const SDL_Point& cursorPosition) override;
 
-    EventResult onMouseUp(MouseButtonType buttonType, const SDL_Point& cursorPosition) override;
+    EventResult onMouseUp(MouseButtonType buttonType,
+                          const SDL_Point& cursorPosition) override;
 
-    EventResult onMouseDoubleClick(MouseButtonType buttonType, const SDL_Point& cursorPosition) override;
+    EventResult onMouseDoubleClick(MouseButtonType buttonType,
+                                   const SDL_Point& cursorPosition) override;
 
     void onMouseEnter() override;
 

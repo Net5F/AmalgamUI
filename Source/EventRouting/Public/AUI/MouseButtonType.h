@@ -7,7 +7,8 @@ namespace AUI
  *
  * Used during mouse button-related events.
  */
-enum class MouseButtonType {
+enum class MouseButtonType
+{
     Left,
     Middle,
     Right,

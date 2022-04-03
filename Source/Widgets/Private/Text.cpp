@@ -5,8 +5,7 @@
 
 namespace AUI
 {
-Text::Text(const SDL_Rect& inLogicalExtent,
-           const std::string& inDebugName)
+Text::Text(const SDL_Rect& inLogicalExtent, const std::string& inDebugName)
 : Widget(inLogicalExtent, inDebugName)
 , fontPath("")
 , logicalFontSize{10}
@@ -160,7 +159,8 @@ void Text::setLogicalExtent(const SDL_Rect& inLogicalExtent)
     refreshAlignment();
 }
 
-void Text::updateLayout(const SDL_Rect& parentExtent, WidgetLocator* widgetLocator)
+void Text::updateLayout(const SDL_Rect& parentExtent,
+                        WidgetLocator* widgetLocator)
 {
     // If a property has been changed, re-render our text texture.
     if (textureIsDirty) {
@@ -177,8 +177,7 @@ void Text::updateLayout(const SDL_Rect& parentExtent, WidgetLocator* widgetLocat
     offsetTextExtent.y += parentExtent.y;
 
     // Clip the text image's extent to not go beyond this widget's extent.
-    offsetClippedTextExtent = calcClippedExtent(offsetTextExtent
-        , renderExtent);
+    offsetClippedTextExtent = calcClippedExtent(offsetTextExtent, renderExtent);
 
     // Pull offsetClippedTextExtent back into texture space ((0, 0) origin).
     // This tells us what part of the text image texture to actually render.

@@ -22,8 +22,9 @@ void WidgetLocator::addWidget(Widget* widget)
 {
     SDL_Rect widgetRenderExtent{widget->getRenderExtent()};
     AUI_ASSERT(SDLHelpers::rectInRect(widgetRenderExtent, gridScreenExtent),
-        "Tried to add a widget that is outside this locator's bounds. Widget name: %s",
-        widget->getDebugName().c_str());
+               "Tried to add a widget that is outside this locator's bounds. "
+               "Widget name: %s",
+               widget->getDebugName().c_str());
 
     // Since widgetRenderExtent is relative to the whole screen, offset it to
     // be relative to our grid's extent (to match our cell coordinates).
@@ -68,14 +69,15 @@ void WidgetLocator::removeWidget(Widget* widget)
 
 WidgetPath WidgetLocator::getPathUnderPoint(const SDL_Point& actualPoint)
 {
-    AUI_ASSERT(SDLHelpers::pointInRect(actualPoint, gridScreenExtent)
-        , "Tried to get path for a point that is outside this locator's bounds.");
+    AUI_ASSERT(
+        SDLHelpers::pointInRect(actualPoint, gridScreenExtent),
+        "Tried to get path for a point that is outside this locator's bounds.");
 
     // Get the cell that contains the given point.
-    unsigned int hitCellX{static_cast<unsigned int>((actualPoint.x - gridScreenExtent.x)
-        / cellWidth)};
-    unsigned int hitCellY{static_cast<unsigned int>((actualPoint.y - gridScreenExtent.y)
-        / cellWidth)};
+    unsigned int hitCellX{static_cast<unsigned int>(
+        (actualPoint.x - gridScreenExtent.x) / cellWidth)};
+    unsigned int hitCellY{static_cast<unsigned int>(
+        (actualPoint.y - gridScreenExtent.y) / cellWidth)};
     unsigned int hitCellIndex{linearizeCellIndex(hitCellX, hitCellY)};
     std::vector<WidgetWeakRef>& widgetVec{widgetGrid[hitCellIndex]};
 
@@ -127,23 +129,25 @@ SDL_Rect WidgetLocator::getGridCellExtent()
     return gridCellExtent;
 }
 
-void WidgetLocator::clearWidgetLocation(Widget* widget, const SDL_Rect& cellClearExtent)
+void WidgetLocator::clearWidgetLocation(Widget* widget,
+                                        const SDL_Rect& cellClearExtent)
 {
     // Iterate through all the cells that the widget occupies.
     int xMax{cellClearExtent.x + cellClearExtent.w};
     int yMax{cellClearExtent.y + cellClearExtent.h};
     for (int x = cellClearExtent.x; x < xMax; ++x) {
         for (int y = cellClearExtent.y; y < yMax; ++y) {
-            // Find the widget in this cell's widget vector.
+            // Find the widget's location in this cell's widget vector.
             unsigned int linearizedIndex{linearizeCellIndex(x, y)};
             std::vector<WidgetWeakRef>& widgetVec{widgetGrid[linearizedIndex]};
 
-            auto widgetIt{std::find_if(widgetVec.begin(), widgetVec.end(),
-                [&widget](const WidgetWeakRef& other){
-                    // Note: We don't need to check other's validity here since
-                    //       we're just comparing addresses.
-                    return (widget == &(other.get()));
-                })};
+            auto widgetEquals{[&widget](const WidgetWeakRef& other) {
+                // Note: We don't need to check other's validity here since
+                //       we're just comparing addresses.
+                return (widget == &(other.get()));
+            }};
+            auto widgetIt{
+                std::find_if(widgetVec.begin(), widgetVec.end(), widgetEquals)};
 
             // Remove the entity from this cell's widget vector.
             if (widgetIt != widgetVec.end()) {
@@ -162,10 +166,10 @@ SDL_Rect WidgetLocator::screenToCellExtent(const SDL_Rect& screenExtent)
     topLeft.y = static_cast<int>(std::floor(screenExtent.y / cellWidth));
 
     SDL_Point bottomRight{};
-    bottomRight.x = static_cast<int>(std::ceil((screenExtent.x
-        + screenExtent.w) / cellWidth));
-    bottomRight.y = static_cast<int>(std::ceil((screenExtent.y
-        + screenExtent.h) / cellWidth));
+    bottomRight.x = static_cast<int>(
+        std::ceil((screenExtent.x + screenExtent.w) / cellWidth));
+    bottomRight.y = static_cast<int>(
+        std::ceil((screenExtent.y + screenExtent.h) / cellWidth));
 
     // Use the top left and bottom right to build the total cell extent.
     return {topLeft.x, topLeft.y, (bottomRight.x - topLeft.x),

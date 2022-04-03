@@ -10,24 +10,24 @@
  * Use these macros instead of calling the Log functions directly.
  */
 #define AUI_LOG_INFO(...)                                                      \
-    do {                                                                          \
+    do {                                                                       \
         AUI::Log::info(__VA_ARGS__);                                           \
     } while (false)
 
 #ifndef NDEBUG
-#define AUI_LOG_ERROR(...)                                                         \
+#define AUI_LOG_ERROR(...)                                                     \
     do {                                                                       \
         AUI::Log::error(__FILE__, __LINE__, __VA_ARGS__);                      \
         std::abort();                                                          \
     } while (false)
 #else
-#define AUI_LOG_ERROR(...)                                                    \
-    do {                                                                          \
-        AUI::Log::error(__FILE__, __LINE__, __VA_ARGS__);                       \
+#define AUI_LOG_ERROR(...)                                                     \
+    do {                                                                       \
+        AUI::Log::error(__FILE__, __LINE__, __VA_ARGS__);                      \
     } while (false)
 #endif
 
-#define AUI_LOG_FATAL(...)                                                    \
+#define AUI_LOG_FATAL(...)                                                     \
     do {                                                                       \
         AUI::Log::error(__FILE__, __LINE__, __VA_ARGS__);                      \
         std::abort();                                                          \

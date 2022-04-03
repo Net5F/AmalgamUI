@@ -82,7 +82,8 @@ public:
      * @param cursorPosition  The cursor's position, relative to the top left
      *                        of the screen.
      */
-    virtual EventResult onPreviewMouseDown(MouseButtonType buttonType, const SDL_Point& cursorPosition);
+    virtual EventResult onPreviewMouseDown(MouseButtonType buttonType,
+                                           const SDL_Point& cursorPosition);
 
     /**
      * Called when a mouse click occurs on this widget.
@@ -92,7 +93,8 @@ public:
      * @param cursorPosition  The cursor's position, relative to the top left
      *                        of the screen.
      */
-    virtual EventResult onMouseDown(MouseButtonType buttonType, const SDL_Point& cursorPosition);
+    virtual EventResult onMouseDown(MouseButtonType buttonType,
+                                    const SDL_Point& cursorPosition);
 
     /**
      * Called when a mouse click is released.
@@ -102,7 +104,8 @@ public:
      * @param cursorPosition  The cursor's position, relative to the top left
      *                        of the screen.
      */
-    virtual EventResult onMouseUp(MouseButtonType buttonType, const SDL_Point& cursorPosition);
+    virtual EventResult onMouseUp(MouseButtonType buttonType,
+                                  const SDL_Point& cursorPosition);
 
     /**
      * Called when a mouse double click (or triple click, or more) occurs on
@@ -113,7 +116,8 @@ public:
      * @param cursorPosition  The cursor's position, relative to the top left
      *                        of the screen.
      */
-    virtual EventResult onMouseDoubleClick(MouseButtonType buttonType, const SDL_Point& cursorPosition);
+    virtual EventResult onMouseDoubleClick(MouseButtonType buttonType,
+                                           const SDL_Point& cursorPosition);
 
     /**
      * Called when the mouse wheel is scrolled while the cursor is over this
@@ -227,7 +231,8 @@ public:
      * @post renderExtent is properly positioned for use in rendering and
      *       hit testing.
      */
-    virtual void updateLayout(const SDL_Rect& parentExtent, WidgetLocator* widgetLocator);
+    virtual void updateLayout(const SDL_Rect& parentExtent,
+                              WidgetLocator* widgetLocator);
 
     /**
      * Renders this widget to the current rendering target.
@@ -261,8 +266,7 @@ public:
     std::size_t getRefCount();
 
 protected:
-    Widget(const SDL_Rect& inLogicalExtent,
-              const std::string& inDebugName);
+    Widget(const SDL_Rect& inLogicalExtent, const std::string& inDebugName);
 
     /**
      * Checks if Core::actualScreenSize has changed since the last time this

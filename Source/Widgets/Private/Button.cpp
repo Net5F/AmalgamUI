@@ -5,8 +5,7 @@
 
 namespace AUI
 {
-Button::Button(const SDL_Rect& inLogicalExtent,
-               const std::string& inDebugName)
+Button::Button(const SDL_Rect& inLogicalExtent, const std::string& inDebugName)
 : Widget(inLogicalExtent, inDebugName)
 , normalImage({0, 0, logicalExtent.w, logicalExtent.h})
 , hoveredImage({0, 0, logicalExtent.w, logicalExtent.h})
@@ -53,7 +52,8 @@ void Button::setOnPressed(std::function<void(void)> inOnPressed)
     onPressed = std::move(inOnPressed);
 }
 
-EventResult Button::onMouseDown(MouseButtonType buttonType, const SDL_Point& cursorPosition)
+EventResult Button::onMouseDown(MouseButtonType buttonType,
+                                const SDL_Point& cursorPosition)
 {
     ignore(cursorPosition);
 
@@ -81,7 +81,8 @@ EventResult Button::onMouseDown(MouseButtonType buttonType, const SDL_Point& cur
     return EventResult{.wasHandled{true}, .setMouseCapture{this}};
 }
 
-EventResult Button::onMouseUp(MouseButtonType buttonType, const SDL_Point& cursorPosition)
+EventResult Button::onMouseUp(MouseButtonType buttonType,
+                              const SDL_Point& cursorPosition)
 {
     ignore(cursorPosition);
 
@@ -109,7 +110,8 @@ EventResult Button::onMouseUp(MouseButtonType buttonType, const SDL_Point& curso
     return EventResult{.wasHandled{true}, .releaseMouseCapture{true}};
 }
 
-EventResult Button::onMouseDoubleClick(MouseButtonType buttonType, const SDL_Point& cursorPosition)
+EventResult Button::onMouseDoubleClick(MouseButtonType buttonType,
+                                       const SDL_Point& cursorPosition)
 {
     ignore(cursorPosition);
 

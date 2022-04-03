@@ -4,8 +4,7 @@
 
 namespace AUI
 {
-Window::Window(const SDL_Rect& inLogicalExtent,
-                     const std::string& inDebugName)
+Window::Window(const SDL_Rect& inLogicalExtent, const std::string& inDebugName)
 : Widget(inLogicalExtent, inDebugName)
 , widgetLocator{ScalingHelpers::logicalToActual(inLogicalExtent)}
 {
@@ -52,8 +51,7 @@ void Window::updateLayout(const SDL_Rect& parentExtent)
     // Note: We skip invisible children since they won't be rendered. If we
     //       need to process invisible children (for the widget locator's use,
     //       perhaps), we can change this.
-    for (Widget& child : children)
-    {
+    for (Widget& child : children) {
         if (child.getIsVisible()) {
             child.updateLayout(renderExtent, &widgetLocator);
         }

@@ -98,8 +98,7 @@ private:
      * Used for passing data from a specific event handler function back up to
      * a general event handler function.
      */
-    struct HandlerReturn
-    {
+    struct HandlerReturn {
         EventResult eventResult{};
         /** If eventResult.wasHandled == true, this points to the widget that
             handled the event. */
@@ -134,14 +133,16 @@ private:
     /**
      * Routes a MouseDown to the given widget path.
      */
-    HandlerReturn handleMouseDown(MouseButtonType buttonType, const SDL_Point& cursorPosition,
-                         WidgetPath& clickPath);
+    HandlerReturn handleMouseDown(MouseButtonType buttonType,
+                                  const SDL_Point& cursorPosition,
+                                  WidgetPath& clickPath);
 
     /**
      * Routes a MouseDoubleClick to the given widget path.
      */
     HandlerReturn handleMouseDoubleClick(MouseButtonType buttonType,
-                                  const SDL_Point& cursorPosition, WidgetPath& clickPath);
+                                         const SDL_Point& cursorPosition,
+                                         WidgetPath& clickPath);
 
     /**
      * Compares hoverPath to lastHoveredWidgetPath and routes MouseEnter and
@@ -158,7 +159,8 @@ private:
      * hovered get routed a MouseEnter, while widgets that left are routed
      * a MouseLeave.
      */
-    EventResult handleUncapturedMouseMove(const SDL_Point& cursorPosition, WidgetPath& hoverPath);
+    EventResult handleUncapturedMouseMove(const SDL_Point& cursorPosition,
+                                          WidgetPath& hoverPath);
 
     /**
      * Processes the given event result. May update mouse capture, etc.

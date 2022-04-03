@@ -83,18 +83,16 @@ void Screen::render()
 {
     // TODO: Combine the update and render into 1 loop and test.
     // Update our visible window's layouts.
-    for (Window& window : windows)
-    {
+    for (Window& window : windows) {
         if (window.getIsVisible()) {
             ScreenResolution actualScreenSize{Core::getActualScreenSize()};
-            window.updateLayout({0, 0, actualScreenSize.width
-                , actualScreenSize.height});
+            window.updateLayout(
+                {0, 0, actualScreenSize.width, actualScreenSize.height});
         }
     }
 
     // Render our visible windows.
-    for (Window& window : windows)
-    {
+    for (Window& window : windows) {
         if (window.getIsVisible()) {
             window.render();
         }

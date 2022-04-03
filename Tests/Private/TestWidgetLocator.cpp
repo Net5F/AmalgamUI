@@ -16,10 +16,11 @@ class TestWidget : public Widget
 {
 public:
     TestWidget(Screen& inScreen, const SDL_Rect& inLogicalExtent,
-              const std::string& inDebugName = "")
+               const std::string& inDebugName = "")
     : Widget(inScreen, inLogicalExtent, inDebugName)
-    , image{inScreen, {0, 0, (inLogicalExtent.w / 2)
-            , (inLogicalExtent.h / 2)}, "Image"}
+    , image{inScreen,
+            {0, 0, (inLogicalExtent.w / 2), (inLogicalExtent.h / 2)},
+            "Image"}
     {
         children.push_back(image);
     }
@@ -53,17 +54,15 @@ public:
         widgetContainer.setCellHeight(100);
         widgetContainer.setNumColumns(3);
 
-        widgetContainer.push_back(
-            std::make_unique<TestWidget>(screen, SDL_Rect{0, 0, 100, 100}, "Widget1"));
-        widgetContainer.push_back(
-            std::make_unique<TestWidget>(screen, SDL_Rect{0, 0, 100, 100}, "Widget2"));
-        widgetContainer.push_back(
-            std::make_unique<TestWidget>(screen, SDL_Rect{0, 0, 100, 100}, "Widget3"));
+        widgetContainer.push_back(std::make_unique<TestWidget>(
+            screen, SDL_Rect{0, 0, 100, 100}, "Widget1"));
+        widgetContainer.push_back(std::make_unique<TestWidget>(
+            screen, SDL_Rect{0, 0, 100, 100}, "Widget2"));
+        widgetContainer.push_back(std::make_unique<TestWidget>(
+            screen, SDL_Rect{0, 0, 100, 100}, "Widget3"));
     }
 
-    virtual ~TestWidgetParent()
-    {
-    }
+    virtual ~TestWidgetParent() {}
 
     VerticalGridContainer widgetContainer;
 };
@@ -93,9 +92,12 @@ TEST_CASE("TestWidgetLocator")
 
         // Lay out the widgets to set their renderExtent and have them add
         // themselves to the locator.
-        image1.updateLayout({0, 0, SCREEN_WIDTH, SCREEN_HEIGHT}, &widgetLocator);
-        image2.updateLayout({0, 0, SCREEN_WIDTH, SCREEN_HEIGHT}, &widgetLocator);
-        image3.updateLayout({0, 0, SCREEN_WIDTH, SCREEN_HEIGHT}, &widgetLocator);
+        image1.updateLayout({0, 0, SCREEN_WIDTH, SCREEN_HEIGHT},
+                            &widgetLocator);
+        image2.updateLayout({0, 0, SCREEN_WIDTH, SCREEN_HEIGHT},
+                            &widgetLocator);
+        image3.updateLayout({0, 0, SCREEN_WIDTH, SCREEN_HEIGHT},
+                            &widgetLocator);
 
         widgetLocator.removeWidget(&image1);
         widgetLocator.removeWidget(&image2);
@@ -112,9 +114,12 @@ TEST_CASE("TestWidgetLocator")
 
         // Lay out the widgets to set their renderExtent and have them add
         // themselves to the locator.
-        image1.updateLayout({0, 0, SCREEN_WIDTH, SCREEN_HEIGHT}, &widgetLocator);
-        image2.updateLayout({0, 0, SCREEN_WIDTH, SCREEN_HEIGHT}, &widgetLocator);
-        image3.updateLayout({0, 0, SCREEN_WIDTH, SCREEN_HEIGHT}, &widgetLocator);
+        image1.updateLayout({0, 0, SCREEN_WIDTH, SCREEN_HEIGHT},
+                            &widgetLocator);
+        image2.updateLayout({0, 0, SCREEN_WIDTH, SCREEN_HEIGHT},
+                            &widgetLocator);
+        image3.updateLayout({0, 0, SCREEN_WIDTH, SCREEN_HEIGHT},
+                            &widgetLocator);
 
         WidgetPath widgetPath{widgetLocator.getPathUnderPoint({210, 210})};
         REQUIRE(widgetPath.size() == 3);
@@ -128,7 +133,8 @@ TEST_CASE("TestWidgetLocator")
 
         // Lay out the widgets to set their renderExtent and have them add
         // themselves to the locator.
-        widget.updateLayout({0, 0, SCREEN_WIDTH, SCREEN_HEIGHT}, &widgetLocator);
+        widget.updateLayout({0, 0, SCREEN_WIDTH, SCREEN_HEIGHT},
+                            &widgetLocator);
 
         {
             WidgetPath widgetPath{widgetLocator.getPathUnderPoint({210, 210})};
@@ -150,16 +156,24 @@ TEST_CASE("TestWidgetLocator")
 
         Image topLeft{screen, {0, 0, 200, 200}, "TopLeft"};
         Image topRight{screen, {(SCREEN_WIDTH - 200), 0, 200, 200}, "TopRight"};
-        Image bottomLeft{screen, {0, (SCREEN_HEIGHT - 200), 200, 200}, "BottomLeft"};
-        Image bottomRight{screen, {(SCREEN_WIDTH - 200), (SCREEN_HEIGHT - 200)
-            , 200, 200}, "BottomRight"};
+        Image bottomLeft{screen,
+                         {0, (SCREEN_HEIGHT - 200), 200, 200},
+                         "BottomLeft"};
+        Image bottomRight{
+            screen,
+            {(SCREEN_WIDTH - 200), (SCREEN_HEIGHT - 200), 200, 200},
+            "BottomRight"};
 
         // Lay out the widgets to set their renderExtent and have them add
         // themselves to the locator.
-        topLeft.updateLayout({0, 0, SCREEN_WIDTH, SCREEN_HEIGHT}, &widgetLocator);
-        topRight.updateLayout({0, 0, SCREEN_WIDTH, SCREEN_HEIGHT}, &widgetLocator);
-        bottomLeft.updateLayout({0, 0, SCREEN_WIDTH, SCREEN_HEIGHT}, &widgetLocator);
-        bottomRight.updateLayout({0, 0, SCREEN_WIDTH, SCREEN_HEIGHT}, &widgetLocator);
+        topLeft.updateLayout({0, 0, SCREEN_WIDTH, SCREEN_HEIGHT},
+                             &widgetLocator);
+        topRight.updateLayout({0, 0, SCREEN_WIDTH, SCREEN_HEIGHT},
+                              &widgetLocator);
+        bottomLeft.updateLayout({0, 0, SCREEN_WIDTH, SCREEN_HEIGHT},
+                                &widgetLocator);
+        bottomRight.updateLayout({0, 0, SCREEN_WIDTH, SCREEN_HEIGHT},
+                                 &widgetLocator);
 
         {
             WidgetPath widgetPath{widgetLocator.getPathUnderPoint({50, 50})};
@@ -168,19 +182,22 @@ TEST_CASE("TestWidgetLocator")
         }
 
         {
-            WidgetPath widgetPath{widgetLocator.getPathUnderPoint({(SCREEN_WIDTH - 50), 50})};
+            WidgetPath widgetPath{
+                widgetLocator.getPathUnderPoint({(SCREEN_WIDTH - 50), 50})};
             REQUIRE(widgetPath.size() == 1);
             REQUIRE(&(widgetPath.back().get()) == &topRight);
         }
 
         {
-            WidgetPath widgetPath{widgetLocator.getPathUnderPoint({50, (SCREEN_HEIGHT - 50)})};
+            WidgetPath widgetPath{
+                widgetLocator.getPathUnderPoint({50, (SCREEN_HEIGHT - 50)})};
             REQUIRE(widgetPath.size() == 1);
             REQUIRE(&(widgetPath.back().get()) == &bottomLeft);
         }
 
         {
-            WidgetPath widgetPath{widgetLocator.getPathUnderPoint({(SCREEN_WIDTH - 50), (SCREEN_HEIGHT - 50)})};
+            WidgetPath widgetPath{widgetLocator.getPathUnderPoint(
+                {(SCREEN_WIDTH - 50), (SCREEN_HEIGHT - 50)})};
             REQUIRE(widgetPath.size() == 1);
             REQUIRE(&(widgetPath.back().get()) == &bottomRight);
         }
@@ -196,9 +213,12 @@ TEST_CASE("TestWidgetLocator")
 
         // Lay out the widgets to set their renderExtent and have them add
         // themselves to the locator.
-        image1.updateLayout({0, 0, SCREEN_WIDTH, SCREEN_HEIGHT}, &widgetLocator);
-        image2.updateLayout({0, 0, SCREEN_WIDTH, SCREEN_HEIGHT}, &widgetLocator);
-        image3.updateLayout({0, 0, SCREEN_WIDTH, SCREEN_HEIGHT}, &widgetLocator);
+        image1.updateLayout({0, 0, SCREEN_WIDTH, SCREEN_HEIGHT},
+                            &widgetLocator);
+        image2.updateLayout({0, 0, SCREEN_WIDTH, SCREEN_HEIGHT},
+                            &widgetLocator);
+        image3.updateLayout({0, 0, SCREEN_WIDTH, SCREEN_HEIGHT},
+                            &widgetLocator);
 
         WidgetPath widgetPath{widgetLocator.getPathUnderPoint({210, 210})};
         REQUIRE(widgetPath.size() == 3);

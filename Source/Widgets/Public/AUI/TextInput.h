@@ -25,8 +25,7 @@ public:
     /**
      * Used to track the button's visual and logical state.
      */
-    enum class State
-    {
+    enum class State {
         Normal,  /*!< Normal state. Only mouse events are handled. */
         Hovered, /*!< The mouse is within our extent. */
         Focused, /*!< We were clicked on. Key press events are handled. */

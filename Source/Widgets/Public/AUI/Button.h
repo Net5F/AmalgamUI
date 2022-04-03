@@ -18,13 +18,7 @@ public:
     /**
      * Used to track the button's visual and logical state.
      */
-    enum class State
-    {
-        Normal,
-        Hovered,
-        Pressed,
-        Disabled
-    };
+    enum class State { Normal, Hovered, Pressed, Disabled };
 
     //-------------------------------------------------------------------------
     // Public interface

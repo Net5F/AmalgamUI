@@ -18,11 +18,7 @@ public:
     /**
      * Used to track the button's visual and logical state.
      */
-    enum class State
-    {
-        Unchecked,
-        Checked
-    };
+    enum class State { Unchecked, Checked };
 
     //-------------------------------------------------------------------------
     // Public interface

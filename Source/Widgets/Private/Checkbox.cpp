@@ -96,4 +96,11 @@ EventResult Checkbox::onMouseDown(MouseButtonType buttonType,
     return EventResult{.wasHandled{true}};
 }
 
+EventResult Checkbox::onMouseDoubleClick(MouseButtonType buttonType,
+                                  const SDL_Point& cursorPosition)
+{
+    // We treat additional clicks as regular MouseDown events.
+    return onMouseDown(buttonType, cursorPosition);
+}
+
 } // namespace AUI

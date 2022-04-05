@@ -113,30 +113,8 @@ EventResult Button::onMouseUp(MouseButtonType buttonType,
 EventResult Button::onMouseDoubleClick(MouseButtonType buttonType,
                                        const SDL_Point& cursorPosition)
 {
-    ignore(cursorPosition);
-
-    // Only respond to the left mouse button.
-    if (buttonType != MouseButtonType::Left) {
-        return EventResult{.wasHandled{false}};
-    }
-    // If we're disabled, ignore the event.
-    else if (currentState == State::Disabled) {
-        return EventResult{.wasHandled{false}};
-    }
-
-    // Check if the user set a callback.
-    if (onPressed == nullptr) {
-        AUI_LOG_FATAL("Button tried to call empty onPressed() callback.");
-    }
-
-    // Set our state to pressed.
-    setCurrentState(State::Pressed);
-
-    // Call the user's onPressed callback.
-    onPressed();
-
-    // Set mouse capture so we get the associated MouseUp.
-    return EventResult{.wasHandled{true}, .setMouseCapture{this}};
+    // We treat additional clicks as regular MouseDown events.
+    return onMouseDown(buttonType, cursorPosition);
 }
 
 void Button::onMouseEnter()

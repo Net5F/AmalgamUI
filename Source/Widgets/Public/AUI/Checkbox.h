@@ -59,6 +59,9 @@ public:
     EventResult onMouseDown(MouseButtonType buttonType,
                             const SDL_Point& cursorPosition) override;
 
+    EventResult onMouseDoubleClick(MouseButtonType buttonType,
+                                   const SDL_Point& cursorPosition) override;
+
 private:
     std::function<void(void)> onChecked;
 

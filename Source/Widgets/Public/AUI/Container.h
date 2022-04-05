@@ -38,9 +38,7 @@ public:
     /**
      * Erases the given widget.
      *
-     * Errors in debug if the given widget doesn't exist in this container.
-     * Does nothing in release if the given widget doesn't exist in this
-     * container.
+     * Errors if the given widget doesn't exist in this container.
      */
     void erase(Widget* widget);
 

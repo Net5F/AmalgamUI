@@ -97,7 +97,7 @@ EventResult Checkbox::onMouseDown(MouseButtonType buttonType,
 }
 
 EventResult Checkbox::onMouseDoubleClick(MouseButtonType buttonType,
-                                  const SDL_Point& cursorPosition)
+                                         const SDL_Point& cursorPosition)
 {
     // We treat additional clicks as regular MouseDown events.
     return onMouseDown(buttonType, cursorPosition);

@@ -2,7 +2,7 @@
 
 #include "AUI/WidgetPath.h"
 #include "AUI/WidgetWeakRef.h"
-#include <SDL2/SDL_rect.h>
+#include <SDL_rect.h>
 #include <vector>
 #include <unordered_map>
 

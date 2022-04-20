@@ -2,7 +2,7 @@
 
 #include "AUI/Window.h"
 #include "AUI/EventRouter.h"
-#include <SDL2/SDL_events.h>
+#include <SDL_events.h>
 #include <vector>
 
 namespace AUI

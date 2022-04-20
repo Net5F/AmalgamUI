@@ -1,7 +1,7 @@
 #include "catch2/catch_all.hpp"
 #include "AUI/Core.h"
 #include "AUI/Internal/Log.h"
-#include <SDL2/SDL.h>
+#include <SDL.h>
 
 int SCREEN_WIDTH = 1920;
 int SCREEN_HEIGHT = 1080;

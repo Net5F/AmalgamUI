@@ -5,7 +5,7 @@
 #include "AUI/MouseButtonType.h"
 #include "AUI/FocusLostType.h"
 #include "AUI/EventResult.h"
-#include <SDL2/SDL_events.h>
+#include <SDL_events.h>
 
 namespace AUI
 {

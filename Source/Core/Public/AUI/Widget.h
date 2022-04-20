@@ -4,8 +4,8 @@
 #include "AUI/MouseButtonType.h"
 #include "AUI/FocusLostType.h"
 #include "AUI/EventResult.h"
-#include <SDL2/SDL_rect.h>
-#include <SDL2/SDL_events.h>
+#include <SDL_rect.h>
+#include <SDL_events.h>
 #include <string>
 #include <array>
 #include <vector>

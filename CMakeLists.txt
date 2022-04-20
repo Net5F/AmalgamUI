@@ -41,7 +41,11 @@ target_compile_features(AmalgamUI PRIVATE cxx_std_17)
 set_target_properties(AmalgamUI PROPERTIES CXX_EXTENSIONS OFF)
 
 # Enable compile warnings.
-target_compile_options(AmalgamUI PUBLIC -Wall -Wextra)
+if (CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
+    target_compile_options(AmalgamUI PUBLIC -Wall -Wextra)
+elseif (CMAKE_CXX_COMPILER_ID STREQUAL "MSVC")
+    target_compile_options(AmalgamUI PUBLIC /W4 /permissive-)
+endif()
 
 # Add sources to our library target.
 add_subdirectory(Source)

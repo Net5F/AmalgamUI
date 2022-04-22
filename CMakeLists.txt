@@ -17,7 +17,6 @@ set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${PROJECT_SOURCE_DIR}/CMake/")
 find_package(SDL2 REQUIRED)
 find_package(SDL2_image REQUIRED)
 find_package(SDL2_ttf REQUIRED)
-find_package(SDL2_gfx REQUIRED)
 
 # Add our library target
 add_library(AmalgamUI STATIC "")
@@ -33,18 +32,18 @@ target_include_directories(AmalgamUI
 target_link_libraries(AmalgamUI
     PRIVATE
         ${SDL2_LIBRARIES} ${SDL2_IMAGE_LIBRARIES}
-        ${SDL2_TTF_LIBRARIES} ${SDL2_GFX_LIBRARIES}
+        ${SDL2_TTF_LIBRARIES}
 )
 
 # Compile with C++17.
-target_compile_features(AmalgamUI PRIVATE cxx_std_17)
+target_compile_features(AmalgamUI PRIVATE cxx_std_20)
 set_target_properties(AmalgamUI PROPERTIES CXX_EXTENSIONS OFF)
 
 # Enable compile warnings.
 if (CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
     target_compile_options(AmalgamUI PUBLIC -Wall -Wextra)
 elseif (CMAKE_CXX_COMPILER_ID STREQUAL "MSVC")
-    target_compile_options(AmalgamUI PUBLIC /W4 /permissive-)
+    target_compile_options(AmalgamUI PUBLIC /W3 /permissive-)
 endif()
 
 # Add sources to our library target.

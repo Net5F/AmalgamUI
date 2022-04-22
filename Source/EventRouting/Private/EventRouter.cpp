@@ -282,7 +282,7 @@ EventRouter::HandlerReturn
 {
     // Perform the tunneling pass (root -> leaf, PreviewMouseDown).
     EventResult eventResult{};
-    WidgetPath::iterator handlerWidget{nullptr};
+    WidgetPath::iterator handlerWidget{clickPath.end()};
     for (auto it = clickPath.begin(); it != clickPath.end(); ++it) {
         // If the widget is gone, skip it.
         WidgetWeakRef& widgetWeakRef{*it};

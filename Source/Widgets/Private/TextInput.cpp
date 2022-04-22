@@ -170,7 +170,7 @@ EventResult TextInput::onFocusGained()
     accumulatedBlinkTime = 0;
 
     // Move the cursor to the end.
-    cursorIndex = text.asString().length();
+    cursorIndex = static_cast<unsigned int>(text.asString().length());
 
     // Refresh the text position to account for the change.
     refreshTextScrollOffset();
@@ -285,7 +285,7 @@ EventResult TextInput::onTextInput(const std::string& inputText)
     text.insertText(inputText, cursorIndex);
 
     // Move the cursor forwards.
-    cursorIndex += inputText.length();
+    cursorIndex += static_cast<unsigned int>(inputText.length());
 
     // Refresh the text position to account for the change.
     refreshTextScrollOffset();
@@ -448,7 +448,8 @@ EventResult TextInput::handlePasteEvent()
             text.insertText(clipboardText, cursorIndex);
 
             // Move the cursor to the end of the inserted text.
-            cursorIndex += std::strlen(clipboardText);
+            cursorIndex
+                += static_cast<unsigned int>(std::strlen(clipboardText));
 
             SDL_free(clipboardText);
 
@@ -516,7 +517,7 @@ EventResult TextInput::handleHomeEvent()
 EventResult TextInput::handleEndEvent()
 {
     // Move the cursor to the end.
-    cursorIndex = text.asString().length();
+    cursorIndex = static_cast<unsigned int>(text.asString().length());
 
     // Refresh the text position to account for the change.
     refreshTextScrollOffset();
@@ -584,7 +585,7 @@ void TextInput::refreshTextScrollOffset()
         // There's text hanging off the left side. Are we still pushed against
         // the right bound? (Relevant after a backspace.)
         SDL_Rect lastCharOffset{
-            text.calcCharacterOffset(text.asString().length())};
+            text.calcCharacterOffset(static_cast<unsigned int>(text.asString().length()))};
         if (lastCharOffset.x < (textExtent.x + textExtent.w)) {
             // There's a gap to fill, scroll right.
             textOffset += ((textExtent.x + textExtent.w) - lastCharOffset.x);

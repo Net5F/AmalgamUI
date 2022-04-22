@@ -304,7 +304,7 @@ EventRouter::HandlerReturn
     // If a widget didn't handle the event during the preview pass, perform
     // the bubbling pass (leaf -> root, MouseDown).
     if (!(eventResult.wasHandled)) {
-        for (unsigned int i = clickPath.size(); i-- > 0;) {
+        for (std::size_t i = clickPath.size(); i-- > 0;) {
             // If the widget is gone, skip it.
             WidgetWeakRef& widgetWeakRef{clickPath[i]};
             if (!(widgetWeakRef.isValid())) {
@@ -334,7 +334,7 @@ EventRouter::HandlerReturn
     // Perform the bubbling pass (leaf -> root, MouseDoubleClick).
     EventResult eventResult{};
     WidgetPath::iterator handlerWidget;
-    for (unsigned int i = clickPath.size(); i-- > 0;) {
+    for (std::size_t i = clickPath.size(); i-- > 0;) {
         // If the widget is gone, skip it.
         WidgetWeakRef& widgetWeakRef{clickPath[i]};
         if (!(widgetWeakRef.isValid())) {
@@ -474,7 +474,7 @@ void EventRouter::processEventResult(const EventResult& eventResult)
 void EventRouter::setFocusIfFocusable(WidgetPath& eventPath)
 {
     // Reverse iterate eventPath, looking for a focusable widget.
-    for (unsigned int i = eventPath.size(); i-- > 0;) {
+    for (std::size_t i = eventPath.size(); i-- > 0;) {
         WidgetWeakRef& widgetWeakRef{eventPath[i]};
         if (!(widgetWeakRef.isValid())) {
             continue;

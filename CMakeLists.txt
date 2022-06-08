@@ -35,7 +35,7 @@ target_link_libraries(AmalgamUI
         ${SDL2_TTF_LIBRARIES}
 )
 
-# Compile with C++17.
+# Compile with C++20.
 target_compile_features(AmalgamUI PRIVATE cxx_std_20)
 set_target_properties(AmalgamUI PROPERTIES CXX_EXTENSIONS OFF)
 

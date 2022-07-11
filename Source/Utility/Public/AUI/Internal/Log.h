@@ -14,16 +14,16 @@
         AUI::Log::info(__VA_ARGS__);                                           \
     } while (false)
 
-#ifndef NDEBUG
+#ifdef NDEBUG
 #define AUI_LOG_ERROR(...)                                                     \
     do {                                                                       \
         AUI::Log::error(__FILE__, __LINE__, __VA_ARGS__);                      \
-        std::abort();                                                          \
     } while (false)
 #else
 #define AUI_LOG_ERROR(...)                                                     \
     do {                                                                       \
         AUI::Log::error(__FILE__, __LINE__, __VA_ARGS__);                      \
+        std::abort();                                                          \
     } while (false)
 #endif
 

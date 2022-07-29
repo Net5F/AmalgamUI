@@ -258,19 +258,20 @@ void Text::refreshAlignment()
 void Text::refreshFontObject()
 {
     // Scale the font size to the current actual size.
-    int actualFontSize = ScalingHelpers::logicalToActual(logicalFontSize);
+    int actualFontSize{ScalingHelpers::logicalToActual(logicalFontSize)};
 
     // Attempt to load the given font (errors on failure).
-    AssetCache& assetCache = Core::getAssetCache();
+    AssetCache& assetCache{Core::getAssetCache()};
     fontHandle = assetCache.loadFont(fontPath, actualFontSize);
 }
 
 void Text::refreshTexture()
 {
     if (!fontHandle) {
-        AUI_LOG_FATAL(
-            "Please call setFont() before refreshTexture(), so"
-            " that a valid font object can be used for texture generation.");
+        AUI_LOG_FATAL("Please call setFont() before refreshTexture(), so"
+                      " that a valid font object can be used for texture "
+                      "generation. DebugName: %s",
+                      debugName.c_str());
     }
 
     // If the text string is empty, render a space instead.

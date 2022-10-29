@@ -112,14 +112,14 @@ public:
     /**
      * Inserts the given text into the given position in the underlying string.
      */
-    void insertText(std::string_view inText, unsigned int index);
+    void insertText(std::string_view inText, std::size_t index);
 
     /**
      * Erases the character at the given index in the underlying string.
      *
      * @return true if a character was erased, else false (empty string).
      */
-    bool eraseCharacter(unsigned int index);
+    bool eraseCharacter(std::size_t index);
 
     /** Returns a const reference to the underlying std::string. */
     const std::string& asString();
@@ -133,7 +133,7 @@ public:
      *         character, and the character's height. This extent is relative
      *         to scaledExtent.
      */
-    SDL_Rect calcCharacterOffset(unsigned int index);
+    SDL_Rect calcCharacterOffset(std::size_t index);
 
     /**
      * Calculates the width that the given string would have if rendered using

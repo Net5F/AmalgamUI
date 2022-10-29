@@ -48,6 +48,32 @@ TextInput::TextInput(const SDL_Rect& inLogicalExtent,
     disabledImage.setIsVisible(false);
 }
 
+void TextInput::enable()
+{
+    SDL_Point cursorPosition{};
+    SDL_GetMouseState(&(cursorPosition.x), &(cursorPosition.y));
+
+    // Check if we're currently hovered.
+    if (containsPoint(cursorPosition)) {
+        setCurrentState(State::Hovered);
+    }
+    else {
+        setCurrentState(State::Normal);
+    }
+}
+
+void TextInput::disable()
+{
+    setCurrentState(State::Disabled);
+    cursorIsVisible = false;
+
+    // Scroll back to the front (the most expected behavior).
+    cursorIndex = 0;
+
+    // Refresh the text position to account for the change.
+    refreshTextScrollOffset();
+}
+
 void TextInput::setMargins(Margins inLogicalMargins)
 {
     // Set the text widget to be the size of this widget, minus the
@@ -133,6 +159,13 @@ EventResult TextInput::onMouseDown(MouseButtonType buttonType,
     return EventResult{.wasHandled{true}};
 }
 
+EventResult TextInput::onMouseDoubleClick(MouseButtonType buttonType,
+                                          const SDL_Point& cursorPosition)
+{
+    // We treat additional clicks as regular MouseDown events.
+    return onMouseDown(buttonType, cursorPosition);
+}
+
 void TextInput::onMouseEnter()
 {
     // If we're disabled, ignore the event.
@@ -170,7 +203,7 @@ EventResult TextInput::onFocusGained()
     accumulatedBlinkTime = 0;
 
     // Move the cursor to the end.
-    cursorIndex = static_cast<unsigned int>(text.asString().length());
+    cursorIndex = text.asString().length();
 
     // Refresh the text position to account for the change.
     refreshTextScrollOffset();
@@ -180,6 +213,11 @@ EventResult TextInput::onFocusGained()
 
 void TextInput::onFocusLost(FocusLostType focusLostType)
 {
+    // If we were disabled after being focused, do nothing.
+    if (currentState == State::Disabled) {
+        return;
+    }
+
     // Set our state back to normal.
     setCurrentState(State::Normal);
 
@@ -196,13 +234,13 @@ void TextInput::onFocusLost(FocusLostType focusLostType)
         // We lost focus for some other reason, commit the current text.
         lastCommittedText = text.asString();
 
-        // Move the cursor to the front (the most expected behavior).
+        // Scroll back to the front (the most expected behavior).
         cursorIndex = 0;
 
         // Refresh the text position to account for the change.
         refreshTextScrollOffset();
 
-        // If a callback is registered, signal that the the text was committed.
+        // If a callback is registered, signal that the text was committed.
         if (onTextCommitted) {
             onTextCommitted();
         }
@@ -285,7 +323,7 @@ EventResult TextInput::onTextInput(const std::string& inputText)
     text.insertText(inputText, cursorIndex);
 
     // Move the cursor forwards.
-    cursorIndex += static_cast<unsigned int>(inputText.length());
+    cursorIndex += inputText.length();
 
     // Refresh the text position to account for the change.
     refreshTextScrollOffset();
@@ -448,8 +486,7 @@ EventResult TextInput::handlePasteEvent()
             text.insertText(clipboardText, cursorIndex);
 
             // Move the cursor to the end of the inserted text.
-            cursorIndex
-                += static_cast<unsigned int>(std::strlen(clipboardText));
+            cursorIndex += std::strlen(clipboardText);
 
             SDL_free(clipboardText);
 
@@ -517,7 +554,7 @@ EventResult TextInput::handleHomeEvent()
 EventResult TextInput::handleEndEvent()
 {
     // Move the cursor to the end.
-    cursorIndex = static_cast<unsigned int>(text.asString().length());
+    cursorIndex = text.asString().length();
 
     // Refresh the text position to account for the change.
     refreshTextScrollOffset();

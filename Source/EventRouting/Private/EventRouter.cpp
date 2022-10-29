@@ -44,7 +44,11 @@ bool EventRouter::handleMouseButtonDown(SDL_MouseButtonEvent& event)
             WidgetPath truncatedPath(clickPath.begin(),
                                      (handlerReturn.handlerWidget + 1));
 
-            setFocusIfFocusable(truncatedPath);
+            if (!setFocusIfFocusable(truncatedPath)) {
+                // Nothing in truncatedPath took focus. We didn't re-click the 
+                // focused widget (if there is one), so we need to drop it.
+                handleDropFocus(FocusLostType::Click);
+            }
         }
     }
 
@@ -471,7 +475,7 @@ void EventRouter::processEventResult(const EventResult& eventResult)
     }
 }
 
-void EventRouter::setFocusIfFocusable(WidgetPath& eventPath)
+bool EventRouter::setFocusIfFocusable(WidgetPath& eventPath)
 {
     // Reverse iterate eventPath, looking for a focusable widget.
     for (std::size_t i = eventPath.size(); i-- > 0;) {
@@ -487,20 +491,28 @@ void EventRouter::setFocusIfFocusable(WidgetPath& eventPath)
             auto endIt{eventPath.begin() + i + 1};
             WidgetPath newFocusPath(eventPath.begin(), endIt);
             handleSetFocus(newFocusPath);
-            return;
+            return true;
         }
     }
+
+    return false;
 }
 
 void EventRouter::handleSetFocus(WidgetPath& newFocusPath)
 {
     // If the given path is valid for focusing.
     if (!(newFocusPath.empty()) && newFocusPath.back().isValid()) {
-        // If there's an existing focused widget, pass a FocusLost event to it.
+        // If there's an existing focus, check if it's the same widget.
         if (!(focusPath.empty()) && focusPath.back().isValid()) {
             Widget& oldFocusedWidget{focusPath.back().get()};
-
-            oldFocusedWidget.onFocusLost(FocusLostType::NewFocus);
+            if (&oldFocusedWidget != &(newFocusPath.back().get())) {
+                // Not the same, drop focus to make room for the new widget.
+                oldFocusedWidget.onFocusLost(FocusLostType::NewFocus);
+            }
+            else {
+                // The same widget is already focused, do nothing.
+                return;
+            }
         }
         else if (focusPath.empty()) {
             // If there was no focused widget, text input events will have been

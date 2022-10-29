@@ -34,7 +34,16 @@ Button::Button(const SDL_Rect& inLogicalExtent, const std::string& inDebugName)
 
 void Button::enable()
 {
-    setCurrentState(State::Normal);
+    SDL_Point cursorPosition{};
+    SDL_GetMouseState(&(cursorPosition.x), &(cursorPosition.y));
+
+    // Check if we're currently hovered.
+    if (containsPoint(cursorPosition)) {
+        setCurrentState(State::Hovered);
+    }
+    else {
+        setCurrentState(State::Normal);
+    }
 }
 
 void Button::disable()
@@ -92,7 +101,9 @@ EventResult Button::onMouseUp(MouseButtonType buttonType,
     }
     // If we're disabled, ignore the event.
     else if (currentState == State::Disabled) {
-        return EventResult{.wasHandled{false}};
+        // Note: We need to release mouse capture in case we were disabled 
+        //       while a click was being held.
+        return EventResult{.wasHandled{false}, .releaseMouseCapture{true}};
     }
 
     // If we were being pressed.

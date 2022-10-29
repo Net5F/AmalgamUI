@@ -79,14 +79,14 @@ void Text::setTextOffset(int inTextOffset)
     textOffset = inTextOffset;
 }
 
-void Text::insertText(std::string_view inText, unsigned int index)
+void Text::insertText(std::string_view inText, std::size_t index)
 {
     // Insert the given text at the given index.
     text.insert(index, inText);
     textureIsDirty = true;
 }
 
-bool Text::eraseCharacter(unsigned int index)
+bool Text::eraseCharacter(std::size_t index)
 {
     // If there's a character to remove, pop it.
     if (text.length() > index) {
@@ -105,7 +105,7 @@ const std::string& Text::asString()
     return text;
 }
 
-SDL_Rect Text::calcCharacterOffset(unsigned int index)
+SDL_Rect Text::calcCharacterOffset(std::size_t index)
 {
     // Get a null-terminated substring containing all characters up to index.
     std::string relevantChars{text, 0, index};

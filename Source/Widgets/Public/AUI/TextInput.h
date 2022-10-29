@@ -41,6 +41,22 @@ public:
     virtual ~TextInput() = default;
 
     /**
+     * Enables this text input.
+     *
+     * @post The text input will visually be in the Normal state and will 
+     *       respond to hover and click events.
+     */
+    void enable();
+
+    /**
+     * Disables this text input.
+     *
+     * @post The text input will visually be in the Disabled state and will
+     *       ignore all events.
+     */
+    void disable();
+
+    /**
      * Sets the distance between the text and the edge of the text box on each
      * side.
      */
@@ -106,6 +122,9 @@ public:
     //-------------------------------------------------------------------------
     EventResult onMouseDown(MouseButtonType buttonType,
                             const SDL_Point& cursorPosition) override;
+
+    EventResult onMouseDoubleClick(MouseButtonType buttonType,
+                                   const SDL_Point& cursorPosition) override;
 
     void onMouseEnter() override;
 
@@ -199,7 +218,7 @@ private:
     unsigned int scaledCursorWidth;
 
     /** The character index in our text that the cursor is currently at. */
-    unsigned int cursorIndex;
+    std::size_t cursorIndex;
 
     /** Tracks whether the text cursor should be drawn or not. */
     bool cursorIsVisible;

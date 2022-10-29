@@ -172,8 +172,9 @@ private:
     /**
      * If eventPath has any focusable widgets, sets focus to the path from
      * eventPath's root to its leafmost focusable widget.
+     * @return true if a focus was set, else false.
      */
-    void setFocusIfFocusable(WidgetPath& eventPath);
+    bool setFocusIfFocusable(WidgetPath& eventPath);
 
     /**
      * Sets up newFocusPath as the new focus path.

@@ -300,11 +300,12 @@ void Text::refreshTexture()
                                              textToRender->c_str(), color);
             break;
         }
-        case RenderMode::LCD: {
-            surface = TTF_RenderUTF8_LCD(&(*fontHandle), textToRender->c_str(),
-                                         color, backgroundColor);
-            break;
-        }
+        // Note: Removed because SDL_ttf on 22.04 doesn't support it.
+        //case RenderMode::LCD: {
+        //    surface = TTF_RenderUTF8_LCD(&(*fontHandle), textToRender->c_str(),
+        //                                 color, backgroundColor);
+        //    break;
+        //}
     }
     if (surface == nullptr) {
         AUI_LOG_FATAL("Failed to create surface.");

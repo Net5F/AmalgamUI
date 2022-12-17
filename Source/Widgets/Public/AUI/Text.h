@@ -38,8 +38,11 @@ public:
         Solid,
         /** Better quality, but has a box around it. */
         Shaded,
-        /** Slowest, best quality, no box. */
-        Blended
+        /** Slower, high quality, no box. */
+        Blended,
+        /** Slowest, LCD subpixel quality, but has a box around it.
+            Useful for small font sizes. */
+        LCD
     };
 
     /**

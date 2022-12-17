@@ -12,9 +12,9 @@ namespace AUI
  * Has a double-click Active state.
  *
  * The rendering order for this widget's children is:
- *   Background: activeImage, hoveredImage
- *   Middle-ground: backdropImage, selectedImage
- *   Foreground: thumbnailImage, text
+ *   Background: backdropImage
+ *   Middle-ground: thumbnailImage
+ *   Foreground: activeImage, hoveredImage, selectedImage, text
  *
  * Note: This widget may be immediately useful to you, but exists more as
  *       an easily copyable example of how to make this sort of thing. With

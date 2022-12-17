@@ -286,18 +286,23 @@ void Text::refreshTexture()
     SDL_Surface* surface{nullptr};
     switch (renderMode) {
         case RenderMode::Solid: {
-            surface = TTF_RenderText_Solid(&(*fontHandle),
+            surface = TTF_RenderUTF8_Solid(&(*fontHandle),
                                            textToRender->c_str(), color);
             break;
         }
         case RenderMode::Shaded: {
-            surface = TTF_RenderText_Shaded(
+            surface = TTF_RenderUTF8_Shaded(
                 &(*fontHandle), textToRender->c_str(), color, backgroundColor);
             break;
         }
         case RenderMode::Blended: {
-            surface = TTF_RenderText_Blended(&(*fontHandle),
+            surface = TTF_RenderUTF8_Blended(&(*fontHandle),
                                              textToRender->c_str(), color);
+            break;
+        }
+        case RenderMode::LCD: {
+            surface = TTF_RenderUTF8_LCD(&(*fontHandle), textToRender->c_str(),
+                                         color, backgroundColor);
             break;
         }
     }

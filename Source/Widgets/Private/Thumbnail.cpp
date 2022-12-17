@@ -23,11 +23,11 @@ Thumbnail::Thumbnail(const SDL_Rect& inLogicalExtent,
 , text({0, 0, logicalExtent.w, logicalExtent.h})
 {
     // Add our children so they're included in rendering, etc.
-    children.push_back(hoveredImage);
-    children.push_back(activeImage);
     children.push_back(backdropImage);
-    children.push_back(selectedImage);
     children.push_back(thumbnailImage);
+    children.push_back(activeImage);
+    children.push_back(hoveredImage);
+    children.push_back(selectedImage);
     children.push_back(text);
 
     // Default to centering the text. The user can set it otherwise if they

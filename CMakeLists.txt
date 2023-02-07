@@ -23,14 +23,14 @@ add_library(AmalgamUI STATIC "")
 
 # Include the headers from our dependencies.
 target_include_directories(AmalgamUI
-    PRIVATE
+    PUBLIC
         ${SDL2_INCLUDE_DIRS} ${SDL2_IMAGE_INCLUDE_DIRS} 
         ${SDL2_TTF_INCLUDE_DIRS}
 )
 
 # Specify our dependencies.
 target_link_libraries(AmalgamUI
-    PRIVATE
+    PUBLIC
         ${SDL2_LIBRARIES} ${SDL2_IMAGE_LIBRARIES}
         ${SDL2_TTF_LIBRARIES}
 )

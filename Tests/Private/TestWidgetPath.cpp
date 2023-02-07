@@ -15,10 +15,10 @@ TEST_CASE("TestWidgetPath")
     //       unless there's some interesting interaction to test.
     SECTION("Ref count updates properly.")
     {
-        Button widget1{screen, {}};
+        Button widget1{{}};
         std::unique_ptr<Widget> widget2{
-            std::make_unique<Button>(screen, SDL_Rect{})};
-        Button widget3{screen, {}};
+            std::make_unique<Button>(SDL_Rect{})};
+        Button widget3{{}};
 
         {
             WidgetPath path;
@@ -50,9 +50,9 @@ TEST_CASE("TestWidgetPath")
         WidgetPath path;
 
         {
-            Button widget1{screen, {}};
-            Button widget2{screen, {}};
-            Button widget3{screen, {}};
+            Button widget1{{}};
+            Button widget2{{}};
+            Button widget3{{}};
 
             path.push_back(widget1);
             path.push_back(widget2);
@@ -72,9 +72,9 @@ TEST_CASE("TestWidgetPath")
     {
         WidgetPath path;
 
-        Button widget1{screen, {}};
-        Button widget2{screen, {}};
-        Button widget3{screen, {}};
+        Button widget1{{}};
+        Button widget2{{}};
+        Button widget3{{}};
 
         path.push_back(widget1);
         path.push_back(widget2);
@@ -95,9 +95,9 @@ TEST_CASE("TestWidgetPath")
     {
         WidgetPath path;
 
-        Button widget1{screen, {}};
-        Button widget2{screen, {}};
-        Button widget3{screen, {}};
+        Button widget1{{}};
+        Button widget2{{}};
+        Button widget3{{}};
 
         path.push_back(widget1);
         path.push_back(widget2);
@@ -114,9 +114,9 @@ TEST_CASE("TestWidgetPath")
     {
         WidgetPath path;
 
-        Button widget1{screen, {}};
-        Button widget2{screen, {}};
-        Button widget3{screen, {}};
+        Button widget1{{}};
+        Button widget2{{}};
+        Button widget3{{}};
 
         path.push_back(widget1);
         path.push_back(widget2);
@@ -135,9 +135,9 @@ TEST_CASE("TestWidgetPath")
     {
         WidgetPath path;
 
-        Button widget1{screen, {}};
-        Button widget2{screen, {}};
-        Button widget3{screen, {}};
+        Button widget1{{}};
+        Button widget2{{}};
+        Button widget3{{}};
 
         path.push_back(widget1);
         path.push_back(widget2);
@@ -161,9 +161,9 @@ TEST_CASE("TestWidgetPath")
     {
         WidgetPath path;
 
-        Button widget1{screen, {}};
-        Button widget2{screen, {}};
-        Button widget3{screen, {}};
+        Button widget1{{}};
+        Button widget2{{}};
+        Button widget3{{}};
 
         path.push_back(widget1);
         path.push_back(widget2);
@@ -180,9 +180,9 @@ TEST_CASE("TestWidgetPath")
     {
         WidgetPath path;
 
-        Button widget1{screen, {}};
-        Button widget2{screen, {}};
-        Button widget3{screen, {}};
+        Button widget1{{}};
+        Button widget2{{}};
+        Button widget3{{}};
 
         path.push_back(widget1);
         path.push_back(widget2);
@@ -201,9 +201,9 @@ TEST_CASE("TestWidgetPath")
     {
         WidgetPath path;
 
-        Button widget1{screen, {}};
-        Button widget2{screen, {}};
-        Button widget3{screen, {}};
+        Button widget1{{}};
+        Button widget2{{}};
+        Button widget3{{}};
 
         path.push_back(widget1);
         path.push_back(widget2);
@@ -223,9 +223,9 @@ TEST_CASE("TestWidgetPath")
     {
         WidgetPath path;
 
-        Button widget1{screen, {}};
-        Button widget2{screen, {}};
-        Button widget3{screen, {}};
+        Button widget1{{}};
+        Button widget2{{}};
+        Button widget3{{}};
 
         path.push_back(widget1);
         path.push_back(widget2);

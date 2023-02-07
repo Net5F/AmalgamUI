@@ -15,11 +15,10 @@ extern int SCREEN_HEIGHT;
 class TestWidget : public Widget
 {
 public:
-    TestWidget(Screen& inScreen, const SDL_Rect& inLogicalExtent,
+    TestWidget(const SDL_Rect& inLogicalExtent,
                const std::string& inDebugName = "")
-    : Widget(inScreen, inLogicalExtent, inDebugName)
-    , image{inScreen,
-            {0, 0, (inLogicalExtent.w / 2), (inLogicalExtent.h / 2)},
+    : Widget(inLogicalExtent, inDebugName)
+    , image{{0, 0, (inLogicalExtent.w / 2), (inLogicalExtent.h / 2)},
             "Image"}
     {
         children.push_back(image);
@@ -44,9 +43,9 @@ private:
 class TestWidgetParent : public Widget
 {
 public:
-    TestWidgetParent(Screen& screen)
-    : Widget(screen, {200, 200, 400, 400}, "TestWidgetParent")
-    , widgetContainer(screen, {0, 0, 200, 200}, "GridContainer")
+    TestWidgetParent()
+    : Widget({200, 200, 400, 400}, "TestWidgetParent")
+    , widgetContainer({0, 0, 200, 200}, "GridContainer")
     {
         children.push_back(widgetContainer);
 
@@ -55,11 +54,11 @@ public:
         widgetContainer.setNumColumns(3);
 
         widgetContainer.push_back(std::make_unique<TestWidget>(
-            screen, SDL_Rect{0, 0, 100, 100}, "Widget1"));
+            SDL_Rect{0, 0, 100, 100}, "Widget1"));
         widgetContainer.push_back(std::make_unique<TestWidget>(
-            screen, SDL_Rect{0, 0, 100, 100}, "Widget2"));
+            SDL_Rect{0, 0, 100, 100}, "Widget2"));
         widgetContainer.push_back(std::make_unique<TestWidget>(
-            screen, SDL_Rect{0, 0, 100, 100}, "Widget3"));
+            SDL_Rect{0, 0, 100, 100}, "Widget3"));
     }
 
     virtual ~TestWidgetParent() {}
@@ -86,9 +85,9 @@ TEST_CASE("TestWidgetLocator")
     {
         WidgetLocator widgetLocator({200, 200, 400, 400});
 
-        Image image1{screen, {200, 200, 400, 400}, "Image1"};
-        Image image2{screen, {200, 200, 200, 200}, "Image2"};
-        Image image3{screen, {200, 200, 100, 100}, "Image3"};
+        Image image1{{200, 200, 400, 400}, "Image1"};
+        Image image2{{200, 200, 200, 200}, "Image2"};
+        Image image3{{200, 200, 100, 100}, "Image3"};
 
         // Lay out the widgets to set their renderExtent and have them add
         // themselves to the locator.
@@ -108,9 +107,9 @@ TEST_CASE("TestWidgetLocator")
     {
         WidgetLocator widgetLocator({200, 200, 400, 400});
 
-        Image image1{screen, {200, 200, 400, 400}, "Image1"};
-        Image image2{screen, {200, 200, 200, 200}, "Image2"};
-        Image image3{screen, {200, 200, 100, 100}, "Image3"};
+        Image image1{{200, 200, 400, 400}, "Image1"};
+        Image image2{{200, 200, 200, 200}, "Image2"};
+        Image image3{{200, 200, 100, 100}, "Image3"};
 
         // Lay out the widgets to set their renderExtent and have them add
         // themselves to the locator.
@@ -129,7 +128,7 @@ TEST_CASE("TestWidgetLocator")
     {
         WidgetLocator widgetLocator({200, 200, 400, 400});
 
-        TestWidgetParent widget{screen};
+        TestWidgetParent widget{};
 
         // Lay out the widgets to set their renderExtent and have them add
         // themselves to the locator.
@@ -154,13 +153,11 @@ TEST_CASE("TestWidgetLocator")
     {
         WidgetLocator widgetLocator({0, 0, SCREEN_WIDTH, SCREEN_HEIGHT});
 
-        Image topLeft{screen, {0, 0, 200, 200}, "TopLeft"};
-        Image topRight{screen, {(SCREEN_WIDTH - 200), 0, 200, 200}, "TopRight"};
-        Image bottomLeft{screen,
-                         {0, (SCREEN_HEIGHT - 200), 200, 200},
+        Image topLeft{{0, 0, 200, 200}, "TopLeft"};
+        Image topRight{{(SCREEN_WIDTH - 200), 0, 200, 200}, "TopRight"};
+        Image bottomLeft{{0, (SCREEN_HEIGHT - 200), 200, 200},
                          "BottomLeft"};
         Image bottomRight{
-            screen,
             {(SCREEN_WIDTH - 200), (SCREEN_HEIGHT - 200), 200, 200},
             "BottomRight"};
 
@@ -207,9 +204,9 @@ TEST_CASE("TestWidgetLocator")
     {
         WidgetLocator widgetLocator({200, 200, 400, 400});
 
-        Image image1{screen, {200, 200, 400, 400}, "Image1"};
-        Image image2{screen, {200, 200, 200, 200}, "Image2"};
-        Image image3{screen, {200, 200, 100, 100}, "Image3"};
+        Image image1{{200, 200, 400, 400}, "Image1"};
+        Image image2{{200, 200, 200, 200}, "Image2"};
+        Image image3{{200, 200, 100, 100}, "Image3"};
 
         // Lay out the widgets to set their renderExtent and have them add
         // themselves to the locator.

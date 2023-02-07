@@ -13,10 +13,10 @@ TEST_CASE("TestWidgetWeakRef")
 
     SECTION("Construction")
     {
-        Button widget1{screen, {}};
+        Button widget1{{}};
         std::unique_ptr<Widget> widget2{
-            std::make_unique<Button>(screen, SDL_Rect{})};
-        Button widget3{screen, {}};
+            std::make_unique<Button>(SDL_Rect{})};
+        Button widget3{{}};
         {
             WidgetWeakRef ref1(widget1);
             WidgetWeakRef ref2(*widget2);
@@ -32,7 +32,7 @@ TEST_CASE("TestWidgetWeakRef")
 
     SECTION("Copy construction")
     {
-        Button widget1{screen, {}};
+        Button widget1{{}};
         {
             WidgetWeakRef ref1(widget1);
             REQUIRE(widget1.getRefCount() == 1);
@@ -45,7 +45,7 @@ TEST_CASE("TestWidgetWeakRef")
 
     SECTION("Move construction")
     {
-        Button widget1{screen, {}};
+        Button widget1{{}};
         {
             WidgetWeakRef ref1(widget1);
             REQUIRE(widget1.getRefCount() == 1);
@@ -58,7 +58,7 @@ TEST_CASE("TestWidgetWeakRef")
 
     SECTION("Copy assignment")
     {
-        Button widget1{screen, {}};
+        Button widget1{{}};
         WidgetWeakRef ref1{widget1};
         REQUIRE(widget1.getRefCount() == 1);
 
@@ -72,7 +72,7 @@ TEST_CASE("TestWidgetWeakRef")
 
     SECTION("Move assignment")
     {
-        Button widget1{screen, {}};
+        Button widget1{{}};
         WidgetWeakRef ref1{widget1};
         REQUIRE(widget1.getRefCount() == 1);
 
@@ -86,9 +86,9 @@ TEST_CASE("TestWidgetWeakRef")
     SECTION("Invalidate single ref")
     {
         std::unique_ptr<Widget> widget1{
-            std::make_unique<Button>(screen, SDL_Rect{})};
+            std::make_unique<Button>(SDL_Rect{})};
         std::unique_ptr<Widget> widget2{
-            std::make_unique<Button>(screen, SDL_Rect{})};
+            std::make_unique<Button>(SDL_Rect{})};
 
         WidgetWeakRef ref1{*widget1};
         WidgetWeakRef ref2{*widget2};
@@ -107,7 +107,7 @@ TEST_CASE("TestWidgetWeakRef")
     SECTION("Invalidate multiple refs")
     {
         std::unique_ptr<Widget> widget1{
-            std::make_unique<Button>(screen, SDL_Rect{})};
+            std::make_unique<Button>(SDL_Rect{})};
 
         WidgetWeakRef ref1{*widget1};
         WidgetWeakRef ref2{*widget1};

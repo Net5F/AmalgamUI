@@ -104,9 +104,8 @@ protected:
         SDL_Rect extent{};
     };
 
-    /** Maps screen resolutions to the path that the appropriate image for 
-        that resolution can be found at.
-        Sorted from smallest width to largest. */
+    /** Maps screen resolutions to the data that should be used to display this
+        image at that resolution. */
     std::map<ScreenResolution, TextureData> resolutionMap;
 
     /** The current resolution of image to display. */

@@ -2,6 +2,8 @@
 
 #include "AUI/Internal/Log.h"
 
+#include <SDL_render.h>
+#include <SDL_image.h>
 #include <SDL_ttf.h>
 
 #include <memory>
@@ -10,39 +12,42 @@
 
 namespace AUI
 {
-// I don't like obfuscating the shared_ptr, but this alias is useful in case
-// we decide to change the type.
-using FontHandle = std::shared_ptr<TTF_Font>;
 
 /**
  * This class facilitates loading and managing the lifetime of assets.
+ *
+ * TODO: We need to find an appropriate time to prune the cache.
+ *       If we made our own managed pointer, we could do it when references are
+ *       dropped, or we could track how long an asset has gone without having 
+ *       any references and periodically remove old ones.
  */
 class AssetCache
 {
 public:
+    // Note: We use const std::string& instead of std::string_view because we
+    //       need to pass C strings into the SDL APIs.
     /**
-     * Loads the font at the given path and size, and returns a handle to it.
+     * If a texture associated with the given path is in the cache, returns it.
+     * If not, loads it and adds it to the cache, then returns it.
      *
-     * If the font is already loaded, returns a handle to it without re-
-     * loading.
+     * @param relPath  The image file's full path.
+     */
+    std::shared_ptr<SDL_Texture> requestTexture(const std::string& filePath);
+
+    /**
+     * If a font associated with the given path and size is in the cache, 
+     * returns it.
+     * If not, loads it and adds it to the cache, then returns it.
      *
      * @param filePath  The full path to the font, including the file name.
      * @param size  The size of the font, in points.
      */
-    FontHandle loadFont(const std::string& filePath, int size);
-
-    /**
-     * Removes the font at the given path from the resource cache.
-     *
-     * @param filePath  The path to the font, including the file name, relative
-     *                 to Core's resourcePath.
-     * @param size  The size of the font, in points.
-     * @return true if the font was found and removed, else false.
-     */
-    bool discardFont(const std::string& filePath, int size);
+    std::shared_ptr<TTF_Font> requestFont(const std::string& filePath, int size);
 
 private:
-    std::unordered_map<std::string, FontHandle> fontCache;
+    std::unordered_map<std::string, std::shared_ptr<SDL_Texture>> textureCache;
+
+    std::unordered_map<std::string, std::shared_ptr<TTF_Font>> fontCache;
 };
 
 } // End namespace AUI

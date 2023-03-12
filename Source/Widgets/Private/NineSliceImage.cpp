@@ -11,19 +11,22 @@ Image::Image(const SDL_Rect& inLogicalExtent, const std::string& inDebugName)
 }
 
 void Image::addResolution(const ScreenResolution& resolution,
-                          const std::string& relPath)
+                          const std::shared_ptr<SDL_Texture>& texture)
 {
+    // Start constructing the TextureData.
+    TextureData textureData;
+    textureData.texture = texture;
+
+    // Default the texture extent to the actual texture size.
+    SDL_QueryTexture(textureData.texture.get(), nullptr, nullptr,
+                     &(textureData.extent.w), &(textureData.extent.h));
+
     // If we already have the given resolution, fail.
     if (resolutionMap.find(resolution) != resolutionMap.end()) {
         AUI_LOG_FATAL("Tried to add image resolution that is already in use. "
                       "DebugName: %s, Resolution: (%d, %d)",
                       debugName.c_str(), resolution.width, resolution.height);
     }
-
-    // Start constructing the TextureData.
-    TextureData textureData;
-    textureData.relPath = relPath;
-    textureData.userProvidedExtent = false;
 
     // Add the resolution to the map.
     resolutionMap[resolution] = textureData;
@@ -33,15 +36,14 @@ void Image::addResolution(const ScreenResolution& resolution,
 }
 
 void Image::addResolution(const ScreenResolution& resolution,
-                          const std::string& relPath,
+                          const std::shared_ptr<SDL_Texture>& texture,
                           const SDL_Rect& inTexExtent)
 {
     // Do all the same steps from the less specific overload.
-    addResolution(resolution, relPath);
+    addResolution(resolution, texture);
 
     // Set the texture extent to the given extent.
     resolutionMap[resolution].extent = inTexExtent;
-    resolutionMap[resolution].userProvidedExtent = true;
 
     // Re-calculate which resolution of texture to use.
     refreshChosenResolution();
@@ -88,11 +90,11 @@ void Image::refreshChosenResolution()
     }
 
     // If we have a texture that matches the current actualScreenSize.
-    TextureData* selectedTextureData{nullptr};
     auto matchIt = resolutionMap.find(Core::getActualScreenSize());
     if (matchIt != resolutionMap.end()) {
-        // Select the matching texture data.
-        selectedTextureData = &(matchIt->second);
+        // Use the matching texture.
+        currentTexture = matchIt->second.texture;
+        currentTexExtent = matchIt->second.extent;
     }
     else {
         // Else, default to the largest texture for the best chance at nice
@@ -100,21 +102,8 @@ void Image::refreshChosenResolution()
         // Note: This relies on resolutionMap being sorted, hence why we use
         //       std::map.
         auto largestIt = resolutionMap.rbegin();
-        selectedTextureData = &(largestIt->second);
-    }
-
-    // Attempt to load the matching image (errors on failure).
-    AssetCache& assetCache{Core::getAssetCache()};
-    currentTexture = assetCache.requestTexture(selectedTextureData->relPath);
-
-    // If the user provided an extent, use it.
-    if (selectedTextureData->userProvidedExtent) {
-        currentTexExtent = selectedTextureData->extent;
-    }
-    else {
-        // No user-provided extent, use the actual texture size.
-        SDL_QueryTexture(currentTexture.get(), nullptr, nullptr,
-                         &(currentTexExtent.w), &(currentTexExtent.h));
+        currentTexture = largestIt->second.texture;
+        currentTexExtent = largestIt->second.extent;
     }
 }
 

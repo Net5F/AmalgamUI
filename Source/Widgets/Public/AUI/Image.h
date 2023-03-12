@@ -1,6 +1,7 @@
 #pragma once
 
 #include "AUI/Widget.h"
+#include "AUI/AssetCache.h" // TextureHandle
 #include "AUI/ScreenResolution.h"
 #include <SDL_render.h>
 #include <map>
@@ -20,8 +21,7 @@ namespace AUI
  *   screen size. If no added resolution matches, the largest one will be used
  *   (for the best chance at looking nice after scaling).
  *
- * Note: addResolution() takes a shared_ptr to an SDL_Texture so that you can
- *       use your own asset manager.
+ * Note: Image assets are managed in an internal cache.
  */
 class Image : public Widget
 {
@@ -45,10 +45,11 @@ public:
      *
      * @param resolution  The actual screen resolution that this texture
      *                    should be used for.
-     * @param texture  The texture that this Image should render.
+     * @param relPath  The path to the image to add, relative to
+     *                 Core::resourcePath.
      */
-    void addResolution(const ScreenResolution& resolution,
-                       const std::shared_ptr<SDL_Texture>& texture);
+    virtual void addResolution(const ScreenResolution& resolution,
+                               const std::string& relPath);
 
     /**
      * Overload to specify texExtent. Used if you only want to display a
@@ -56,12 +57,13 @@ public:
      *
      * @param resolution  The actual screen resolution that this texture
      *                    should be used for.
-     * @param texture  The texture that this Image should render.
+     * @param relPath  The path to the image to add, relative to
+     *                 Core::resourcePath.
      * @param inTexExtent  The extent within the texture to display.
      */
-    void addResolution(const ScreenResolution& resolution,
-                       const std::shared_ptr<SDL_Texture>& texture,
-                       const SDL_Rect& inTexExtent);
+    virtual void addResolution(const ScreenResolution& resolution,
+                               const std::string& relPath,
+                               const SDL_Rect& inTexExtent);
 
     /**
      * Clears this image's current texture and the textures in its
@@ -90,15 +92,20 @@ protected:
      * The data needed to render an image's texture.
      */
     struct TextureData {
-        /** The texture to display. */
-        std::shared_ptr<SDL_Texture> texture{};
+        /** The relative path to the image file. */
+        std::string relPath;
 
-        /** The extent of the desired image within the texture. */
+        /** If true, the user gave us an extent to use. If false, we'll 
+            use the full texture. */
+        bool userProvidedExtent{false};
+
+        /** If userProvidedExtent is true, holds the extent of the desired 
+            image within the texture. */
         SDL_Rect extent{};
     };
 
-    /** Maps screen resolutions to the data that should be used to display this
-        image at that resolution.
+    /** Maps screen resolutions to the path that the appropriate image for 
+        that resolution can be found at.
         Sorted from smallest width to largest. */
     std::map<ScreenResolution, TextureData> resolutionMap;
 

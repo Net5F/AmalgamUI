@@ -7,9 +7,9 @@ namespace AUI
 {
 Text::Text(const SDL_Rect& inLogicalExtent, const std::string& inDebugName)
 : Widget(inLogicalExtent, inDebugName)
-, fontPath("")
+, fontPath{""}
 , logicalFontSize{10}
-, fontHandle()
+, font{}
 , color{0, 0, 0, 255}
 , backgroundColor{0, 0, 0, 0}
 , renderMode{RenderMode::Blended}
@@ -26,7 +26,7 @@ Text::Text(const SDL_Rect& inLogicalExtent, const std::string& inDebugName)
 {
 }
 
-void Text::setFont(const std::string& relPath, int size)
+void Text::setFont(std::string_view relPath, int size)
 {
     // Save the data for later scaling.
     fontPath = relPath;
@@ -112,7 +112,7 @@ SDL_Rect Text::calcCharacterOffset(std::size_t index)
 
     // Get the x offset and height from the relevant characters.
     SDL_Rect offsetExtent{};
-    TTF_SizeText(&(*fontHandle), relevantChars.c_str(), &(offsetExtent.x),
+    TTF_SizeText(&(*font), relevantChars.c_str(), &(offsetExtent.x),
                  &(offsetExtent.h));
 
     // Account for our alignment/position by adding the text extent's offset.
@@ -128,9 +128,9 @@ SDL_Rect Text::calcCharacterOffset(std::size_t index)
 int Text::calcStringWidth(const std::string& string)
 {
     // Calculate the width that the given string would have if rendered using
-    // the font in fontHandle.
+    // the current font.
     int stringWidth{0};
-    TTF_SizeText(&(*fontHandle), string.c_str(), &(stringWidth), nullptr);
+    TTF_SizeText(&(*font), string.c_str(), &(stringWidth), nullptr);
 
     return stringWidth;
 }
@@ -262,12 +262,12 @@ void Text::refreshFontObject()
 
     // Attempt to load the given font (errors on failure).
     AssetCache& assetCache{Core::getAssetCache()};
-    fontHandle = assetCache.loadFont(fontPath, actualFontSize);
+    font = assetCache.requestFont(fontPath, actualFontSize);
 }
 
 void Text::refreshTexture()
 {
-    if (!fontHandle) {
+    if (!font) {
         AUI_LOG_FATAL("Please call setFont() before refreshTexture(), so"
                       " that a valid font object can be used for texture "
                       "generation. DebugName: %s",
@@ -286,23 +286,23 @@ void Text::refreshTexture()
     SDL_Surface* surface{nullptr};
     switch (renderMode) {
         case RenderMode::Solid: {
-            surface = TTF_RenderUTF8_Solid(&(*fontHandle),
+            surface = TTF_RenderUTF8_Solid(&(*font),
                                            textToRender->c_str(), color);
             break;
         }
         case RenderMode::Shaded: {
             surface = TTF_RenderUTF8_Shaded(
-                &(*fontHandle), textToRender->c_str(), color, backgroundColor);
+                &(*font), textToRender->c_str(), color, backgroundColor);
             break;
         }
         case RenderMode::Blended: {
-            surface = TTF_RenderUTF8_Blended(&(*fontHandle),
+            surface = TTF_RenderUTF8_Blended(&(*font),
                                              textToRender->c_str(), color);
             break;
         }
         // Note: Removed because SDL_ttf on 22.04 doesn't support it.
         //case RenderMode::LCD: {
-        //    surface = TTF_RenderUTF8_LCD(&(*fontHandle), textToRender->c_str(),
+        //    surface = TTF_RenderUTF8_LCD(&(*font), textToRender->c_str(),
         //                                 color, backgroundColor);
         //    break;
         //}

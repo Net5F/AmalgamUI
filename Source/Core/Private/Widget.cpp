@@ -195,7 +195,7 @@ void Widget::updateLayout(const SDL_Rect& parentExtent,
     // Update our visible children's layouts and add them to the locator.
     // Note: We skip invisible children since they won't be rendered. If we
     //       need to process invisible children (for the widget locator's use,
-    //       perhaps), we can do so.
+    //       perhaps), we can change this.
     for (Widget& child : children) {
         if (child.getIsVisible()) {
             child.updateLayout(renderExtent, widgetLocator);

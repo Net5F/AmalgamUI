@@ -22,6 +22,8 @@ namespace AUI
  * This is placed within the widget extent, offset through the alignment
  * and textOffset parameters, and is finally clipped by the widget extent
  * before rendering.
+
+ * Note: Font assets are managed in an internal cache.
  */
 class Text : public Widget
 {
@@ -69,7 +71,7 @@ public:
      *                 Core::resourcePath.
      * @param size  The size of the font.
      */
-    void setFont(const std::string& relPath, int size);
+    void setFont(std::string_view relPath, int size);
 
     /**
      * Sets the font color to use.
@@ -197,7 +199,7 @@ private:
     int logicalFontSize;
 
     /** The handle to our font object. */
-    FontHandle fontHandle;
+    std::shared_ptr<TTF_Font> font;
 
     /** The color of our text. */
     SDL_Color color;

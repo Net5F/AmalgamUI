@@ -26,7 +26,8 @@ void NineSliceImage::set(const std::string& imagePath, SliceSizes inSliceSizes,
 void NineSliceImage::refresh(const SDL_Rect& renderExtent)
 {
     // Set the new desired extent.
-    currentTexExtent = renderExtent;
+    currentTexExtent.w = renderExtent.w;
+    currentTexExtent.h = renderExtent.h;
 
     // Re-generate our nine slice texture.
     regenerateNineSliceTexture();

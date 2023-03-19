@@ -1,27 +1,36 @@
 #pragma once
 
 #include "AUI/Widget.h"
-#include "AUI/AssetCache.h" // TextureHandle
-#include "AUI/ScreenResolution.h"
+#include "AUI/ImageType/ImageType.h"
+#include "AUI/ImageType/NineSliceImage.h"
 #include <SDL_render.h>
-#include <map>
 #include <string>
 #include <memory>
 
 namespace AUI
 {
 /**
- * Displays a simple static image.
- *
+ * Displays an image.
+ * 
  * To use:
- *   1. Add one or more resolutions of your image using addResolution().
- *   2. Set your screen size through Core::setActualScreenSize().
+ *   1. Construct this widget.
+ *   2. Use one of the "setXYZ" convenience functions to set the image to 
+ *      one of the built-in image types.
+ *      Or, use setCustomImage() to set your own custom image type.
  *
- *   This Image will render the added image texture that matches the actual
- *   screen size. If no added resolution matches, the largest one will be used
- *   (for the best chance at looking nice after scaling).
+ * Built-in image types:
+ *   SimpleImage
+ *     Simply renders the image, stretching or squashing as needed.
+ *   NineSliceImage
+ *     Slices the image into 9 pieces, preserving the corners and stretching 
+ *     the sides and center in a way that maintains image sharpness.
+ *   MultiResImage
+ *     Allows you to add multiple resolutions of an image, which will be 
+ *     selected between based on the current screen resolution.
+ *   TiledImage
+ *     Tiles the image.
  *
- * Note: Image assets are managed in an internal cache.
+ * Note: Image assets are managed in the AssetCache class.
  */
 class Image : public Widget
 {
@@ -35,84 +44,81 @@ public:
     virtual ~Image() = default;
 
     /**
-     * Adds the given texture to the map of available resolutions.
+     * Sets this widget to render a SimpleImage (see class comment).
      *
-     * The texture that this widget renders will be chosen by comparing
-     * Core's current actualScreenSize to the available resolutions.
+     * Errors if the given path doesn't point to an image file.
      *
-     * Errors if the given image is nullptr or the given resolution is
-     * already in use.
-     *
-     * @param resolution  The actual screen resolution that this texture
-     *                    should be used for.
-     * @param relPath  The path to the image to add, relative to
-     *                 Core::resourcePath.
+     * @param imagePath  The full path to the image file.
      */
-    virtual void addResolution(const ScreenResolution& resolution,
-                               const std::string& relPath);
+    void setSimpleImage(const std::string& imagePath);
 
     /**
-     * Overload to specify texExtent. Used if you only want to display a
-     * portion of the texture.
+     * Overload to specify texExtent. Use this if you only want to display a
+     * portion of the image.
      *
-     * @param resolution  The actual screen resolution that this texture
-     *                    should be used for.
-     * @param relPath  The path to the image to add, relative to
-     *                 Core::resourcePath.
      * @param inTexExtent  The extent within the texture to display.
      */
-    virtual void addResolution(const ScreenResolution& resolution,
-                               const std::string& relPath,
-                               const SDL_Rect& inTexExtent);
+    void setSimpleImage(const std::string& imagePath, SDL_Rect texExtent);
 
     /**
-     * Clears this image's current texture and the textures in its
-     * resolutionMap.
+     * Sets this widget to render a NineSliceImage (see class comment).
+     *
+     * Errors if the given path doesn't point to an image file.
+     *
+     * @param imagePath  The full path to the image file.
+     * @param sliceSizes  How far to slice into the image, in each direction.
      */
-    void clearTextures();
+    void setNineSliceImage(const std::string& imagePath,
+                           NineSliceImage::SliceSizes inSliceSizes);
+
+    struct MultiResImageInfo {
+        /** The screen resolution that this texture should be used for. */
+        ScreenResolution resolution{};
+        /** The full path to the image file. */
+        std::string imagePath{};
+        /** The extent within the texture to display. If left default, the 
+            full image texture will be used. */
+        SDL_Rect texExtent{};
+    };
+    /**
+     * Sets this widget to render a MultiResImage (see class comment).
+     *
+     * Errors if any given path doesn't point to an image file.
+     */
+    void setMultiResImage(const std::vector<MultiResImageInfo>& imageInfo);
+
+    /**
+     * Sets this widget to render a TiledImage (see class comment).
+     *
+     * Errors if the given path doesn't point to an image file.
+     *
+     * @param imagePath  The full path to the image file.
+     */
+    void setTiledImage(const std::string& imagePath);
+
+    /**
+     * Sets this widget to render the given custom image type.
+     */
+    void setCustomImage(std::unique_ptr<ImageType> inImageType);
 
     //-------------------------------------------------------------------------
     // Base class overrides
     //-------------------------------------------------------------------------
+    /**
+     * Calls Widget::updateLayout() and refreshes the image if this widget's 
+     * renderExtent changed.
+     */
+    void updateLayout(const SDL_Rect& parentExtent,
+                      WidgetLocator* widgetLocator) override;
+
     void render() override;
 
-protected:
-    /**
-     * Overridden to choose the proper resolution of texture to use.
-     */
-    bool refreshScaling() override;
+private:
+    std::unique_ptr<ImageType> imageType;
 
-    /**
-     * Re-calculates which resolution of texture to use, based on Core's
-     * current actualScreenSize and the available resolutions in resolutionMap.
-     */
-    void refreshChosenResolution();
-
-    /**
-     * The data needed to render an image's texture.
-     */
-    struct TextureData {
-        /** The relative path to the image file. */
-        std::string relPath;
-
-        /** If true, the user gave us an extent to use. If false, we'll 
-            use the full texture. */
-        bool userProvidedExtent{false};
-
-        /** If userProvidedExtent is true, holds the extent of the desired 
-            image within the texture. */
-        SDL_Rect extent{};
-    };
-
-    /** Maps screen resolutions to the data that should be used to display this
-        image at that resolution. */
-    std::map<ScreenResolution, TextureData> resolutionMap;
-
-    /** The current resolution of image to display. */
-    std::shared_ptr<SDL_Texture> currentTexture;
-
-    /** The position and size of the desired image within currentTexHandle. */
-    SDL_Rect currentTexExtent;
+    /** The value of renderExtent that was last used to render this widget.
+        Used to detect when to refresh the image. */
+    SDL_Rect lastUsedRenderExtent;
 };
 
 } // namespace AUI

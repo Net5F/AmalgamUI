@@ -142,9 +142,9 @@ void Thumbnail::setTextLogicalExtent(const SDL_Rect& inLogicalExtent)
     text.setLogicalExtent(inLogicalExtent);
 }
 
-void Thumbnail::setTextFont(const std::string& relPath, int size)
+void Thumbnail::setTextFont(const std::string& fontPath, int size)
 {
-    text.setFont(relPath, size);
+    text.setFont(fontPath, size);
 }
 
 void Thumbnail::setTextColor(const SDL_Color& inColor)

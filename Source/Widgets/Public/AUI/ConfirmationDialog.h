@@ -24,21 +24,21 @@ public:
     //-------------------------------------------------------------------------
     /** Semi-transparent shadow image to obscure things that are behind the
         dialog. */
-    AUI::Image shadowImage;
+    Image shadowImage;
 
     /** The dialog's background image. */
-    AUI::Image backgroundImage;
+    Image backgroundImage;
 
     /** Body text. Typically will prompt the user with a question that
         describes the decision they're making. */
-    AUI::Text bodyText;
+    Text bodyText;
 
     /** Right-side confirmation button. */
-    AUI::Button confirmButton;
+    Button confirmButton;
 
     /** Left-side cancel button. By default, closes the dialog without
         performing any action. */
-    AUI::Button cancelButton;
+    Button cancelButton;
 };
 
 } // namespace AUI

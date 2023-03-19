@@ -74,14 +74,14 @@ void TextInput::disable()
     refreshTextScrollOffset();
 }
 
-void TextInput::setMargins(Margins inLogicalMargins)
+void TextInput::setPadding(Padding inLogicalPadding)
 {
     // Set the text widget to be the size of this widget, minus the
     // margins.
     text.setLogicalExtent(
-        {inLogicalMargins.left, inLogicalMargins.top,
-         (logicalExtent.w - inLogicalMargins.left - inLogicalMargins.right),
-         (logicalExtent.h - inLogicalMargins.top - inLogicalMargins.bottom)});
+        {inLogicalPadding.left, inLogicalPadding.top,
+         (logicalExtent.w - inLogicalPadding.left - inLogicalPadding.right),
+         (logicalExtent.h - inLogicalPadding.top - inLogicalPadding.bottom)});
 
     // Refresh the text position to account for the change.
     refreshTextScrollOffset();
@@ -103,9 +103,9 @@ TextInput::State TextInput::getCurrentState()
     return currentState;
 }
 
-void TextInput::setTextFont(const std::string& relPath, int size)
+void TextInput::setTextFont(const std::string& fontPath, int size)
 {
-    text.setFont(relPath, size);
+    text.setFont(fontPath, size);
 }
 
 void TextInput::setTextColor(const SDL_Color& inColor)

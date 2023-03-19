@@ -273,7 +273,7 @@ protected:
      * widget's scaledExtent was calculated. If so, re-calculates
      * scaledExtent, scaling it to the new actualScreenSize.
      *
-     * This implementation is sufficient for refreshing actualExtent, but must
+     * This implementation is sufficient for refreshing renderExtent, but must
      * be overridden if your widget has other scaling needs.
      */
     virtual bool refreshScaling();

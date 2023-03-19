@@ -67,11 +67,10 @@ public:
     /**
      * Sets the font and size. Uses the internal ID format "font_size".
      *
-     * @param relPath  The path to the font to use, relative to
-     *                 Core::resourcePath.
+     * @param fontPath  The full path to the font file.
      * @param size  The size of the font.
      */
-    void setFont(std::string_view relPath, int size);
+    void setFont(std::string_view fontPath, int size);
 
     /**
      * Sets the font color to use.
@@ -191,7 +190,7 @@ private:
      */
     void refreshTexture();
 
-    /** Path to the font file, relative to Core::resourcePath. */
+    /** Full path to the font file. */
     std::string fontPath;
 
     /** Logical font size in point, i.e. font size relative to Core's

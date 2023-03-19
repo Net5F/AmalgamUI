@@ -128,7 +128,7 @@ public:
     /** Calls text.setLogicalExtent(). */
     void setTextLogicalExtent(const SDL_Rect& inLogicalExtent);
     /** Calls text.setFont(). */
-    void setTextFont(const std::string& relPath, int size);
+    void setTextFont(const std::string& fontPath, int size);
     /** Calls text.setColor(). */
     void setTextColor(const SDL_Color& inColor);
     /** Calls text.setVerticalAlignment(). */

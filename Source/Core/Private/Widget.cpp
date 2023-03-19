@@ -1,6 +1,5 @@
 #include "AUI/Widget.h"
 #include "AUI/Screen.h"
-#include "AUI/Image.h"
 #include "AUI/Core.h"
 #include "AUI/ScalingHelpers.h"
 #include "AUI/SDLHelpers.h"
@@ -17,7 +16,7 @@ Widget::Widget(const SDL_Rect& inLogicalExtent, const std::string& inDebugName)
 : debugName{inDebugName}
 , logicalExtent{inLogicalExtent}
 , scaledExtent{ScalingHelpers::logicalToActual(logicalExtent)}
-, renderExtent{}
+, renderExtent{scaledExtent}
 , lastUsedScreenSize{Core::getActualScreenSize()}
 , isVisible{true}
 , isFocusable{false}

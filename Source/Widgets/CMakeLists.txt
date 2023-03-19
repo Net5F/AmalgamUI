@@ -1,5 +1,10 @@
 target_sources(AmalgamUI
     PRIVATE
+        Private/ImageType/ImageType.cpp
+        Private/ImageType/MultiResImage.cpp
+        Private/ImageType/NineSliceImage.cpp
+        Private/ImageType/SimpleImage.cpp
+        Private/ImageType/TiledImage.cpp
         Private/Button.cpp
         Private/Checkbox.cpp
         Private/ConfirmationDialog.cpp
@@ -8,11 +13,15 @@ target_sources(AmalgamUI
         Private/Text.cpp
         Private/TextInput.cpp
         Private/Thumbnail.cpp
-        Private/TiledImage.cpp
         Private/VerticalGridContainer.cpp
     PUBLIC
         # Note: We add the extra "AUI" directory so that consumers can include
         # files as "AUI/Xyz.h" for some extra clarity.
+        Public/AUI/ImageType/ImageType.h
+        Public/AUI/ImageType/MultiResImage.h
+        Public/AUI/ImageType/NineSliceImage.h
+        Public/AUI/ImageType/SimpleImage.h
+        Public/AUI/ImageType/TiledImage.h
         Public/AUI/Button.h
         Public/AUI/Checkbox.h
         Public/AUI/ConfirmationDialog.h
@@ -21,7 +30,6 @@ target_sources(AmalgamUI
         Public/AUI/Text.h
         Public/AUI/TextInput.h
         Public/AUI/Thumbnail.h
-        Public/AUI/TiledImage.h
         Public/AUI/VerticalGridContainer.h
 )
 

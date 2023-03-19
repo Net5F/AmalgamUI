@@ -30,19 +30,19 @@ public:
      * If a texture associated with the given path is in the cache, returns it.
      * If not, loads it and adds it to the cache, then returns it.
      *
-     * @param relPath  The image file's full path.
+     * @param imagePath  The full path to the image file.
      */
-    std::shared_ptr<SDL_Texture> requestTexture(const std::string& filePath);
+    std::shared_ptr<SDL_Texture> requestTexture(const std::string& imagePath);
 
     /**
      * If a font associated with the given path and size is in the cache, 
      * returns it.
      * If not, loads it and adds it to the cache, then returns it.
      *
-     * @param filePath  The full path to the font, including the file name.
+     * @param fontPath  The full path to the font file.
      * @param size  The size of the font, in points.
      */
-    std::shared_ptr<TTF_Font> requestFont(const std::string& filePath, int size);
+    std::shared_ptr<TTF_Font> requestFont(const std::string& fontPath, int size);
 
 private:
     std::unordered_map<std::string, std::shared_ptr<SDL_Texture>> textureCache;

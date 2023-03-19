@@ -1,121 +1,104 @@
 #include "AUI/Image.h"
 #include "AUI/Core.h"
+#include "AUI/AssetCache.h"
+#include "AUI/ImageType/SimpleImage.h"
+#include "AUI/ImageType/MultiResImage.h"
+#include "AUI/ImageType/TiledImage.h"
 
 namespace AUI
 {
 Image::Image(const SDL_Rect& inLogicalExtent, const std::string& inDebugName)
 : Widget(inLogicalExtent, inDebugName)
-, currentTexture{nullptr}
-, currentTexExtent{}
+, imageType{nullptr}
+, lastUsedRenderExtent{}
 {
 }
 
-void Image::addResolution(const ScreenResolution& resolution,
-                          const std::string& relPath)
+void Image::setSimpleImage(const std::string& imagePath)
 {
-    // If we already have the given resolution, fail.
-    if (resolutionMap.find(resolution) != resolutionMap.end()) {
-        AUI_LOG_FATAL("Tried to add image resolution that is already in use. "
-                      "DebugName: %s, Resolution: (%d, %d)",
-                      debugName.c_str(), resolution.width, resolution.height);
+    imageType = std::make_unique<SimpleImage>();
+    SimpleImage* simpleImage{
+        static_cast<SimpleImage*>(imageType.get())};
+    simpleImage->set(imagePath);
+}
+
+void Image::setSimpleImage(const std::string& imagePath, SDL_Rect texExtent)
+{
+    imageType = std::make_unique<SimpleImage>();
+    SimpleImage* simpleImage{
+        static_cast<SimpleImage*>(imageType.get())};
+    simpleImage->set(imagePath, texExtent);
+}
+
+void Image::setNineSliceImage(const std::string& imagePath,
+                              NineSliceImage::SliceSizes sliceSizes)
+{
+    imageType = std::make_unique<NineSliceImage>();
+    NineSliceImage* nineSliceImage{
+        static_cast<NineSliceImage*>(imageType.get())};
+    nineSliceImage->set(imagePath, sliceSizes, renderExtent);
+}
+
+void Image::setMultiResImage(const std::vector<MultiResImageInfo>& imageInfo)
+{
+    imageType = std::make_unique<MultiResImage>();
+    MultiResImage* multiResImage{
+        static_cast<MultiResImage*>(imageType.get())};
+
+    for (const MultiResImageInfo& info : imageInfo) {
+        if ((info.texExtent.x == 0) && (info.texExtent.y == 0)
+            && (info.texExtent.w == 0) && (info.texExtent.h == 0)) {
+            multiResImage->addResolution(info.resolution, info.imagePath);
+        }
+        else {
+            multiResImage->addResolution(info.resolution, info.imagePath,
+                                         info.texExtent);
+        }
     }
-
-    // Start constructing the TextureData.
-    TextureData textureData;
-    textureData.relPath = relPath;
-    textureData.userProvidedExtent = false;
-
-    // Add the resolution to the map.
-    resolutionMap[resolution] = textureData;
-
-    // Re-calculate which resolution of texture to use.
-    refreshChosenResolution();
 }
 
-void Image::addResolution(const ScreenResolution& resolution,
-                          const std::string& relPath,
-                          const SDL_Rect& inTexExtent)
+void Image::setTiledImage(const std::string& imagePath)
 {
-    // Do all the same steps from the less specific overload.
-    addResolution(resolution, relPath);
+    imageType = std::make_unique<TiledImage>();
+    TiledImage* tiledImage{
+        static_cast<TiledImage*>(imageType.get())};
+    tiledImage->set(imagePath, renderExtent);
+}
 
-    // Set the texture extent to the given extent.
-    resolutionMap[resolution].extent = inTexExtent;
-    resolutionMap[resolution].userProvidedExtent = true;
+void Image::setCustomImage(std::unique_ptr<ImageType> inImageType) {
+    imageType = std::move(inImageType);
+}
 
-    // Re-calculate which resolution of texture to use.
-    refreshChosenResolution();
+void Image::updateLayout(const SDL_Rect& parentExtent,
+                         WidgetLocator* widgetLocator)
+{
+    // Do the normal layout updating.
+    Widget::updateLayout(parentExtent, widgetLocator);
+
+    // If this widget's renderExtent has changed.
+    if (!SDL_RectEquals(&renderExtent, &lastUsedRenderExtent)) {
+        // Refresh the image, in case it needs to regenerate to match the 
+        // new renderExtent.
+        if (imageType != nullptr) {
+            imageType->refresh(renderExtent);
+        }
+
+        lastUsedRenderExtent = renderExtent;
+    }
 }
 
 void Image::render()
 {
-    // If we don't have a texture to render, fail.
-    if (currentTexture == nullptr) {
-        AUI_LOG_FATAL("Tried to render Image with no texture. DebugName: %s",
+    // If we don't have an ImageType to render, fail.
+    if (imageType == nullptr) {
+        AUI_LOG_FATAL("Tried to render Image with no ImageType. DebugName: %s",
                       debugName.c_str());
     }
 
     // Render the image.
-    SDL_RenderCopy(Core::getRenderer(), currentTexture.get(), &currentTexExtent,
+    SDL_RenderCopy(Core::getRenderer(), imageType->currentTexture.get(),
+                   &(imageType->currentTexExtent),
                    &renderExtent);
-}
-
-void Image::clearTextures()
-{
-    currentTexture = nullptr;
-    currentTexExtent = SDL_Rect{};
-    resolutionMap.clear();
-}
-
-bool Image::refreshScaling()
-{
-    // If scaledExtent was refreshed, do our specialized refreshing.
-    if (Widget::refreshScaling()) {
-        // Re-calculate which resolution of texture to use.
-        refreshChosenResolution();
-
-        return true;
-    }
-
-    return false;
-}
-
-void Image::refreshChosenResolution()
-{
-    if (resolutionMap.size() == 0) {
-        // No resolutions to choose from, return early.
-        return;
-    }
-
-    // If we have a texture that matches the current actualScreenSize.
-    TextureData* selectedTextureData{nullptr};
-    auto matchIt = resolutionMap.find(Core::getActualScreenSize());
-    if (matchIt != resolutionMap.end()) {
-        // Select the matching texture data.
-        selectedTextureData = &(matchIt->second);
-    }
-    else {
-        // Else, default to the largest texture for the best chance at nice
-        // scaling.
-        // Note: This relies on resolutionMap being sorted, hence why we use
-        //       std::map.
-        auto largestIt = resolutionMap.rbegin();
-        selectedTextureData = &(largestIt->second);
-    }
-
-    // Attempt to load the matching image (errors on failure).
-    AssetCache& assetCache{Core::getAssetCache()};
-    currentTexture = assetCache.requestTexture(selectedTextureData->relPath);
-
-    // If the user provided an extent, use it.
-    if (selectedTextureData->userProvidedExtent) {
-        currentTexExtent = selectedTextureData->extent;
-    }
-    else {
-        // No user-provided extent, use the actual texture size.
-        SDL_QueryTexture(currentTexture.get(), nullptr, nullptr,
-                         &(currentTexExtent.w), &(currentTexExtent.h));
-    }
 }
 
 } // namespace AUI

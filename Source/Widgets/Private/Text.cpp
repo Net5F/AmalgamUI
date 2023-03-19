@@ -26,10 +26,10 @@ Text::Text(const SDL_Rect& inLogicalExtent, const std::string& inDebugName)
 {
 }
 
-void Text::setFont(std::string_view relPath, int size)
+void Text::setFont(std::string_view inFontPath, int size)
 {
     // Save the data for later scaling.
-    fontPath = relPath;
+    fontPath = inFontPath;
     logicalFontSize = size;
 
     // Load the new font object.

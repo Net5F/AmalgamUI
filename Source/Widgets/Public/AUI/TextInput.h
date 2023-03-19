@@ -2,7 +2,7 @@
 
 #include "AUI/Image.h"
 #include "AUI/Text.h"
-#include "AUI/Margins.h"
+#include "AUI/Padding.h"
 #include <functional>
 
 namespace AUI
@@ -57,10 +57,10 @@ public:
     void disable();
 
     /**
-     * Sets the distance between the text and the edge of the text box on each
-     * side.
+     * Sets the distance between the text and the border of the text box on 
+     * each side.
      */
-    void setMargins(Margins inLogicalMargins);
+    void setPadding(Padding inLogicalPadding);
 
     /**
      * Sets the color of the text cursor.
@@ -99,7 +99,7 @@ public:
     /** Calls text.asString(). */
     const std::string& getText();
     /** Calls text.setFont(). */
-    void setTextFont(const std::string& relPath, int size);
+    void setTextFont(const std::string& fontPath, int size);
     /** Calls text.setColor(). */
     void setTextColor(const SDL_Color& inColor);
 

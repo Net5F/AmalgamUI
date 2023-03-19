@@ -7,12 +7,12 @@
 namespace AUI
 {
 /**
- * Displays an image using the "nine slice" scaling approach to maintain 
+ * Displays an image using the "nine slice" scaling approach to maintain
  * sharpness.
- * 
+ *
  * The nine slice approach slices the image into 9 pieces (a 3x3 grid).
- * The corners are used as-is. The sides get scaled in a single direction 
- * (vertical for the left/right sides, horizontal for the top/bottom. The 
+ * The corners are used as-is. The sides get scaled in a single direction
+ * (vertical for the left/right sides, horizontal for the top/bottom. The
  * center gets scaling in both directions.
  *
  * TODO: Add support for tiled borders.
@@ -32,13 +32,13 @@ public:
 
     /**
      * Sets the image that this widget will slice and render.
-     * 
+     *
      * @param imagePath  The full path to the image file.
      * @param sliceSizes  How far to slice into the image, in each direction.
      * @param renderExtent  The desired size of the generated texture.
      */
     void set(const std::string& imagePath, SliceSizes sliceSizes,
-                   const SDL_Rect& renderExtent);
+             const SDL_Rect& renderExtent);
 
     /**
      * Overridden to generate a new nine slice texture.
@@ -51,7 +51,7 @@ private:
      */
     void regenerateNineSliceTexture();
 
-    // Functions for copying the slices into the current render target (our 
+    // Functions for copying the slices into the current render target (our
     // new texture). Used by regenerateNineSliceTexture().
     void copyCorners(int sourceWidth, int sourceHeight);
     void copySides(int sourceWidth, int sourceHeight);

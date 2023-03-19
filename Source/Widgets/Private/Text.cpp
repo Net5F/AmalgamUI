@@ -286,26 +286,26 @@ void Text::refreshTexture()
     SDL_Surface* surface{nullptr};
     switch (renderMode) {
         case RenderMode::Solid: {
-            surface = TTF_RenderUTF8_Solid(&(*font),
-                                           textToRender->c_str(), color);
+            surface
+                = TTF_RenderUTF8_Solid(&(*font), textToRender->c_str(), color);
             break;
         }
         case RenderMode::Shaded: {
-            surface = TTF_RenderUTF8_Shaded(
-                &(*font), textToRender->c_str(), color, backgroundColor);
+            surface = TTF_RenderUTF8_Shaded(&(*font), textToRender->c_str(),
+                                            color, backgroundColor);
             break;
         }
         case RenderMode::Blended: {
-            surface = TTF_RenderUTF8_Blended(&(*font),
-                                             textToRender->c_str(), color);
+            surface = TTF_RenderUTF8_Blended(&(*font), textToRender->c_str(),
+                                             color);
             break;
         }
-        // Note: Removed because SDL_ttf on 22.04 doesn't support it.
-        //case RenderMode::LCD: {
-        //    surface = TTF_RenderUTF8_LCD(&(*font), textToRender->c_str(),
-        //                                 color, backgroundColor);
-        //    break;
-        //}
+            // Note: Removed because SDL_ttf on 22.04 doesn't support it.
+            // case RenderMode::LCD: {
+            //    surface = TTF_RenderUTF8_LCD(&(*font), textToRender->c_str(),
+            //                                 color, backgroundColor);
+            //    break;
+            //}
     }
     if (surface == nullptr) {
         AUI_LOG_FATAL("Failed to create surface.");

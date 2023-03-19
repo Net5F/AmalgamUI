@@ -15,8 +15,7 @@ void SimpleImage::set(const std::string& imagePath)
                      &(currentTexExtent.w), &(currentTexExtent.h));
 }
 
-void SimpleImage::set(const std::string& imagePath,
-                       const SDL_Rect& inTexExtent)
+void SimpleImage::set(const std::string& imagePath, const SDL_Rect& inTexExtent)
 {
     // Attempt to load the image (errors on failure).
     AssetCache& assetCache{Core::getAssetCache()};

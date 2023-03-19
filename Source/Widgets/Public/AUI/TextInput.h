@@ -43,7 +43,7 @@ public:
     /**
      * Enables this text input.
      *
-     * @post The text input will visually be in the Normal state and will 
+     * @post The text input will visually be in the Normal state and will
      *       respond to hover and click events.
      */
     void enable();
@@ -57,7 +57,7 @@ public:
     void disable();
 
     /**
-     * Sets the distance between the text and the border of the text box on 
+     * Sets the distance between the text and the border of the text box on
      * each side.
      */
     void setPadding(Padding inLogicalPadding);

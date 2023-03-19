@@ -8,7 +8,7 @@ namespace AUI
 /**
  * Displays a simple static image.
  *
- * If the render extent is larger or smaller than the source image, the image 
+ * If the render extent is larger or smaller than the source image, the image
  * will be squashed or stretched.
  */
 class SimpleImage : public ImageType
@@ -32,8 +32,7 @@ public:
      * @param imagePath  The full path to the image file.
      * @param inTexExtent  The extent within the texture to display.
      */
-    void set(const std::string& imagePath,
-             const SDL_Rect& inTexExtent);
+    void set(const std::string& imagePath, const SDL_Rect& inTexExtent);
 
     /**
      * Clears this image's current texture.

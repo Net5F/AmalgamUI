@@ -621,8 +621,8 @@ void TextInput::refreshTextScrollOffset()
     else if (textOffset < 0) {
         // There's text hanging off the left side. Are we still pushed against
         // the right bound? (Relevant after a backspace.)
-        SDL_Rect lastCharOffset{
-            text.calcCharacterOffset(static_cast<unsigned int>(text.asString().length()))};
+        SDL_Rect lastCharOffset{text.calcCharacterOffset(
+            static_cast<unsigned int>(text.asString().length()))};
         if (lastCharOffset.x < (textExtent.x + textExtent.w)) {
             // There's a gap to fill, scroll right.
             textOffset += ((textExtent.x + textExtent.w) - lastCharOffset.x);

@@ -3,7 +3,8 @@
 
 namespace AUI
 {
-std::shared_ptr<SDL_Texture> AssetCache::requestTexture(const std::string& imagePath)
+std::shared_ptr<SDL_Texture>
+    AssetCache::requestTexture(const std::string& imagePath)
 {
     // If the texture is already loaded, return it.
     auto it{textureCache.find(imagePath)};
@@ -19,8 +20,8 @@ std::shared_ptr<SDL_Texture> AssetCache::requestTexture(const std::string& image
     }
 
     // Wrap the texture in a shared_ptr.
-    std::shared_ptr<SDL_Texture> texture{
-        std::shared_ptr<SDL_Texture>(rawTexture, [](SDL_Texture* p) { SDL_DestroyTexture(p); })};
+    std::shared_ptr<SDL_Texture> texture{std::shared_ptr<SDL_Texture>(
+        rawTexture, [](SDL_Texture* p) { SDL_DestroyTexture(p); })};
 
     // Save the texture in the cache.
     textureCache[imagePath] = texture;
@@ -28,7 +29,8 @@ std::shared_ptr<SDL_Texture> AssetCache::requestTexture(const std::string& image
     return texture;
 }
 
-std::shared_ptr<TTF_Font> AssetCache::requestFont(const std::string& fontPath, int size)
+std::shared_ptr<TTF_Font> AssetCache::requestFont(const std::string& fontPath,
+                                                  int size)
 {
     // Prepare the cache ID for this font ("fontPath_size").
     std::string idString{fontPath};

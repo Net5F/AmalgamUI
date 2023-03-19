@@ -18,7 +18,7 @@ namespace AUI
  *
  * TODO: We need to find an appropriate time to prune the cache.
  *       If we made our own managed pointer, we could do it when references are
- *       dropped, or we could track how long an asset has gone without having 
+ *       dropped, or we could track how long an asset has gone without having
  *       any references and periodically remove old ones.
  */
 class AssetCache
@@ -35,14 +35,15 @@ public:
     std::shared_ptr<SDL_Texture> requestTexture(const std::string& imagePath);
 
     /**
-     * If a font associated with the given path and size is in the cache, 
+     * If a font associated with the given path and size is in the cache,
      * returns it.
      * If not, loads it and adds it to the cache, then returns it.
      *
      * @param fontPath  The full path to the font file.
      * @param size  The size of the font, in points.
      */
-    std::shared_ptr<TTF_Font> requestFont(const std::string& fontPath, int size);
+    std::shared_ptr<TTF_Font> requestFont(const std::string& fontPath,
+                                          int size);
 
 private:
     std::unordered_map<std::string, std::shared_ptr<SDL_Texture>> textureCache;

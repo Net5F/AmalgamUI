@@ -45,7 +45,7 @@ public:
         // Note: Removed because SDL_ttf on 22.04 doesn't support it.
         ///** Slowest, LCD subpixel quality, but has a box around it.
         //    Useful for small font sizes. */
-        //LCD
+        // LCD
     };
 
     /**

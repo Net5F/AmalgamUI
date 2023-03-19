@@ -6,7 +6,7 @@
 namespace AUI
 {
 void NineSliceImage::set(const std::string& imagePath, SliceSizes inSliceSizes,
-    const SDL_Rect& renderExtent)
+                         const SDL_Rect& renderExtent)
 {
     // Attempt to load the image (errors on failure).
     AssetCache& assetCache{Core::getAssetCache()};
@@ -38,8 +38,8 @@ void NineSliceImage::regenerateNineSliceTexture()
     Uint32 pixelFormat{};
     int sourceWidth{};
     int sourceHeight{};
-    SDL_QueryTexture(sourceTexture.get(), &pixelFormat, nullptr,
-                     &sourceWidth, &sourceHeight);
+    SDL_QueryTexture(sourceTexture.get(), &pixelFormat, nullptr, &sourceWidth,
+                     &sourceHeight);
 
     // Check that we have enough room to get our slices.
     AUI_ASSERT(sourceWidth > (sliceSizes.left + sliceSizes.right + 1),
@@ -76,24 +76,24 @@ void NineSliceImage::copyCorners(int sourceWidth, int sourceHeight)
     // Top left
     SDL_Rect sourceRect = {0, 0, sliceSizes.left, sliceSizes.top};
     SDL_Rect destRect = {0, 0, sliceSizes.left, sliceSizes.top};
-    SDL_RenderCopy(Core::getRenderer(), sourceTexture.get(),
-                   &sourceRect, &destRect);
+    SDL_RenderCopy(Core::getRenderer(), sourceTexture.get(), &sourceRect,
+                   &destRect);
 
     // Top right
     sourceRect = {(sourceWidth - sliceSizes.right), 0, sliceSizes.right,
                   sliceSizes.top};
     destRect = {(currentTexExtent.w - sliceSizes.right), 0, sliceSizes.right,
                 sliceSizes.top};
-    SDL_RenderCopy(Core::getRenderer(), sourceTexture.get(),
-                   &sourceRect, &destRect);
+    SDL_RenderCopy(Core::getRenderer(), sourceTexture.get(), &sourceRect,
+                   &destRect);
 
     // Bottom left
     sourceRect = {0, (sourceHeight - sliceSizes.bottom), sliceSizes.left,
                   sliceSizes.bottom};
     destRect = {0, (currentTexExtent.h - sliceSizes.bottom), sliceSizes.left,
                 sliceSizes.bottom};
-    SDL_RenderCopy(Core::getRenderer(), sourceTexture.get(),
-                   &sourceRect, &destRect);
+    SDL_RenderCopy(Core::getRenderer(), sourceTexture.get(), &sourceRect,
+                   &destRect);
 
     // Bottom right
     sourceRect
@@ -102,8 +102,8 @@ void NineSliceImage::copyCorners(int sourceWidth, int sourceHeight)
     destRect = {(currentTexExtent.w - sliceSizes.right),
                 (currentTexExtent.h - sliceSizes.bottom), sliceSizes.right,
                 sliceSizes.bottom};
-    SDL_RenderCopy(Core::getRenderer(), sourceTexture.get(),
-                   &sourceRect, &destRect);
+    SDL_RenderCopy(Core::getRenderer(), sourceTexture.get(), &sourceRect,
+                   &destRect);
 }
 
 void NineSliceImage::copySides(int sourceWidth, int sourceHeight)
@@ -113,11 +113,12 @@ void NineSliceImage::copySides(int sourceWidth, int sourceHeight)
     SDL_Rect sourceRect
         = {sliceSizes.left, 0,
            (sourceWidth - sliceSizes.left - sliceSizes.right), sliceSizes.top};
-    SDL_Rect destRect = {sliceSizes.left, 0,
-                (currentTexExtent.w - sliceSizes.left - sliceSizes.right),
-                sliceSizes.top};
-    SDL_RenderCopy(Core::getRenderer(), sourceTexture.get(),
-                   &sourceRect, &destRect);
+    SDL_Rect destRect
+        = {sliceSizes.left, 0,
+           (currentTexExtent.w - sliceSizes.left - sliceSizes.right),
+           sliceSizes.top};
+    SDL_RenderCopy(Core::getRenderer(), sourceTexture.get(), &sourceRect,
+                   &destRect);
 
     // Bottom
     sourceRect = {sliceSizes.left, (sourceHeight - sliceSizes.bottom),
@@ -126,16 +127,16 @@ void NineSliceImage::copySides(int sourceWidth, int sourceHeight)
     destRect = {sliceSizes.left, (currentTexExtent.h - sliceSizes.bottom),
                 (currentTexExtent.w - sliceSizes.left - sliceSizes.right),
                 sliceSizes.bottom};
-    SDL_RenderCopy(Core::getRenderer(), sourceTexture.get(),
-                   &sourceRect, &destRect);
+    SDL_RenderCopy(Core::getRenderer(), sourceTexture.get(), &sourceRect,
+                   &destRect);
 
     // Left
     sourceRect = {0, sliceSizes.top, sliceSizes.left,
                   (sourceHeight - sliceSizes.top - sliceSizes.bottom)};
     destRect = {0, sliceSizes.top, sliceSizes.left,
                 (currentTexExtent.h - sliceSizes.top - sliceSizes.bottom)};
-    SDL_RenderCopy(Core::getRenderer(), sourceTexture.get(),
-                   &sourceRect, &destRect);
+    SDL_RenderCopy(Core::getRenderer(), sourceTexture.get(), &sourceRect,
+                   &destRect);
 
     // Right
     sourceRect
@@ -144,21 +145,22 @@ void NineSliceImage::copySides(int sourceWidth, int sourceHeight)
     destRect = {(currentTexExtent.w - sliceSizes.right), sliceSizes.top,
                 sliceSizes.right,
                 (currentTexExtent.h - sliceSizes.top - sliceSizes.bottom)};
-    SDL_RenderCopy(Core::getRenderer(), sourceTexture.get(),
-                   &sourceRect, &destRect);
+    SDL_RenderCopy(Core::getRenderer(), sourceTexture.get(), &sourceRect,
+                   &destRect);
 }
 
 void NineSliceImage::copyCenter(int sourceWidth, int sourceHeight)
 {
     // Copy the center, stretching it in both directions to fit.
     SDL_Rect sourceRect = {sliceSizes.left, sliceSizes.top,
-                  (sourceWidth - sliceSizes.left - sliceSizes.right),
-                  (sourceHeight - sliceSizes.top - sliceSizes.bottom)};
-    SDL_Rect destRect = {sliceSizes.left, sliceSizes.top,
-                (currentTexExtent.w - sliceSizes.left - sliceSizes.right),
-                (currentTexExtent.h - sliceSizes.top - sliceSizes.bottom)};
-    SDL_RenderCopy(Core::getRenderer(), sourceTexture.get(),
-                   &sourceRect, &destRect);
+                           (sourceWidth - sliceSizes.left - sliceSizes.right),
+                           (sourceHeight - sliceSizes.top - sliceSizes.bottom)};
+    SDL_Rect destRect
+        = {sliceSizes.left, sliceSizes.top,
+           (currentTexExtent.w - sliceSizes.left - sliceSizes.right),
+           (currentTexExtent.h - sliceSizes.top - sliceSizes.bottom)};
+    SDL_RenderCopy(Core::getRenderer(), sourceTexture.get(), &sourceRect,
+                   &destRect);
 }
 
 } // namespace AUI

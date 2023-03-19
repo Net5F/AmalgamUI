@@ -3,7 +3,8 @@
 namespace AUI
 {
 
-void ImageType::refresh(const SDL_Rect& renderExtent) {
+void ImageType::refresh(const SDL_Rect& renderExtent)
+{
     ignore(renderExtent);
 }
 

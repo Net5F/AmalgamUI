@@ -3,7 +3,7 @@
 namespace AUI
 {
 /**
- * Used for controlling the space between a widget's border and its content, 
+ * Used for controlling the space between a widget's border and its content,
  * such as the distance between the text and the border of a TextInput.
  */
 struct Padding {

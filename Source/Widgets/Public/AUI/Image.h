@@ -11,10 +11,10 @@ namespace AUI
 {
 /**
  * Displays an image.
- * 
+ *
  * To use:
  *   1. Construct this widget.
- *   2. Use one of the "setXYZ" convenience functions to set the image to 
+ *   2. Use one of the "setXYZ" convenience functions to set the image to
  *      one of the built-in image types.
  *      Or, use setCustomImage() to set your own custom image type.
  *
@@ -22,10 +22,10 @@ namespace AUI
  *   SimpleImage
  *     Simply renders the image, stretching or squashing as needed.
  *   NineSliceImage
- *     Slices the image into 9 pieces, preserving the corners and stretching 
+ *     Slices the image into 9 pieces, preserving the corners and stretching
  *     the sides and center in a way that maintains image sharpness.
  *   MultiResImage
- *     Allows you to add multiple resolutions of an image, which will be 
+ *     Allows you to add multiple resolutions of an image, which will be
  *     selected between based on the current screen resolution.
  *   TiledImage
  *     Tiles the image.
@@ -76,7 +76,7 @@ public:
         ScreenResolution resolution{};
         /** The full path to the image file. */
         std::string imagePath{};
-        /** The extent within the texture to display. If left default, the 
+        /** The extent within the texture to display. If left default, the
             full image texture will be used. */
         SDL_Rect texExtent{};
     };
@@ -105,7 +105,7 @@ public:
     // Base class overrides
     //-------------------------------------------------------------------------
     /**
-     * Calls Widget::updateLayout() and refreshes the image if this widget's 
+     * Calls Widget::updateLayout() and refreshes the image if this widget's
      * renderExtent changed.
      */
     void updateLayout(const SDL_Rect& parentExtent,

@@ -16,7 +16,7 @@ class TiledImage : public ImageType
 public:
     /**
      * Sets the image that this widget will tile and render.
-     * 
+     *
      * @param imagePath  The full path to the image file.
      * @param renderExtent  The desired size of the generated texture.
      */

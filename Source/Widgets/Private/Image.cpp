@@ -17,16 +17,14 @@ Image::Image(const SDL_Rect& inLogicalExtent, const std::string& inDebugName)
 void Image::setSimpleImage(const std::string& imagePath)
 {
     imageType = std::make_unique<SimpleImage>();
-    SimpleImage* simpleImage{
-        static_cast<SimpleImage*>(imageType.get())};
+    SimpleImage* simpleImage{static_cast<SimpleImage*>(imageType.get())};
     simpleImage->set(imagePath);
 }
 
 void Image::setSimpleImage(const std::string& imagePath, SDL_Rect texExtent)
 {
     imageType = std::make_unique<SimpleImage>();
-    SimpleImage* simpleImage{
-        static_cast<SimpleImage*>(imageType.get())};
+    SimpleImage* simpleImage{static_cast<SimpleImage*>(imageType.get())};
     simpleImage->set(imagePath, texExtent);
 }
 
@@ -42,8 +40,7 @@ void Image::setNineSliceImage(const std::string& imagePath,
 void Image::setMultiResImage(const std::vector<MultiResImageInfo>& imageInfo)
 {
     imageType = std::make_unique<MultiResImage>();
-    MultiResImage* multiResImage{
-        static_cast<MultiResImage*>(imageType.get())};
+    MultiResImage* multiResImage{static_cast<MultiResImage*>(imageType.get())};
 
     for (const MultiResImageInfo& info : imageInfo) {
         if ((info.texExtent.x == 0) && (info.texExtent.y == 0)
@@ -60,12 +57,12 @@ void Image::setMultiResImage(const std::vector<MultiResImageInfo>& imageInfo)
 void Image::setTiledImage(const std::string& imagePath)
 {
     imageType = std::make_unique<TiledImage>();
-    TiledImage* tiledImage{
-        static_cast<TiledImage*>(imageType.get())};
+    TiledImage* tiledImage{static_cast<TiledImage*>(imageType.get())};
     tiledImage->set(imagePath, renderExtent);
 }
 
-void Image::setCustomImage(std::unique_ptr<ImageType> inImageType) {
+void Image::setCustomImage(std::unique_ptr<ImageType> inImageType)
+{
     imageType = std::move(inImageType);
 }
 
@@ -77,7 +74,7 @@ void Image::updateLayout(const SDL_Rect& parentExtent,
 
     // If this widget's renderExtent has changed.
     if (!SDL_RectEquals(&renderExtent, &lastUsedRenderExtent)) {
-        // Refresh the image, in case it needs to regenerate to match the 
+        // Refresh the image, in case it needs to regenerate to match the
         // new renderExtent.
         if (imageType != nullptr) {
             imageType->refresh(renderExtent);
@@ -97,8 +94,7 @@ void Image::render()
 
     // Render the image.
     SDL_RenderCopy(Core::getRenderer(), imageType->currentTexture.get(),
-                   &(imageType->currentTexExtent),
-                   &renderExtent);
+                   &(imageType->currentTexExtent), &renderExtent);
 }
 
 } // namespace AUI

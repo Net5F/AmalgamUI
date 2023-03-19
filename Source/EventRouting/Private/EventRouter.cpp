@@ -45,7 +45,7 @@ bool EventRouter::handleMouseButtonDown(SDL_MouseButtonEvent& event)
                                      (handlerReturn.handlerWidget + 1));
 
             if (!setFocusIfFocusable(truncatedPath)) {
-                // Nothing in truncatedPath took focus. We didn't re-click the 
+                // Nothing in truncatedPath took focus. We didn't re-click the
                 // focused widget (if there is one), so we need to drop it.
                 handleDropFocus(FocusLostType::Click);
             }

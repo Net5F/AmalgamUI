@@ -7,7 +7,7 @@
 namespace AUI
 {
 void MultiResImage::addResolution(const ScreenResolution& resolution,
-                          const std::string& imagePath)
+                                  const std::string& imagePath)
 {
     // If we already have the given resolution, fail.
     if (resolutionMap.find(resolution) != resolutionMap.end()) {
@@ -29,8 +29,8 @@ void MultiResImage::addResolution(const ScreenResolution& resolution,
 }
 
 void MultiResImage::addResolution(const ScreenResolution& resolution,
-                          const std::string& imagePath,
-                          const SDL_Rect& texExtent)
+                                  const std::string& imagePath,
+                                  const SDL_Rect& texExtent)
 {
     // Do all the same steps from the less specific overload.
     addResolution(resolution, imagePath);

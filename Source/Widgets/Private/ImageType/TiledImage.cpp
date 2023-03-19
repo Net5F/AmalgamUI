@@ -5,8 +5,7 @@
 
 namespace AUI
 {
-void TiledImage::set(const std::string& imagePath,
-    const SDL_Rect& renderExtent)
+void TiledImage::set(const std::string& imagePath, const SDL_Rect& renderExtent)
 {
     // Attempt to load the image (errors on failure).
     AssetCache& assetCache{Core::getAssetCache()};
@@ -36,8 +35,8 @@ void TiledImage::regenerateTiledTexture()
     Uint32 pixelFormat{};
     int sourceWidth{};
     int sourceHeight{};
-    SDL_QueryTexture(sourceTexture.get(), &pixelFormat, nullptr,
-                     &sourceWidth, &sourceHeight);
+    SDL_QueryTexture(sourceTexture.get(), &pixelFormat, nullptr, &sourceWidth,
+                     &sourceHeight);
 
     // Allocate the new texture.
     SDL_Texture* rawTexture{SDL_CreateTexture(

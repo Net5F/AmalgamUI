@@ -21,10 +21,14 @@ WidgetLocator::WidgetLocator(const SDL_Rect& inScreenExtent)
 void WidgetLocator::addWidget(Widget* widget)
 {
     SDL_Rect widgetRenderExtent{widget->getRenderExtent()};
-    AUI_ASSERT(SDLHelpers::rectInRect(widgetRenderExtent, gridScreenExtent),
+    AUI_ASSERT(SDL_HasIntersection(&widgetRenderExtent, &gridScreenExtent),
                "Tried to add a widget that is outside this locator's bounds. "
                "Widget name: %s",
                widget->getDebugName().c_str());
+
+    // Clip the widget to the locator's bounds.
+    SDL_IntersectRect(&widgetRenderExtent, &gridScreenExtent,
+                      &widgetRenderExtent);
 
     // Since widgetRenderExtent is relative to the whole screen, offset it to
     // be relative to our grid's extent (to match our cell coordinates).

@@ -9,6 +9,7 @@ target_sources(AmalgamUI
         Private/Checkbox.cpp
         Private/ConfirmationDialog.cpp
         Private/Container.cpp
+        Private/FlowContainer.cpp
         Private/Image.cpp
         Private/Text.cpp
         Private/TextInput.cpp
@@ -26,6 +27,7 @@ target_sources(AmalgamUI
         Public/AUI/Checkbox.h
         Public/AUI/ConfirmationDialog.h
         Public/AUI/Container.h
+        Public/AUI/FlowContainer.h
         Public/AUI/Image.h
         Public/AUI/Text.h
         Public/AUI/TextInput.h

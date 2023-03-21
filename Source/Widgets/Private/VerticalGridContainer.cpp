@@ -60,10 +60,10 @@ void VerticalGridContainer::updateLayout(const SDL_Rect& parentExtent,
     int maxVisibleRows{logicalExtent.h / logicalCellHeight};
 
     // Lay out our elements in a vertical grid.
-    for (unsigned int i = 0; i < elements.size(); ++i) {
+    for (std::size_t i = 0; i < elements.size(); ++i) {
         // Get the cell coordinates for this element.
-        unsigned int cellColumn{i % numColumns};
-        unsigned int cellRow{i / numColumns};
+        std::size_t cellColumn{i % numColumns};
+        std::size_t cellRow{i / numColumns};
 
         // If this element is offscreen, make it invisible (to ignore events)
         // and continue to the next.

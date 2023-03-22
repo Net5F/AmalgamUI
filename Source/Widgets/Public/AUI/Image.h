@@ -106,7 +106,7 @@ public:
     //-------------------------------------------------------------------------
     /**
      * Calls Widget::updateLayout() and refreshes the image if this widget's
-     * renderExtent changed.
+     * scaledExtent changed.
      */
     void updateLayout(const SDL_Rect& parentExtent,
                       WidgetLocator* widgetLocator) override;
@@ -116,9 +116,9 @@ public:
 private:
     std::unique_ptr<ImageType> imageType;
 
-    /** The value of renderExtent that was last used to render this widget.
+    /** The value of scaledExtent that was last used to render this widget.
         Used to detect when to refresh the image. */
-    SDL_Rect lastUsedRenderExtent;
+    SDL_Rect lastUsedScaledExtent;
 };
 
 } // namespace AUI

@@ -155,9 +155,6 @@ private:
 
     /**
      * Routes a MouseMove to the widgets in hoverPath.
-     * Diffs hoverPath with lastHoveredWidgetPath. Widgets that are newly
-     * hovered get routed a MouseEnter, while widgets that left are routed
-     * a MouseLeave.
      */
     EventResult handleUncapturedMouseMove(const SDL_Point& cursorPosition,
                                           WidgetPath& hoverPath);

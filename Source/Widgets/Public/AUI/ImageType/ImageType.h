@@ -14,10 +14,10 @@ public:
      * Call this when the UI scale changes, so the derived type can regenerate
      * the image if necessary.
      *
-     * @param renderExtent  The extent of the parent Image widget. Some image
+     * @param scaledExtent  The extent of the parent Image widget. Some image
      *                      types use this in their render logic.
      */
-    virtual void refresh(const SDL_Rect& renderExtent);
+    virtual void refresh(const SDL_Rect& scaledExtent);
 
 protected:
     // Friend class so Image::render() can use these fields, but outside users

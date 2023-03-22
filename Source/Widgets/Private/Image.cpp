@@ -10,7 +10,7 @@ namespace AUI
 Image::Image(const SDL_Rect& inLogicalExtent, const std::string& inDebugName)
 : Widget(inLogicalExtent, inDebugName)
 , imageType{nullptr}
-, lastUsedRenderExtent{}
+, lastUsedScaledExtent{}
 {
 }
 
@@ -34,7 +34,7 @@ void Image::setNineSliceImage(const std::string& imagePath,
     imageType = std::make_unique<NineSliceImage>();
     NineSliceImage* nineSliceImage{
         static_cast<NineSliceImage*>(imageType.get())};
-    nineSliceImage->set(imagePath, sliceSizes, renderExtent);
+    nineSliceImage->set(imagePath, sliceSizes, scaledExtent);
 }
 
 void Image::setMultiResImage(const std::vector<MultiResImageInfo>& imageInfo)
@@ -58,7 +58,7 @@ void Image::setTiledImage(const std::string& imagePath)
 {
     imageType = std::make_unique<TiledImage>();
     TiledImage* tiledImage{static_cast<TiledImage*>(imageType.get())};
-    tiledImage->set(imagePath, renderExtent);
+    tiledImage->set(imagePath, scaledExtent);
 }
 
 void Image::setCustomImage(std::unique_ptr<ImageType> inImageType)
@@ -72,15 +72,15 @@ void Image::updateLayout(const SDL_Rect& parentExtent,
     // Do the normal layout updating.
     Widget::updateLayout(parentExtent, widgetLocator);
 
-    // If this widget's renderExtent has changed.
-    if (!SDL_RectEquals(&renderExtent, &lastUsedRenderExtent)) {
+    // If this widget's scaledExtent has changed.
+    if (!SDL_RectEquals(&scaledExtent, &lastUsedScaledExtent)) {
         // Refresh the image, in case it needs to regenerate to match the
-        // new renderExtent.
+        // new scaledExtent.
         if (imageType != nullptr) {
-            imageType->refresh(renderExtent);
+            imageType->refresh(scaledExtent);
         }
 
-        lastUsedRenderExtent = renderExtent;
+        lastUsedScaledExtent = scaledExtent;
     }
 }
 

@@ -50,9 +50,9 @@ void MultiResImage::clear()
     resolutionMap.clear();
 }
 
-void MultiResImage::refresh(const SDL_Rect& renderExtent)
+void MultiResImage::refresh(const SDL_Rect& scaledExtent)
 {
-    ignore(renderExtent);
+    ignore(scaledExtent);
 
     // Re-calculate which resolution of texture to use.
     refreshChosenResolution();

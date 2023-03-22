@@ -6,7 +6,7 @@
 namespace AUI
 {
 void NineSliceImage::set(const std::string& imagePath, SliceSizes inSliceSizes,
-                         const SDL_Rect& renderExtent)
+                         const SDL_Rect& scaledExtent)
 {
     // Attempt to load the image (errors on failure).
     AssetCache& assetCache{Core::getAssetCache()};
@@ -16,18 +16,18 @@ void NineSliceImage::set(const std::string& imagePath, SliceSizes inSliceSizes,
     sliceSizes = inSliceSizes;
 
     // We're going to generate a texture as large as the given extent.
-    currentTexExtent.w = renderExtent.w;
-    currentTexExtent.h = renderExtent.h;
+    currentTexExtent.w = scaledExtent.w;
+    currentTexExtent.h = scaledExtent.h;
 
     // Re-generate our nine slice texture.
     regenerateNineSliceTexture();
 }
 
-void NineSliceImage::refresh(const SDL_Rect& renderExtent)
+void NineSliceImage::refresh(const SDL_Rect& scaledExtent)
 {
     // Set the new desired extent.
-    currentTexExtent.w = renderExtent.w;
-    currentTexExtent.h = renderExtent.h;
+    currentTexExtent.w = scaledExtent.w;
+    currentTexExtent.h = scaledExtent.h;
 
     // Re-generate our nine slice texture.
     regenerateNineSliceTexture();

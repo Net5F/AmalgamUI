@@ -61,7 +61,7 @@ public:
     /**
      * Overridden to choose the proper resolution of texture to use.
      */
-    void refresh(const SDL_Rect& renderExtent) override;
+    void refresh(const SDL_Rect& scaledExtent) override;
 
 private:
     /**

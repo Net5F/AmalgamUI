@@ -226,8 +226,8 @@ public:
      *                      to their parent's position and clip themselves to
      *                      their parent's bounds (unless intentionally
      *                      overflowing).
-     * @param widgetLocator  (If non-nullptr) The widget locator for this
-     *                       widget to add itself to after updating.
+     * @param widgetLocator  (If non-nullptr) The widget locator that this
+     *                       widget should add itself to after updating.
      * @post renderExtent is properly positioned for use in rendering and
      *       hit testing.
      */
@@ -240,10 +240,6 @@ public:
      * The default implementation simply calls render() on all widgets in our
      * children list. Some overrides may directly call SDL functions like
      * SDL_RenderCopy().
-     *
-     * @param parentOffset  The offset that should be added to this widget's
-     *                      position before rendering. Used by parent classes
-     *                      to control the layout of their children.
      */
     virtual void render();
 
@@ -278,8 +274,9 @@ protected:
      */
     virtual bool refreshScaling();
 
+    // TODO: Can we replace this with SDL_IntersectRect?
     /**
-     * Returns an extent equal to sourceExtent, adjusted to not go beyond the
+     * Returns an extent equal to sourceExtent, clipped to not go beyond the
      * bounds of clipExtent.
      */
     SDL_Rect calcClippedExtent(const SDL_Rect& sourceExtent,

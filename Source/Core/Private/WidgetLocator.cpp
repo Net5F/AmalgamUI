@@ -49,7 +49,7 @@ void WidgetLocator::addWidget(Widget* widget)
     for (int x = widgetCellExtent.x; x < xMax; ++x) {
         for (int y = widgetCellExtent.y; y < yMax; ++y) {
             // Add the widget to this cell's widget array.
-            unsigned int linearizedIndex{linearizeCellIndex(x, y)};
+            std::size_t linearizedIndex{linearizeCellIndex(x, y)};
             std::vector<WidgetWeakRef>& widgetVec{widgetGrid[linearizedIndex]};
 
             widgetVec.emplace_back(*widget);
@@ -78,11 +78,11 @@ WidgetPath WidgetLocator::getPathUnderPoint(const SDL_Point& actualPoint)
         "Tried to get path for a point that is outside this locator's bounds.");
 
     // Get the cell that contains the given point.
-    unsigned int hitCellX{static_cast<unsigned int>(
+    std::size_t hitCellX{static_cast<unsigned int>(
         (actualPoint.x - gridScreenExtent.x) / cellWidth)};
-    unsigned int hitCellY{static_cast<unsigned int>(
+    std::size_t hitCellY{static_cast<unsigned int>(
         (actualPoint.y - gridScreenExtent.y) / cellWidth)};
-    unsigned int hitCellIndex{linearizeCellIndex(hitCellX, hitCellY)};
+    std::size_t hitCellIndex{linearizeCellIndex(hitCellX, hitCellY)};
     std::vector<WidgetWeakRef>& widgetVec{widgetGrid[hitCellIndex]};
 
     // Iterate the widgets in the cell, adding them to the path if they're
@@ -142,7 +142,7 @@ void WidgetLocator::clearWidgetLocation(Widget* widget,
     for (int x = cellClearExtent.x; x < xMax; ++x) {
         for (int y = cellClearExtent.y; y < yMax; ++y) {
             // Find the widget's location in this cell's widget vector.
-            unsigned int linearizedIndex{linearizeCellIndex(x, y)};
+            std::size_t linearizedIndex{linearizeCellIndex(x, y)};
             std::vector<WidgetWeakRef>& widgetVec{widgetGrid[linearizedIndex]};
 
             auto widgetEquals{[&widget](const WidgetWeakRef& other) {

@@ -34,6 +34,8 @@ void Window::updateLayout(const SDL_Rect& parentExtent)
 
     // Calculate our new extent to render at.
     renderExtent = scaledExtent;
+
+    // TODO: Can we get rid of this since windows don't have a parent?
     renderExtent.x += parentExtent.x;
     renderExtent.y += parentExtent.y;
     // TODO: Should we clip here to fit parentExtent?

@@ -18,14 +18,14 @@ public:
      * Sets the image that this widget will tile and render.
      *
      * @param imagePath  The full path to the image file.
-     * @param renderExtent  The desired size of the generated texture.
+     * @param scaledExtent  The desired size of the generated texture.
      */
-    void set(const std::string& imagePath, const SDL_Rect& renderExtent);
+    void set(const std::string& imagePath, const SDL_Rect& scaledExtent);
 
     /**
      * Overridden to generate a new tiled image texture.
      */
-    void refresh(const SDL_Rect& renderExtent) override;
+    void refresh(const SDL_Rect& scaledExtent) override;
 
 private:
     /**

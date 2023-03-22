@@ -120,7 +120,7 @@ private:
      * Returns the index in the widgetGrid vector where the cell with the given
      * coordinates can be found.
      */
-    inline unsigned int linearizeCellIndex(int x, int y) const
+    inline std::size_t linearizeCellIndex(int x, int y) const
     {
         return (y * gridCellExtent.w) + x;
     }

@@ -44,6 +44,8 @@ class Screen;
  *   setting the dropFocus field in EventResult, or implicitly by using the
  *   setFocus field to switch focus to a new widget.
  *
+ *   TODO: Implement KeyDown listeners/registration in Screen and explain it 
+ *         here.
  *   KeyDown events can also be received by registering as a listener. If the
  *   focus target doesn't handle the KeyDown, it will then be routed to any
  *   registered listeners. TODO: Explain how to register

@@ -78,12 +78,13 @@ void Container::onTick(double timestepS)
     }
 }
 
-void Container::updateLayout(const SDL_Rect& parentExtent,
-                             WidgetLocator* widgetLocator)
+void Container::updateLayout(const SDL_Point& startPosition,
+                              const SDL_Rect& availableExtent,
+                              WidgetLocator* widgetLocator)
 {
     // Run the normal layout step (will update us, but won't process any of
     // our elements).
-    Widget::updateLayout(parentExtent, widgetLocator);
+    Widget::updateLayout(startPosition, availableExtent, widgetLocator);
 
     // Update our visible element's layouts and add them to the locator.
     // Note: We skip invisible elements since they won't be rendered. If we
@@ -91,7 +92,7 @@ void Container::updateLayout(const SDL_Rect& parentExtent,
     //       perhaps), we can do so.
     for (std::unique_ptr<Widget>& element : elements) {
         if (element->getIsVisible()) {
-            element->updateLayout(renderExtent, widgetLocator);
+            element->updateLayout({clippedExtent.x, clippedExtent.y}, clippedExtent, widgetLocator);
         }
     }
 }

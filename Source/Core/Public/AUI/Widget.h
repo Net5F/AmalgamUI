@@ -47,9 +47,10 @@ public:
      * If this widget's screen extent contains the given point, returns
      * true. Else, returns false.
      *
-     * @param actualPoint  A point in actual screen space.
+     * @param windowPoint  A point on the screen, relative to the top left of 
+     *                     this widget's parent window.
      */
-    bool containsPoint(const SDL_Point& actualPoint);
+    bool containsPoint(const SDL_Point& windowPoint);
 
     /**
      * Sets the widget's logical extent to the given extent and
@@ -61,8 +62,10 @@ public:
     SDL_Rect getLogicalExtent() const;
     /** See Widget::scaledExtent. */
     SDL_Rect getScaledExtent() const;
-    /** See Widget::renderExtent. */
-    SDL_Rect getRenderExtent() const;
+    /** See Widget::fullExtent. */
+    SDL_Rect getFullExtent() const;
+    /** See Widget::clippedExtent. */
+    SDL_Rect getClippedExtent() const;
 
     const std::string& getDebugName() const;
 
@@ -219,19 +222,22 @@ public:
     virtual void onTick(double timestepS);
 
     /**
-     * Refreshes this widget's scaling, and updates its renderExtent.
+     * Updates this widget's extents to be properly scaled and positioned 
+     * within the parent window.
      *
-     * @param parentExtent  The parent widget's renderExtent.
-     *                      Child widgets should position themselves relative
-     *                      to their parent's position and clip themselves to
-     *                      their parent's bounds (unless intentionally
-     *                      overflowing).
+     * @param startPosition  The position where this widget should begin its
+     *                       layout. Typically will be equal to the parent's 
+     *                       top left, though containers may use this to add 
+     *                       additional offsets while arranging their elements.
+     * @param availableExtent  The available space for this widget to take up.
      * @param widgetLocator  (If non-nullptr) The widget locator that this
      *                       widget should add itself to after updating.
-     * @post renderExtent is properly positioned for use in rendering and
-     *       hit testing.
+     * @post offsetExtent and clippedExtent are properly positioned.
+     *       clippedExtent is clipped to the given availableExtent and is ready
+     *       for use in rendering and hit testing.
      */
-    virtual void updateLayout(const SDL_Rect& parentExtent,
+    virtual void updateLayout(const SDL_Point& startPosition,
+                              const SDL_Rect& availableExtent,
                               WidgetLocator* widgetLocator);
 
     /**
@@ -264,48 +270,27 @@ public:
 protected:
     Widget(const SDL_Rect& inLogicalExtent, const std::string& inDebugName);
 
-    /**
-     * Checks if Core::actualScreenSize has changed since the last time this
-     * widget's scaledExtent was calculated. If so, re-calculates
-     * scaledExtent, scaling it to the new actualScreenSize.
-     *
-     * This implementation is sufficient for refreshing renderExtent, but must
-     * be overridden if your widget has other scaling needs.
-     */
-    virtual bool refreshScaling();
-
-    // TODO: Can we replace this with SDL_IntersectRect?
-    /**
-     * Returns an extent equal to sourceExtent, clipped to not go beyond the
-     * bounds of clipExtent.
-     */
-    SDL_Rect calcClippedExtent(const SDL_Rect& sourceExtent,
-                               const SDL_Rect& clipExtent);
-
     /** An optional user-assigned name associated with this widget.
         Only useful for debugging. For performance reasons, avoid using it
         in real logic. */
     std::string debugName;
 
-    /** The widget's logical screen extent, i.e. the position/size of the
+    /** This widget's logical screen extent, i.e. the position/size of the
         widget relative to the UI's logical size. */
     SDL_Rect logicalExtent;
 
-    /** The widget's logical screen extent, scaled to match the current UI
-        scaling. The position of this extent does not account for any offsets,
-        such as those passed by parents. */
+    /** This widget's scaled screen extent. Equal to logicalExtent, but scaled 
+        to match the current UI scaling. */
     SDL_Rect scaledExtent;
 
-    /** The actual screen extent of this widget after the last updateLayout()
-        call. This is the actual location that this widget will be rendered at.
-        Generally equal to scaledExtent + any offsets added by parent widgets.
-        Used in rendering and hit testing for events. */
-    SDL_Rect renderExtent;
+    /** This widget's full window-relative extent within the layout. Equal to 
+        scaledExtent, but offset to be positioned within the parent.  */
+    SDL_Rect fullExtent;
 
-    /** The value of Core::actualScreenSize that was used the last time this
-        widget calculated its actualScreenExtent.
-        Used to detect when to re-calculate actualScreenExtent. */
-    ScreenResolution lastUsedScreenSize;
+    /** This widget's final window-relative extent within the layout. Equal to 
+        fullExtent, but clipped to fit within the parent. Ready for use in 
+        rendering and hit testing for events. */
+    SDL_Rect clippedExtent;
 
     /** If true, this widget will be rendered and will respond to events. */
     bool isVisible;

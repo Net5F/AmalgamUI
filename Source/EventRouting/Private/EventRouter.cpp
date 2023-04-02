@@ -265,7 +265,7 @@ WidgetPath EventRouter::getPathUnderCursor(const SDL_Point& cursorPosition)
 WidgetPath EventRouter::getPathUnderWidget(const Widget* widget)
 {
     // Calc the center of the given widget.
-    SDL_Rect widgetExtent{widget->getRenderExtent()};
+    SDL_Rect widgetExtent{widget->getClippedExtent()};
     SDL_Point widgetCenter{};
     widgetCenter.x = widgetExtent.x + (widgetExtent.w / 2);
     widgetCenter.y = widgetExtent.y + (widgetExtent.h / 2);

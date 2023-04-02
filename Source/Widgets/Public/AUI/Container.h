@@ -71,8 +71,9 @@ public:
     //-------------------------------------------------------------------------
     void onTick(double timestepS) override;
 
-    void updateLayout(const SDL_Rect& parentExtent,
-                      WidgetLocator* widgetLocator) override;
+    void updateLayout(const SDL_Point& startPosition,
+                              const SDL_Rect& availableExtent,
+                              WidgetLocator* widgetLocator) override;
 
     void render() override;
 

@@ -16,8 +16,8 @@ Widget::Widget(const SDL_Rect& inLogicalExtent, const std::string& inDebugName)
 : debugName{inDebugName}
 , logicalExtent{inLogicalExtent}
 , scaledExtent{ScalingHelpers::logicalToActual(logicalExtent)}
-, renderExtent{scaledExtent}
-, lastUsedScreenSize{Core::getActualScreenSize()}
+, fullExtent{scaledExtent}
+, clippedExtent{fullExtent}
 , isVisible{true}
 , isFocusable{false}
 {
@@ -33,9 +33,9 @@ Widget::~Widget()
     Core::decWidgetCount();
 }
 
-bool Widget::containsPoint(const SDL_Point& actualPoint)
+bool Widget::containsPoint(const SDL_Point& windowPoint)
 {
-    return SDLHelpers::pointInRect(actualPoint, renderExtent);
+    return SDLHelpers::pointInRect(windowPoint, clippedExtent);
 }
 
 void Widget::setLogicalExtent(const SDL_Rect& inLogicalExtent)
@@ -43,8 +43,7 @@ void Widget::setLogicalExtent(const SDL_Rect& inLogicalExtent)
     // Set our logical screen extent.
     logicalExtent = inLogicalExtent;
 
-    // Re-calculate our scaled screen extent.
-    scaledExtent = ScalingHelpers::logicalToActual(logicalExtent);
+    // TODO: Invalidate the layout
 }
 
 SDL_Rect Widget::getLogicalExtent() const
@@ -57,9 +56,14 @@ SDL_Rect Widget::getScaledExtent() const
     return scaledExtent;
 }
 
-SDL_Rect Widget::getRenderExtent() const
+SDL_Rect Widget::getFullExtent() const
 {
-    return renderExtent;
+    return fullExtent;
+}
+
+SDL_Rect Widget::getClippedExtent() const
+{
+    return clippedExtent;
 }
 
 const std::string& Widget::getDebugName() const
@@ -174,30 +178,33 @@ void Widget::onTick(double timestepS)
     }
 }
 
-void Widget::updateLayout(const SDL_Rect& parentExtent,
+void Widget::updateLayout(const SDL_Point& startPosition, const SDL_Rect& availableExtent,
                           WidgetLocator* widgetLocator)
 {
-    // Keep our extent up to date.
-    refreshScaling();
+    // Scale our logicalExtent to get our scaledExtent.
+    scaledExtent = ScalingHelpers::logicalToActual(logicalExtent);
 
-    // Calculate our new extent to render at.
-    renderExtent = scaledExtent;
-    renderExtent.x += parentExtent.x;
-    renderExtent.y += parentExtent.y;
-    // TODO: Should we clip here to fit parentExtent?
+    // Offset our scaledExtent to get our fullExtent.
+    fullExtent = scaledExtent;
+    fullExtent.x += startPosition.x;
+    fullExtent.y += startPosition.y;
+
+    // Clip fullExtent to the available space to get our clippedExtent.
+    SDL_IntersectRect(&fullExtent, &availableExtent, &clippedExtent);
 
     // If we were given a valid locator, add ourselves to it.
     if (widgetLocator != nullptr) {
         widgetLocator->addWidget(this);
     }
 
-    // Update our visible children's layouts and add them to the locator.
-    // Note: We skip invisible children since they won't be rendered. If we
-    //       need to process invisible children (for the widget locator's use,
-    //       perhaps), we can change this.
+    // Update our visible children's layouts and let them add themselves to 
+    // the locator.
+    // Note: We skip invisible children since they won't be rendered or receive
+    //       events.
     for (Widget& child : children) {
         if (child.getIsVisible()) {
-            child.updateLayout(renderExtent, widgetLocator);
+            child.updateLayout({clippedExtent.x, clippedExtent.y},
+                               clippedExtent, widgetLocator);
         }
     }
 }
@@ -230,62 +237,6 @@ void Widget::untrackRef(WidgetWeakRef* ref)
 std::size_t Widget::getRefCount()
 {
     return trackedRefs.size();
-}
-
-bool Widget::refreshScaling()
-{
-    // If the screen size has changed.
-    if (lastUsedScreenSize != Core::getActualScreenSize()) {
-        // Re-calculate our scaled extent.
-        scaledExtent = ScalingHelpers::logicalToActual(logicalExtent);
-
-        // Save the new size.
-        lastUsedScreenSize = Core::getActualScreenSize();
-
-        return true;
-    }
-
-    return false;
-}
-
-SDL_Rect Widget::calcClippedExtent(const SDL_Rect& sourceExtent,
-                                   const SDL_Rect& clipExtent)
-{
-    // If the clipping extent has no width or height, don't clip.
-    if ((clipExtent.w == 0) || (clipExtent.h == 0)) {
-        AUI_LOG_INFO("Tried to clip using a clipExtent with either no width or"
-                     " no height.");
-        return sourceExtent;
-    }
-
-    // If we're beyond the left bound of clipExtent, set it as our x.
-    SDL_Rect clippedExtent{sourceExtent};
-    int leftDiff = clipExtent.x - sourceExtent.x;
-    if (leftDiff > 0) {
-        clippedExtent.x = clipExtent.x;
-    }
-
-    // If we're beyond the right bound of clipExtent, decrease width to fit.
-    int rightDiff
-        = (clippedExtent.x + clippedExtent.w) - (clipExtent.x + clipExtent.w);
-    if (rightDiff > 0) {
-        clippedExtent.w -= rightDiff;
-    }
-
-    // If we're beyond the top bound of clipExtent, set it as our y.
-    int topDiff = clipExtent.y - sourceExtent.y;
-    if (topDiff > 0) {
-        clippedExtent.y = clipExtent.y;
-    }
-
-    // If we're beyond the bottom bound of clipExtent, decrease height to fit.
-    int bottomDiff
-        = (clippedExtent.y + clippedExtent.h) - (clipExtent.y + clipExtent.h);
-    if (bottomDiff > 0) {
-        clippedExtent.h -= bottomDiff;
-    }
-
-    return clippedExtent;
 }
 
 } // namespace AUI

@@ -45,14 +45,9 @@ public:
     //-------------------------------------------------------------------------
     EventResult onMouseWheel(int amountScrolled) override;
 
-    void updateLayout(const SDL_Rect& parentExtent,
-                      WidgetLocator* widgetLocator) override;
-
-protected:
-    /**
-     * Overridden to properly scale cell size.
-     */
-    bool refreshScaling() override;
+    void updateLayout(const SDL_Point& startPosition,
+                              const SDL_Rect& availableExtent,
+                              WidgetLocator* widgetLocator) override;
 
 private:
     /** The default logical pixel width of this container's cells. */

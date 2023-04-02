@@ -22,7 +22,7 @@ Window* Screen::getWindowUnderPoint(const SDL_Point& point)
         }
 
         // If the window contains the given point, return it.
-        if (SDLHelpers::pointInRect(point, window.getRenderExtent())) {
+        if (SDLHelpers::pointInRect(point, window.getClippedExtent())) {
             return &window;
         }
     }
@@ -81,13 +81,10 @@ void Screen::tick(double timestepS)
 
 void Screen::render()
 {
-    // TODO: Combine the update and render into 1 loop and test.
     // Update our visible window's layouts.
     for (Window& window : windows) {
         if (window.getIsVisible()) {
-            ScreenResolution actualScreenSize{Core::getActualScreenSize()};
-            window.updateLayout(
-                {0, 0, actualScreenSize.width, actualScreenSize.height});
+            window.updateLayout();
         }
     }
 

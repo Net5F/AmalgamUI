@@ -49,12 +49,16 @@ EventResult VerticalGridContainer::onMouseWheel(int amountScrolled)
     return EventResult{.wasHandled{true}};
 }
 
-void VerticalGridContainer::updateLayout(const SDL_Rect& parentExtent,
-                                         WidgetLocator* widgetLocator)
+void VerticalGridContainer::updateLayout(const SDL_Point& newParentOffset, const SDL_Rect& newClipExtent,
+                          WidgetLocator* widgetLocator)
 {
     // Run the normal layout step (will update us, but won't process any of
     // our elements).
-    Widget::updateLayout(parentExtent, widgetLocator);
+    Widget::updateLayout(newParentOffset, newClipExtent, widgetLocator);
+
+    // Refresh the cell width and height.
+    scaledCellWidth = ScalingHelpers::logicalToActual(logicalCellWidth);
+    scaledCellHeight = ScalingHelpers::logicalToActual(logicalCellHeight);
 
     // Calc how many rows can fit onscreen at once.
     int maxVisibleRows{logicalExtent.h / logicalCellHeight};
@@ -85,26 +89,13 @@ void VerticalGridContainer::updateLayout(const SDL_Rect& parentExtent,
         cellYOffset -= (rowScroll * scaledCellHeight);
 
         // Add this widget's offset to get our final offset.
-        int finalX{renderExtent.x + cellXOffset};
-        int finalY{renderExtent.y + cellYOffset};
-        elements[i]->updateLayout({finalX, finalY, (finalX + scaledCellWidth),
+        int finalX{clippedExtent.x + cellXOffset};
+        int finalY{clippedExtent.y + cellYOffset};
+        elements[i]->updateLayout({finalX, finalY},
+                                  {finalX, finalY, (finalX + scaledCellWidth),
                                    (finalY + scaledCellHeight)},
                                   widgetLocator);
     }
-}
-
-bool VerticalGridContainer::refreshScaling()
-{
-    // If actualScreenExtent was refreshed, do our specialized refreshing.
-    if (Widget::refreshScaling()) {
-        // Refresh the cell width and height.
-        scaledCellWidth = ScalingHelpers::logicalToActual(logicalCellWidth);
-        scaledCellHeight = ScalingHelpers::logicalToActual(logicalCellHeight);
-
-        return true;
-    }
-
-    return false;
 }
 
 void VerticalGridContainer::scrollElements(bool scrollUp)

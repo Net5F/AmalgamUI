@@ -10,7 +10,6 @@ namespace AUI
 Image::Image(const SDL_Rect& inLogicalExtent, const std::string& inDebugName)
 : Widget(inLogicalExtent, inDebugName)
 , imageType{nullptr}
-, lastUsedScaledExtent{}
 {
 }
 
@@ -66,21 +65,21 @@ void Image::setCustomImage(std::unique_ptr<ImageType> inImageType)
     imageType = std::move(inImageType);
 }
 
-void Image::updateLayout(const SDL_Rect& parentExtent,
-                         WidgetLocator* widgetLocator)
+void Image::updateLayout(const SDL_Point& newParentOffset, const SDL_Rect& newClipExtent,
+                          WidgetLocator* widgetLocator)
 {
-    // Do the normal layout updating.
-    Widget::updateLayout(parentExtent, widgetLocator);
+    const SDL_Rect oldScaledExtent{scaledExtent};
 
-    // If this widget's scaledExtent has changed.
-    if (!SDL_RectEquals(&scaledExtent, &lastUsedScaledExtent)) {
+    // Do the normal layout updating.
+    Widget::updateLayout(newParentOffset, newClipExtent, widgetLocator);
+
+    // If this widget's size has changed.
+    if (!SDL_RectEquals(&scaledExtent, &oldScaledExtent)) {
         // Refresh the image, in case it needs to regenerate to match the
-        // new scaledExtent.
+        // new size.
         if (imageType != nullptr) {
             imageType->refresh(scaledExtent);
         }
-
-        lastUsedScaledExtent = scaledExtent;
     }
 }
 
@@ -92,9 +91,30 @@ void Image::render()
                       debugName.c_str());
     }
 
+    // If this widget is partially clipped, calculate a matching clipped 
+    // extent for the texture.
+    SDL_Rect clippedTexExtent{imageType->currentTexExtent};
+    if (!SDL_RectEquals(&fullExtent, &clippedExtent)) {
+        // Calc the size difference factor between the texture's extent and 
+        // this widget's full extent.
+        double widthDiffFactor{imageType->currentTexExtent.w
+                               / static_cast<double>(fullExtent.w)};
+        double heightDiffFactor{imageType->currentTexExtent.h
+                                / static_cast<double>(fullExtent.h)};
+
+        // Calc the size of the clipped region and scale it using the 
+        // difference factor.
+        clippedTexExtent.x += static_cast<int>((clippedExtent.x - fullExtent.x)
+                                               * widthDiffFactor);
+        clippedTexExtent.y += static_cast<int>((clippedExtent.y - fullExtent.y)
+                                               * heightDiffFactor);
+        clippedTexExtent.w *= static_cast<int>(widthDiffFactor);
+        clippedTexExtent.h *= static_cast<int>(heightDiffFactor);
+    }
+
     // Render the image.
     SDL_RenderCopy(Core::getRenderer(), imageType->currentTexture.get(),
-                   &(imageType->currentTexExtent), &renderExtent);
+                   &clippedTexExtent, &clippedExtent);
 }
 
 } // namespace AUI

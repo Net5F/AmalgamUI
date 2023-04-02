@@ -27,35 +27,34 @@ void Window::tick(double timestepS)
     }
 }
 
-void Window::updateLayout(const SDL_Rect& parentExtent)
+void Window::updateLayout()
 {
-    // Keep our extent up to date.
-    refreshScaling();
+    // Scale our logicalExtent to get our scaledExtent.
+    scaledExtent = ScalingHelpers::logicalToActual(logicalExtent);
 
-    // Calculate our new extent to render at.
-    renderExtent = scaledExtent;
+    // Windows don't have a parent, so scaledExtent is their final extent in 
+    // the layout.
+    fullExtent = scaledExtent;
+    clippedExtent = scaledExtent;
 
-    // TODO: Can we get rid of this since windows don't have a parent?
-    renderExtent.x += parentExtent.x;
-    renderExtent.y += parentExtent.y;
-    // TODO: Should we clip here to fit parentExtent?
-
-    // Clear the stale widgets from the locator.
+    // Clear the locator, to prepare for widgets re-adding themselves.
     widgetLocator.clear();
 
-    // Update the locator to match our new screen extent.
-    widgetLocator.setExtent(renderExtent);
+    // Update the locator to match our current screen extent.
+    widgetLocator.setExtent(scaledExtent);
 
     // Add ourself to the locator.
     widgetLocator.addWidget(this);
 
-    // Update our visible children's layouts and add them to the locator.
+    // Update our visible children's layouts and let them add themselves to 
+    // the locator.
     // Note: We skip invisible children since they won't be rendered. If we
     //       need to process invisible children (for the widget locator's use,
     //       perhaps), we can change this.
     for (Widget& child : children) {
         if (child.getIsVisible()) {
-            child.updateLayout(renderExtent, &widgetLocator);
+            child.updateLayout({scaledExtent.x, scaledExtent.y}, scaledExtent,
+                               &widgetLocator);
         }
     }
 }

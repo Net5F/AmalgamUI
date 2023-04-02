@@ -36,8 +36,8 @@ EventResult FlowContainer::onMouseWheel(int amountScrolled)
     // gaps.
     int contentHeight{0};
     for (const std::unique_ptr<Widget>& widget : elements) {
-        contentHeight += widget->getScaledExtent().h;
         contentHeight += scaledGapSize;
+        contentHeight += widget->getScaledExtent().h;
     }
 
     // Subtract 1 gap size, so we don't have a gap on the bottom.
@@ -61,24 +61,27 @@ EventResult FlowContainer::onMouseWheel(int amountScrolled)
     return EventResult{.wasHandled{true}};
 }
 
-void FlowContainer::updateLayout(const SDL_Rect& parentExtent,
-                                 WidgetLocator* widgetLocator)
+void FlowContainer::updateLayout(const SDL_Point& newParentOffset, const SDL_Rect& newClipExtent,
+                          WidgetLocator* widgetLocator)
 {
     // Run the normal layout step (will update us, but won't process any of
     // our elements).
-    Widget::updateLayout(parentExtent, widgetLocator);
+    Widget::updateLayout(newParentOffset, newClipExtent, widgetLocator);
+
+    // Refresh the scroll height and gap size.
+    scaledScrollHeight = ScalingHelpers::logicalToActual(logicalScrollHeight);
+    scaledGapSize = ScalingHelpers::logicalToActual(logicalGapSize);
 
     // We'll use this to track how far the next element should be vertically 
     // offset.
     int nextYOffset{0};
 
     // Lay out our elements in a vertical flow.
-    AUI_LOG_INFO("ScrollDistance: %d", scrollDistance);
     for (std::size_t i = 0; i < elements.size(); ++i) {
         // Figure out where the element should be placed.
         SDL_Rect elementExtent{elements[i]->getScaledExtent()};
-        elementExtent.x += renderExtent.x;
-        elementExtent.y += renderExtent.y;
+        elementExtent.x += clippedExtent.x;
+        elementExtent.y += clippedExtent.y;
         elementExtent.y += nextYOffset;
         elementExtent.y -= scrollDistance;
 
@@ -87,7 +90,7 @@ void FlowContainer::updateLayout(const SDL_Rect& parentExtent,
 
         // If the element is at least partially inside of this widget, make 
         // sure it's visible.
-        if (SDL_HasIntersection(&elementExtent, &renderExtent)) {
+        if (SDL_HasIntersection(&elementExtent, &clippedExtent)) {
             elements[i]->setIsVisible(true);
         }
         else {
@@ -97,28 +100,10 @@ void FlowContainer::updateLayout(const SDL_Rect& parentExtent,
             continue;
         }
 
-        // Clip the element's extent to this widget's bounds and update the 
-        // element.
-        SDL_Rect clippedExtent{};
-        SDL_IntersectRect(&elementExtent, &renderExtent, &clippedExtent);
-        elements[i]->updateLayout(elementExtent, widgetLocator);
+        // Update the element, passing it the calculated start position.
+        elements[i]->updateLayout({elementExtent.x, elementExtent.y},
+                                  clippedExtent, widgetLocator);
     }
-}
-
-bool FlowContainer::refreshScaling()
-{
-    // If actualScreenExtent was refreshed, do our specialized refreshing.
-    if (Widget::refreshScaling()) {
-        // Refresh the scroll height and gap size.
-        scaledScrollHeight
-            = ScalingHelpers::logicalToActual(logicalScrollHeight);
-        scaledGapSize 
-            = ScalingHelpers::logicalToActual(logicalGapSize);
-
-        return true;
-    }
-
-    return false;
 }
 
 } // namespace AUI

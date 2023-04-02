@@ -147,13 +147,14 @@ public:
 
     void onTick(double timestepS) override;
 
-    void render() override;
-
-protected:
     /**
-     * Overridden to properly scale our cursor size.
+     * Calls Widget::updateLayout() and also updates scaledCursorWidth.
      */
-    bool refreshScaling() override;
+    void updateLayout(const SDL_Point& startPosition,
+                      const SDL_Rect& availableExtent,
+                      WidgetLocator* widgetLocator) override;
+
+    void render() override;
 
 private:
     //-------------------------------------------------------------------------
@@ -161,8 +162,8 @@ private:
     //-------------------------------------------------------------------------
     /** The text cursor's blink rate. Windows seems to default to 530ms, so
         it should work fine for us. */
-    static constexpr double CURSOR_BLINK_RATE_S
-        = 530 / static_cast<double>(1000);
+    static constexpr double CURSOR_BLINK_RATE_S{530
+                                                / static_cast<double>(1000)};
 
     //-------------------------------------------------------------------------
     // Private members

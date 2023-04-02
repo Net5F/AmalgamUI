@@ -159,20 +159,21 @@ public:
     void setLogicalExtent(const SDL_Rect& inLogicalExtent) override;
 
     /**
-     * Calls Widget::updateLayout() and also updates offsetTextExtent.
+     * Calls Widget::updateLayout() and updates our special extents.
      */
-    void updateLayout(const SDL_Rect& parentExtent,
-                      WidgetLocator* widgetLocator);
+    void updateLayout(const SDL_Point& startPosition,
+                              const SDL_Rect& availableExtent,
+                              WidgetLocator* widgetLocator) override;
 
     void render() override;
 
-protected:
-    /**
-     * Overridden to properly scale text.
-     */
-    bool refreshScaling() override;
-
 private:
+    /**
+     * Refreshes our alignment, font object, and text texture to match the 
+     * current UI scaling.
+     */
+    void refreshScaling();
+
     /**
      * Re-calculates alignedExtent based on the current verticalAlignment,
      * horizontalAlignment, texExtent, and scaledExtent.
@@ -217,6 +218,11 @@ private:
 
     /** Our current horizontal alignment. See setHorizontalAlignment(). */
     HorizontalAlignment horizontalAlignment;
+
+    /** The value of Core::actualScreenSize that was used the last time this
+        widget updated its layout. Used to detect when the UI scale changes, 
+        so we can re-render the text object. */
+    ScreenResolution lastUsedScreenSize;
 
     /** If true, a property has been changed and the font texture must be
         re-rendered. */

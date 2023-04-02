@@ -48,13 +48,13 @@ public:
     void tick(double timestepS);
 
     /**
-     * Clears the old widget positions from the widget locator and starts
-     * the layout pass.
+     * Clears the old widget positions from widgetLocator and performs the 
+     * layout pass.
      *
      * @post This widget and all children have up-to-date extents, and are
      *       added to this window's widgetLocator in the correct order.
      */
-    void updateLayout(const SDL_Rect& parentExtent);
+    void updateLayout();
 
 protected:
     /**

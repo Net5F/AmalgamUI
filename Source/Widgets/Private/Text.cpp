@@ -16,6 +16,7 @@ Text::Text(const SDL_Rect& inLogicalExtent, const std::string& inDebugName)
 , text("Initialized")
 , verticalAlignment{VerticalAlignment::Top}
 , horizontalAlignment{HorizontalAlignment::Left}
+, lastUsedScreenSize{0, 0}
 , textureIsDirty{true}
 , textTexture{nullptr}
 , textureExtent{}
@@ -159,25 +160,31 @@ void Text::setLogicalExtent(const SDL_Rect& inLogicalExtent)
     refreshAlignment();
 }
 
-void Text::updateLayout(const SDL_Rect& parentExtent,
+void Text::updateLayout(const SDL_Point& startPosition,
+                        const SDL_Rect& availableExtent,
                         WidgetLocator* widgetLocator)
 {
-    // If a property has been changed, re-render our text texture.
-    if (textureIsDirty) {
+    // Do the normal layout updating.
+    Widget::updateLayout(startPosition, availableExtent, widgetLocator);
+
+    // If the UI scaling has changed, refresh everything.
+    if (lastUsedScreenSize != Core::getActualScreenSize()) {
+        refreshScaling();
+        lastUsedScreenSize = Core::getActualScreenSize();
+    }
+    // Else if a property has been changed, just re-render our text texture.
+    else if (textureIsDirty) {
         refreshTexture();
         textureIsDirty = false;
     }
 
-    // Do the normal layout updating.
-    Widget::updateLayout(parentExtent, widgetLocator);
-
-    // Offset our textExtent to start at parentExtent.
+    // Offset our textExtent to start at startPosition.
     SDL_Rect offsetTextExtent{textExtent};
-    offsetTextExtent.x += (parentExtent.x + textOffset);
-    offsetTextExtent.y += parentExtent.y;
+    offsetTextExtent.x += (startPosition.x + textOffset);
+    offsetTextExtent.y += startPosition.y;
 
     // Clip the text image's extent to not go beyond this widget's extent.
-    offsetClippedTextExtent = calcClippedExtent(offsetTextExtent, renderExtent);
+    SDL_IntersectRect(&offsetTextExtent, &clippedExtent, &offsetClippedTextExtent);
 
     // Pull offsetClippedTextExtent back into texture space ((0, 0) origin).
     // This tells us what part of the text image texture to actually render.
@@ -198,24 +205,17 @@ void Text::render()
                    &offsetClippedTextureExtent, &offsetClippedTextExtent);
 }
 
-bool Text::refreshScaling()
+void Text::refreshScaling()
 {
-    // If scaledExtent was refreshed, do our specialized refreshing.
-    if (Widget::refreshScaling()) {
-        // Refresh our alignment since the extent has moved.
-        refreshAlignment();
+    // Refresh our alignment since the extent has moved.
+    refreshAlignment();
 
-        // Refresh our font object to match the new scale.
-        refreshFontObject();
+    // Refresh our font object to match the new scale.
+    refreshFontObject();
 
-        // Re-render the text texture.
-        refreshTexture();
-        textureIsDirty = false;
-
-        return true;
-    }
-
-    return false;
+    // Re-render the text texture.
+    refreshTexture();
+    textureIsDirty = false;
 }
 
 void Text::refreshAlignment()
@@ -312,8 +312,8 @@ void Text::refreshTexture()
     }
 
     // Move the image to a texture on the gpu.
-    SDL_Texture* texture
-        = SDL_CreateTextureFromSurface(Core::getRenderer(), surface);
+    SDL_Texture* texture{
+        SDL_CreateTextureFromSurface(Core::getRenderer(), surface)};
     SDL_FreeSurface(surface);
     if (texture == nullptr) {
         AUI_LOG_FATAL("Failed to create texture.");

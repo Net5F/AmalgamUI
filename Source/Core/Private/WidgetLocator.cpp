@@ -20,7 +20,7 @@ WidgetLocator::WidgetLocator(const SDL_Rect& inScreenExtent)
 
 void WidgetLocator::addWidget(Widget* widget)
 {
-    SDL_Rect widgetRenderExtent{widget->getRenderExtent()};
+    SDL_Rect widgetRenderExtent{widget->getClippedExtent()};
     AUI_ASSERT(SDL_HasIntersection(&widgetRenderExtent, &gridScreenExtent),
                "Tried to add a widget that is outside this locator's bounds. "
                "Widget name: %s",
@@ -78,11 +78,10 @@ WidgetPath WidgetLocator::getPathUnderPoint(const SDL_Point& actualPoint)
         "Tried to get path for a point that is outside this locator's bounds.");
 
     // Get the cell that contains the given point.
-    std::size_t hitCellX{static_cast<unsigned int>(
-        (actualPoint.x - gridScreenExtent.x) / cellWidth)};
-    std::size_t hitCellY{static_cast<unsigned int>(
-        (actualPoint.y - gridScreenExtent.y) / cellWidth)};
-    std::size_t hitCellIndex{linearizeCellIndex(hitCellX, hitCellY)};
+    float hitCellX{(actualPoint.x - gridScreenExtent.x) / cellWidth};
+    float hitCellY{(actualPoint.y - gridScreenExtent.y) / cellWidth};
+    std::size_t hitCellIndex{linearizeCellIndex(static_cast<int>(hitCellX),
+                                                static_cast<int>(hitCellY))};
     std::vector<WidgetWeakRef>& widgetVec{widgetGrid[hitCellIndex]};
 
     // Iterate the widgets in the cell, adding them to the path if they're

@@ -14,6 +14,7 @@ TextInput::TextInput(const SDL_Rect& inLogicalExtent,
 , hoveredImage({0, 0, logicalExtent.w, logicalExtent.h})
 , focusedImage({0, 0, logicalExtent.w, logicalExtent.h})
 , disabledImage({0, 0, logicalExtent.w, logicalExtent.h})
+, accumulatedBlinkTime{0}
 , currentState{State::Normal}
 , cursorColor{0, 0, 0, 255}
 , logicalCursorWidth{2}
@@ -361,6 +362,17 @@ void TextInput::onTick(double timestepS)
     Widget::onTick(timestepS);
 }
 
+void TextInput::updateLayout(const SDL_Point& startPosition,
+                        const SDL_Rect& availableExtent,
+                        WidgetLocator* widgetLocator)
+{
+    // Do the normal layout updating.
+    Widget::updateLayout(startPosition, availableExtent, widgetLocator);
+
+    // Refresh our cursor size.
+    scaledCursorWidth = ScalingHelpers::logicalToActual(logicalCursorWidth);
+}
+
 void TextInput::render()
 {
     // Render our child widgets.
@@ -370,19 +382,6 @@ void TextInput::render()
     if (cursorIsVisible) {
         renderTextCursor();
     }
-}
-
-bool TextInput::refreshScaling()
-{
-    // If actualScreenExtent was refreshed, do our specialized refreshing.
-    if (Widget::refreshScaling()) {
-        // Refresh our cursor size.
-        scaledCursorWidth = ScalingHelpers::logicalToActual(logicalCursorWidth);
-
-        return true;
-    }
-
-    return false;
 }
 
 EventResult TextInput::handleBackspaceEvent()
@@ -641,15 +640,15 @@ void TextInput::refreshTextScrollOffset()
 void TextInput::renderTextCursor()
 {
     // Save the current draw color to re-apply later.
-    SDL_Color originalColor;
+    SDL_Color originalColor{};
     SDL_GetRenderDrawColor(Core::getRenderer(), &originalColor.r,
                            &originalColor.g, &originalColor.b,
                            &originalColor.a);
 
     // Calc where the cursor should be.
     SDL_Rect cursorOffsetExtent{text.calcCharacterOffset(cursorIndex)};
-    cursorOffsetExtent.x += renderExtent.x;
-    cursorOffsetExtent.y += renderExtent.y;
+    cursorOffsetExtent.x += clippedExtent.x;
+    cursorOffsetExtent.y += clippedExtent.y;
     cursorOffsetExtent.w = scaledCursorWidth;
 
     // Draw the cursor.

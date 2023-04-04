@@ -49,8 +49,9 @@ EventResult VerticalGridContainer::onMouseWheel(int amountScrolled)
     return EventResult{.wasHandled{true}};
 }
 
-void VerticalGridContainer::updateLayout(const SDL_Point& newParentOffset, const SDL_Rect& newClipExtent,
-                          WidgetLocator* widgetLocator)
+void VerticalGridContainer::updateLayout(const SDL_Point& newParentOffset,
+                                         const SDL_Rect& newClipExtent,
+                                         WidgetLocator* widgetLocator)
 {
     // Run the normal layout step (will update us, but won't process any of
     // our elements).

@@ -23,11 +23,11 @@ namespace AUI
  *   Resized (not yet implemented)
  *   Moved in front/behind each other (not yet implemented)
  *
- * Note: Windows derive from Widget so that they can be easily added to the 
- *       WidgetLocator, but they are not meant to be composed like regular 
+ * Note: Windows derive from Widget so that they can be easily added to the
+ *       WidgetLocator, but they are not meant to be composed like regular
  *       widgets.
- * Note: To match the expected Widget behavior, a Window's fullExtent and 
- *       clippedExtent are window-relative (in this case, meaning x and y are 
+ * Note: To match the expected Widget behavior, a Window's fullExtent and
+ *       clippedExtent are window-relative (in this case, meaning x and y are
  *       0). To get a Window's position on the screen, use scaledExtent.
  */
 class Window : public Widget
@@ -55,7 +55,7 @@ public:
     void tick(double timestepS);
 
     /**
-     * Clears the old widget positions from widgetLocator and performs the 
+     * Clears the old widget positions from widgetLocator and performs the
      * layout pass.
      *
      * @post This window and all children have up-to-date extents, and are
@@ -84,8 +84,8 @@ protected:
     WidgetLocator widgetLocator;
 
 private:
-    // We hide the Widget update/render implementations, because Windows have 
-    // different needs. Specifically, they don't receive layout info from 
+    // We hide the Widget update/render implementations, because Windows have
+    // different needs. Specifically, they don't receive layout info from
     // their parent, and they own their widgetLocator.
     using Widget::updateLayout;
     using Widget::render;

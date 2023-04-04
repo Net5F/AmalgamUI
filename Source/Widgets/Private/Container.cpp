@@ -79,8 +79,8 @@ void Container::onTick(double timestepS)
 }
 
 void Container::updateLayout(const SDL_Point& startPosition,
-                              const SDL_Rect& availableExtent,
-                              WidgetLocator* widgetLocator)
+                             const SDL_Rect& availableExtent,
+                             WidgetLocator* widgetLocator)
 {
     // Run the normal layout step (will update us, but won't process any of
     // our elements).
@@ -92,7 +92,8 @@ void Container::updateLayout(const SDL_Point& startPosition,
     //       perhaps), we can do so.
     for (std::unique_ptr<Widget>& element : elements) {
         if (element->getIsVisible()) {
-            element->updateLayout({clippedExtent.x, clippedExtent.y}, clippedExtent, widgetLocator);
+            element->updateLayout({clippedExtent.x, clippedExtent.y},
+                                  clippedExtent, widgetLocator);
         }
     }
 }

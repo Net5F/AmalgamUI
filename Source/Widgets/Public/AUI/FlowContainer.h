@@ -17,8 +17,7 @@ public:
     // Public interface
     //-------------------------------------------------------------------------
     FlowContainer(const SDL_Rect& inLogicalExtent,
-                         const std::string& inDebugName
-                         = "FlowContainer");
+                  const std::string& inDebugName = "FlowContainer");
 
     virtual ~FlowContainer() = default;
 
@@ -38,8 +37,8 @@ public:
     EventResult onMouseWheel(int amountScrolled) override;
 
     void updateLayout(const SDL_Point& startPosition,
-                              const SDL_Rect& availableExtent,
-                              WidgetLocator* widgetLocator) override;
+                      const SDL_Rect& availableExtent,
+                      WidgetLocator* widgetLocator) override;
 
 private:
     /** The default logical pixel height of single scroll event. */
@@ -56,7 +55,7 @@ private:
     int scaledGapSize;
 
     /** How far we're currently scrolled.
-        Note that this should be subtracted from element Y values, since 
+        Note that this should be subtracted from element Y values, since
         scrolling down makes the elements go up. */
     int scrollDistance;
 };

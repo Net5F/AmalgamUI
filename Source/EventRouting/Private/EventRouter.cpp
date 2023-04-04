@@ -72,7 +72,8 @@ bool EventRouter::handleMouseButtonUp(SDL_MouseButtonEvent& event)
             MouseButtonType buttonType{translateSDLButtonType(event.button)};
             SDL_Point cursorPosition{event.x, event.y};
 
-            eventResult = widget.onMouseUp(buttonType, screenToWindowRelative(cursorPosition));
+            eventResult = widget.onMouseUp(
+                buttonType, screenToWindowRelative(cursorPosition));
         }
     }
 
@@ -141,7 +142,8 @@ bool EventRouter::handleMouseMove(SDL_MouseMotionEvent& event)
         if (widgetWeakRef.isValid()) {
             // Pass the MouseMove event to the widget.
             Widget& widget{widgetWeakRef.get()};
-            eventResult = widget.onMouseMove(screenToWindowRelative(cursorPosition));
+            eventResult
+                = widget.onMouseMove(screenToWindowRelative(cursorPosition));
         }
     }
     else {
@@ -336,7 +338,8 @@ EventRouter::HandlerReturn
 
             // Pass the MouseDown event to the widget.
             Widget& widget{widgetWeakRef.get()};
-            eventResult = widget.onMouseDown(buttonType, screenToWindowRelative(cursorPosition));
+            eventResult = widget.onMouseDown(
+                buttonType, screenToWindowRelative(cursorPosition));
 
             // If the event was handled, break early.
             if (eventResult.wasHandled) {
@@ -366,7 +369,8 @@ EventRouter::HandlerReturn
 
         // Pass the MouseDoubleClick event to the widget.
         Widget& widget{widgetWeakRef.get()};
-        eventResult = widget.onMouseDoubleClick(buttonType, screenToWindowRelative(cursorPosition));
+        eventResult = widget.onMouseDoubleClick(
+            buttonType, screenToWindowRelative(cursorPosition));
 
         // If the event was handled, break early.
         if (eventResult.wasHandled) {
@@ -438,7 +442,8 @@ EventResult
 
         // Pass the MouseMove event to the widget.
         Widget& widget{widgetWeakRef.get()};
-        eventResult = widget.onMouseMove(screenToWindowRelative(cursorPosition));
+        eventResult
+            = widget.onMouseMove(screenToWindowRelative(cursorPosition));
 
         // If the event was handled, break early.
         if (eventResult.wasHandled) {

@@ -363,8 +363,8 @@ void TextInput::onTick(double timestepS)
 }
 
 void TextInput::updateLayout(const SDL_Point& startPosition,
-                        const SDL_Rect& availableExtent,
-                        WidgetLocator* widgetLocator)
+                             const SDL_Rect& availableExtent,
+                             WidgetLocator* widgetLocator)
 {
     // Do the normal layout updating.
     Widget::updateLayout(startPosition, availableExtent, widgetLocator);

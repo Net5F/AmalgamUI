@@ -47,7 +47,7 @@ public:
      * If this widget's screen extent contains the given point, returns
      * true. Else, returns false.
      *
-     * @param windowPoint  A point on the screen, relative to the top left of 
+     * @param windowPoint  A point on the screen, relative to the top left of
      *                     this widget's parent window.
      */
     bool containsPoint(const SDL_Point& windowPoint);
@@ -82,7 +82,7 @@ public:
      * Note: If this event is handled, it will also stop the MouseDown event
      *       from bubbling afterwards.
      *
-     * @param cursorPosition  The cursor's position, relative to this widget's 
+     * @param cursorPosition  The cursor's position, relative to this widget's
      *                        parent window.
      */
     virtual EventResult onPreviewMouseDown(MouseButtonType buttonType,
@@ -93,7 +93,7 @@ public:
      *
      * This event is bubbled to widgets under the mouse.
      *
-     * @param cursorPosition  The cursor's position, relative to this widget's 
+     * @param cursorPosition  The cursor's position, relative to this widget's
      *                        parent window.
      */
     virtual EventResult onMouseDown(MouseButtonType buttonType,
@@ -104,7 +104,7 @@ public:
      *
      * This event is only routed to the widget that is capturing the mouse.
      *
-     * @param cursorPosition  The cursor's position, relative to this widget's 
+     * @param cursorPosition  The cursor's position, relative to this widget's
      *                        parent window.
      */
     virtual EventResult onMouseUp(MouseButtonType buttonType,
@@ -116,7 +116,7 @@ public:
      *
      * This event is bubbled to widgets under the mouse.
      *
-     * @param cursorPosition  The cursor's position, relative to this widget's 
+     * @param cursorPosition  The cursor's position, relative to this widget's
      *                        parent window.
      */
     virtual EventResult onMouseDoubleClick(MouseButtonType buttonType,
@@ -142,7 +142,7 @@ public:
      * This event is routed to the widget that is capturing the mouse. If
      * there's no mouse captor, it's bubbled to widgets under the mouse.
      *
-     * @param cursorPosition  The cursor's position, relative to this widget's 
+     * @param cursorPosition  The cursor's position, relative to this widget's
      *                        parent window.
      */
     virtual EventResult onMouseMove(const SDL_Point& cursorPosition);
@@ -222,12 +222,12 @@ public:
     virtual void onTick(double timestepS);
 
     /**
-     * Updates this widget's extents to be properly scaled and positioned 
+     * Updates this widget's extents to be properly scaled and positioned
      * within the parent window.
      *
      * @param startPosition  The position where this widget should begin its
-     *                       layout. Typically will be equal to the parent's 
-     *                       top left, though containers may use this to add 
+     *                       layout. Typically will be equal to the parent's
+     *                       top left, though containers may use this to add
      *                       additional offsets while arranging their elements.
      * @param availableExtent  The available space for this widget to take up.
      * @param widgetLocator  (If non-nullptr) The widget locator that this
@@ -248,9 +248,10 @@ public:
      * children list. Some overrides may directly call SDL functions like
      * SDL_RenderCopy().
      *
-     * @param windowTopLeft  The top left coordinate of this widget's parent 
-     *                       window. This is used to translate the widget's 
-     *                       window-relative extent into a final screen position.
+     * @param windowTopLeft  The top left coordinate of this widget's parent
+     *                       window. This is used to translate the widget's
+     *                       window-relative extent into a final screen
+     *                       position.
      */
     virtual void render(const SDL_Point& windowTopLeft);
 
@@ -284,16 +285,16 @@ protected:
         widget relative to the UI's logical size. */
     SDL_Rect logicalExtent;
 
-    /** This widget's scaled screen extent. Equal to logicalExtent, but scaled 
+    /** This widget's scaled screen extent. Equal to logicalExtent, but scaled
         to match the current UI scaling. */
     SDL_Rect scaledExtent;
 
-    /** This widget's full window-relative extent within the layout. Equal to 
+    /** This widget's full window-relative extent within the layout. Equal to
         scaledExtent, but offset to be positioned within the parent.  */
     SDL_Rect fullExtent;
 
-    /** This widget's final window-relative extent within the layout. Equal to 
-        fullExtent, but clipped to fit within the parent. Ready for use in 
+    /** This widget's final window-relative extent within the layout. Equal to
+        fullExtent, but clipped to fit within the parent. Ready for use in
         rendering and hit testing for events. */
     SDL_Rect clippedExtent;
 

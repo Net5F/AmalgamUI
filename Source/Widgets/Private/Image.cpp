@@ -65,8 +65,9 @@ void Image::setCustomImage(std::unique_ptr<ImageType> inImageType)
     imageType = std::move(inImageType);
 }
 
-void Image::updateLayout(const SDL_Point& newParentOffset, const SDL_Rect& newClipExtent,
-                          WidgetLocator* widgetLocator)
+void Image::updateLayout(const SDL_Point& newParentOffset,
+                         const SDL_Rect& newClipExtent,
+                         WidgetLocator* widgetLocator)
 {
     const SDL_Rect oldScaledExtent{scaledExtent};
 
@@ -91,18 +92,18 @@ void Image::render(const SDL_Point& windowTopLeft)
                       debugName.c_str());
     }
 
-    // If this widget is partially clipped, calculate a matching clipped 
+    // If this widget is partially clipped, calculate a matching clipped
     // extent for the texture.
     SDL_Rect clippedTexExtent{imageType->currentTexExtent};
     if (!SDL_RectEquals(&fullExtent, &clippedExtent)) {
-        // Calc the size difference factor between the texture's extent and 
+        // Calc the size difference factor between the texture's extent and
         // this widget's full extent.
         double widthDiffFactor{imageType->currentTexExtent.w
                                / static_cast<double>(fullExtent.w)};
         double heightDiffFactor{imageType->currentTexExtent.h
                                 / static_cast<double>(fullExtent.h)};
 
-        // Calc the size of the clipped region and scale it using the 
+        // Calc the size of the clipped region and scale it using the
         // difference factor.
         clippedTexExtent.x += static_cast<int>((clippedExtent.x - fullExtent.x)
                                                * widthDiffFactor);

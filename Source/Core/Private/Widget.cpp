@@ -178,7 +178,8 @@ void Widget::onTick(double timestepS)
     }
 }
 
-void Widget::updateLayout(const SDL_Point& startPosition, const SDL_Rect& availableExtent,
+void Widget::updateLayout(const SDL_Point& startPosition,
+                          const SDL_Rect& availableExtent,
                           WidgetLocator* widgetLocator)
 {
     // Scale our logicalExtent to get our scaledExtent.
@@ -197,7 +198,7 @@ void Widget::updateLayout(const SDL_Point& startPosition, const SDL_Rect& availa
         widgetLocator->addWidget(this);
     }
 
-    // Update our visible children's layouts and let them add themselves to 
+    // Update our visible children's layouts and let them add themselves to
     // the locator.
     // Note: We skip invisible children since they won't be rendered or receive
     //       events.

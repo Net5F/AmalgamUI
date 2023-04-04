@@ -184,7 +184,8 @@ void Text::updateLayout(const SDL_Point& startPosition,
     offsetTextExtent.y += startPosition.y;
 
     // Clip the text image's extent to not go beyond this widget's extent.
-    SDL_IntersectRect(&offsetTextExtent, &clippedExtent, &offsetClippedTextExtent);
+    SDL_IntersectRect(&offsetTextExtent, &clippedExtent,
+                      &offsetClippedTextExtent);
 
     // Pull offsetClippedTextExtent back into texture space ((0, 0) origin).
     // This tells us what part of the text image texture to actually render.

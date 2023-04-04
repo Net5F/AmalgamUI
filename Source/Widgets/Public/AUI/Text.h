@@ -162,14 +162,14 @@ public:
      * Calls Widget::updateLayout() and updates our special extents.
      */
     void updateLayout(const SDL_Point& startPosition,
-                              const SDL_Rect& availableExtent,
-                              WidgetLocator* widgetLocator) override;
+                      const SDL_Rect& availableExtent,
+                      WidgetLocator* widgetLocator) override;
 
     void render(const SDL_Point& windowTopLeft) override;
 
 private:
     /**
-     * Refreshes our alignment, font object, and text texture to match the 
+     * Refreshes our alignment, font object, and text texture to match the
      * current UI scaling.
      */
     void refreshScaling();
@@ -220,7 +220,7 @@ private:
     HorizontalAlignment horizontalAlignment;
 
     /** The value of Core::actualScreenSize that was used the last time this
-        widget updated its layout. Used to detect when the UI scale changes, 
+        widget updated its layout. Used to detect when the UI scale changes,
         so we can re-render the text object. */
     ScreenResolution lastUsedScreenSize;
 

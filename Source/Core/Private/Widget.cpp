@@ -209,12 +209,12 @@ void Widget::updateLayout(const SDL_Point& startPosition, const SDL_Rect& availa
     }
 }
 
-void Widget::render()
+void Widget::render(const SDL_Point& windowTopLeft)
 {
     // Render all visible children.
     for (Widget& child : children) {
         if (child.getIsVisible()) {
-            child.render();
+            child.render(windowTopLeft);
         }
     }
 }

@@ -30,12 +30,17 @@ void Window::tick(double timestepS)
 void Window::updateLayout()
 {
     // Scale our logicalExtent to get our scaledExtent.
-    scaledExtent = ScalingHelpers::logicalToActual(logicalExtent);
-
     // Windows don't have a parent, so scaledExtent is their final extent in 
     // the layout.
+    scaledExtent = ScalingHelpers::logicalToActual(logicalExtent);
+
+    // Windows derive from Widget so that they can be added to the WidgetLocator.
+    // The locator expects widget.clippedExtent to be window-relative, so we 
+    // need to 0-out its position.
     fullExtent = scaledExtent;
-    clippedExtent = scaledExtent;
+    fullExtent.x = 0;
+    fullExtent.y = 0;
+    clippedExtent = fullExtent;
 
     // Clear the locator, to prepare for widgets re-adding themselves.
     widgetLocator.clear();
@@ -51,10 +56,23 @@ void Window::updateLayout()
     // Note: We skip invisible children since they won't be rendered. If we
     //       need to process invisible children (for the widget locator's use,
     //       perhaps), we can change this.
+    SDL_Rect availableExtent{scaledExtent};
+    availableExtent.x = 0;
+    availableExtent.y = 0;
     for (Widget& child : children) {
         if (child.getIsVisible()) {
-            child.updateLayout({scaledExtent.x, scaledExtent.y}, scaledExtent,
+            child.updateLayout({0, 0}, availableExtent,
                                &widgetLocator);
+        }
+    }
+}
+
+void Window::render()
+{
+    // Render all visible children.
+    for (Widget& child : children) {
+        if (child.getIsVisible()) {
+            child.render({scaledExtent.x, scaledExtent.y});
         }
     }
 }

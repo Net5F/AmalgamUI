@@ -193,7 +193,7 @@ void Text::updateLayout(const SDL_Point& startPosition,
     offsetClippedTextureExtent.y -= offsetTextExtent.y;
 }
 
-void Text::render()
+void Text::render(const SDL_Point& windowTopLeft)
 {
     if (textTexture == nullptr) {
         AUI_LOG_FATAL("Tried to render Font with no texture. DebugName: %s",
@@ -201,8 +201,11 @@ void Text::render()
     }
 
     // Render the text texture.
+    SDL_Rect finalExtent{offsetClippedTextExtent};
+    finalExtent.x += windowTopLeft.x;
+    finalExtent.y += windowTopLeft.y;
     SDL_RenderCopy(Core::getRenderer(), textTexture.get(),
-                   &offsetClippedTextureExtent, &offsetClippedTextExtent);
+                   &offsetClippedTextureExtent, &finalExtent);
 }
 
 void Text::refreshScaling()

@@ -83,7 +83,7 @@ void Image::updateLayout(const SDL_Point& newParentOffset, const SDL_Rect& newCl
     }
 }
 
-void Image::render()
+void Image::render(const SDL_Point& windowTopLeft)
 {
     // If we don't have an ImageType to render, fail.
     if (imageType == nullptr) {
@@ -113,8 +113,11 @@ void Image::render()
     }
 
     // Render the image.
+    SDL_Rect finalExtent{clippedExtent};
+    finalExtent.x += windowTopLeft.x;
+    finalExtent.y += windowTopLeft.y;
     SDL_RenderCopy(Core::getRenderer(), imageType->currentTexture.get(),
-                   &clippedTexExtent, &clippedExtent);
+                   &clippedTexExtent, &finalExtent);
 }
 
 } // namespace AUI

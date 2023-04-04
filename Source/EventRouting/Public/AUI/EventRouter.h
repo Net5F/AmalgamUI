@@ -113,6 +113,13 @@ private:
     MouseButtonType translateSDLButtonType(Uint8 sdlButtonType);
 
     /**
+     * Translates a screen-relative cursor position to be relative to the 
+     * window that it's hovering over.
+     * If cursorPosition is not over a window, does nothing.
+     */
+    SDL_Point screenToWindowRelative(const SDL_Point& cursorPosition);
+
+    /**
      * Returns a widget path containing all widgets that are underneath the
      * given cursor position.
      *

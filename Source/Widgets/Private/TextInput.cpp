@@ -373,14 +373,14 @@ void TextInput::updateLayout(const SDL_Point& startPosition,
     scaledCursorWidth = ScalingHelpers::logicalToActual(logicalCursorWidth);
 }
 
-void TextInput::render()
+void TextInput::render(const SDL_Point& windowTopLeft)
 {
     // Render our child widgets.
-    Widget::render();
+    Widget::render(windowTopLeft);
 
     // Render the text cursor, if necessary.
     if (cursorIsVisible) {
-        renderTextCursor();
+        renderTextCursor(windowTopLeft);
     }
 }
 
@@ -637,7 +637,7 @@ void TextInput::refreshTextScrollOffset()
     text.setTextOffset(textOffset);
 }
 
-void TextInput::renderTextCursor()
+void TextInput::renderTextCursor(const SDL_Point& windowTopLeft)
 {
     // Save the current draw color to re-apply later.
     SDL_Color originalColor{};
@@ -647,8 +647,8 @@ void TextInput::renderTextCursor()
 
     // Calc where the cursor should be.
     SDL_Rect cursorOffsetExtent{text.calcCharacterOffset(cursorIndex)};
-    cursorOffsetExtent.x += clippedExtent.x;
-    cursorOffsetExtent.y += clippedExtent.y;
+    cursorOffsetExtent.x += clippedExtent.x + windowTopLeft.x;
+    cursorOffsetExtent.y += clippedExtent.y + windowTopLeft.y;
     cursorOffsetExtent.w = scaledCursorWidth;
 
     // Draw the cursor.

@@ -136,6 +136,9 @@ private:
     /** The grid's extent in actual screen space. */
     SDL_Rect gridScreenExtent;
 
+    /** The grid's extent, relative to the parent window. */
+    SDL_Rect gridRelativeExtent;
+
     /** The grid's extent in actual screen space, with cells as the unit. */
     SDL_Rect gridCellExtent;
 

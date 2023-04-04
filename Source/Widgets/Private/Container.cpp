@@ -97,12 +97,12 @@ void Container::updateLayout(const SDL_Point& startPosition,
     }
 }
 
-void Container::render()
+void Container::render(const SDL_Point& windowTopLeft)
 {
     // Render all visible elements.
     for (std::unique_ptr<Widget>& element : elements) {
         if (element->getIsVisible()) {
-            element->render();
+            element->render(windowTopLeft);
         }
     }
 }

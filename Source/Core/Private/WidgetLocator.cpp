@@ -13,6 +13,7 @@ namespace AUI
 WidgetLocator::WidgetLocator(const SDL_Rect& inScreenExtent)
 : cellWidth{ScalingHelpers::logicalToActual(LOGICAL_DEFAULT_CELL_WIDTH)}
 , gridScreenExtent{}
+, gridRelativeExtent{}
 , gridCellExtent{}
 {
     setExtent(inScreenExtent);
@@ -20,24 +21,16 @@ WidgetLocator::WidgetLocator(const SDL_Rect& inScreenExtent)
 
 void WidgetLocator::addWidget(Widget* widget)
 {
-    SDL_Rect widgetRenderExtent{widget->getClippedExtent()};
-    AUI_ASSERT(SDL_HasIntersection(&widgetRenderExtent, &gridScreenExtent),
+    // Note: This is relative to the parent window's extent (which matches
+    //       this locator's extent).
+    SDL_Rect widgetRelativeExtent{widget->getClippedExtent()};
+    AUI_ASSERT(SDL_HasIntersection(&widgetRelativeExtent, &gridRelativeExtent),
                "Tried to add a widget that is outside this locator's bounds. "
                "Widget name: %s",
                widget->getDebugName().c_str());
 
-    // Clip the widget to the locator's bounds.
-    SDL_IntersectRect(&widgetRenderExtent, &gridScreenExtent,
-                      &widgetRenderExtent);
-
-    // Since widgetRenderExtent is relative to the whole screen, offset it to
-    // be relative to our grid's extent (to match our cell coordinates).
-    SDL_Rect offsetWidgetExtent{widgetRenderExtent};
-    offsetWidgetExtent.x -= gridScreenExtent.x;
-    offsetWidgetExtent.y -= gridScreenExtent.y;
-
     // Find the cells that the widget intersects.
-    SDL_Rect widgetCellExtent{screenToCellExtent(offsetWidgetExtent)};
+    SDL_Rect widgetCellExtent{screenToCellExtent(widgetRelativeExtent)};
 
     // Add the widget to the map, or update it if it already exists for some
     // reason.
@@ -77,9 +70,13 @@ WidgetPath WidgetLocator::getPathUnderPoint(const SDL_Point& actualPoint)
         SDLHelpers::pointInRect(actualPoint, gridScreenExtent),
         "Tried to get path for a point that is outside this locator's bounds.");
 
+    // Convert the actual screen-space point to a window-relative point.
+    SDL_Point relativePoint{(actualPoint.x - gridScreenExtent.x),
+                            (actualPoint.y - gridScreenExtent.y)};
+
     // Get the cell that contains the given point.
-    float hitCellX{(actualPoint.x - gridScreenExtent.x) / cellWidth};
-    float hitCellY{(actualPoint.y - gridScreenExtent.y) / cellWidth};
+    float hitCellX{relativePoint.x / cellWidth};
+    float hitCellY{relativePoint.y / cellWidth};
     std::size_t hitCellIndex{linearizeCellIndex(static_cast<int>(hitCellX),
                                                 static_cast<int>(hitCellY))};
     std::vector<WidgetWeakRef>& widgetVec{widgetGrid[hitCellIndex]};
@@ -95,7 +92,7 @@ WidgetPath WidgetLocator::getPathUnderPoint(const SDL_Point& actualPoint)
         Widget& widget{widgetWeakRef.get()};
 
         // If the widget contains the point, add it to the path.
-        if (widget.containsPoint(actualPoint)) {
+        if (widget.containsPoint(relativePoint)) {
             returnPath.push_back(widget);
         }
     }
@@ -114,9 +111,12 @@ void WidgetLocator::clear()
 void WidgetLocator::setExtent(const SDL_Rect& inScreenExtent)
 {
     gridScreenExtent = inScreenExtent;
+    gridRelativeExtent = gridScreenExtent;
+    gridRelativeExtent.x = 0;
+    gridRelativeExtent.y = 0;
 
     // Set our grid size to match the extent.
-    gridCellExtent = screenToCellExtent(gridScreenExtent);
+    gridCellExtent = screenToCellExtent(gridRelativeExtent);
 
     // Resize the grid to fit our new extent.
     widgetGrid.resize(gridCellExtent.w * gridCellExtent.h);

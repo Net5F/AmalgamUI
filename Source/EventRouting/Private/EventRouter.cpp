@@ -72,7 +72,7 @@ bool EventRouter::handleMouseButtonUp(SDL_MouseButtonEvent& event)
             MouseButtonType buttonType{translateSDLButtonType(event.button)};
             SDL_Point cursorPosition{event.x, event.y};
 
-            eventResult = widget.onMouseUp(buttonType, cursorPosition);
+            eventResult = widget.onMouseUp(buttonType, screenToWindowRelative(cursorPosition));
         }
     }
 
@@ -141,7 +141,7 @@ bool EventRouter::handleMouseMove(SDL_MouseMotionEvent& event)
         if (widgetWeakRef.isValid()) {
             // Pass the MouseMove event to the widget.
             Widget& widget{widgetWeakRef.get()};
-            eventResult = widget.onMouseMove(cursorPosition);
+            eventResult = widget.onMouseMove(screenToWindowRelative(cursorPosition));
         }
     }
     else {
@@ -249,6 +249,24 @@ MouseButtonType EventRouter::translateSDLButtonType(Uint8 sdlButtonType)
     }
 }
 
+SDL_Point EventRouter::screenToWindowRelative(const SDL_Point& cursorPosition)
+{
+    // If the cursor is hovering over a window, calculate the relative position.
+    Window* hoveredWindow{screen.getWindowUnderPoint(cursorPosition)};
+    if (hoveredWindow != nullptr) {
+        SDL_Rect windowExtent{hoveredWindow->getScaledExtent()};
+        SDL_Point windowRelativeCursor{cursorPosition};
+        windowRelativeCursor.x -= windowExtent.x;
+        windowRelativeCursor.y -= windowExtent.y;
+
+        return windowRelativeCursor;
+    }
+    else {
+        // Not hovering over a window, return the same position.
+        return cursorPosition;
+    }
+}
+
 WidgetPath EventRouter::getPathUnderCursor(const SDL_Point& cursorPosition)
 {
     // Check if the cursor is hovering over an AUI window.
@@ -296,7 +314,8 @@ EventRouter::HandlerReturn
 
         // Pass the PreviewMouseDown event to the widget.
         Widget& widget{widgetWeakRef.get()};
-        eventResult = widget.onPreviewMouseDown(buttonType, cursorPosition);
+        eventResult = widget.onPreviewMouseDown(
+            buttonType, screenToWindowRelative(cursorPosition));
 
         // If the event was handled, break early.
         if (eventResult.wasHandled) {
@@ -317,7 +336,7 @@ EventRouter::HandlerReturn
 
             // Pass the MouseDown event to the widget.
             Widget& widget{widgetWeakRef.get()};
-            eventResult = widget.onMouseDown(buttonType, cursorPosition);
+            eventResult = widget.onMouseDown(buttonType, screenToWindowRelative(cursorPosition));
 
             // If the event was handled, break early.
             if (eventResult.wasHandled) {
@@ -347,7 +366,7 @@ EventRouter::HandlerReturn
 
         // Pass the MouseDoubleClick event to the widget.
         Widget& widget{widgetWeakRef.get()};
-        eventResult = widget.onMouseDoubleClick(buttonType, cursorPosition);
+        eventResult = widget.onMouseDoubleClick(buttonType, screenToWindowRelative(cursorPosition));
 
         // If the event was handled, break early.
         if (eventResult.wasHandled) {
@@ -419,7 +438,7 @@ EventResult
 
         // Pass the MouseMove event to the widget.
         Widget& widget{widgetWeakRef.get()};
-        eventResult = widget.onMouseMove(cursorPosition);
+        eventResult = widget.onMouseMove(screenToWindowRelative(cursorPosition));
 
         // If the event was handled, break early.
         if (eventResult.wasHandled) {

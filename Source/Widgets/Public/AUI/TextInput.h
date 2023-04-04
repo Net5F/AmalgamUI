@@ -154,7 +154,7 @@ public:
                       const SDL_Rect& availableExtent,
                       WidgetLocator* widgetLocator) override;
 
-    void render() override;
+    void render(const SDL_Point& windowTopLeft) override;
 
 private:
     //-------------------------------------------------------------------------
@@ -194,7 +194,7 @@ private:
     /**
      * Calcs where the text cursor should be and renders it.
      */
-    void renderTextCursor();
+    void renderTextCursor(const SDL_Point& windowTopLeft);
 
     /** See setOnTextChanged(). */
     std::function<void(void)> onTextChanged;

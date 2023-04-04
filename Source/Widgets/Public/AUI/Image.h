@@ -112,7 +112,7 @@ public:
                               const SDL_Rect& availableExtent,
                               WidgetLocator* widgetLocator) override;
 
-    void render() override;
+    void render(const SDL_Point& windowTopLeft) override;
 
 private:
     std::unique_ptr<ImageType> imageType;

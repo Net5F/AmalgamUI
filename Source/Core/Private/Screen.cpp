@@ -22,7 +22,7 @@ Window* Screen::getWindowUnderPoint(const SDL_Point& point)
         }
 
         // If the window contains the given point, return it.
-        if (SDLHelpers::pointInRect(point, window.getClippedExtent())) {
+        if (SDLHelpers::pointInRect(point, window.getScaledExtent())) {
             return &window;
         }
     }

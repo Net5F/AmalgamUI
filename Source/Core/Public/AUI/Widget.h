@@ -82,8 +82,8 @@ public:
      * Note: If this event is handled, it will also stop the MouseDown event
      *       from bubbling afterwards.
      *
-     * @param cursorPosition  The cursor's position, relative to the top left
-     *                        of the screen.
+     * @param cursorPosition  The cursor's position, relative to this widget's 
+     *                        parent window.
      */
     virtual EventResult onPreviewMouseDown(MouseButtonType buttonType,
                                            const SDL_Point& cursorPosition);
@@ -93,8 +93,8 @@ public:
      *
      * This event is bubbled to widgets under the mouse.
      *
-     * @param cursorPosition  The cursor's position, relative to the top left
-     *                        of the screen.
+     * @param cursorPosition  The cursor's position, relative to this widget's 
+     *                        parent window.
      */
     virtual EventResult onMouseDown(MouseButtonType buttonType,
                                     const SDL_Point& cursorPosition);
@@ -104,8 +104,8 @@ public:
      *
      * This event is only routed to the widget that is capturing the mouse.
      *
-     * @param cursorPosition  The cursor's position, relative to the top left
-     *                        of the screen.
+     * @param cursorPosition  The cursor's position, relative to this widget's 
+     *                        parent window.
      */
     virtual EventResult onMouseUp(MouseButtonType buttonType,
                                   const SDL_Point& cursorPosition);
@@ -116,8 +116,8 @@ public:
      *
      * This event is bubbled to widgets under the mouse.
      *
-     * @param cursorPosition  The cursor's position, relative to the top left
-     *                        of the screen.
+     * @param cursorPosition  The cursor's position, relative to this widget's 
+     *                        parent window.
      */
     virtual EventResult onMouseDoubleClick(MouseButtonType buttonType,
                                            const SDL_Point& cursorPosition);
@@ -142,8 +142,8 @@ public:
      * This event is routed to the widget that is capturing the mouse. If
      * there's no mouse captor, it's bubbled to widgets under the mouse.
      *
-     * @param cursorPosition  The cursor's position, relative to the top left
-     *                        of the screen.
+     * @param cursorPosition  The cursor's position, relative to this widget's 
+     *                        parent window.
      */
     virtual EventResult onMouseMove(const SDL_Point& cursorPosition);
 
@@ -232,7 +232,8 @@ public:
      * @param availableExtent  The available space for this widget to take up.
      * @param widgetLocator  (If non-nullptr) The widget locator that this
      *                       widget should add itself to after updating.
-     * @post offsetExtent and clippedExtent are properly positioned.
+     * @post scaledExtent matches the current Core::actualScreenSize.
+     *       offsetExtent and clippedExtent are properly positioned.
      *       clippedExtent is clipped to the given availableExtent and is ready
      *       for use in rendering and hit testing.
      */
@@ -246,8 +247,12 @@ public:
      * The default implementation simply calls render() on all widgets in our
      * children list. Some overrides may directly call SDL functions like
      * SDL_RenderCopy().
+     *
+     * @param windowTopLeft  The top left coordinate of this widget's parent 
+     *                       window. This is used to translate the widget's 
+     *                       window-relative extent into a final screen position.
      */
-    virtual void render();
+    virtual void render(const SDL_Point& windowTopLeft);
 
     /**
      * Internal library function.

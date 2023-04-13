@@ -2,6 +2,7 @@
 
 #include "AUI/Container.h"
 
+// TODO: Remake as HorizontalWrapContainer
 namespace AUI
 {
 /**

@@ -116,6 +116,11 @@ public:
 
 private:
     std::unique_ptr<ImageType> imageType;
+
+    /** Holds the scaled extent that was used during the last updateLayout().
+        Used to tell when this widget's size changes, so we can refresh the 
+        image. */
+    SDL_Rect lastScaledExtent;
 };
 
 } // namespace AUI

@@ -180,7 +180,8 @@ void Thumbnail::setTextHorizontalAlignment(
         text.setHorizontalAlignment(inHorizontalAlignment);
     }
     else {
-        // Else the text is too big to fit, right align it.
+        // Else the text is too big to fit, right align it so we can see the 
+        // end (since the end is likely more informative than the beginning).
         text.setHorizontalAlignment(Text::HorizontalAlignment::Right);
     }
 }

@@ -5,21 +5,21 @@
 namespace AUI
 {
 /**
- * Lays out widgets in a scrollable vertical flow.
+ * Lays out widgets in a scrollable vertical list.
  *
  * TODO: After scrolling the list, our elements still have hover states based
  *       on their pre-scroll positions. We need to find a way to update them.
  */
-class FlowContainer : public Container
+class VerticalListContainer : public Container
 {
 public:
     //-------------------------------------------------------------------------
     // Public interface
     //-------------------------------------------------------------------------
-    FlowContainer(const SDL_Rect& inLogicalExtent,
-                  const std::string& inDebugName = "FlowContainer");
+    VerticalListContainer(const SDL_Rect& inLogicalExtent,
+                  const std::string& inDebugName = "VerticalListContainer");
 
-    virtual ~FlowContainer() = default;
+    virtual ~VerticalListContainer() = default;
 
     /**
      * Sets the distance between elements.

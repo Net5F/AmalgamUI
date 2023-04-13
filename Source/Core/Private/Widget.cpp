@@ -43,6 +43,9 @@ void Widget::setLogicalExtent(const SDL_Rect& inLogicalExtent)
     // Set our logical screen extent.
     logicalExtent = inLogicalExtent;
 
+    // Update our scaled extent.
+    scaledExtent = ScalingHelpers::logicalToActual(logicalExtent);
+
     // TODO: Invalidate the layout
 }
 
@@ -191,7 +194,16 @@ void Widget::updateLayout(const SDL_Point& startPosition,
     fullExtent.y += startPosition.y;
 
     // Clip fullExtent to the available space to get our clippedExtent.
-    SDL_IntersectRect(&fullExtent, &availableExtent, &clippedExtent);
+    SDL_Rect intersectionResult{};
+    if (SDL_IntersectRect(&fullExtent, &availableExtent, &intersectionResult)) {
+        clippedExtent = intersectionResult;
+    }
+    else {
+        // fullExtent does not intersect availableExtent. Zero-out 
+        // clippedExtent and return early.
+        clippedExtent = {0, 0, 0, 0};
+        return;
+    }
 
     // If we were given a valid locator, add ourselves to it.
     if (widgetLocator != nullptr) {
@@ -204,7 +216,7 @@ void Widget::updateLayout(const SDL_Point& startPosition,
     //       events.
     for (Widget& child : children) {
         if (child.getIsVisible()) {
-            child.updateLayout({clippedExtent.x, clippedExtent.y},
+            child.updateLayout({fullExtent.x, fullExtent.y},
                                clippedExtent, widgetLocator);
         }
     }
@@ -212,6 +224,11 @@ void Widget::updateLayout(const SDL_Point& startPosition,
 
 void Widget::render(const SDL_Point& windowTopLeft)
 {
+    // If this widget is fully clipped, don't render it.
+    if (SDL_RectEmpty(&clippedExtent)) {
+        return;
+    }
+
     // Render all visible children.
     for (Widget& child : children) {
         if (child.getIsVisible()) {

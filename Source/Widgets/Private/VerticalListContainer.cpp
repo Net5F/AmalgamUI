@@ -1,4 +1,4 @@
-#include "AUI/FlowContainer.h"
+#include "AUI/VerticalListContainer.h"
 #include "AUI/ScalingHelpers.h"
 #include "AUI/WidgetLocator.h"
 #include "AUI/Internal/Log.h"
@@ -7,7 +7,7 @@
 
 namespace AUI
 {
-FlowContainer::FlowContainer(const SDL_Rect& inLogicalExtent,
+VerticalListContainer::VerticalListContainer(const SDL_Rect& inLogicalExtent,
                              const std::string& inDebugName)
 : Container(inLogicalExtent, inDebugName)
 , logicalScrollHeight{LOGICAL_DEFAULT_SCROLL_HEIGHT}
@@ -18,19 +18,19 @@ FlowContainer::FlowContainer(const SDL_Rect& inLogicalExtent,
 {
 }
 
-void FlowContainer::setGapSize(int inLogicalGapSize)
+void VerticalListContainer::setGapSize(int inLogicalGapSize)
 {
     logicalGapSize = inLogicalGapSize;
     scaledGapSize = ScalingHelpers::logicalToActual(logicalGapSize);
 }
 
-void FlowContainer::setScrollHeight(int inLogicalScrollHeight)
+void VerticalListContainer::setScrollHeight(int inLogicalScrollHeight)
 {
     logicalScrollHeight = inLogicalScrollHeight;
     scaledScrollHeight = ScalingHelpers::logicalToActual(logicalScrollHeight);
 }
 
-EventResult FlowContainer::onMouseWheel(int amountScrolled)
+EventResult VerticalListContainer::onMouseWheel(int amountScrolled)
 {
     // Calc the content height by summing our element's heights and adding the
     // gaps.
@@ -61,13 +61,18 @@ EventResult FlowContainer::onMouseWheel(int amountScrolled)
     return EventResult{.wasHandled{true}};
 }
 
-void FlowContainer::updateLayout(const SDL_Point& newParentOffset,
-                                 const SDL_Rect& newClipExtent,
+void VerticalListContainer::updateLayout(const SDL_Point& startPosition,
+                                 const SDL_Rect& availableExtent,
                                  WidgetLocator* widgetLocator)
 {
     // Run the normal layout step (will update us, but won't process any of
     // our elements).
-    Widget::updateLayout(newParentOffset, newClipExtent, widgetLocator);
+    Widget::updateLayout(startPosition, availableExtent, widgetLocator);
+
+    // If this widget is fully clipped, return early.
+    if (SDL_RectEmpty(&clippedExtent)) {
+        return;
+    }
 
     // Refresh the scroll height and gap size.
     scaledScrollHeight = ScalingHelpers::logicalToActual(logicalScrollHeight);
@@ -81,29 +86,17 @@ void FlowContainer::updateLayout(const SDL_Point& newParentOffset,
     for (std::size_t i = 0; i < elements.size(); ++i) {
         // Figure out where the element should be placed.
         SDL_Rect elementExtent{elements[i]->getScaledExtent()};
-        elementExtent.x += clippedExtent.x;
-        elementExtent.y += clippedExtent.y;
+        elementExtent.x += fullExtent.x;
+        elementExtent.y += fullExtent.y;
         elementExtent.y += nextYOffset;
         elementExtent.y -= scrollDistance;
-
-        // Update nextYOffset for the next element.
-        nextYOffset += (elements[i]->getScaledExtent().h + scaledGapSize);
-
-        // If the element is at least partially inside of this widget, make
-        // sure it's visible.
-        if (SDL_HasIntersection(&elementExtent, &clippedExtent)) {
-            elements[i]->setIsVisible(true);
-        }
-        else {
-            // The element is fully outside of this widget. Make it invisible
-            // (to ignore events) and continue to the next.
-            elements[i]->setIsVisible(false);
-            continue;
-        }
 
         // Update the element, passing it the calculated start position.
         elements[i]->updateLayout({elementExtent.x, elementExtent.y},
                                   clippedExtent, widgetLocator);
+
+        // Update nextYOffset for the next element.
+        nextYOffset += (elements[i]->getScaledExtent().h + scaledGapSize);
     }
 }
 

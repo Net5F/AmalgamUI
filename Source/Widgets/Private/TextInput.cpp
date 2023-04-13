@@ -369,12 +369,22 @@ void TextInput::updateLayout(const SDL_Point& startPosition,
     // Do the normal layout updating.
     Widget::updateLayout(startPosition, availableExtent, widgetLocator);
 
+    // If this widget is fully clipped, return early.
+    if (SDL_RectEmpty(&clippedExtent)) {
+        return;
+    }
+
     // Refresh our cursor size.
     scaledCursorWidth = ScalingHelpers::logicalToActual(logicalCursorWidth);
 }
 
 void TextInput::render(const SDL_Point& windowTopLeft)
 {
+    // If this widget is fully clipped, don't render it.
+    if (SDL_RectEmpty(&clippedExtent)) {
+        return;
+    }
+
     // Render our child widgets.
     Widget::render(windowTopLeft);
 

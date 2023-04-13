@@ -49,13 +49,18 @@ EventResult VerticalGridContainer::onMouseWheel(int amountScrolled)
     return EventResult{.wasHandled{true}};
 }
 
-void VerticalGridContainer::updateLayout(const SDL_Point& newParentOffset,
-                                         const SDL_Rect& newClipExtent,
+void VerticalGridContainer::updateLayout(const SDL_Point& startPosition,
+                                         const SDL_Rect& availableExtent,
                                          WidgetLocator* widgetLocator)
 {
     // Run the normal layout step (will update us, but won't process any of
     // our elements).
-    Widget::updateLayout(newParentOffset, newClipExtent, widgetLocator);
+    Widget::updateLayout(startPosition, availableExtent, widgetLocator);
+
+    // If this widget is fully clipped, return early.
+    if (SDL_RectEmpty(&clippedExtent)) {
+        return;
+    }
 
     // Refresh the cell width and height.
     scaledCellWidth = ScalingHelpers::logicalToActual(logicalCellWidth);
@@ -70,18 +75,6 @@ void VerticalGridContainer::updateLayout(const SDL_Point& newParentOffset,
         std::size_t cellColumn{i % numColumns};
         std::size_t cellRow{i / numColumns};
 
-        // If this element is offscreen, make it invisible (to ignore events)
-        // and continue to the next.
-        if ((cellRow < rowScroll)
-            || (cellRow >= (maxVisibleRows + rowScroll))) {
-            elements[i]->setIsVisible(false);
-            continue;
-        }
-        else {
-            // Element is on screen, make sure it's visible.
-            elements[i]->setIsVisible(true);
-        }
-
         // Get the offsets for the cell at the calculated coordinates.
         int cellXOffset{static_cast<int>(cellColumn * scaledCellWidth)};
         int cellYOffset{static_cast<int>(cellRow * scaledCellHeight)};
@@ -90,8 +83,8 @@ void VerticalGridContainer::updateLayout(const SDL_Point& newParentOffset,
         cellYOffset -= (rowScroll * scaledCellHeight);
 
         // Add this widget's offset to get our final offset.
-        int finalX{clippedExtent.x + cellXOffset};
-        int finalY{clippedExtent.y + cellYOffset};
+        int finalX{fullExtent.x + cellXOffset};
+        int finalY{fullExtent.y + cellYOffset};
         elements[i]->updateLayout({finalX, finalY},
                                   {finalX, finalY, (finalX + scaledCellWidth),
                                    (finalY + scaledCellHeight)},

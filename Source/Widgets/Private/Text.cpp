@@ -167,6 +167,11 @@ void Text::updateLayout(const SDL_Point& startPosition,
     // Do the normal layout updating.
     Widget::updateLayout(startPosition, availableExtent, widgetLocator);
 
+    // If this widget is fully clipped, return early.
+    if (SDL_RectEmpty(&clippedExtent)) {
+        return;
+    }
+
     // If the UI scaling has changed, refresh everything.
     if (lastUsedScreenSize != Core::getActualScreenSize()) {
         refreshScaling();
@@ -196,6 +201,11 @@ void Text::updateLayout(const SDL_Point& startPosition,
 
 void Text::render(const SDL_Point& windowTopLeft)
 {
+    // If this widget is fully clipped, don't render it.
+    if (SDL_RectEmpty(&clippedExtent)) {
+        return;
+    }
+
     if (textTexture == nullptr) {
         AUI_LOG_FATAL("Tried to render Font with no texture. DebugName: %s",
                       debugName.c_str());

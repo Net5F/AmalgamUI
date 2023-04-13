@@ -78,29 +78,20 @@ void Container::onTick(double timestepS)
     }
 }
 
-void Container::updateLayout(const SDL_Point& startPosition,
-                             const SDL_Rect& availableExtent,
-                             WidgetLocator* widgetLocator)
-{
-    // Run the normal layout step (will update us, but won't process any of
-    // our elements).
-    Widget::updateLayout(startPosition, availableExtent, widgetLocator);
-
-    // Update our visible element's layouts and add them to the locator.
-    // Note: We skip invisible elements since they won't be rendered. If we
-    //       need to process invisible elements (for the widget locator's use,
-    //       perhaps), we can do so.
-    for (std::unique_ptr<Widget>& element : elements) {
-        if (element->getIsVisible()) {
-            element->updateLayout({clippedExtent.x, clippedExtent.y},
-                                  clippedExtent, widgetLocator);
-        }
-    }
-}
-
 void Container::render(const SDL_Point& windowTopLeft)
 {
+    // If this widget is fully clipped, don't render it.
+    if (SDL_RectEmpty(&clippedExtent)) {
+        return;
+    }
+
+    // Run the normal render step (will render our children, but won't render 
+    // any of our elements).
+    Widget::render(windowTopLeft);
+
     // Render all visible elements.
+    // Note: We skip invisible elements since they won't be rendered or receive
+    //       events.
     for (std::unique_ptr<Widget>& element : elements) {
         if (element->getIsVisible()) {
             element->render(windowTopLeft);

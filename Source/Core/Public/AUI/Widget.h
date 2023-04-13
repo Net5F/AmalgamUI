@@ -295,7 +295,11 @@ protected:
 
     /** This widget's final window-relative extent within the layout. Equal to
         fullExtent, but clipped to fit within the parent. Ready for use in
-        rendering and hit testing for events. */
+        rendering and hit testing for events.
+        Note: During updateLayout(), this widget may be found to not fit 
+              within the availableExtent. If so, this will be {0, 0, 0, 0}.
+              You can test for this with SDL_RectEmpty(clippedExtent), and 
+              should do so before using this extent. */
     SDL_Rect clippedExtent;
 
     /** If true, this widget will be rendered and will respond to events. */

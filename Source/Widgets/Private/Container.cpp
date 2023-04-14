@@ -53,14 +53,19 @@ void Container::clear()
     elements.clear();
 }
 
-Widget& Container::operator[](std::size_t index)
+void Container::resize(std::size_t count)
+{
+    elements.resize(count);
+}
+
+std::unique_ptr<Widget>& Container::operator[](std::size_t index)
 {
     if (elements.size() <= index) {
         AUI_LOG_FATAL("Given index is out of bounds. Index: %u, Size: %u",
                       index, elements.size());
     }
 
-    return *(elements[index]);
+    return elements[index];
 }
 
 std::size_t Container::size()

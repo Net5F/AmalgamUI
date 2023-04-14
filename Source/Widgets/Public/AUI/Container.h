@@ -48,13 +48,19 @@ public:
     void clear();
 
     /**
+     * Resizes the container to contain count elements. Does nothing if count 
+     * == size().
+     */
+    void resize(std::size_t count);
+
+    /**
      * Returns the element at the given index.
      *
      * Errors in debug if the given index doesn't exist.
      * Accessing a nonexistant element through this operator is undefined
      * behavior.
      */
-    Widget& operator[](std::size_t index);
+    std::unique_ptr<Widget>& operator[](std::size_t index);
 
     /**
      * Returns the number of elements in this container.

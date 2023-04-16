@@ -63,7 +63,7 @@ public:
                       const SDL_Rect& availableExtent,
                       WidgetLocator* widgetLocator) override;
 
-private:
+protected:
     /**
      * Calculates the height of this widget, if it was in an expanded state.
      */

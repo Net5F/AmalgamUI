@@ -15,6 +15,7 @@ CollapsibleContainer::CollapsibleContainer(const SDL_Rect& inLogicalExtent,
 , collapsedImage{{0, 0, logicalExtent.w, logicalExtent.h}}
 , headerText{{0, 0, logicalExtent.w, logicalExtent.h}}
 , headerLogicalExtent{inLogicalExtent}
+, clickRegionLogicalExtent{0, 0, logicalExtent.w, logicalExtent.h}
 , isCollapsed{true}
 , logicalGapSize{0}
 , scaledGapSize{0}
@@ -30,9 +31,17 @@ CollapsibleContainer::CollapsibleContainer(const SDL_Rect& inLogicalExtent,
     // Note: Remember, this is a container so it also has elements.
 }
 
+void CollapsibleContainer::setClickRegionLogicalExtent(
+    const SDL_Rect& inLogicalExtent)
+{
+    clickRegionLogicalExtent = inLogicalExtent;
+}
+
 void CollapsibleContainer::setIsCollapsed(bool inIsCollapsed)
 {
     isCollapsed = inIsCollapsed;
+
+    int oldHeight{logicalExtent.h};
 
     // Update our visible children and extent to match the new state.
     if (isCollapsed) {
@@ -50,6 +59,11 @@ void CollapsibleContainer::setIsCollapsed(bool inIsCollapsed)
         logicalExtent.h = calcExpandedHeight();
     }
 
+    // If our height changed, call the user's onHeightChanged callback.
+    if ((onHeightChanged != nullptr) && (logicalExtent.h != oldHeight)) {
+        onHeightChanged();
+    }
+
     // TODO: Invalidate layout
 }
 
@@ -57,6 +71,34 @@ void CollapsibleContainer::setGapSize(int inLogicalGapSize)
 {
     logicalGapSize = inLogicalGapSize;
     scaledGapSize = ScalingHelpers::logicalToActual(logicalGapSize);
+}
+
+SDL_Rect CollapsibleContainer::getHeaderExtent()
+{
+    // Calculate the header's extent (we can't just use clippedExtent because 
+    // when we're expanded it accounts for the whole container).
+    SDL_Rect headerExtent{
+        AUI::ScalingHelpers::logicalToActual(headerLogicalExtent)};
+    headerExtent.x = clippedExtent.x;
+    headerExtent.y = clippedExtent.y;
+
+    return headerExtent;
+}
+
+SDL_Rect CollapsibleContainer::getClickRegionExtent()
+{
+    // Calculate the region's extent.
+    SDL_Rect clickRegionExtent{
+        AUI::ScalingHelpers::logicalToActual(clickRegionLogicalExtent)};
+    clickRegionExtent.x = clippedExtent.x;
+    clickRegionExtent.y = clippedExtent.y;
+
+    return clickRegionExtent;
+}
+
+void CollapsibleContainer::setOnHeightChanged(std::function<void(void)> inOnHeightChanged)
+{
+    onHeightChanged = std::move(inOnHeightChanged);
 }
 
 void CollapsibleContainer::setLogicalExtent(const SDL_Rect& inLogicalExtent)
@@ -70,15 +112,9 @@ void CollapsibleContainer::setLogicalExtent(const SDL_Rect& inLogicalExtent)
 EventResult CollapsibleContainer::onMouseDown(MouseButtonType buttonType,
                                    const SDL_Point& cursorPosition)
 {
-    // Calculate the header's extent (we can't just use clippedExtent because 
-    // when we're expanded it accounts for the whole container).
-    SDL_Rect headerExtent{
-        ScalingHelpers::logicalToActual(headerLogicalExtent)};
-    headerExtent.x = clippedExtent.x;
-    headerExtent.y = clippedExtent.y;
-
-    // If the header was clicked, toggle the collapsed state.
-    if (SDLHelpers::pointInRect(cursorPosition, headerExtent)) {
+    // If the click region was clicked, toggle the collapsed state.
+    SDL_Rect clickRegionExtent{getClickRegionExtent()};
+    if (SDLHelpers::pointInRect(cursorPosition, clickRegionExtent)) {
         setIsCollapsed(!isCollapsed);
 
         return EventResult{.wasHandled{true}};
@@ -102,7 +138,12 @@ void CollapsibleContainer::updateLayout(const SDL_Point& startPosition,
     // Note: We need to do this in case any of our elements changed their 
     //       extents.
     if (!isCollapsed) {
+        int oldHeight{logicalExtent.h};
         logicalExtent.h = calcExpandedHeight();
+
+        if ((onHeightChanged != nullptr) && (logicalExtent.h != oldHeight)) {
+            onHeightChanged();
+        }
     }
 
     // Run the normal layout step (will update us and our children, but won't 

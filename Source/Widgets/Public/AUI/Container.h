@@ -47,11 +47,9 @@ public:
      */
     void clear();
 
-    /**
-     * Resizes the container to contain count elements. Does nothing if count 
-     * == size().
-     */
-    void resize(std::size_t count);
+    // Note: We intentionally exclude resize() since it's easy to misuse. 
+    //       (The new elements must immediately be set, or else the next 
+    //       layout update will cause a crash.)
 
     /**
      * Returns the element at the given index.

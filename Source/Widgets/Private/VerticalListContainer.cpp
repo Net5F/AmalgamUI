@@ -8,9 +8,9 @@
 namespace AUI
 {
 VerticalListContainer::VerticalListContainer(const SDL_Rect& inLogicalExtent,
-                             const std::string& inDebugName)
+                                             const std::string& inDebugName)
 : Container(inLogicalExtent, inDebugName)
-, logicalScrollHeight{LOGICAL_DEFAULT_SCROLL_HEIGHT}
+, logicalScrollHeight{LOGICAL_DEFAULT_SCROLL_DISTANCE}
 , scaledScrollHeight{ScalingHelpers::logicalToActual(logicalScrollHeight)}
 , logicalGapSize{0}
 , scaledGapSize{0}
@@ -32,18 +32,8 @@ void VerticalListContainer::setScrollHeight(int inLogicalScrollHeight)
 
 EventResult VerticalListContainer::onMouseWheel(int amountScrolled)
 {
-    // Calc the content height by summing our element's heights and adding the
-    // gaps.
-    int contentHeight{0};
-    for (const std::unique_ptr<Widget>& widget : elements) {
-        contentHeight += scaledGapSize;
-        contentHeight += widget->getScaledExtent().h;
-    }
-
-    // Subtract 1 gap size, so we don't have a gap on the bottom.
-    contentHeight -= scaledGapSize;
-
     // If the content isn't taller than this widget, don't scroll.
+    int contentHeight{calcContentHeight()};
     if (contentHeight < scaledExtent.h) {
         return EventResult{.wasHandled{true}};
     }
@@ -62,8 +52,8 @@ EventResult VerticalListContainer::onMouseWheel(int amountScrolled)
 }
 
 void VerticalListContainer::updateLayout(const SDL_Point& startPosition,
-                                 const SDL_Rect& availableExtent,
-                                 WidgetLocator* widgetLocator)
+                                         const SDL_Rect& availableExtent,
+                                         WidgetLocator* widgetLocator)
 {
     // Run the normal layout step (will update us, but won't process any of
     // our elements).
@@ -72,6 +62,13 @@ void VerticalListContainer::updateLayout(const SDL_Point& startPosition,
     // If this widget is fully clipped, return early.
     if (SDL_RectEmpty(&clippedExtent)) {
         return;
+    }
+
+    // If our content changed and is now shorter than this widget, reset the 
+    // scroll distance.
+    int contentHeight{calcContentHeight()};
+    if (contentHeight < scaledExtent.h) {
+        scrollDistance = 0;
     }
 
     // Refresh the scroll height and gap size.
@@ -98,6 +95,22 @@ void VerticalListContainer::updateLayout(const SDL_Point& startPosition,
         // Update nextYOffset for the next element.
         nextYOffset += (elements[i]->getScaledExtent().h + scaledGapSize);
     }
+}
+
+int VerticalListContainer::calcContentHeight()
+{
+    // Calc the content height by summing our element's heights and adding the
+    // gaps.
+    int contentHeight{0};
+    for (const std::unique_ptr<Widget>& widget : elements) {
+        contentHeight += scaledGapSize;
+        contentHeight += widget->getScaledExtent().h;
+    }
+
+    // Subtract 1 gap size, so we don't have a gap on the bottom.
+    contentHeight -= scaledGapSize;
+
+    return contentHeight;
 }
 
 } // namespace AUI

@@ -41,8 +41,13 @@ public:
                       WidgetLocator* widgetLocator) override;
 
 private:
-    /** The default logical pixel height of single scroll event. */
-    static constexpr int LOGICAL_DEFAULT_SCROLL_HEIGHT{5};
+    /**
+     * Calculates the height of this container's content, including gaps.
+     */
+    int calcContentHeight();
+
+    /** The default logical pixel distance of a scroll event. */
+    static constexpr int LOGICAL_DEFAULT_SCROLL_DISTANCE{15};
 
     /** The height in logical space of a single scroll event. */
     int logicalScrollHeight;

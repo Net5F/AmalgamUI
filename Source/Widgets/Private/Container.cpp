@@ -53,11 +53,6 @@ void Container::clear()
     elements.clear();
 }
 
-void Container::resize(std::size_t count)
-{
-    elements.resize(count);
-}
-
 std::unique_ptr<Widget>& Container::operator[](std::size_t index)
 {
     if (elements.size() <= index) {

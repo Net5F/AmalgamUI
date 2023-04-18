@@ -100,8 +100,12 @@ private:
      * Used for passing data from a specific event handler function back up to
      * a general event handler function.
      */
-    struct HandlerReturn {
-        EventResult eventResult{};
+    struct HandlerReturnData {
+        /** If true, a widget handled the event. */
+        bool eventWasHandled{false};
+        /** If true, a handler explicitly set focus while the event was 
+            propagating. */
+        bool focusWasSet{false};
         /** If eventResult.wasHandled == true, this points to the widget that
             handled the event. */
         WidgetPath::iterator handlerWidget;
@@ -142,14 +146,14 @@ private:
     /**
      * Routes a MouseDown to the given widget path.
      */
-    HandlerReturn handleMouseDown(MouseButtonType buttonType,
+    HandlerReturnData handleMouseDown(MouseButtonType buttonType,
                                   const SDL_Point& cursorPosition,
                                   WidgetPath& clickPath);
 
     /**
      * Routes a MouseDoubleClick to the given widget path.
      */
-    HandlerReturn handleMouseDoubleClick(MouseButtonType buttonType,
+    HandlerReturnData handleMouseDoubleClick(MouseButtonType buttonType,
                                          const SDL_Point& cursorPosition,
                                          WidgetPath& clickPath);
 
@@ -164,16 +168,10 @@ private:
 
     /**
      * Routes a MouseMove to the widgets in hoverPath.
+     * @return true if the event was handled, else false.
      */
-    EventResult handleUncapturedMouseMove(const SDL_Point& cursorPosition,
-                                          WidgetPath& hoverPath);
-
-    /**
-     * Processes the given event result. May update mouse capture, etc.
-     *
-     * @param eventResult  The event result to process.
-     */
-    void processEventResult(const EventResult& eventResult);
+    bool handleUncapturedMouseMove(const SDL_Point& cursorPosition,
+                                   WidgetPath& hoverPath);
 
     /**
      * If eventPath has any focusable widgets, sets focus to the path from
@@ -212,6 +210,13 @@ private:
      * @return true if the event was handled, else false.
      */
     bool handleKeyUp(SDL_Keycode keyCode);
+
+    /**
+     * Processes the given event result. May update mouse capture, etc.
+     *
+     * @param eventResult  The event result to process.
+     */
+    void processEventResult(const EventResult& eventResult);
 
     /** Used to interact with the Window stack. */
     Screen& screen;

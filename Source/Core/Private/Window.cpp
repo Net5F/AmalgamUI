@@ -15,6 +15,11 @@ WidgetPath Window::getPathUnderPoint(const SDL_Point& actualPoint)
     return widgetLocator.getPathUnderPoint(actualPoint);
 }
 
+WidgetPath Window::getPathUnderWidget(Widget* widget)
+{
+    return widgetLocator.getPathUnderWidget(widget);
+}
+
 void Window::tick(double timestepS)
 {
     // Call every visible child's onTick().
@@ -34,9 +39,8 @@ void Window::updateLayout()
     // the layout.
     scaledExtent = ScalingHelpers::logicalToActual(logicalExtent);
 
-    // Windows derive from Widget so that they can be added to the
-    // WidgetLocator. The locator expects widget.clippedExtent to be
-    // window-relative, so we need to 0-out its position.
+    // The locator expects clippedExtent to be window-relative, so we meed to
+    // 0-out its position.
     fullExtent = scaledExtent;
     fullExtent.x = 0;
     fullExtent.y = 0;
@@ -53,9 +57,8 @@ void Window::updateLayout()
 
     // Update our visible children's layouts and let them add themselves to
     // the locator.
-    // Note: We skip invisible children since they won't be rendered. If we
-    //       need to process invisible children (for the widget locator's use,
-    //       perhaps), we can change this.
+    // Note: We skip invisible children since they won't be rendered or receive
+    //       events.
     SDL_Rect availableExtent{scaledExtent};
     availableExtent.x = 0;
     availableExtent.y = 0;
@@ -64,6 +67,11 @@ void Window::updateLayout()
             child.updateLayout({0, 0}, availableExtent, &widgetLocator);
         }
     }
+}
+
+bool Window::containsWidget(Widget* widget)
+{
+    return widgetLocator.containsWidget(widget);
 }
 
 void Window::render()

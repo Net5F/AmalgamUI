@@ -31,7 +31,7 @@ TextInput::TextInput(const SDL_Rect& inLogicalExtent,
     children.push_back(disabledImage);
     children.push_back(text);
 
-    // Flag ourselves as keyboard focusable, so we can receive keyboard events.
+    // Flag ourselves as focusable, so we can receive keyboard events.
     isFocusable = true;
 
     // Default to left-justifying the text within the button. The user can set

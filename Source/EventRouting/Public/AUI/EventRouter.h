@@ -34,7 +34,7 @@ class Screen;
  *
  * Key Events and Focus:
  *   In order for a widget to receive KeyDown, KeyUp, or TextInput events, it
- *   must have keyboard focus.
+ *   must have focus.
  *   If a widget is marked as isFocusable, it will receive focus when clicked.
  *   It can also be explicitly given focus using the setFocus field in
  *   EventResult.
@@ -44,15 +44,9 @@ class Screen;
  *   setting the dropFocus field in EventResult, or implicitly by using the
  *   setFocus field to switch focus to a new widget.
  *
- *   TODO: Implement KeyDown listeners/registration in Screen and explain it
- *         here.
- *   KeyDown events can also be received by registering as a listener. If the
- *   focus target doesn't handle the KeyDown, it will then be routed to any
- *   registered listeners. TODO: Explain how to register
- *   KeyDown listeners are necessary in certain cases, e.g. to open a menu when
- *   a button is pressed. In such cases, the widget in charge of handling the
- *   event likely won't be the focus target, so it needs to explicitly register
- *   to receive it.
+ *   Sometimes you want to receive key events without having focus, e.g. 
+ *   to open a menu. To do this, use Screen::onKeyDown(). It will receive 
+ *   any key events that aren't handled by a focused widget.
  */
 class EventRouter
 {
@@ -95,6 +89,11 @@ public:
      */
     bool handleTextInput(SDL_TextInputEvent& event);
 
+    /**
+     * Attempts to set focus to the given widget.
+     */
+    void setFocus(Widget* widget);
+
 private:
     /**
      * Used for passing data from a specific event handler function back up to
@@ -124,24 +123,20 @@ private:
     SDL_Point screenToWindowRelative(const SDL_Point& cursorPosition);
 
     /**
-     * Returns a widget path containing all widgets that are underneath the
-     * given cursor position.
+     * Returns a path that traces from the first hit window, up to its top-most 
+     * hit child widget (inclusive).
      *
      * If no widgets are under the cursor, returns an empty path.
      */
     WidgetPath getPathUnderCursor(const SDL_Point& cursorPosition);
 
     /**
-     * Returns a path that traces from the root-most tracked relative of the
-     * given widget, down to the given widget (inclusive).
+     * Returns a path that traces from the given widget's parent Window, up to
+     * the given widget (inclusive).
      *
-     * If all relevant widgets are being tracked by this locator, this will
-     * return the path from the widget's parent Window down to the widget.
-     *
-     * Note: This relies on our rules: parent widgets must fully overlap their
-     *       children, and it's invalid for sibling widgets to overlap.
+     * If the widget was not found in the current layout, returns an empty path.
      */
-    WidgetPath getPathUnderWidget(const Widget* widget);
+    WidgetPath getPathUnderWidget(Widget* widget);
 
     /**
      * Routes a MouseDown to the given widget path.
@@ -174,9 +169,10 @@ private:
                                    WidgetPath& hoverPath);
 
     /**
-     * If eventPath has any focusable widgets, sets focus to the path from
-     * eventPath's root to its leafmost focusable widget.
-     * @return true if a focus was set, else false.
+     * Sets focus to a path from eventPath's root to its leafmost focusable 
+     * widget.
+     * @return true if focus was set, false if eventPath had no focusable 
+     *         widgets.
      */
     bool setFocusIfFocusable(WidgetPath& eventPath);
 

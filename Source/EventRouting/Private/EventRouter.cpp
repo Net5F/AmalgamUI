@@ -34,8 +34,8 @@ bool EventRouter::handleMouseButtonDown(SDL_MouseButtonEvent& event)
                 = handleMouseDoubleClick(buttonType, cursorPosition, clickPath);
         }
 
-        // If the event was handled and it didn't explicitly set keyboard
-        // focus, see if any of the clicked widgets can take focus.
+        // If the event was handled and it didn't explicitly set focus, see if 
+        // any of the clicked widgets can take focus.
         if (returnData.eventWasHandled && !(returnData.focusWasSet)) {
             // Build a path that ends at the widget that handled the event.
             WidgetPath truncatedPath(clickPath.begin(),
@@ -230,6 +230,14 @@ bool EventRouter::handleTextInput(SDL_TextInputEvent& event)
     return eventWasHandled;
 }
 
+void EventRouter::setFocus(Widget* widget)
+{
+    WidgetPath focusPath{getPathUnderWidget(widget)};
+    if (!setFocusIfFocusable(focusPath)) {
+        AUI_LOG_ERROR("Failed to set focus.");
+    }
+}
+
 MouseButtonType EventRouter::translateSDLButtonType(Uint8 sdlButtonType)
 {
     switch (sdlButtonType) {
@@ -286,21 +294,16 @@ WidgetPath EventRouter::getPathUnderCursor(const SDL_Point& cursorPosition)
     return WidgetPath{};
 }
 
-WidgetPath EventRouter::getPathUnderWidget(const Widget* widget)
+WidgetPath EventRouter::getPathUnderWidget(Widget* widget)
 {
-    // Calc the center of the given widget.
-    SDL_Rect widgetExtent{widget->getClippedExtent()};
-    SDL_Point widgetCenter{};
-    widgetCenter.x = widgetExtent.x + (widgetExtent.w / 2);
-    widgetCenter.y = widgetExtent.y + (widgetExtent.h / 2);
-
     // Get the widget's parent window.
-    Window* hoveredWindow{screen.getWindowUnderPoint(widgetCenter)};
-    AUI_ASSERT((hoveredWindow != nullptr),
-               "Widget was somehow not within a Window.");
+    Window* hoveredWindow{screen.getWidgetParentWindow(widget)};
+    if (hoveredWindow != nullptr) {
+        // Return the path under the widget.
+        return hoveredWindow->getPathUnderWidget(widget);
+    }
 
-    // Return the path under the widget.
-    return hoveredWindow->getPathUnderPoint(widgetCenter);
+    return WidgetPath{};
 }
 
 EventRouter::HandlerReturnData

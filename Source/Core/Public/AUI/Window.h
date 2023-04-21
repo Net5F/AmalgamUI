@@ -41,13 +41,28 @@ public:
      * Builds a path containing all tracked widgets that are underneath the
      * given actual-space point.
      *
-     * The returned path is in the order that an event should travel.
-     *
      * @param actualPoint  The point in actual space to test widgets with.
      * @return A widget path, ordered with the root-most widget at the front
      *         and the leaf-most widget at the back.
      */
     WidgetPath getPathUnderPoint(const SDL_Point& actualPoint);
+
+    /**
+     * Builds a path containing all tracked widgets that are underneath the
+     * center of the given widget.
+     *
+     * @param widget  The widget to build a path with.
+     * @return A widget path, ordered with the root-most widget at the front
+     *         and the leaf-most widget at the back.
+     */
+    WidgetPath getPathUnderWidget(Widget* widget);
+
+    /**
+     * Returns true if this window contains the given widget.
+     * Note: This may not be accurate for invisible widgets, or widgets that 
+     *       have just been made visible and haven't yet been laid out.
+     */
+    bool containsWidget(Widget* widget);
 
     /**
      * Calls the onTick() of all of our children.

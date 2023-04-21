@@ -29,10 +29,30 @@ public:
     virtual ~Screen() = default;
 
     /**
-     * @return The topmost window under the given point if one was found, else
-     *         nullptr.
+     * Returns the topmost window under the given point if one was found, else
+     * nullptr.
      */
     Window* getWindowUnderPoint(const SDL_Point& point);
+
+    /**
+     * Returns the given widget's parent window.
+     */
+    Window* getWidgetParentWindow(Widget* widget);
+
+    /**
+     * Attempts to set focus to the given widget.
+     * Fails if the given widget isn't in the current layout.
+     */
+    void setFocus(Widget* widget);
+
+    /**
+     * Saves the given widget pointer and attempts to set focus to it after the 
+     * next layout update.
+     * Use this if you've just made a widget visible and want it to be the 
+     * focus target. You can't set focus to it immediately because it isn't 
+     * yet in the layout, but this will do it at the correct time.
+     */
+    void setFocusAfterNextLayout(Widget* widget);
 
     /**
      * Passes the given SDL event to the EventRouter, where translation and
@@ -86,6 +106,10 @@ protected:
 
     /** Translates SDL events to AUI events and handles routing them. */
     EventRouter eventRouter;
+
+    /** If non-nullptr, the pointed-to widget will be given focus after the 
+        next layout update. */
+    Widget* pendingFocusTarget;
 };
 
 } // namespace AUI

@@ -20,18 +20,18 @@ public:
         further. */
     bool wasHandled{false};
 
-    /** If non-nullptr, mouse capture should be set to the provided widget. */
+    /** If non-nullptr, mouse capture should be set to the given widget. */
     Widget* setMouseCapture{nullptr};
 
     /** If true, mouse capture should be released. */
     bool releaseMouseCapture{false};
 
-    /** If non-nullptr, keyboard focus should be set to the provided widget.
+    /** If non-nullptr, focus should be set to the given widget.
         If focus is already set to a different widget, it will be dropped
-        and set to the provided widget. */
+        and set to the given widget. */
     Widget* setFocus{nullptr};
 
-    /** If true, keyboard focus should be dropped. */
+    /** If true, focus should be dropped. */
     bool dropFocus{false};
 };
 

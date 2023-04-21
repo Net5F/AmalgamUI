@@ -98,10 +98,9 @@ void Image::render(const SDL_Point& windowTopLeft)
         return;
     }
 
-    // If we don't have an ImageType to render, fail.
+    // If we don't have an ImageType to render, return early.
     if (imageType == nullptr) {
-        AUI_LOG_FATAL("Tried to render Image with no ImageType. DebugName: %s",
-                      debugName.c_str());
+        return;
     }
 
     // If this widget is partially clipped, calculate a matching clipped

@@ -305,11 +305,11 @@ protected:
     /** If true, this widget will be rendered and will respond to events. */
     bool isVisible;
 
-    /** If true, this widget is keyboard focusable.
+    /** If true, this widget is focusable.
         Focusable widgets can be focused by left clicking on them, or by
-        explicitly setting focus through an EventResult. Focus can be removed
-        by clicking elsewhere, or by hitting the escape key.
-        When a widget is focused, it will receive key press and character
+        explicitly setting focus through an EventResult or Screen::setFocus().
+        Focus can be removed by clicking elsewhere, or by hitting the escape 
+        key. When a widget is focused, it will receive key press and character 
         events. */
     bool isFocusable;
 

@@ -64,6 +64,14 @@ void WidgetLocator::removeWidget(Widget* widget)
     }
 }
 
+void WidgetLocator::clear()
+{
+    widgetMap.clear();
+    for (auto& widgetVector : widgetGrid) {
+        widgetVector.clear();
+    }
+}
+
 WidgetPath WidgetLocator::getPathUnderPoint(const SDL_Point& actualPoint)
 {
     AUI_ASSERT(
@@ -90,6 +98,7 @@ WidgetPath WidgetLocator::getPathUnderPoint(const SDL_Point& actualPoint)
             continue;
         }
         Widget& widget{widgetWeakRef.get()};
+        SDL_Rect clippedExtent{widget.getClippedExtent()};
 
         // If the widget contains the point, add it to the path.
         if (widget.containsPoint(relativePoint)) {
@@ -100,12 +109,26 @@ WidgetPath WidgetLocator::getPathUnderPoint(const SDL_Point& actualPoint)
     return returnPath;
 }
 
-void WidgetLocator::clear()
+WidgetPath WidgetLocator::getPathUnderWidget(Widget* widget)
 {
-    widgetMap.clear();
-    for (auto& widgetVector : widgetGrid) {
-        widgetVector.clear();
-    }
+    // Calc the center of the given widget.
+    SDL_Rect widgetExtent{widget->getClippedExtent()};
+    SDL_Point widgetCenter{};
+    widgetCenter.x = widgetExtent.x + (widgetExtent.w / 2);
+    widgetCenter.y = widgetExtent.y + (widgetExtent.h / 2);
+
+    // Convert the window-relative point to screen-relative so we can use 
+    // getPathUnderPoint().
+    widgetCenter.x += gridScreenExtent.x;
+    widgetCenter.y += gridScreenExtent.y;
+
+    // Return the path under the widget's center.
+    return getPathUnderPoint(widgetCenter);
+}
+
+bool WidgetLocator::containsWidget(Widget* widget)
+{
+    return widgetMap.contains(widget);
 }
 
 void WidgetLocator::setExtent(const SDL_Rect& inScreenExtent)

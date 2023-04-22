@@ -85,9 +85,7 @@ void VerticalGridContainer::updateLayout(const SDL_Point& startPosition,
         // Add this widget's offset to get our final offset.
         int finalX{fullExtent.x + cellXOffset};
         int finalY{fullExtent.y + cellYOffset};
-        elements[i]->updateLayout({finalX, finalY},
-                                  {finalX, finalY, (finalX + scaledCellWidth),
-                                   (finalY + scaledCellHeight)},
+        elements[i]->updateLayout({finalX, finalY}, clippedExtent,
                                   widgetLocator);
     }
 }

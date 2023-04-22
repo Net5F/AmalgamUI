@@ -199,8 +199,8 @@ void Widget::updateLayout(const SDL_Point& startPosition,
         clippedExtent = intersectionResult;
     }
     else {
-        // fullExtent does not intersect availableExtent. Zero-out 
-        // clippedExtent and return early.
+        // fullExtent does not intersect availableExtent (e.g. this widget 
+        // is fully clipped). Zero-out clippedExtent and return early.
         clippedExtent = {0, 0, 0, 0};
         return;
     }

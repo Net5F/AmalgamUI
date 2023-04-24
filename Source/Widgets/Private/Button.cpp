@@ -101,7 +101,7 @@ EventResult Button::onMouseUp(MouseButtonType buttonType,
     }
     // If we're disabled, ignore the event.
     else if (currentState == State::Disabled) {
-        // Note: We need to release mouse capture in case we were disabled 
+        // Note: We need to release mouse capture in case we were disabled
         //       while a click was being held.
         return EventResult{.wasHandled{false}, .releaseMouseCapture{true}};
     }

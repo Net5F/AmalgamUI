@@ -7,15 +7,16 @@ namespace AUI
 {
 Text::Text(const SDL_Rect& inLogicalExtent, const std::string& inDebugName)
 : Widget(inLogicalExtent, inDebugName)
-, fontPath("")
+, fontPath{""}
 , logicalFontSize{10}
-, fontHandle()
+, font{}
 , color{0, 0, 0, 255}
 , backgroundColor{0, 0, 0, 0}
 , renderMode{RenderMode::Blended}
 , text("Initialized")
 , verticalAlignment{VerticalAlignment::Top}
 , horizontalAlignment{HorizontalAlignment::Left}
+, lastUsedScreenSize{0, 0}
 , textureIsDirty{true}
 , textTexture{nullptr}
 , textureExtent{}
@@ -26,10 +27,10 @@ Text::Text(const SDL_Rect& inLogicalExtent, const std::string& inDebugName)
 {
 }
 
-void Text::setFont(const std::string& relPath, int size)
+void Text::setFont(std::string_view inFontPath, int size)
 {
     // Save the data for later scaling.
-    fontPath = relPath;
+    fontPath = inFontPath;
     logicalFontSize = size;
 
     // Load the new font object.
@@ -112,7 +113,7 @@ SDL_Rect Text::calcCharacterOffset(std::size_t index)
 
     // Get the x offset and height from the relevant characters.
     SDL_Rect offsetExtent{};
-    TTF_SizeText(&(*fontHandle), relevantChars.c_str(), &(offsetExtent.x),
+    TTF_SizeText(&(*font), relevantChars.c_str(), &(offsetExtent.x),
                  &(offsetExtent.h));
 
     // Account for our alignment/position by adding the text extent's offset.
@@ -128,9 +129,9 @@ SDL_Rect Text::calcCharacterOffset(std::size_t index)
 int Text::calcStringWidth(const std::string& string)
 {
     // Calculate the width that the given string would have if rendered using
-    // the font in fontHandle.
+    // the current font.
     int stringWidth{0};
-    TTF_SizeText(&(*fontHandle), string.c_str(), &(stringWidth), nullptr);
+    TTF_SizeText(&(*font), string.c_str(), &(stringWidth), nullptr);
 
     return stringWidth;
 }
@@ -159,25 +160,37 @@ void Text::setLogicalExtent(const SDL_Rect& inLogicalExtent)
     refreshAlignment();
 }
 
-void Text::updateLayout(const SDL_Rect& parentExtent,
+void Text::updateLayout(const SDL_Point& startPosition,
+                        const SDL_Rect& availableExtent,
                         WidgetLocator* widgetLocator)
 {
-    // If a property has been changed, re-render our text texture.
-    if (textureIsDirty) {
+    // Do the normal layout updating.
+    Widget::updateLayout(startPosition, availableExtent, widgetLocator);
+
+    // If this widget is fully clipped, return early.
+    if (SDL_RectEmpty(&clippedExtent)) {
+        return;
+    }
+
+    // If the UI scaling has changed, refresh everything.
+    if (lastUsedScreenSize != Core::getActualScreenSize()) {
+        refreshScaling();
+        lastUsedScreenSize = Core::getActualScreenSize();
+    }
+    // Else if a property has been changed, just re-render our text texture.
+    else if (textureIsDirty) {
         refreshTexture();
         textureIsDirty = false;
     }
 
-    // Do the normal layout updating.
-    Widget::updateLayout(parentExtent, widgetLocator);
-
-    // Offset our textExtent to start at parentExtent.
+    // Offset our textExtent to start at startPosition.
     SDL_Rect offsetTextExtent{textExtent};
-    offsetTextExtent.x += (parentExtent.x + textOffset);
-    offsetTextExtent.y += parentExtent.y;
+    offsetTextExtent.x += (startPosition.x + textOffset);
+    offsetTextExtent.y += startPosition.y;
 
     // Clip the text image's extent to not go beyond this widget's extent.
-    offsetClippedTextExtent = calcClippedExtent(offsetTextExtent, renderExtent);
+    SDL_IntersectRect(&offsetTextExtent, &clippedExtent,
+                      &offsetClippedTextExtent);
 
     // Pull offsetClippedTextExtent back into texture space ((0, 0) origin).
     // This tells us what part of the text image texture to actually render.
@@ -186,36 +199,37 @@ void Text::updateLayout(const SDL_Rect& parentExtent,
     offsetClippedTextureExtent.y -= offsetTextExtent.y;
 }
 
-void Text::render()
+void Text::render(const SDL_Point& windowTopLeft)
 {
+    // If this widget is fully clipped, don't render it.
+    if (SDL_RectEmpty(&clippedExtent)) {
+        return;
+    }
+
     if (textTexture == nullptr) {
         AUI_LOG_FATAL("Tried to render Font with no texture. DebugName: %s",
                       debugName.c_str());
     }
 
     // Render the text texture.
+    SDL_Rect finalExtent{offsetClippedTextExtent};
+    finalExtent.x += windowTopLeft.x;
+    finalExtent.y += windowTopLeft.y;
     SDL_RenderCopy(Core::getRenderer(), textTexture.get(),
-                   &offsetClippedTextureExtent, &offsetClippedTextExtent);
+                   &offsetClippedTextureExtent, &finalExtent);
 }
 
-bool Text::refreshScaling()
+void Text::refreshScaling()
 {
-    // If scaledExtent was refreshed, do our specialized refreshing.
-    if (Widget::refreshScaling()) {
-        // Refresh our alignment since the extent has moved.
-        refreshAlignment();
+    // Refresh our alignment since the extent has moved.
+    refreshAlignment();
 
-        // Refresh our font object to match the new scale.
-        refreshFontObject();
+    // Refresh our font object to match the new scale.
+    refreshFontObject();
 
-        // Re-render the text texture.
-        refreshTexture();
-        textureIsDirty = false;
-
-        return true;
-    }
-
-    return false;
+    // Re-render the text texture.
+    refreshTexture();
+    textureIsDirty = false;
 }
 
 void Text::refreshAlignment()
@@ -262,12 +276,12 @@ void Text::refreshFontObject()
 
     // Attempt to load the given font (errors on failure).
     AssetCache& assetCache{Core::getAssetCache()};
-    fontHandle = assetCache.loadFont(fontPath, actualFontSize);
+    font = assetCache.requestFont(fontPath, actualFontSize);
 }
 
 void Text::refreshTexture()
 {
-    if (!fontHandle) {
+    if (!font) {
         AUI_LOG_FATAL("Please call setFont() before refreshTexture(), so"
                       " that a valid font object can be used for texture "
                       "generation. DebugName: %s",
@@ -286,34 +300,34 @@ void Text::refreshTexture()
     SDL_Surface* surface{nullptr};
     switch (renderMode) {
         case RenderMode::Solid: {
-            surface = TTF_RenderUTF8_Solid(&(*fontHandle),
-                                           textToRender->c_str(), color);
+            surface
+                = TTF_RenderUTF8_Solid(&(*font), textToRender->c_str(), color);
             break;
         }
         case RenderMode::Shaded: {
-            surface = TTF_RenderUTF8_Shaded(
-                &(*fontHandle), textToRender->c_str(), color, backgroundColor);
+            surface = TTF_RenderUTF8_Shaded(&(*font), textToRender->c_str(),
+                                            color, backgroundColor);
             break;
         }
         case RenderMode::Blended: {
-            surface = TTF_RenderUTF8_Blended(&(*fontHandle),
-                                             textToRender->c_str(), color);
+            surface = TTF_RenderUTF8_Blended(&(*font), textToRender->c_str(),
+                                             color);
             break;
         }
-        // Note: Removed because SDL_ttf on 22.04 doesn't support it.
-        //case RenderMode::LCD: {
-        //    surface = TTF_RenderUTF8_LCD(&(*fontHandle), textToRender->c_str(),
-        //                                 color, backgroundColor);
-        //    break;
-        //}
+            // Note: Removed because SDL_ttf on 22.04 doesn't support it.
+            // case RenderMode::LCD: {
+            //    surface = TTF_RenderUTF8_LCD(&(*font), textToRender->c_str(),
+            //                                 color, backgroundColor);
+            //    break;
+            //}
     }
     if (surface == nullptr) {
         AUI_LOG_FATAL("Failed to create surface.");
     }
 
     // Move the image to a texture on the gpu.
-    SDL_Texture* texture
-        = SDL_CreateTextureFromSurface(Core::getRenderer(), surface);
+    SDL_Texture* texture{
+        SDL_CreateTextureFromSurface(Core::getRenderer(), surface)};
     SDL_FreeSurface(surface);
     if (texture == nullptr) {
         AUI_LOG_FATAL("Failed to create texture.");

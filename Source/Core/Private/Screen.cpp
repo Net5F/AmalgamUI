@@ -9,6 +9,7 @@ namespace AUI
 Screen::Screen(const std::string& inDebugName)
 : debugName{inDebugName}
 , eventRouter{*this}
+, pendingFocusTarget{nullptr}
 {
 }
 
@@ -22,12 +23,49 @@ Window* Screen::getWindowUnderPoint(const SDL_Point& point)
         }
 
         // If the window contains the given point, return it.
-        if (SDLHelpers::pointInRect(point, window.getRenderExtent())) {
+        if (SDLHelpers::pointInRect(point, window.getScaledExtent())) {
             return &window;
         }
     }
 
     return nullptr;
+}
+
+Window* Screen::getWidgetParentWindow(Widget* widget)
+{
+    for (auto it = windows.rbegin(); it != windows.rend(); ++it) {
+        // If the window isn't visible, skip it.
+        Window& window{it->get()};
+        if (!(window.getIsVisible())) {
+            continue;
+        }
+
+        // If the window contains the given widget, return it.
+        if (window.containsWidget(widget)) {
+            return &window;
+        }
+    }
+
+    return nullptr;
+}
+
+void Screen::setFocus(Widget* widget)
+{
+    // If the widget is in the layout, set focus to it.
+    if (getWidgetParentWindow(widget) != nullptr) {
+        eventRouter.setFocus(widget);
+    }
+    else {
+        // The widget isn't in the layout. If you hit this, make sure the 
+        // widget is visible and has been through a layout pass before trying 
+        // to set focus to it.
+        AUI_LOG_ERROR("Tried to set focus to widget that isn't in the layout.");
+    }
+}
+
+void Screen::setFocusAfterNextLayout(Widget* widget)
+{
+    pendingFocusTarget = widget;
 }
 
 bool Screen::handleOSEvent(SDL_Event& event)
@@ -81,14 +119,17 @@ void Screen::tick(double timestepS)
 
 void Screen::render()
 {
-    // TODO: Combine the update and render into 1 loop and test.
     // Update our visible window's layouts.
     for (Window& window : windows) {
         if (window.getIsVisible()) {
-            ScreenResolution actualScreenSize{Core::getActualScreenSize()};
-            window.updateLayout(
-                {0, 0, actualScreenSize.width, actualScreenSize.height});
+            window.updateLayout();
         }
+    }
+
+    // If we have a pending focus target, set it.
+    if (pendingFocusTarget != nullptr) {
+        setFocus(pendingFocusTarget);
+        pendingFocusTarget = nullptr;
     }
 
     // Render our visible windows.

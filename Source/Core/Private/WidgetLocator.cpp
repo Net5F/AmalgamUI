@@ -13,6 +13,7 @@ namespace AUI
 WidgetLocator::WidgetLocator(const SDL_Rect& inScreenExtent)
 : cellWidth{ScalingHelpers::logicalToActual(LOGICAL_DEFAULT_CELL_WIDTH)}
 , gridScreenExtent{}
+, gridRelativeExtent{}
 , gridCellExtent{}
 {
     setExtent(inScreenExtent);
@@ -20,20 +21,16 @@ WidgetLocator::WidgetLocator(const SDL_Rect& inScreenExtent)
 
 void WidgetLocator::addWidget(Widget* widget)
 {
-    SDL_Rect widgetRenderExtent{widget->getRenderExtent()};
-    AUI_ASSERT(SDLHelpers::rectInRect(widgetRenderExtent, gridScreenExtent),
+    // Note: This is relative to the parent window's extent (which matches
+    //       this locator's extent).
+    SDL_Rect widgetRelativeExtent{widget->getClippedExtent()};
+    AUI_ASSERT(SDL_HasIntersection(&widgetRelativeExtent, &gridRelativeExtent),
                "Tried to add a widget that is outside this locator's bounds. "
                "Widget name: %s",
                widget->getDebugName().c_str());
 
-    // Since widgetRenderExtent is relative to the whole screen, offset it to
-    // be relative to our grid's extent (to match our cell coordinates).
-    SDL_Rect offsetWidgetExtent{widgetRenderExtent};
-    offsetWidgetExtent.x -= gridScreenExtent.x;
-    offsetWidgetExtent.y -= gridScreenExtent.y;
-
     // Find the cells that the widget intersects.
-    SDL_Rect widgetCellExtent{screenToCellExtent(offsetWidgetExtent)};
+    SDL_Rect widgetCellExtent{screenToCellExtent(widgetRelativeExtent)};
 
     // Add the widget to the map, or update it if it already exists for some
     // reason.
@@ -45,7 +42,7 @@ void WidgetLocator::addWidget(Widget* widget)
     for (int x = widgetCellExtent.x; x < xMax; ++x) {
         for (int y = widgetCellExtent.y; y < yMax; ++y) {
             // Add the widget to this cell's widget array.
-            unsigned int linearizedIndex{linearizeCellIndex(x, y)};
+            std::size_t linearizedIndex{linearizeCellIndex(x, y)};
             std::vector<WidgetWeakRef>& widgetVec{widgetGrid[linearizedIndex]};
 
             widgetVec.emplace_back(*widget);
@@ -67,18 +64,29 @@ void WidgetLocator::removeWidget(Widget* widget)
     }
 }
 
+void WidgetLocator::clear()
+{
+    widgetMap.clear();
+    for (auto& widgetVector : widgetGrid) {
+        widgetVector.clear();
+    }
+}
+
 WidgetPath WidgetLocator::getPathUnderPoint(const SDL_Point& actualPoint)
 {
     AUI_ASSERT(
         SDLHelpers::pointInRect(actualPoint, gridScreenExtent),
         "Tried to get path for a point that is outside this locator's bounds.");
 
+    // Convert the actual screen-space point to a window-relative point.
+    SDL_Point relativePoint{(actualPoint.x - gridScreenExtent.x),
+                            (actualPoint.y - gridScreenExtent.y)};
+
     // Get the cell that contains the given point.
-    unsigned int hitCellX{static_cast<unsigned int>(
-        (actualPoint.x - gridScreenExtent.x) / cellWidth)};
-    unsigned int hitCellY{static_cast<unsigned int>(
-        (actualPoint.y - gridScreenExtent.y) / cellWidth)};
-    unsigned int hitCellIndex{linearizeCellIndex(hitCellX, hitCellY)};
+    float hitCellX{relativePoint.x / cellWidth};
+    float hitCellY{relativePoint.y / cellWidth};
+    std::size_t hitCellIndex{linearizeCellIndex(static_cast<int>(hitCellX),
+                                                static_cast<int>(hitCellY))};
     std::vector<WidgetWeakRef>& widgetVec{widgetGrid[hitCellIndex]};
 
     // Iterate the widgets in the cell, adding them to the path if they're
@@ -90,9 +98,10 @@ WidgetPath WidgetLocator::getPathUnderPoint(const SDL_Point& actualPoint)
             continue;
         }
         Widget& widget{widgetWeakRef.get()};
+        SDL_Rect clippedExtent{widget.getClippedExtent()};
 
         // If the widget contains the point, add it to the path.
-        if (widget.containsPoint(actualPoint)) {
+        if (widget.containsPoint(relativePoint)) {
             returnPath.push_back(widget);
         }
     }
@@ -100,20 +109,37 @@ WidgetPath WidgetLocator::getPathUnderPoint(const SDL_Point& actualPoint)
     return returnPath;
 }
 
-void WidgetLocator::clear()
+WidgetPath WidgetLocator::getPathUnderWidget(Widget* widget)
 {
-    widgetMap.clear();
-    for (auto& widgetVector : widgetGrid) {
-        widgetVector.clear();
-    }
+    // Calc the center of the given widget.
+    SDL_Rect widgetExtent{widget->getClippedExtent()};
+    SDL_Point widgetCenter{};
+    widgetCenter.x = widgetExtent.x + (widgetExtent.w / 2);
+    widgetCenter.y = widgetExtent.y + (widgetExtent.h / 2);
+
+    // Convert the window-relative point to screen-relative so we can use 
+    // getPathUnderPoint().
+    widgetCenter.x += gridScreenExtent.x;
+    widgetCenter.y += gridScreenExtent.y;
+
+    // Return the path under the widget's center.
+    return getPathUnderPoint(widgetCenter);
+}
+
+bool WidgetLocator::containsWidget(Widget* widget)
+{
+    return widgetMap.contains(widget);
 }
 
 void WidgetLocator::setExtent(const SDL_Rect& inScreenExtent)
 {
     gridScreenExtent = inScreenExtent;
+    gridRelativeExtent = gridScreenExtent;
+    gridRelativeExtent.x = 0;
+    gridRelativeExtent.y = 0;
 
     // Set our grid size to match the extent.
-    gridCellExtent = screenToCellExtent(gridScreenExtent);
+    gridCellExtent = screenToCellExtent(gridRelativeExtent);
 
     // Resize the grid to fit our new extent.
     widgetGrid.resize(gridCellExtent.w * gridCellExtent.h);
@@ -138,7 +164,7 @@ void WidgetLocator::clearWidgetLocation(Widget* widget,
     for (int x = cellClearExtent.x; x < xMax; ++x) {
         for (int y = cellClearExtent.y; y < yMax; ++y) {
             // Find the widget's location in this cell's widget vector.
-            unsigned int linearizedIndex{linearizeCellIndex(x, y)};
+            std::size_t linearizedIndex{linearizeCellIndex(x, y)};
             std::vector<WidgetWeakRef>& widgetVec{widgetGrid[linearizedIndex]};
 
             auto widgetEquals{[&widget](const WidgetWeakRef& other) {

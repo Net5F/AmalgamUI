@@ -47,6 +47,10 @@ public:
      */
     void clear();
 
+    // Note: We intentionally exclude resize() since it's easy to misuse. 
+    //       (The new elements must immediately be set, or else the next 
+    //       layout update will cause a crash.)
+
     /**
      * Returns the element at the given index.
      *
@@ -54,7 +58,7 @@ public:
      * Accessing a nonexistant element through this operator is undefined
      * behavior.
      */
-    Widget& operator[](std::size_t index);
+    std::unique_ptr<Widget>& operator[](std::size_t index);
 
     /**
      * Returns the number of elements in this container.
@@ -71,10 +75,7 @@ public:
     //-------------------------------------------------------------------------
     void onTick(double timestepS) override;
 
-    void updateLayout(const SDL_Rect& parentExtent,
-                      WidgetLocator* widgetLocator) override;
-
-    void render() override;
+    void render(const SDL_Point& windowTopLeft) override;
 
 protected:
     Container(const SDL_Rect& inLogicalExtent,

@@ -49,33 +49,31 @@ EventResult VerticalGridContainer::onMouseWheel(int amountScrolled)
     return EventResult{.wasHandled{true}};
 }
 
-void VerticalGridContainer::updateLayout(const SDL_Rect& parentExtent,
+void VerticalGridContainer::updateLayout(const SDL_Point& startPosition,
+                                         const SDL_Rect& availableExtent,
                                          WidgetLocator* widgetLocator)
 {
     // Run the normal layout step (will update us, but won't process any of
     // our elements).
-    Widget::updateLayout(parentExtent, widgetLocator);
+    Widget::updateLayout(startPosition, availableExtent, widgetLocator);
+
+    // If this widget is fully clipped, return early.
+    if (SDL_RectEmpty(&clippedExtent)) {
+        return;
+    }
+
+    // Refresh the cell width and height.
+    scaledCellWidth = ScalingHelpers::logicalToActual(logicalCellWidth);
+    scaledCellHeight = ScalingHelpers::logicalToActual(logicalCellHeight);
 
     // Calc how many rows can fit onscreen at once.
     int maxVisibleRows{logicalExtent.h / logicalCellHeight};
 
     // Lay out our elements in a vertical grid.
-    for (unsigned int i = 0; i < elements.size(); ++i) {
+    for (std::size_t i = 0; i < elements.size(); ++i) {
         // Get the cell coordinates for this element.
-        unsigned int cellColumn{i % numColumns};
-        unsigned int cellRow{i / numColumns};
-
-        // If this element is offscreen, make it invisible (to ignore events)
-        // and continue to the next.
-        if ((cellRow < rowScroll)
-            || (cellRow >= (maxVisibleRows + rowScroll))) {
-            elements[i]->setIsVisible(false);
-            continue;
-        }
-        else {
-            // Element is on screen, make sure it's visible.
-            elements[i]->setIsVisible(true);
-        }
+        std::size_t cellColumn{i % numColumns};
+        std::size_t cellRow{i / numColumns};
 
         // Get the offsets for the cell at the calculated coordinates.
         int cellXOffset{static_cast<int>(cellColumn * scaledCellWidth)};
@@ -85,26 +83,11 @@ void VerticalGridContainer::updateLayout(const SDL_Rect& parentExtent,
         cellYOffset -= (rowScroll * scaledCellHeight);
 
         // Add this widget's offset to get our final offset.
-        int finalX{renderExtent.x + cellXOffset};
-        int finalY{renderExtent.y + cellYOffset};
-        elements[i]->updateLayout({finalX, finalY, (finalX + scaledCellWidth),
-                                   (finalY + scaledCellHeight)},
+        int finalX{fullExtent.x + cellXOffset};
+        int finalY{fullExtent.y + cellYOffset};
+        elements[i]->updateLayout({finalX, finalY}, clippedExtent,
                                   widgetLocator);
     }
-}
-
-bool VerticalGridContainer::refreshScaling()
-{
-    // If actualScreenExtent was refreshed, do our specialized refreshing.
-    if (Widget::refreshScaling()) {
-        // Refresh the cell width and height.
-        scaledCellWidth = ScalingHelpers::logicalToActual(logicalCellWidth);
-        scaledCellHeight = ScalingHelpers::logicalToActual(logicalCellHeight);
-
-        return true;
-    }
-
-    return false;
 }
 
 void VerticalGridContainer::scrollElements(bool scrollUp)

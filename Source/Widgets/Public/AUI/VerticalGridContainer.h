@@ -2,6 +2,7 @@
 
 #include "AUI/Container.h"
 
+// TODO: Remake as HorizontalWrapContainer
 namespace AUI
 {
 /**
@@ -45,14 +46,9 @@ public:
     //-------------------------------------------------------------------------
     EventResult onMouseWheel(int amountScrolled) override;
 
-    void updateLayout(const SDL_Rect& parentExtent,
+    void updateLayout(const SDL_Point& startPosition,
+                      const SDL_Rect& availableExtent,
                       WidgetLocator* widgetLocator) override;
-
-protected:
-    /**
-     * Overridden to properly scale cell size.
-     */
-    bool refreshScaling() override;
 
 private:
     /** The default logical pixel width of this container's cells. */

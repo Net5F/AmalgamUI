@@ -53,14 +53,14 @@ void Container::clear()
     elements.clear();
 }
 
-Widget& Container::operator[](std::size_t index)
+std::unique_ptr<Widget>& Container::operator[](std::size_t index)
 {
     if (elements.size() <= index) {
         AUI_LOG_FATAL("Given index is out of bounds. Index: %u, Size: %u",
                       index, elements.size());
     }
 
-    return *(elements[index]);
+    return elements[index];
 }
 
 std::size_t Container::size()
@@ -78,30 +78,23 @@ void Container::onTick(double timestepS)
     }
 }
 
-void Container::updateLayout(const SDL_Rect& parentExtent,
-                             WidgetLocator* widgetLocator)
+void Container::render(const SDL_Point& windowTopLeft)
 {
-    // Run the normal layout step (will update us, but won't process any of
-    // our elements).
-    Widget::updateLayout(parentExtent, widgetLocator);
-
-    // Update our visible element's layouts and add them to the locator.
-    // Note: We skip invisible elements since they won't be rendered. If we
-    //       need to process invisible elements (for the widget locator's use,
-    //       perhaps), we can do so.
-    for (std::unique_ptr<Widget>& element : elements) {
-        if (element->getIsVisible()) {
-            element->updateLayout(renderExtent, widgetLocator);
-        }
+    // If this widget is fully clipped, don't render it.
+    if (SDL_RectEmpty(&clippedExtent)) {
+        return;
     }
-}
 
-void Container::render()
-{
+    // Run the normal render step (will render our children, but won't render 
+    // any of our elements).
+    Widget::render(windowTopLeft);
+
     // Render all visible elements.
+    // Note: We skip invisible elements since they won't be rendered or receive
+    //       events.
     for (std::unique_ptr<Widget>& element : elements) {
         if (element->getIsVisible()) {
-            element->render();
+            element->render(windowTopLeft);
         }
     }
 }

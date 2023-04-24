@@ -62,10 +62,14 @@ public:
     void removeWidget(Widget* widget);
 
     /**
+     * Clears all of our internal data structures, getting rid of any tracked
+     * widgets.
+     */
+    void clear();
+
+    /**
      * Builds a path containing all tracked widgets that are underneath the
      * given actual-space point.
-     *
-     * The returned path is ordered from root-most -> leaf-most.
      *
      * @param actualPoint  The point in actual space to test widgets with.
      * @return A widget path, ordered with the root-most widget at the front
@@ -74,10 +78,22 @@ public:
     WidgetPath getPathUnderPoint(const SDL_Point& actualPoint);
 
     /**
-     * Clears all of our internal data structures, getting rid of any tracked
-     * widgets.
+     * Builds a path containing all tracked widgets that are underneath the
+     * center of the given widget.
+     *
+     * @param widget  The widget to build a path with.
+     * @return A widget path, ordered with the root-most widget at the front
+     *         and the leaf-most widget at the back.
+     *
+     * Note: This relies on our rules: parent widgets must fully overlap their
+     *       children, and it's invalid for sibling widgets to overlap.
      */
-    void clear();
+    WidgetPath getPathUnderWidget(Widget* widget);
+
+    /**
+     * Returns true if this locator is currently tracking the given widget.
+     */
+    bool containsWidget(Widget* widget);
 
     /**
      * Sets the part of the screen (in actual space) that this widget locator
@@ -120,7 +136,7 @@ private:
      * Returns the index in the widgetGrid vector where the cell with the given
      * coordinates can be found.
      */
-    inline unsigned int linearizeCellIndex(int x, int y) const
+    inline std::size_t linearizeCellIndex(int x, int y) const
     {
         return (y * gridCellExtent.w) + x;
     }
@@ -136,7 +152,10 @@ private:
     /** The grid's extent in actual screen space. */
     SDL_Rect gridScreenExtent;
 
-    /** The grid's extent in actual screen space, with cells as the unit. */
+    /** The grid's extent, relative to the parent window. */
+    SDL_Rect gridRelativeExtent;
+
+    /** The grid's relative extent, with cells as the unit. */
     SDL_Rect gridCellExtent;
 
     /** The outer vector is a 2D grid stored in row-major order, holding the

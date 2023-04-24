@@ -22,6 +22,8 @@ namespace AUI
  * This is placed within the widget extent, offset through the alignment
  * and textOffset parameters, and is finally clipped by the widget extent
  * before rendering.
+
+ * Note: Font assets are managed in an internal cache.
  */
 class Text : public Widget
 {
@@ -43,7 +45,7 @@ public:
         // Note: Removed because SDL_ttf on 22.04 doesn't support it.
         ///** Slowest, LCD subpixel quality, but has a box around it.
         //    Useful for small font sizes. */
-        //LCD
+        // LCD
     };
 
     /**
@@ -65,11 +67,10 @@ public:
     /**
      * Sets the font and size. Uses the internal ID format "font_size".
      *
-     * @param relPath  The path to the font to use, relative to
-     *                 Core::resourcePath.
+     * @param fontPath  The full path to the font file.
      * @param size  The size of the font.
      */
-    void setFont(const std::string& relPath, int size);
+    void setFont(std::string_view fontPath, int size);
 
     /**
      * Sets the font color to use.
@@ -158,20 +159,21 @@ public:
     void setLogicalExtent(const SDL_Rect& inLogicalExtent) override;
 
     /**
-     * Calls Widget::updateLayout() and also updates offsetTextExtent.
+     * Calls Widget::updateLayout() and updates our special extents.
      */
-    void updateLayout(const SDL_Rect& parentExtent,
-                      WidgetLocator* widgetLocator);
+    void updateLayout(const SDL_Point& startPosition,
+                      const SDL_Rect& availableExtent,
+                      WidgetLocator* widgetLocator) override;
 
-    void render() override;
-
-protected:
-    /**
-     * Overridden to properly scale text.
-     */
-    bool refreshScaling() override;
+    void render(const SDL_Point& windowTopLeft) override;
 
 private:
+    /**
+     * Refreshes our alignment, font object, and text texture to match the
+     * current UI scaling.
+     */
+    void refreshScaling();
+
     /**
      * Re-calculates alignedExtent based on the current verticalAlignment,
      * horizontalAlignment, texExtent, and scaledExtent.
@@ -189,7 +191,7 @@ private:
      */
     void refreshTexture();
 
-    /** Path to the font file, relative to Core::resourcePath. */
+    /** Full path to the font file. */
     std::string fontPath;
 
     /** Logical font size in point, i.e. font size relative to Core's
@@ -197,7 +199,7 @@ private:
     int logicalFontSize;
 
     /** The handle to our font object. */
-    FontHandle fontHandle;
+    std::shared_ptr<TTF_Font> font;
 
     /** The color of our text. */
     SDL_Color color;
@@ -216,6 +218,11 @@ private:
 
     /** Our current horizontal alignment. See setHorizontalAlignment(). */
     HorizontalAlignment horizontalAlignment;
+
+    /** The value of Core::actualScreenSize that was used the last time this
+        widget updated its layout. Used to detect when the UI scale changes,
+        so we can re-render the text object. */
+    ScreenResolution lastUsedScreenSize;
 
     /** If true, a property has been changed and the font texture must be
         re-rendered. */

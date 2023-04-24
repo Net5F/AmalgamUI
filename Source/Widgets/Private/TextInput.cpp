@@ -14,6 +14,7 @@ TextInput::TextInput(const SDL_Rect& inLogicalExtent,
 , hoveredImage({0, 0, logicalExtent.w, logicalExtent.h})
 , focusedImage({0, 0, logicalExtent.w, logicalExtent.h})
 , disabledImage({0, 0, logicalExtent.w, logicalExtent.h})
+, accumulatedBlinkTime{0}
 , currentState{State::Normal}
 , cursorColor{0, 0, 0, 255}
 , logicalCursorWidth{2}
@@ -30,7 +31,7 @@ TextInput::TextInput(const SDL_Rect& inLogicalExtent,
     children.push_back(disabledImage);
     children.push_back(text);
 
-    // Flag ourselves as keyboard focusable, so we can receive keyboard events.
+    // Flag ourselves as focusable, so we can receive keyboard events.
     isFocusable = true;
 
     // Default to left-justifying the text within the button. The user can set
@@ -74,14 +75,14 @@ void TextInput::disable()
     refreshTextScrollOffset();
 }
 
-void TextInput::setMargins(Margins inLogicalMargins)
+void TextInput::setPadding(Padding inLogicalPadding)
 {
     // Set the text widget to be the size of this widget, minus the
     // margins.
     text.setLogicalExtent(
-        {inLogicalMargins.left, inLogicalMargins.top,
-         (logicalExtent.w - inLogicalMargins.left - inLogicalMargins.right),
-         (logicalExtent.h - inLogicalMargins.top - inLogicalMargins.bottom)});
+        {inLogicalPadding.left, inLogicalPadding.top,
+         (logicalExtent.w - inLogicalPadding.left - inLogicalPadding.right),
+         (logicalExtent.h - inLogicalPadding.top - inLogicalPadding.bottom)});
 
     // Refresh the text position to account for the change.
     refreshTextScrollOffset();
@@ -103,9 +104,9 @@ TextInput::State TextInput::getCurrentState()
     return currentState;
 }
 
-void TextInput::setTextFont(const std::string& relPath, int size)
+void TextInput::setTextFont(const std::string& fontPath, int size)
 {
-    text.setFont(relPath, size);
+    text.setFont(fontPath, size);
 }
 
 void TextInput::setTextColor(const SDL_Color& inColor)
@@ -361,28 +362,36 @@ void TextInput::onTick(double timestepS)
     Widget::onTick(timestepS);
 }
 
-void TextInput::render()
+void TextInput::updateLayout(const SDL_Point& startPosition,
+                             const SDL_Rect& availableExtent,
+                             WidgetLocator* widgetLocator)
 {
+    // Do the normal layout updating.
+    Widget::updateLayout(startPosition, availableExtent, widgetLocator);
+
+    // If this widget is fully clipped, return early.
+    if (SDL_RectEmpty(&clippedExtent)) {
+        return;
+    }
+
+    // Refresh our cursor size.
+    scaledCursorWidth = ScalingHelpers::logicalToActual(logicalCursorWidth);
+}
+
+void TextInput::render(const SDL_Point& windowTopLeft)
+{
+    // If this widget is fully clipped, don't render it.
+    if (SDL_RectEmpty(&clippedExtent)) {
+        return;
+    }
+
     // Render our child widgets.
-    Widget::render();
+    Widget::render(windowTopLeft);
 
     // Render the text cursor, if necessary.
     if (cursorIsVisible) {
-        renderTextCursor();
+        renderTextCursor(windowTopLeft);
     }
-}
-
-bool TextInput::refreshScaling()
-{
-    // If actualScreenExtent was refreshed, do our specialized refreshing.
-    if (Widget::refreshScaling()) {
-        // Refresh our cursor size.
-        scaledCursorWidth = ScalingHelpers::logicalToActual(logicalCursorWidth);
-
-        return true;
-    }
-
-    return false;
 }
 
 EventResult TextInput::handleBackspaceEvent()
@@ -621,8 +630,8 @@ void TextInput::refreshTextScrollOffset()
     else if (textOffset < 0) {
         // There's text hanging off the left side. Are we still pushed against
         // the right bound? (Relevant after a backspace.)
-        SDL_Rect lastCharOffset{
-            text.calcCharacterOffset(static_cast<unsigned int>(text.asString().length()))};
+        SDL_Rect lastCharOffset{text.calcCharacterOffset(
+            static_cast<unsigned int>(text.asString().length()))};
         if (lastCharOffset.x < (textExtent.x + textExtent.w)) {
             // There's a gap to fill, scroll right.
             textOffset += ((textExtent.x + textExtent.w) - lastCharOffset.x);
@@ -638,18 +647,18 @@ void TextInput::refreshTextScrollOffset()
     text.setTextOffset(textOffset);
 }
 
-void TextInput::renderTextCursor()
+void TextInput::renderTextCursor(const SDL_Point& windowTopLeft)
 {
     // Save the current draw color to re-apply later.
-    SDL_Color originalColor;
+    SDL_Color originalColor{};
     SDL_GetRenderDrawColor(Core::getRenderer(), &originalColor.r,
                            &originalColor.g, &originalColor.b,
                            &originalColor.a);
 
     // Calc where the cursor should be.
     SDL_Rect cursorOffsetExtent{text.calcCharacterOffset(cursorIndex)};
-    cursorOffsetExtent.x += renderExtent.x;
-    cursorOffsetExtent.y += renderExtent.y;
+    cursorOffsetExtent.x += clippedExtent.x + windowTopLeft.x;
+    cursorOffsetExtent.y += clippedExtent.y + windowTopLeft.y;
     cursorOffsetExtent.w = scaledCursorWidth;
 
     // Draw the cursor.

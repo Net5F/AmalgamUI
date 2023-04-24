@@ -22,6 +22,13 @@ namespace AUI
  *   Dragged around the screen (not yet implemented)
  *   Resized (not yet implemented)
  *   Moved in front/behind each other (not yet implemented)
+ *
+ * Note: Windows derive from Widget so that they can be easily added to the
+ *       WidgetLocator, but they are not meant to be composed like regular
+ *       widgets.
+ * Note: To match the expected Widget behavior, a Window's fullExtent and
+ *       clippedExtent are window-relative (in this case, meaning x and y are
+ *       0). To get a Window's position on the screen, use scaledExtent.
  */
 class Window : public Widget
 {
@@ -34,8 +41,6 @@ public:
      * Builds a path containing all tracked widgets that are underneath the
      * given actual-space point.
      *
-     * The returned path is in the order that an event should travel.
-     *
      * @param actualPoint  The point in actual space to test widgets with.
      * @return A widget path, ordered with the root-most widget at the front
      *         and the leaf-most widget at the back.
@@ -43,18 +48,44 @@ public:
     WidgetPath getPathUnderPoint(const SDL_Point& actualPoint);
 
     /**
+     * Builds a path containing all tracked widgets that are underneath the
+     * center of the given widget.
+     *
+     * @param widget  The widget to build a path with.
+     * @return A widget path, ordered with the root-most widget at the front
+     *         and the leaf-most widget at the back.
+     */
+    WidgetPath getPathUnderWidget(Widget* widget);
+
+    /**
+     * Returns true if this window contains the given widget.
+     * Note: This may not be accurate for invisible widgets, or widgets that 
+     *       have just been made visible and haven't yet been laid out.
+     */
+    bool containsWidget(Widget* widget);
+
+    /**
      * Calls the onTick() of all of our children.
      */
     void tick(double timestepS);
 
     /**
-     * Clears the old widget positions from the widget locator and starts
-     * the layout pass.
+     * Clears the old widget positions from widgetLocator and performs the
+     * layout pass.
      *
-     * @post This widget and all children have up-to-date extents, and are
+     * @post This window and all children have up-to-date extents, and are
      *       added to this window's widgetLocator in the correct order.
      */
-    void updateLayout(const SDL_Rect& parentExtent);
+    virtual void updateLayout();
+
+    /**
+     * Renders this window to the current rendering target.
+     *
+     * The default implementation simply calls render() on all widgets in our
+     * children list. Some overrides may directly call SDL functions like
+     * SDL_RenderCopy().
+     */
+    virtual void render();
 
 protected:
     /**
@@ -66,6 +97,13 @@ protected:
      * widgets to use for hit testing.
      */
     WidgetLocator widgetLocator;
+
+private:
+    // We hide the Widget update/render implementations, because Windows have
+    // different needs. Specifically, they don't receive layout info from
+    // their parent, and they own their widgetLocator.
+    using Widget::updateLayout;
+    using Widget::render;
 };
 
 } // namespace AUI

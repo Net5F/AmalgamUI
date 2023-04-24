@@ -7,7 +7,7 @@
 namespace AUI
 {
 /**
- * An interactable element with a thumbnail image and text.
+ * An interactable widget with a thumbnail image and text.
  *
  * Has a double-click Active state.
  *
@@ -18,8 +18,8 @@ namespace AUI
  *
  * Note: This widget may be immediately useful to you, but exists more as
  *       an easily copyable example of how to make this sort of thing. With
- *       minor tweaks you can make any sort of thumbnail-based interactable
- *       UI element (e.g. items for an inventory).
+ *       minor tweaks you can make any sort of selectable or thumbnail-based 
+ *       UI element (e.g. items in an inventory, navigation in a settings menu).
  */
 class Thumbnail : public Widget
 {
@@ -128,7 +128,7 @@ public:
     /** Calls text.setLogicalExtent(). */
     void setTextLogicalExtent(const SDL_Rect& inLogicalExtent);
     /** Calls text.setFont(). */
-    void setTextFont(const std::string& relPath, int size);
+    void setTextFont(const std::string& fontPath, int size);
     /** Calls text.setColor(). */
     void setTextColor(const SDL_Color& inColor);
     /** Calls text.setVerticalAlignment(). */
@@ -181,12 +181,6 @@ private:
     void setIsSelected(bool inIsSelected);
     /** Sets isActive and updates the visibility of activeImage. */
     void setIsActive(bool inIsActive);
-
-    /**
-     * Uses the given actual-space mouse position to check if this widget
-     * should be hovered or unhovered.
-     */
-    Widget* updateHovered(SDL_Point actualMousePoint);
 
     std::function<void(Thumbnail*)> onSelected;
     std::function<void(Thumbnail*)> onDeselected;

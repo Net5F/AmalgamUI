@@ -2,7 +2,7 @@
 
 #include "AUI/Image.h"
 #include "AUI/Text.h"
-#include "AUI/Margins.h"
+#include "AUI/Padding.h"
 #include <functional>
 
 namespace AUI
@@ -43,7 +43,7 @@ public:
     /**
      * Enables this text input.
      *
-     * @post The text input will visually be in the Normal state and will 
+     * @post The text input will visually be in the Normal state and will
      *       respond to hover and click events.
      */
     void enable();
@@ -57,10 +57,10 @@ public:
     void disable();
 
     /**
-     * Sets the distance between the text and the edge of the text box on each
-     * side.
+     * Sets the distance between the text and the border of the text box on
+     * each side.
      */
-    void setMargins(Margins inLogicalMargins);
+    void setPadding(Padding inLogicalPadding);
 
     /**
      * Sets the color of the text cursor.
@@ -99,7 +99,7 @@ public:
     /** Calls text.asString(). */
     const std::string& getText();
     /** Calls text.setFont(). */
-    void setTextFont(const std::string& relPath, int size);
+    void setTextFont(const std::string& fontPath, int size);
     /** Calls text.setColor(). */
     void setTextColor(const SDL_Color& inColor);
 
@@ -147,13 +147,14 @@ public:
 
     void onTick(double timestepS) override;
 
-    void render() override;
-
-protected:
     /**
-     * Overridden to properly scale our cursor size.
+     * Calls Widget::updateLayout() and also updates scaledCursorWidth.
      */
-    bool refreshScaling() override;
+    void updateLayout(const SDL_Point& startPosition,
+                      const SDL_Rect& availableExtent,
+                      WidgetLocator* widgetLocator) override;
+
+    void render(const SDL_Point& windowTopLeft) override;
 
 private:
     //-------------------------------------------------------------------------
@@ -161,8 +162,8 @@ private:
     //-------------------------------------------------------------------------
     /** The text cursor's blink rate. Windows seems to default to 530ms, so
         it should work fine for us. */
-    static constexpr double CURSOR_BLINK_RATE_S
-        = 530 / static_cast<double>(1000);
+    static constexpr double CURSOR_BLINK_RATE_S{530
+                                                / static_cast<double>(1000)};
 
     //-------------------------------------------------------------------------
     // Private members
@@ -193,7 +194,7 @@ private:
     /**
      * Calcs where the text cursor should be and renders it.
      */
-    void renderTextCursor();
+    void renderTextCursor(const SDL_Point& windowTopLeft);
 
     /** See setOnTextChanged(). */
     std::function<void(void)> onTextChanged;

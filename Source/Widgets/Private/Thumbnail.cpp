@@ -142,9 +142,9 @@ void Thumbnail::setTextLogicalExtent(const SDL_Rect& inLogicalExtent)
     text.setLogicalExtent(inLogicalExtent);
 }
 
-void Thumbnail::setTextFont(const std::string& relPath, int size)
+void Thumbnail::setTextFont(const std::string& fontPath, int size)
 {
-    text.setFont(relPath, size);
+    text.setFont(fontPath, size);
 }
 
 void Thumbnail::setTextColor(const SDL_Color& inColor)
@@ -180,7 +180,8 @@ void Thumbnail::setTextHorizontalAlignment(
         text.setHorizontalAlignment(inHorizontalAlignment);
     }
     else {
-        // Else the text is too big to fit, right align it.
+        // Else the text is too big to fit, right align it so we can see the 
+        // end (since the end is likely more informative than the beginning).
         text.setHorizontalAlignment(Text::HorizontalAlignment::Right);
     }
 }

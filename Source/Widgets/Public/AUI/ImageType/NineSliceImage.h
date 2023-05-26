@@ -20,6 +20,8 @@ namespace AUI
 class NineSliceImage : public ImageType
 {
 public:
+    virtual ~NineSliceImage() = default;
+
     /**
      * Represents how far to slice into the image, in each direction.
      */

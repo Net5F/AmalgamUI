@@ -24,6 +24,8 @@ namespace AUI
 class MultiResImage : public ImageType
 {
 public:
+    virtual ~MultiResImage() = default;
+
     /**
      * Adds the given image to the map of available resolutions.
      *

@@ -14,6 +14,8 @@ namespace AUI
 class TiledImage : public ImageType
 {
 public:
+    virtual ~TiledImage() = default;
+
     /**
      * Sets the image that this widget will tile and render.
      *

@@ -14,6 +14,8 @@ namespace AUI
 class SimpleImage : public ImageType
 {
 public:
+    virtual ~SimpleImage() = default;
+
     /**
      * Sets the image that this widget will render.
      *

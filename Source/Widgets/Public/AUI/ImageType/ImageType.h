@@ -10,6 +10,8 @@ namespace AUI
 {
 struct ImageType {
 public:
+    virtual ~ImageType() = default;
+
     /**
      * Call this when the UI scale changes, so the derived type can regenerate
      * the image if necessary.

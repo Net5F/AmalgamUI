@@ -37,10 +37,10 @@ void WidgetLocator::addWidget(Widget* widget)
     widgetMap.insert_or_assign(widget, widgetCellExtent);
 
     // Add the widget to all the cells that it occupies.
-    int xMax{widgetCellExtent.x + widgetCellExtent.w};
-    int yMax{widgetCellExtent.y + widgetCellExtent.h};
-    for (int x = widgetCellExtent.x; x < xMax; ++x) {
-        for (int y = widgetCellExtent.y; y < yMax; ++y) {
+    int xMax{widgetCellExtent.x + widgetCellExtent.w - 1};
+    int yMax{widgetCellExtent.y + widgetCellExtent.h - 1};
+    for (int x = widgetCellExtent.x; x <= xMax; ++x) {
+        for (int y = widgetCellExtent.y; y <= yMax; ++y) {
             // Add the widget to this cell's widget array.
             std::size_t linearizedIndex{linearizeCellIndex(x, y)};
             std::vector<WidgetWeakRef>& widgetVec{widgetGrid[linearizedIndex]};
@@ -148,6 +148,7 @@ void WidgetLocator::setExtent(const SDL_Rect& inScreenExtent)
 void WidgetLocator::setCellWidth(float inCellWidth)
 {
     cellWidth = inCellWidth;
+    clear();
 }
 
 SDL_Rect WidgetLocator::getGridCellExtent()
@@ -159,10 +160,10 @@ void WidgetLocator::clearWidgetLocation(Widget* widget,
                                         const SDL_Rect& cellClearExtent)
 {
     // Iterate through all the cells that the widget occupies.
-    int xMax{cellClearExtent.x + cellClearExtent.w};
-    int yMax{cellClearExtent.y + cellClearExtent.h};
-    for (int x = cellClearExtent.x; x < xMax; ++x) {
-        for (int y = cellClearExtent.y; y < yMax; ++y) {
+    int xMax{cellClearExtent.x + cellClearExtent.w - 1};
+    int yMax{cellClearExtent.y + cellClearExtent.h - 1};
+    for (int x = cellClearExtent.x; x <= xMax; ++x) {
+        for (int y = cellClearExtent.y; y <= yMax; ++y) {
             // Find the widget's location in this cell's widget vector.
             std::size_t linearizedIndex{linearizeCellIndex(x, y)};
             std::vector<WidgetWeakRef>& widgetVec{widgetGrid[linearizedIndex]};

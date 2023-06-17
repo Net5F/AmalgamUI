@@ -52,8 +52,7 @@ public:
     void addWidget(Widget* widget);
 
     /**
-     * If we're tracking the given widget, removes it from the widgetGrid and
-     * widgetMap.
+     * If we're tracking the given widget, removes it from this locator.
      *
      * Note: Typically you'll remove widgets by calling clear() and adding
      *       them back in order. This is necessary to enforce your desired
@@ -110,7 +109,8 @@ public:
     void setExtent(const SDL_Rect& inScreenExtent);
 
     /**
-     * Sets the width of the cells in the spatial partitioning grid.
+     * Sets the width of the cells in the spatial partitioning grid and clears
+     * the locator's state (since it's now invalid).
      * Note: This isn't typically necessary, the default value should be fine
      *       in most cases.
      */
@@ -122,7 +122,7 @@ public:
 private:
     /** The default logical pixel width of the cells in the spatial
         partitioning grid. */
-    static constexpr float LOGICAL_DEFAULT_CELL_WIDTH = 128;
+    static constexpr float LOGICAL_DEFAULT_CELL_WIDTH{128};
 
     /**
      * Removes the given widget from the cells within the given extent.
@@ -158,8 +158,8 @@ private:
     /** The grid's relative extent, with cells as the unit. */
     SDL_Rect gridCellExtent;
 
-    /** The outer vector is a 2D grid stored in row-major order, holding the
-        grid's cells.
+    /** The outer vector is a linearized 2D grid stored in row-major order, 
+        holding the grid's cells.
         Each element in the grid is a vector of widgets--the widgets that
         currently intersect with that cell. */
     std::vector<std::vector<WidgetWeakRef>> widgetGrid;

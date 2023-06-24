@@ -22,6 +22,8 @@ bool EventRouter::handleMouseButtonDown(SDL_MouseButtonEvent& event)
     SDL_Point cursorPosition{event.x, event.y};
     WidgetPath clickPath{getPathUnderCursor(cursorPosition)};
     if (!(clickPath.empty())) {
+        Widget* previousFocusedWidget{getFocusedWidget()};
+
         // Perform a MouseDown or MouseDoubleClick depending on how many
         // clicks occurred.
         MouseButtonType buttonType{translateSDLButtonType(event.button)};
@@ -34,23 +36,32 @@ bool EventRouter::handleMouseButtonDown(SDL_MouseButtonEvent& event)
                 = handleMouseDoubleClick(buttonType, cursorPosition, clickPath);
         }
 
-        // If the event was handled and it didn't explicitly set focus, see if 
-        // any of the clicked widgets can take focus.
-        if (returnData.eventWasHandled && !(returnData.focusWasSet)) {
-            // Build a path that ends at the widget that handled the event.
-            WidgetPath truncatedPath(clickPath.begin(),
-                                     (returnData.handlerWidget + 1));
+        // If the focus target wasn't changed during event handling, see if any
+        // of the clicked widgets can take focus.
+        Widget* currentFocusedWidget{getFocusedWidget()};
+        if (previousFocusedWidget == currentFocusedWidget) {
+            // If the event was handled, end the path at the widget that 
+            // handled it.
+            WidgetPath truncatedPath{clickPath};
+            if (returnData.eventWasHandled) {
+                truncatedPath = WidgetPath(clickPath.begin(),
+                                           (returnData.handlerWidget + 1));
+            }
 
+            // Try to set focus to a widget in the path.
             if (!setFocusIfFocusable(truncatedPath)) {
                 // Nothing in truncatedPath took focus. We didn't re-click the
                 // focused widget (if there is one), so we need to drop it.
                 handleDropFocus(FocusLostType::Click);
             }
         }
+        else {
+            // Focus target was changed (set or dropped). In both cases, we 
+            // want to respect the change instead of looking for a new target.
+        }
     }
-
-    // If the click wasn't handled and a widget has focus, drop it.
-    if (!(returnData.eventWasHandled)) {
+    else {
+        // Empty click. If there's a focus target, drop it.
         handleDropFocus(FocusLostType::Click);
     }
 
@@ -236,6 +247,11 @@ void EventRouter::setFocus(Widget* widget)
     if (!setFocusIfFocusable(focusPath)) {
         AUI_LOG_ERROR("Failed to set focus.");
     }
+}
+
+void EventRouter::dropFocus()
+{
+    handleDropFocus(FocusLostType::Requested);
 }
 
 MouseButtonType EventRouter::translateSDLButtonType(Uint8 sdlButtonType)
@@ -674,6 +690,17 @@ void EventRouter::processEventResult(const EventResult& eventResult)
     // Else if dropping focus was requested.
     else if (eventResult.dropFocus) {
         handleDropFocus(FocusLostType::Requested);
+    }
+}
+
+Widget* EventRouter::getFocusedWidget()
+{
+    if (!focusPath.empty()) {
+        WidgetWeakRef& focusedWidgetRef{focusPath.back()};
+        return &(focusedWidgetRef.get());
+    }
+    else {
+        return nullptr;
     }
 }
 

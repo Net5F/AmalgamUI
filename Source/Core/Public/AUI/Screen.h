@@ -46,6 +46,11 @@ public:
     void setFocus(Widget* widget);
 
     /**
+     * If a widget is currently focused, drops it.
+     */
+    void dropFocus();
+
+    /**
      * Saves the given widget pointer and attempts to set focus to it after the 
      * next layout update.
      * Use this if you've just made a widget visible and want it to be the 

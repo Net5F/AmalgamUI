@@ -63,6 +63,11 @@ void Screen::setFocus(Widget* widget)
     }
 }
 
+void Screen::dropFocus()
+{
+    eventRouter.dropFocus();
+}
+
 void Screen::setFocusAfterNextLayout(Widget* widget)
 {
     pendingFocusTarget = widget;

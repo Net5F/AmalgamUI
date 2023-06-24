@@ -94,6 +94,11 @@ public:
      */
     void setFocus(Widget* widget);
 
+    /**
+     * If a widget is currently focused, drops it.
+     */
+    void dropFocus();
+
 private:
     /**
      * Used for passing data from a specific event handler function back up to
@@ -213,6 +218,13 @@ private:
      * @param eventResult  The event result to process.
      */
     void processEventResult(const EventResult& eventResult);
+    
+    /**
+     * Returns the current focused widget, or nullptr if there is none.
+     * Note: This does not check the validity of the widget. This is mostly 
+     *       useful just to get a pointer for comparisons.
+     */
+    Widget* getFocusedWidget();
 
     /** Used to interact with the Window stack. */
     Screen& screen;

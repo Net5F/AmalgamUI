@@ -58,6 +58,9 @@ void NineSliceImage::regenerateNineSliceTexture()
     auto nineSliceTexture{std::shared_ptr<SDL_Texture>(
         rawTexture, [](SDL_Texture* p) { SDL_DestroyTexture(p); })};
 
+    // Set the blend mode (default is NONE, which causes black backgrounds).
+    SDL_SetTextureBlendMode(nineSliceTexture.get(), SDL_BLENDMODE_BLEND);
+
     // Set the new texture as the render target and copy the slices.
     SDL_SetRenderTarget(Core::getRenderer(), nineSliceTexture.get());
     copyCorners(sourceWidth, sourceHeight);

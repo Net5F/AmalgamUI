@@ -78,6 +78,13 @@ public:
      */
     void deactivate();
 
+    /**
+     * Same as select(), deselect(), activate(), or deactivate(), but doesn't 
+     * call any callbacks.
+     * Useful for making this thumbnail reflect some existing state.
+     */
+    void setStateWithoutCallbacks(bool isSelected, bool isActive);
+
     bool getIsHovered();
     bool getIsSelected();
     bool getIsActive();

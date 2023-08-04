@@ -107,6 +107,23 @@ void Thumbnail::deactivate()
     }
 }
 
+void Thumbnail::setStateWithoutCallbacks(bool isSelected, bool isActive)
+{
+    if (isSelectable) {
+        setIsSelected(isSelected);
+    }
+
+    if (isActivateable) {
+        setIsActive(isActive);
+
+        // If active, flag that we aren't hovered (can't be hovered while 
+        // active.)
+        if (isActive) {
+            setIsHovered(false);
+        }
+    }
+}
+
 bool Thumbnail::getIsHovered()
 {
     return isHovered;

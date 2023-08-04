@@ -23,9 +23,31 @@ public:
     virtual ~Container() = default;
 
     /**
-     * Pushes the given widget to the back of the container.
+     * Returns the element at the given index.
+     *
+     * Errors in debug if the given index doesn't exist.
+     * Accessing a nonexistant element through this operator is undefined
+     * behavior.
      */
-    void push_back(std::unique_ptr<Widget> newElement);
+    std::unique_ptr<Widget>& operator[](std::size_t index);
+
+    std::unique_ptr<Widget>& front();
+    std::unique_ptr<Widget>& back();
+
+    iterator begin() { return elements.begin(); };
+    const_iterator begin() const { return elements.begin(); };
+    iterator end() { return elements.end(); };
+    const_iterator end() const { return elements.end(); };
+
+    /**
+     * Returns the number of elements in this container.
+     */
+    std::size_t size();
+
+    /**
+     * Clears the container, removing all elements.
+     */
+    void clear();
 
     /**
      * Erases the widget at the given index.
@@ -36,6 +58,13 @@ public:
     void erase(std::size_t index);
 
     /**
+     * Erases the elements in the range [first, last).
+     *
+     * Doesn't check the iterators before using them. Make sure they're valid.
+     */
+    void erase(const_iterator first, const_iterator last);
+
+    /**
      * Erases the given widget.
      *
      * Errors if the given widget doesn't exist in this container.
@@ -43,32 +72,13 @@ public:
     void erase(Widget* widget);
 
     /**
-     * Clears the container, removing all elements.
+     * Pushes the given widget to the back of the container.
      */
-    void clear();
+    void push_back(std::unique_ptr<Widget> newElement);
 
     // Note: We intentionally exclude resize() since it's easy to misuse. 
     //       (The new elements must immediately be set, or else the next 
     //       layout update will cause a crash.)
-
-    /**
-     * Returns the element at the given index.
-     *
-     * Errors in debug if the given index doesn't exist.
-     * Accessing a nonexistant element through this operator is undefined
-     * behavior.
-     */
-    std::unique_ptr<Widget>& operator[](std::size_t index);
-
-    /**
-     * Returns the number of elements in this container.
-     */
-    std::size_t size();
-
-    iterator begin() { return elements.begin(); };
-    const_iterator begin() const { return elements.begin(); };
-    iterator end() { return elements.end(); };
-    const_iterator end() const { return elements.end(); };
 
     //-------------------------------------------------------------------------
     // Base class overrides

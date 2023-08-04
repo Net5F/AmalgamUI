@@ -10,9 +10,42 @@ Container::Container(const SDL_Rect& inLogicalExtent,
 {
 }
 
-void Container::push_back(std::unique_ptr<Widget> newElement)
+std::unique_ptr<Widget>& Container::operator[](std::size_t index)
 {
-    elements.push_back(std::move(newElement));
+    if (elements.size() <= index) {
+        AUI_LOG_FATAL("Given index is out of bounds. Index: %u, Size: %u",
+                      index, elements.size());
+    }
+
+    return elements[index];
+}
+
+std::unique_ptr<Widget>& Container::front()
+{
+    if (elements.size() == 0) {
+        AUI_LOG_FATAL("Tried to get front of empty container.");
+    }
+
+    return elements.front();
+}
+
+std::unique_ptr<Widget>& Container::back()
+{
+    if (elements.size() == 0) {
+        AUI_LOG_FATAL("Tried to get back of empty container.");
+    }
+
+    return elements.back();
+}
+
+void Container::clear()
+{
+    elements.clear();
+}
+
+std::size_t Container::size()
+{
+    return elements.size();
 }
 
 void Container::erase(std::size_t index)
@@ -25,6 +58,11 @@ void Container::erase(std::size_t index)
     }
 
     elements.erase(elements.begin() + index);
+}
+
+void Container::erase(const_iterator first, const_iterator last)
+{
+    elements.erase(first, last);
 }
 
 void Container::erase(Widget* widget)
@@ -48,24 +86,9 @@ void Container::erase(Widget* widget)
     }
 }
 
-void Container::clear()
+void Container::push_back(std::unique_ptr<Widget> newElement)
 {
-    elements.clear();
-}
-
-std::unique_ptr<Widget>& Container::operator[](std::size_t index)
-{
-    if (elements.size() <= index) {
-        AUI_LOG_FATAL("Given index is out of bounds. Index: %u, Size: %u",
-                      index, elements.size());
-    }
-
-    return elements[index];
-}
-
-std::size_t Container::size()
-{
-    return elements.size();
+    elements.push_back(std::move(newElement));
 }
 
 void Container::onTick(double timestepS)

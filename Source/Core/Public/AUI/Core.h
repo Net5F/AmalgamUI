@@ -61,14 +61,26 @@ public:
      */
     static void setActualScreenSize(ScreenResolution inScaledScreenSize);
 
+    /**
+     * If true, a TextInput widget is currently focused and receiving keyboard 
+     * input.
+     *
+     * Use this to tell when you should stop polling the keyboard state for 
+     * held inputs.
+     */
+    static bool getIsTextInputFocused();
+
     static SDL_Renderer* getRenderer();
     static AUI::AssetCache& getAssetCache();
     static ScreenResolution getLogicalScreenSize();
     static ScreenResolution getActualScreenSize();
 
 private:
-    /** Friend widget so it can update the widget count. */
+    /** Friend Widget so it can update the widget count. */
     friend class Widget;
+
+    /** Friend TextInput so it can update isTextInputFocused. */
+    friend class TextInput;
 
     /**
      * Increases the count of currently constructed widgets.
@@ -94,6 +106,9 @@ private:
     /** Keeps a count of the number of currently constructed widgets.
         Used to check if it's safe to Quit(). */
     static std::atomic<int> widgetCount;
+
+    /** See getIsTextInputFocused(). */
+    static std::atomic<bool> isTextInputFocused;
 };
 
 } // namespace AUI

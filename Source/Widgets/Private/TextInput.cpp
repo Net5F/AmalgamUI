@@ -198,6 +198,9 @@ EventResult TextInput::onFocusGained()
     // Set our state to focused.
     setCurrentState(State::Focused);
 
+    // Update the core flag so apps know to stop polling keyboard held state.
+    Core::isTextInputFocused = true;
+
     // Reset the text cursor's state.
     // Show the text cursor immediately so the user can see where they're at.
     cursorIsVisible = true;
@@ -221,6 +224,9 @@ void TextInput::onFocusLost(FocusLostType focusLostType)
 
     // Set our state back to normal.
     setCurrentState(State::Normal);
+
+    // Update the core flag so apps know to resume polling keyboard held state.
+    Core::isTextInputFocused = false;
 
     // Reset the text cursor's state.
     cursorIsVisible = false;

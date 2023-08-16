@@ -9,6 +9,7 @@ SDL_Renderer* Core::sdlRenderer{nullptr};
 ScreenResolution Core::logicalScreenSize{};
 ScreenResolution Core::actualScreenSize{};
 std::unique_ptr<AssetCache> Core::assetCache{nullptr};
+std::atomic<bool> Core::isTextInputFocused{false};
 std::atomic<int> Core::widgetCount{0};
 
 void Core::initialize(SDL_Renderer* inSdlRenderer,
@@ -51,6 +52,11 @@ void Core::quit()
 void Core::setActualScreenSize(ScreenResolution inActualScreenSize)
 {
     actualScreenSize = inActualScreenSize;
+}
+
+bool Core::getIsTextInputFocused()
+{
+    return isTextInputFocused;
 }
 
 SDL_Renderer* Core::getRenderer()

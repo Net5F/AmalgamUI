@@ -14,8 +14,8 @@ TextInput::TextInput(const SDL_Rect& inLogicalExtent,
 , hoveredImage({0, 0, logicalExtent.w, logicalExtent.h})
 , focusedImage({0, 0, logicalExtent.w, logicalExtent.h})
 , disabledImage({0, 0, logicalExtent.w, logicalExtent.h})
-, accumulatedBlinkTime{0}
 , currentState{State::Normal}
+, accumulatedBlinkTime{0}
 , cursorColor{0, 0, 0, 255}
 , logicalCursorWidth{2}
 , scaledCursorWidth{ScalingHelpers::logicalToActual(logicalCursorWidth)}

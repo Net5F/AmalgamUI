@@ -98,7 +98,6 @@ WidgetPath WidgetLocator::getPathUnderPoint(const SDL_Point& actualPoint)
             continue;
         }
         Widget& widget{widgetWeakRef.get()};
-        SDL_Rect clippedExtent{widget.getClippedExtent()};
 
         // If the widget contains the point, add it to the path.
         if (widget.containsPoint(relativePoint)) {

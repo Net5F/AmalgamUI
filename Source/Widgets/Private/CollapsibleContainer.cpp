@@ -109,8 +109,8 @@ void CollapsibleContainer::setLogicalExtent(const SDL_Rect& inLogicalExtent)
     // TODO: Invalidate layout
 }
 
-EventResult CollapsibleContainer::onMouseDown(MouseButtonType buttonType,
-                                   const SDL_Point& cursorPosition)
+EventResult CollapsibleContainer::onMouseDown(MouseButtonType,
+                                              const SDL_Point& cursorPosition)
 {
     // If the click region was clicked, toggle the collapsed state.
     SDL_Rect clickRegionExtent{getClickRegionExtent()};

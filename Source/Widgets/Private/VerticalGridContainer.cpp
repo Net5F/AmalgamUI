@@ -66,9 +66,6 @@ void VerticalGridContainer::updateLayout(const SDL_Point& startPosition,
     scaledCellWidth = ScalingHelpers::logicalToActual(logicalCellWidth);
     scaledCellHeight = ScalingHelpers::logicalToActual(logicalCellHeight);
 
-    // Calc how many rows can fit onscreen at once.
-    int maxVisibleRows{logicalExtent.h / logicalCellHeight};
-
     // Lay out our elements in a vertical grid.
     for (std::size_t i = 0; i < elements.size(); ++i) {
         // Get the cell coordinates for this element.

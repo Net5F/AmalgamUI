@@ -72,6 +72,8 @@ public:
     //-------------------------------------------------------------------------
     // Base class overrides
     //-------------------------------------------------------------------------
+    void setIsVisible(bool inIsVisible) override;
+
     EventResult onMouseDown(MouseButtonType buttonType,
                             const SDL_Point& cursorPosition) override;
 

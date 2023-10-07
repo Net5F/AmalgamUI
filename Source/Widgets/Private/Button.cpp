@@ -61,6 +61,16 @@ void Button::setOnPressed(std::function<void(void)> inOnPressed)
     onPressed = std::move(inOnPressed);
 }
 
+void Button::setIsVisible(bool inIsVisible)
+{
+    // If we're being made invisible, set our state back to normal.
+    if (!inIsVisible) {
+        setCurrentState(State::Normal);
+    }
+
+    Widget::setIsVisible(inIsVisible);
+}
+
 EventResult Button::onMouseDown(MouseButtonType buttonType,
                                 const SDL_Point& cursorPosition)
 {

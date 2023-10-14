@@ -43,6 +43,9 @@ TextInput::TextInput(const SDL_Rect& inLogicalExtent,
     // else.
     text.setText("");
 
+    // Disable word wrap since we want the text to clip.
+    text.setWordWrapEnabled(false);
+
     // Make the backgrounds we aren't using invisible.
     hoveredImage.setIsVisible(false);
     focusedImage.setIsVisible(false);

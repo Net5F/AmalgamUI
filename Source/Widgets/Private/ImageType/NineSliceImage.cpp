@@ -48,27 +48,28 @@ void NineSliceImage::regenerateNineSliceTexture()
     AUI_ASSERT(sourceHeight > (sliceSizes.top + sliceSizes.bottom + 1),
                "Source texture too short for given slice sizes.");
 
-    // Allocate the new texture.
+    // Create the new texture.
     SDL_Texture* rawTexture{SDL_CreateTexture(
         Core::getRenderer(), pixelFormat, SDL_TEXTUREACCESS_TARGET,
         currentTexExtent.w, currentTexExtent.h)};
     if (rawTexture == nullptr) {
         AUI_LOG_FATAL("Failed to create texture: %s", SDL_GetError());
     }
-    auto nineSliceTexture{std::shared_ptr<SDL_Texture>(
-        rawTexture, [](SDL_Texture* p) { SDL_DestroyTexture(p); })};
+    std::shared_ptr<SDL_Texture> nineSliceTexture{
+        rawTexture, [](SDL_Texture* p) { SDL_DestroyTexture(p); }};
 
     // Set the blend mode (default is NONE, which causes black backgrounds).
     SDL_SetTextureBlendMode(nineSliceTexture.get(), SDL_BLENDMODE_BLEND);
 
     // Set the new texture as the render target and copy the slices.
+    SDL_Texture* previousRenderTarget{SDL_GetRenderTarget(Core::getRenderer())};
     SDL_SetRenderTarget(Core::getRenderer(), nineSliceTexture.get());
     copyCorners(sourceWidth, sourceHeight);
     copySides(sourceWidth, sourceHeight);
     copyCenter(sourceWidth, sourceHeight);
 
-    // Set the render target back to the window.
-    SDL_SetRenderTarget(Core::getRenderer(), nullptr);
+    // Set the render target back to what it was.
+    SDL_SetRenderTarget(Core::getRenderer(), previousRenderTarget);
 
     // Set the generated texture as our new current texture.
     currentTexture = nineSliceTexture;

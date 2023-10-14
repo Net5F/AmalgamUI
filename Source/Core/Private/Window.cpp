@@ -20,18 +20,6 @@ WidgetPath Window::getPathUnderWidget(Widget* widget)
     return widgetLocator.getPathUnderWidget(widget);
 }
 
-void Window::tick(double timestepS)
-{
-    // Call every visible child's onTick().
-    for (Widget& child : children) {
-        if (!(child.getIsVisible())) {
-            continue;
-        }
-
-        child.onTick(timestepS);
-    }
-}
-
 void Window::updateLayout()
 {
     // Scale our logicalExtent to get our scaledExtent.
@@ -39,7 +27,7 @@ void Window::updateLayout()
     // the layout.
     scaledExtent = ScalingHelpers::logicalToActual(logicalExtent);
 
-    // The locator expects clippedExtent to be window-relative, so we meed to
+    // The locator expects clippedExtent to be window-relative, so we need to
     // 0-out its position.
     fullExtent = scaledExtent;
     fullExtent.x = 0;

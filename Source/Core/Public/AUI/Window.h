@@ -65,11 +65,6 @@ public:
     bool containsWidget(Widget* widget);
 
     /**
-     * Calls the onTick() of all of our children.
-     */
-    void tick(double timestepS);
-
-    /**
      * Clears the old widget positions from widgetLocator and performs the
      * layout pass.
      *

@@ -14,6 +14,15 @@ class VerticalListContainer : public Container
 {
 public:
     //-------------------------------------------------------------------------
+    // Public definitions
+    //-------------------------------------------------------------------------
+    /**
+     * The direction that this container's elements should flow in. See 
+     * setDirection().
+     */
+    enum class FlowDirection { TopToBottom, BottomToTop };
+
+    //-------------------------------------------------------------------------
     // Public interface
     //-------------------------------------------------------------------------
     VerticalListContainer(const SDL_Rect& inLogicalExtent,
@@ -31,8 +40,16 @@ public:
      */
     void setScrollHeight(int inLogicalScrollHeight);
 
+    /**
+     * Sets whether widgets get added to the top of this container's extent and 
+     * flow downwards, or to the bottom of its extent and flow upwards.
+     *
+     * TopToBottom is good for a normal list, BottomToTop is good for a chat box.
+     */
+    void setFlowDirection(FlowDirection inFlowDirection);
+
     //-------------------------------------------------------------------------
-    // Base class overrides
+    // Widget class overrides
     //-------------------------------------------------------------------------
     EventResult onMouseWheel(int amountScrolled) override;
 
@@ -45,6 +62,18 @@ private:
      * Calculates the height of this container's content, including gaps.
      */
     int calcContentHeight();
+
+    /**
+     * Lay out our elements starting at the top of this container's extent and 
+     * growing downwards
+     */
+    void arrangeElementsTopToBottom(WidgetLocator* widgetLocator);
+
+    /**
+     * Lay out our elements starting at the bottom of this container's extent 
+     * and growing upwards.
+     */
+    void arrangeElementsBottomToTop(WidgetLocator* widgetLocator);
 
     /** The default logical pixel distance of a scroll event. */
     static constexpr int LOGICAL_DEFAULT_SCROLL_DISTANCE{15};
@@ -59,9 +88,11 @@ private:
     /** The scaled size in actual space of the gap between elements. */
     int scaledGapSize;
 
-    /** How far we're currently scrolled.
-        Note that this should be subtracted from element Y values, since
-        scrolling down makes the elements go up. */
+    /** The direction that child widgets should flow in. See 
+        setFlowDirection(). */
+    FlowDirection flowDirection;
+
+    /** How far we're currently scrolled, in scaled units. */
     int scrollDistance;
 };
 

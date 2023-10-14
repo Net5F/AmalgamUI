@@ -20,8 +20,8 @@ std::shared_ptr<SDL_Texture>
     }
 
     // Wrap the texture in a shared_ptr.
-    std::shared_ptr<SDL_Texture> texture{std::shared_ptr<SDL_Texture>(
-        rawTexture, [](SDL_Texture* p) { SDL_DestroyTexture(p); })};
+    std::shared_ptr<SDL_Texture> texture{
+        rawTexture, [](SDL_Texture* p) { SDL_DestroyTexture(p); }};
 
     // Save the texture in the cache.
     textureCache[imagePath] = texture;

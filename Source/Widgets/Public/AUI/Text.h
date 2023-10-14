@@ -88,8 +88,7 @@ public:
     void setRenderMode(RenderMode inRenderMode);
 
     /**
-     * Renders the given text to a texture, using the already set font, color,
-     * and renderMode.
+     * Sets the text that this widget will display.
      */
     void setText(std::string_view inText);
 
@@ -104,6 +103,20 @@ public:
      * widget's screenExtent.
      */
     void setHorizontalAlignment(HorizontalAlignment inHorizontalAlignment);
+
+    /**
+     * If true, text that is longer than this widget's extent will be wrapped 
+     * at word boundaries.
+     */
+    void setWordWrapEnabled(bool inWordWrapEnabled);
+
+    /**
+     * If true, this widget's height will automatically grow or shrink to fit 
+     * its text.
+     * Note: If you need the height adjusted immediately (such as for content 
+     *       size calculations), see refreshTexture().
+     */
+    void setAutoHeightEnabled(bool inAutoHeightEnabled);
 
     /**
      * Sets the text texture's x-axis offset. Effectively, this moves the text
@@ -125,6 +138,15 @@ public:
      * @return true if a character was erased, else false (empty string).
      */
     bool eraseCharacter(std::size_t index);
+
+    /**
+     * Re-renders the text texture, using all current property values.
+     *
+     * Note: If you're relying on auto height and need this widget's height 
+     *       to be adjusted immediately, you can do so by calling this.
+     *       Otherwise, don't worry about it. It'll be handled automatically.
+     */
+    void refreshTexture();
 
     /** Returns a const reference to the underlying std::string. */
     const std::string& asString();
@@ -186,11 +208,6 @@ private:
      */
     void refreshFontObject();
 
-    /**
-     * Re-renders the text texture, using all current property values.
-     */
-    void refreshTexture();
-
     /** Full path to the font file. */
     std::string fontPath;
 
@@ -209,6 +226,14 @@ private:
 
     /** The render mode. Affects the quality of the rendered image. */
     RenderMode renderMode;
+
+    /** If true, text that is longer than this widget's extent will be wrapped 
+        at word boundaries. */
+    bool wordWrapEnabled;
+
+    /** If true, this widget's height will automatically grow or shrink to fit 
+        its text. */
+    bool autoHeightEnabled;
 
     /** The text that this widget will display. */
     std::string text;

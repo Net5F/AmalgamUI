@@ -12,6 +12,9 @@ namespace AUI
  * Containers are used to lay out widgets according to some defined logic.
  * For example, a VerticalGridContainer will lay out widgets in a grid that
  * grows vertically.
+ *
+ * TODO: Make this templated to support different underlying containers.
+ *       Add push_front().
  */
 class Container : public Widget
 {
@@ -50,12 +53,24 @@ public:
     void clear();
 
     /**
+     * Inserts the given widget at the specified location in the container.
+     */
+    void insert(const_iterator pos, std::unique_ptr<Widget> newElement);
+
+    /**
      * Erases the widget at the given index.
      *
      * Errors in debug if the given index doesn't exist.
      * Does nothing in release if the given index doesn't exist.
      */
     void erase(std::size_t index);
+
+    /**
+     * Erases the elements at pos.
+     *
+     * Doesn't check the iterators before using them. Make sure they're valid.
+     */
+    void erase(const_iterator pos);
 
     /**
      * Erases the elements in the range [first, last).

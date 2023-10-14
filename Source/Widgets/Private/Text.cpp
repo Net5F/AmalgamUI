@@ -13,6 +13,8 @@ Text::Text(const SDL_Rect& inLogicalExtent, const std::string& inDebugName)
 , color{0, 0, 0, 255}
 , backgroundColor{0, 0, 0, 0}
 , renderMode{RenderMode::Blended}
+, wordWrapEnabled{true}
+, autoHeightEnabled{false}
 , text("Initialized")
 , verticalAlignment{VerticalAlignment::Top}
 , horizontalAlignment{HorizontalAlignment::Left}
@@ -59,8 +61,10 @@ void Text::setRenderMode(RenderMode inRenderMode)
 
 void Text::setText(std::string_view inText)
 {
-    text = inText;
-    textureIsDirty = true;
+    if (text != inText) {
+        text = inText;
+        textureIsDirty = true;
+    }
 }
 
 void Text::setVerticalAlignment(VerticalAlignment inVerticalAlignment)
@@ -73,6 +77,16 @@ void Text::setHorizontalAlignment(HorizontalAlignment inHorizontalAlignment)
 {
     horizontalAlignment = inHorizontalAlignment;
     refreshAlignment();
+}
+
+void Text::setWordWrapEnabled(bool inWordWrapEnabled)
+{
+    wordWrapEnabled = inWordWrapEnabled;
+}
+
+void Text::setAutoHeightEnabled(bool inAutoHeightEnabled)
+{
+    autoHeightEnabled = inAutoHeightEnabled;
 }
 
 void Text::setTextOffset(int inTextOffset)
@@ -101,6 +115,104 @@ bool Text::eraseCharacter(std::size_t index)
     }
 }
 
+void Text::refreshTexture()
+{
+    if (!textureIsDirty) {
+        // Nothing to refresh.
+        return;
+    }
+    else if (!font) {
+        AUI_LOG_FATAL("Please call setFont() before refreshTexture(), so"
+                      " that a valid font object can be used for texture "
+                      "generation. DebugName: %s",
+                      debugName.c_str());
+    }
+
+    // If the text string is empty, render a space instead.
+    std::string spaceText{" "};
+    std::string* textToRender{&text};
+    if (text == "") {
+        textToRender = &spaceText;
+    }
+
+    // Create a temporary surface on the cpu and render our image using the
+    // set renderMode.
+    SDL_Surface* surface{nullptr};
+    if (wordWrapEnabled) {
+        switch (renderMode) {
+            case RenderMode::Solid:
+                surface = TTF_RenderUTF8_Solid_Wrapped(
+                    font.get(), textToRender->c_str(), color, scaledExtent.w);
+                break;
+            case RenderMode::Shaded:
+                surface = TTF_RenderUTF8_Shaded_Wrapped(
+                    font.get(), textToRender->c_str(), color, backgroundColor,
+                    scaledExtent.w);
+                break;
+            case RenderMode::Blended:
+                surface = TTF_RenderUTF8_Blended_Wrapped(
+                    font.get(), textToRender->c_str(), color, scaledExtent.w);
+                break;
+            // Note: Removed because SDL_ttf on 22.04 doesn't support it.
+            //case RenderMode::LCD:
+            //    surface = TTF_RenderUTF8_LCD_Wrapped(
+            //        font.get(), textToRender->c_str(), color, backgroundColor,
+            //        scaledExtent.w);
+            //    break;
+        }
+    }
+    else {
+        switch (renderMode) {
+            case RenderMode::Solid:
+                surface = TTF_RenderUTF8_Solid(font.get(),
+                                               textToRender->c_str(), color);
+                break;
+            case RenderMode::Shaded:
+                surface = TTF_RenderUTF8_Shaded(
+                    font.get(), textToRender->c_str(), color, backgroundColor);
+                break;
+            case RenderMode::Blended:
+                surface = TTF_RenderUTF8_Blended(font.get(),
+                                                 textToRender->c_str(), color);
+                break;
+            // Note: Removed because SDL_ttf on 22.04 doesn't support it.
+            //case RenderMode::LCD:
+            //    surface = TTF_RenderUTF8_LCD(font.get(), textToRender->c_str(),
+            //                                 color, backgroundColor);
+            //    break;
+        }
+    }
+    if (surface == nullptr) {
+        AUI_LOG_FATAL("Failed to create surface.");
+    }
+
+    // Move the image to a texture on the gpu.
+    SDL_Texture* texture{
+        SDL_CreateTextureFromSurface(Core::getRenderer(), surface)};
+    SDL_FreeSurface(surface);
+    if (texture == nullptr) {
+        AUI_LOG_FATAL("Failed to create texture.");
+    }
+
+    // Give ownership of the texture pointer to our smart pointer.
+    textTexture = std::unique_ptr<SDL_Texture, TextureDeleter>(texture);
+
+    // Save the width and height of the new texture.
+    SDL_QueryTexture(textTexture.get(), nullptr, nullptr, &(textureExtent.w),
+                     &(textureExtent.h));
+    textExtent = {0, 0, textureExtent.w, textureExtent.h};
+
+    // If auto-height is enabled, set this widget's height to match the texture.
+    if (autoHeightEnabled) {
+        logicalExtent.h = ScalingHelpers::actualToLogical(textExtent.h);
+    }
+
+    // Calc our new aligned position.
+    refreshAlignment();
+
+    textureIsDirty = false;
+}
+
 const std::string& Text::asString()
 {
     return text;
@@ -113,7 +225,7 @@ SDL_Rect Text::calcCharacterOffset(std::size_t index)
 
     // Get the x offset and height from the relevant characters.
     SDL_Rect offsetExtent{};
-    TTF_SizeText(&(*font), relevantChars.c_str(), &(offsetExtent.x),
+    TTF_SizeUTF8(font.get(), relevantChars.c_str(), &(offsetExtent.x),
                  &(offsetExtent.h));
 
     // Account for our alignment/position by adding the text extent's offset.
@@ -131,7 +243,7 @@ int Text::calcStringWidth(const std::string& string)
     // Calculate the width that the given string would have if rendered using
     // the current font.
     int stringWidth{0};
-    TTF_SizeText(&(*font), string.c_str(), &(stringWidth), nullptr);
+    TTF_SizeUTF8(font.get(), string.c_str(), &(stringWidth), nullptr);
 
     return stringWidth;
 }
@@ -167,11 +279,6 @@ void Text::updateLayout(const SDL_Point& startPosition,
     // Do the normal layout updating.
     Widget::updateLayout(startPosition, availableExtent, widgetLocator);
 
-    // If this widget is fully clipped, return early.
-    if (SDL_RectEmpty(&clippedExtent)) {
-        return;
-    }
-
     // If the UI scaling has changed, refresh everything.
     if (lastUsedScreenSize != Core::getActualScreenSize()) {
         refreshScaling();
@@ -180,7 +287,11 @@ void Text::updateLayout(const SDL_Point& startPosition,
     // Else if a property has been changed, just re-render our text texture.
     else if (textureIsDirty) {
         refreshTexture();
-        textureIsDirty = false;
+    }
+
+    // If this widget is fully clipped, return early.
+    if (SDL_RectEmpty(&clippedExtent)) {
+        return;
     }
 
     // Offset our textExtent to start at startPosition.
@@ -277,74 +388,6 @@ void Text::refreshFontObject()
     // Attempt to load the given font (errors on failure).
     AssetCache& assetCache{Core::getAssetCache()};
     font = assetCache.requestFont(fontPath, actualFontSize);
-}
-
-void Text::refreshTexture()
-{
-    if (!font) {
-        AUI_LOG_FATAL("Please call setFont() before refreshTexture(), so"
-                      " that a valid font object can be used for texture "
-                      "generation. DebugName: %s",
-                      debugName.c_str());
-    }
-
-    // If the text string is empty, render a space instead.
-    std::string spaceText{" "};
-    std::string* textToRender{&text};
-    if (text == "") {
-        textToRender = &spaceText;
-    }
-
-    // Create a temporary surface on the cpu and render our image using the
-    // set renderMode.
-    SDL_Surface* surface{nullptr};
-    switch (renderMode) {
-        case RenderMode::Solid: {
-            surface
-                = TTF_RenderUTF8_Solid(&(*font), textToRender->c_str(), color);
-            break;
-        }
-        case RenderMode::Shaded: {
-            surface = TTF_RenderUTF8_Shaded(&(*font), textToRender->c_str(),
-                                            color, backgroundColor);
-            break;
-        }
-        case RenderMode::Blended: {
-            surface = TTF_RenderUTF8_Blended(&(*font), textToRender->c_str(),
-                                             color);
-            break;
-        }
-            // Note: Removed because SDL_ttf on 22.04 doesn't support it.
-            // case RenderMode::LCD: {
-            //    surface = TTF_RenderUTF8_LCD(&(*font), textToRender->c_str(),
-            //                                 color, backgroundColor);
-            //    break;
-            //}
-    }
-    if (surface == nullptr) {
-        AUI_LOG_FATAL("Failed to create surface.");
-    }
-
-    // Move the image to a texture on the gpu.
-    SDL_Texture* texture{
-        SDL_CreateTextureFromSurface(Core::getRenderer(), surface)};
-    SDL_FreeSurface(surface);
-    if (texture == nullptr) {
-        AUI_LOG_FATAL("Failed to create texture.");
-    }
-
-    // Give ownership of the texture pointer to our smart pointer.
-    textTexture = std::unique_ptr<SDL_Texture, TextureDeleter>(texture);
-
-    // Save the width and height of the new texture.
-    SDL_QueryTexture(textTexture.get(), nullptr, nullptr, &(textureExtent.w),
-                     &(textureExtent.h));
-    textExtent = {0, 0, textureExtent.w, textureExtent.h};
-
-    // Calc our new aligned position.
-    refreshAlignment();
-
-    textureIsDirty = false;
 }
 
 } // namespace AUI

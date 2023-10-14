@@ -38,14 +38,19 @@ std::unique_ptr<Widget>& Container::back()
     return elements.back();
 }
 
+std::size_t Container::size()
+{
+    return elements.size();
+}
+
 void Container::clear()
 {
     elements.clear();
 }
 
-std::size_t Container::size()
+void Container::insert(const_iterator pos, std::unique_ptr<Widget> newElement)
 {
-    return elements.size();
+    elements.insert(pos, std::move(newElement));
 }
 
 void Container::erase(std::size_t index)
@@ -58,6 +63,11 @@ void Container::erase(std::size_t index)
     }
 
     elements.erase(elements.begin() + index);
+}
+
+void Container::erase(const_iterator pos)
+{
+    elements.erase(pos);
 }
 
 void Container::erase(const_iterator first, const_iterator last)

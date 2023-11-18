@@ -1,7 +1,6 @@
 #include "AUI/Button.h"
 #include "AUI/Screen.h"
 #include "AUI/Core.h"
-#include "AUI/Internal/Ignore.h"
 
 namespace AUI
 {
@@ -71,11 +70,8 @@ void Button::setIsVisible(bool inIsVisible)
     Widget::setIsVisible(inIsVisible);
 }
 
-EventResult Button::onMouseDown(MouseButtonType buttonType,
-                                const SDL_Point& cursorPosition)
+EventResult Button::onMouseDown(MouseButtonType buttonType, const SDL_Point&)
 {
-    ignore(cursorPosition);
-
     // Only respond to the left mouse button.
     if (buttonType != MouseButtonType::Left) {
         return EventResult{.wasHandled{false}};
@@ -103,8 +99,6 @@ EventResult Button::onMouseDown(MouseButtonType buttonType,
 EventResult Button::onMouseUp(MouseButtonType buttonType,
                               const SDL_Point& cursorPosition)
 {
-    ignore(cursorPosition);
-
     // Only respond to the left mouse button.
     if (buttonType != MouseButtonType::Left) {
         return EventResult{.wasHandled{false}};

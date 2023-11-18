@@ -2,7 +2,6 @@
 #include "AUI/Screen.h"
 #include "AUI/Window.h"
 #include "AUI/Widget.h"
-#include "AUI/Internal/Ignore.h"
 #include "AUI/Internal/Log.h"
 #include "AUI/Internal/AUIAssert.h"
 #include <algorithm>

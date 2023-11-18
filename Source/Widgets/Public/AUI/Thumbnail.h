@@ -101,18 +101,18 @@ public:
     //-------------------------------------------------------------------------
     // Public child widgets
     //-------------------------------------------------------------------------
-    /** Background image, hovered state. */
-    Image hoveredImage;
-    /** Background image, active state. */
-    Image activeImage;
-
-    /** Middle-ground backdrop image, always visible. */
+    /** The backdrop that goes behind the thumbnail. */
     Image backdropImage;
-    /** Middle-ground image, selected state. */
-    Image selectedImage;
 
-    /** Foreground thumbnail image. */
+    /** Middle-ground thumbnail image. */
     Image thumbnailImage;
+
+    /** Foreground highlight image, active state. */
+    Image activeImage;
+    /** Foreground highlight image, hovered state. */
+    Image hoveredImage;
+    /** Foreground highlight image, selected state. */
+    Image selectedImage;
 
     //-------------------------------------------------------------------------
     // Limited public interface of private widgets

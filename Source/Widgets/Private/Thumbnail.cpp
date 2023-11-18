@@ -1,18 +1,17 @@
 #include "AUI/Thumbnail.h"
 #include "AUI/Screen.h"
 #include "AUI/Core.h"
-#include "AUI/Internal/Ignore.h"
 
 namespace AUI
 {
 Thumbnail::Thumbnail(const SDL_Rect& inLogicalExtent,
                      const std::string& inDebugName)
 : Widget(inLogicalExtent, inDebugName)
-, hoveredImage({0, 0, logicalExtent.w, logicalExtent.h})
-, activeImage({0, 0, logicalExtent.w, logicalExtent.h})
 , backdropImage({0, 0, logicalExtent.w, logicalExtent.h})
-, selectedImage({0, 0, logicalExtent.w, logicalExtent.h})
 , thumbnailImage({0, 0, logicalExtent.w, logicalExtent.h})
+, activeImage({0, 0, logicalExtent.w, logicalExtent.h})
+, hoveredImage({0, 0, logicalExtent.w, logicalExtent.h})
+, selectedImage({0, 0, logicalExtent.w, logicalExtent.h})
 , isHoverable{true}
 , isSelectable{true}
 , isActivateable{true}
@@ -35,8 +34,8 @@ Thumbnail::Thumbnail(const SDL_Rect& inLogicalExtent,
     text.setHorizontalAlignment(AUI::Text::HorizontalAlignment::Center);
 
     // Make the images we aren't using invisible.
-    hoveredImage.setIsVisible(false);
     activeImage.setIsVisible(false);
+    hoveredImage.setIsVisible(false);
     selectedImage.setIsVisible(false);
 }
 
@@ -224,11 +223,8 @@ void Thumbnail::setOnDeactivated(
     onDeactivated = std::move(inOnDeactivated);
 }
 
-EventResult Thumbnail::onMouseDown(MouseButtonType buttonType,
-                                   const SDL_Point& cursorPosition)
+EventResult Thumbnail::onMouseDown(MouseButtonType buttonType, const SDL_Point&)
 {
-    ignore(cursorPosition);
-
     // Only respond to the left mouse button.
     if (buttonType != MouseButtonType::Left) {
         return EventResult{.wasHandled{false}};
@@ -257,10 +253,8 @@ EventResult Thumbnail::onMouseDown(MouseButtonType buttonType,
 }
 
 EventResult Thumbnail::onMouseDoubleClick(MouseButtonType buttonType,
-                                          const SDL_Point& cursorPosition)
+                                          const SDL_Point&)
 {
-    ignore(cursorPosition);
-
     // Only respond to the left mouse button.
     if (buttonType != MouseButtonType::Left) {
         return EventResult{.wasHandled{false}};
@@ -293,10 +287,6 @@ void Thumbnail::onMouseEnter()
     // If we're not hovered, become hovered.
     if (!isHovered) {
         setIsHovered(true);
-    }
-    else {
-        // We're hovered, unhover.
-        setIsHovered(false);
     }
 }
 

@@ -2,8 +2,10 @@
 
 #include "AUI/Window.h"
 #include "AUI/EventRouter.h"
+#include "AUI/WidgetWeakRef.h"
 #include <SDL_events.h>
 #include <vector>
+#include <optional>
 
 namespace AUI
 {
@@ -37,13 +39,13 @@ public:
     /**
      * Returns the given widget's parent window.
      */
-    Window* getWidgetParentWindow(Widget* widget);
+    Window* getWidgetParentWindow(const Widget* widget);
 
     /**
      * Attempts to set focus to the given widget.
      * Fails if the given widget isn't in the current layout.
      */
-    void setFocus(Widget* widget);
+    void setFocus(const Widget* widget);
 
     /**
      * If a widget is currently focused, drops it.
@@ -112,9 +114,9 @@ protected:
     /** Translates SDL events to AUI events and handles routing them. */
     EventRouter eventRouter;
 
-    /** If non-nullptr, the pointed-to widget will be given focus after the 
-        next layout update. */
-    Widget* pendingFocusTarget;
+    /** If non-empty, the referenced widget will be given focus after the next 
+        layout update. */
+    std::optional<WidgetWeakRef> pendingFocusTarget;
 };
 
 } // namespace AUI

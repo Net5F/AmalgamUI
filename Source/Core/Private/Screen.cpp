@@ -9,7 +9,7 @@ namespace AUI
 Screen::Screen(const std::string& inDebugName)
 : debugName{inDebugName}
 , eventRouter{*this}
-, pendingFocusTarget{nullptr}
+, pendingFocusTarget{}
 {
 }
 
@@ -31,7 +31,7 @@ Window* Screen::getWindowUnderPoint(const SDL_Point& point)
     return nullptr;
 }
 
-Window* Screen::getWidgetParentWindow(Widget* widget)
+Window* Screen::getWidgetParentWindow(const Widget* widget)
 {
     for (auto it = windows.rbegin(); it != windows.rend(); ++it) {
         // If the window isn't visible, skip it.
@@ -49,7 +49,7 @@ Window* Screen::getWidgetParentWindow(Widget* widget)
     return nullptr;
 }
 
-void Screen::setFocus(Widget* widget)
+void Screen::setFocus(const Widget* widget)
 {
     // If the widget is in the layout, set focus to it.
     if (getWidgetParentWindow(widget) != nullptr) {
@@ -70,7 +70,7 @@ void Screen::dropFocus()
 
 void Screen::setFocusAfterNextLayout(Widget* widget)
 {
-    pendingFocusTarget = widget;
+    pendingFocusTarget.emplace(*widget);
 }
 
 bool Screen::handleOSEvent(SDL_Event& event)
@@ -132,9 +132,9 @@ void Screen::render()
     }
 
     // If we have a pending focus target, set it.
-    if (pendingFocusTarget != nullptr) {
-        setFocus(pendingFocusTarget);
-        pendingFocusTarget = nullptr;
+    if (pendingFocusTarget && pendingFocusTarget.value().isValid()) {
+        setFocus(&(pendingFocusTarget.value().get()));
+        pendingFocusTarget.reset();
     }
 
     // Render our visible windows.

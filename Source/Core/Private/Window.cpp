@@ -10,12 +10,12 @@ Window::Window(const SDL_Rect& inLogicalExtent, const std::string& inDebugName)
 {
 }
 
-WidgetPath Window::getPathUnderPoint(const SDL_Point& actualPoint)
+WidgetPath Window::getPathUnderPoint(const SDL_Point& actualPoint) const
 {
     return widgetLocator.getPathUnderPoint(actualPoint);
 }
 
-WidgetPath Window::getPathUnderWidget(Widget* widget)
+WidgetPath Window::getPathUnderWidget(const Widget* widget) const
 {
     return widgetLocator.getPathUnderWidget(widget);
 }
@@ -57,7 +57,7 @@ void Window::updateLayout()
     }
 }
 
-bool Window::containsWidget(Widget* widget)
+bool Window::containsWidget(const Widget* widget) const
 {
     return widgetLocator.containsWidget(widget);
 }

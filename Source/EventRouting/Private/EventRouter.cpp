@@ -240,7 +240,7 @@ bool EventRouter::handleTextInput(SDL_TextInputEvent& event)
     return eventWasHandled;
 }
 
-void EventRouter::setFocus(Widget* widget)
+void EventRouter::setFocus(const Widget* widget)
 {
     WidgetPath focusPath{getPathUnderWidget(widget)};
     if (!setFocusIfFocusable(focusPath)) {
@@ -309,7 +309,7 @@ WidgetPath EventRouter::getPathUnderCursor(const SDL_Point& cursorPosition)
     return WidgetPath{};
 }
 
-WidgetPath EventRouter::getPathUnderWidget(Widget* widget)
+WidgetPath EventRouter::getPathUnderWidget(const Widget* widget)
 {
     // Get the widget's parent window.
     Window* hoveredWindow{screen.getWidgetParentWindow(widget)};

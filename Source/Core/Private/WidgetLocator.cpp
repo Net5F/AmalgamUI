@@ -72,7 +72,7 @@ void WidgetLocator::clear()
     }
 }
 
-WidgetPath WidgetLocator::getPathUnderPoint(const SDL_Point& actualPoint)
+WidgetPath WidgetLocator::getPathUnderPoint(const SDL_Point& actualPoint) const
 {
     AUI_ASSERT(
         SDLHelpers::pointInRect(actualPoint, gridScreenExtent),
@@ -87,12 +87,12 @@ WidgetPath WidgetLocator::getPathUnderPoint(const SDL_Point& actualPoint)
     float hitCellY{relativePoint.y / cellWidth};
     std::size_t hitCellIndex{linearizeCellIndex(static_cast<int>(hitCellX),
                                                 static_cast<int>(hitCellY))};
-    std::vector<WidgetWeakRef>& widgetVec{widgetGrid[hitCellIndex]};
+    const std::vector<WidgetWeakRef>& widgetVec{widgetGrid[hitCellIndex]};
 
     // Iterate the widgets in the cell, adding them to the path if they're
     // still valid and contain the given point.
     WidgetPath returnPath;
-    for (WidgetWeakRef& widgetWeakRef : widgetVec) {
+    for (const WidgetWeakRef& widgetWeakRef : widgetVec) {
         // If the widget isn't valid, skip it.
         if (!(widgetWeakRef.isValid())) {
             continue;
@@ -108,7 +108,7 @@ WidgetPath WidgetLocator::getPathUnderPoint(const SDL_Point& actualPoint)
     return returnPath;
 }
 
-WidgetPath WidgetLocator::getPathUnderWidget(Widget* widget)
+WidgetPath WidgetLocator::getPathUnderWidget(const Widget* widget) const
 {
     // Calc the center of the given widget.
     SDL_Rect widgetExtent{widget->getClippedExtent()};
@@ -125,7 +125,7 @@ WidgetPath WidgetLocator::getPathUnderWidget(Widget* widget)
     return getPathUnderPoint(widgetCenter);
 }
 
-bool WidgetLocator::containsWidget(Widget* widget)
+bool WidgetLocator::containsWidget(const Widget* widget) const
 {
     return widgetMap.contains(widget);
 }
@@ -155,7 +155,7 @@ SDL_Rect WidgetLocator::getGridCellExtent()
     return gridCellExtent;
 }
 
-void WidgetLocator::clearWidgetLocation(Widget* widget,
+void WidgetLocator::clearWidgetLocation(const Widget* widget,
                                         const SDL_Rect& cellClearExtent)
 {
     // Iterate through all the cells that the widget occupies.

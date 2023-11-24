@@ -92,7 +92,7 @@ public:
     /**
      * Attempts to set focus to the given widget.
      */
-    void setFocus(Widget* widget);
+    void setFocus(const Widget* widget);
 
     /**
      * If a widget is currently focused, drops it.
@@ -141,7 +141,7 @@ private:
      *
      * If the widget was not found in the current layout, returns an empty path.
      */
-    WidgetPath getPathUnderWidget(Widget* widget);
+    WidgetPath getPathUnderWidget(const Widget* widget);
 
     /**
      * Routes a MouseDown to the given widget path.

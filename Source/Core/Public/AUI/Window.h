@@ -45,7 +45,7 @@ public:
      * @return A widget path, ordered with the root-most widget at the front
      *         and the leaf-most widget at the back.
      */
-    WidgetPath getPathUnderPoint(const SDL_Point& actualPoint);
+    WidgetPath getPathUnderPoint(const SDL_Point& actualPoint) const;
 
     /**
      * Builds a path containing all tracked widgets that are underneath the
@@ -55,14 +55,14 @@ public:
      * @return A widget path, ordered with the root-most widget at the front
      *         and the leaf-most widget at the back.
      */
-    WidgetPath getPathUnderWidget(Widget* widget);
+    WidgetPath getPathUnderWidget(const Widget* widget) const;
 
     /**
      * Returns true if this window contains the given widget.
      * Note: This may not be accurate for invisible widgets, or widgets that 
      *       have just been made visible and haven't yet been laid out.
      */
-    bool containsWidget(Widget* widget);
+    bool containsWidget(const Widget* widget) const;
 
     /**
      * Clears the old widget positions from widgetLocator and performs the

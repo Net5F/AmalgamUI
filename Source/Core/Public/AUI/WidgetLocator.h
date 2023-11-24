@@ -74,7 +74,7 @@ public:
      * @return A widget path, ordered with the root-most widget at the front
      *         and the leaf-most widget at the back.
      */
-    WidgetPath getPathUnderPoint(const SDL_Point& actualPoint);
+    WidgetPath getPathUnderPoint(const SDL_Point& actualPoint) const;
 
     /**
      * Builds a path containing all tracked widgets that are underneath the
@@ -87,12 +87,12 @@ public:
      * Note: This relies on our rules: parent widgets must fully overlap their
      *       children, and it's invalid for sibling widgets to overlap.
      */
-    WidgetPath getPathUnderWidget(Widget* widget);
+    WidgetPath getPathUnderWidget(const Widget* widget) const;
 
     /**
      * Returns true if this locator is currently tracking the given widget.
      */
-    bool containsWidget(Widget* widget);
+    bool containsWidget(const Widget* widget) const;
 
     /**
      * Sets the part of the screen (in actual space) that this widget locator
@@ -130,7 +130,8 @@ private:
      * Note: This leaves the widget in the entityMap. Only the tracked
      *       location is cleared out.
      */
-    void clearWidgetLocation(Widget* widget, const SDL_Rect& cellClearExtent);
+    void clearWidgetLocation(const Widget* widget,
+                             const SDL_Rect& cellClearExtent);
 
     /**
      * Returns the index in the widgetGrid vector where the cell with the given
@@ -170,7 +171,7 @@ private:
         Note: The widget pointers in this map are not safe to reference, as
               they may have gone invalid since they were added. We're only
               using them as identifiers. */
-    std::unordered_map<Widget*, SDL_Rect> widgetMap;
+    std::unordered_map<const Widget*, SDL_Rect> widgetMap;
 };
 
 } // End namespace AUI

@@ -425,27 +425,6 @@ EventRouter::HandlerReturnData
 
 void EventRouter::handleMouseEnterAndLeave(WidgetPath& hoverPath)
 {
-    // Send MouseEnter events to all newly hovered widgets.
-    for (WidgetWeakRef& widgetWeakRef : hoverPath) {
-        // If the widget is gone, skip it.
-        if (!(widgetWeakRef.isValid())) {
-            continue;
-        }
-
-        // Check if the widget is in lastHoveredWidgetPath.
-        auto result{std::find_if(
-            lastHoveredWidgetPath.begin(), lastHoveredWidgetPath.end(),
-            [&widgetWeakRef](WidgetWeakRef& refToCompare) {
-                return (&(widgetWeakRef.get()) == &(refToCompare.get()));
-            })};
-
-        // If the widget is new, pass a MouseEnter event to it.
-        if (result == lastHoveredWidgetPath.end()) {
-            Widget& widget{widgetWeakRef.get()};
-            widget.onMouseEnter();
-        }
-    }
-
     // Send MouseLeave events to any widgets that are no longer hovered.
     for (WidgetWeakRef& widgetWeakRef : lastHoveredWidgetPath) {
         // If the widget is gone, skip it.
@@ -464,6 +443,27 @@ void EventRouter::handleMouseEnterAndLeave(WidgetPath& hoverPath)
         if (result == hoverPath.end()) {
             Widget& widget{widgetWeakRef.get()};
             widget.onMouseLeave();
+        }
+    }
+
+    // Send MouseEnter events to all newly hovered widgets.
+    for (WidgetWeakRef& widgetWeakRef : hoverPath) {
+        // If the widget is gone, skip it.
+        if (!(widgetWeakRef.isValid())) {
+            continue;
+        }
+
+        // Check if the widget is in lastHoveredWidgetPath.
+        auto result{std::find_if(
+            lastHoveredWidgetPath.begin(), lastHoveredWidgetPath.end(),
+            [&widgetWeakRef](WidgetWeakRef& refToCompare) {
+                return (&(widgetWeakRef.get()) == &(refToCompare.get()));
+            })};
+
+        // If the widget is new, pass a MouseEnter event to it.
+        if (result == lastHoveredWidgetPath.end()) {
+            Widget& widget{widgetWeakRef.get()};
+            widget.onMouseEnter();
         }
     }
 }

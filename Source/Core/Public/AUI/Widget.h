@@ -74,6 +74,7 @@ public:
     bool getIsVisible() const;
 
     /** See Widget::isFocusable. */
+    virtual void setIsFocusable(bool inIsFocusable);
     bool getIsFocusable() const;
 
     /**

@@ -89,7 +89,7 @@ public:
      * @param timestepS  The amount of time that has passed since the last
      *                   tick() call, in seconds.
      */
-    void tick(double timestepS);
+    virtual void tick(double timestepS);
 
     /**
      * Renders all UI graphics for this screen to the current rendering target.

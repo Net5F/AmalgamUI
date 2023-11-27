@@ -56,6 +56,8 @@ void TextInput::enable()
 {
     SDL_Point cursorPosition{};
     SDL_GetMouseState(&(cursorPosition.x), &(cursorPosition.y));
+    cursorPosition.x -= clippedExtent.x;
+    cursorPosition.y -= clippedExtent.y;
 
     // Check if we're currently hovered.
     if (containsPoint(cursorPosition)) {

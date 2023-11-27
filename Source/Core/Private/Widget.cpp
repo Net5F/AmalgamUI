@@ -84,6 +84,11 @@ bool Widget::getIsVisible() const
     return isVisible;
 }
 
+void Widget::setIsFocusable(bool inIsFocusable)
+{
+    isFocusable = inIsFocusable;
+}
+
 bool Widget::getIsFocusable() const
 {
     return isFocusable;

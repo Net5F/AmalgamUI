@@ -27,8 +27,8 @@ void Window::updateLayout()
     // the layout.
     scaledExtent = ScalingHelpers::logicalToActual(logicalExtent);
 
-    // The locator expects clippedExtent to be window-relative, so we need to
-    // 0-out its position.
+    // fullExtent and clippedExtent are window-relative, so we need to 0-out 
+    // their position. This is important for the locator to work correctly.
     fullExtent = scaledExtent;
     fullExtent.x = 0;
     fullExtent.y = 0;

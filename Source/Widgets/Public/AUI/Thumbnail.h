@@ -168,6 +168,16 @@ public:
      */
     void setOnDeactivated(std::function<void(Thumbnail*)> inOnDeactivated);
 
+    /**
+     * A raw MouseDown interface, in case you want to handle clicks without 
+     * the widget changing state to selected/activated.
+     * @param inOnMouseDown A callback that expects a pointer to the widget 
+     *                      that was clicked and returns true if the click 
+     *                      was handled.
+     */
+    void setOnMouseDown(
+        std::function<bool(Thumbnail*, AUI::MouseButtonType)> inOnMouseDown);
+
     //-------------------------------------------------------------------------
     // Base class overrides
     //-------------------------------------------------------------------------
@@ -193,6 +203,7 @@ private:
     std::function<void(Thumbnail*)> onDeselected;
     std::function<void(Thumbnail*)> onActivated;
     std::function<void(Thumbnail*)> onDeactivated;
+    std::function<bool(Thumbnail*, AUI::MouseButtonType)> userOnMouseDown;
 
     /** If true, this widget is able to be hovered. */
     bool isHoverable;

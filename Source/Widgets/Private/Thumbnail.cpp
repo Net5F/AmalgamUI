@@ -223,8 +223,20 @@ void Thumbnail::setOnDeactivated(
     onDeactivated = std::move(inOnDeactivated);
 }
 
-EventResult Thumbnail::onMouseDown(MouseButtonType buttonType, const SDL_Point&)
+void Thumbnail::setOnMouseDown(
+    std::function<bool(Thumbnail*, AUI::MouseButtonType)> inOnMouseDown)
 {
+    userOnMouseDown = std::move(inOnMouseDown);
+}
+
+EventResult Thumbnail::onMouseDown(MouseButtonType buttonType, const SDL_Point& )
+{
+    // If the user set a MouseDown callback and it handles this event, return 
+    // early.
+    if (userOnMouseDown && userOnMouseDown(this, buttonType)) {
+        return EventResult{.wasHandled{true}};
+    }
+
     // Only respond to the left mouse button.
     if (buttonType != MouseButtonType::Left) {
         return EventResult{.wasHandled{false}};

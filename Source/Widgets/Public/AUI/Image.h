@@ -1,6 +1,7 @@
 #pragma once
 
 #include "AUI/Widget.h"
+#include "AUI/ScreenResolution.h"
 #include "AUI/ImageType/ImageType.h"
 #include "AUI/ImageType/NineSliceImage.h"
 #include <SDL_render.h>

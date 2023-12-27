@@ -1,11 +1,11 @@
 #include "AUI/Widget.h"
-#include "AUI/Screen.h"
 #include "AUI/Core.h"
 #include "AUI/ScalingHelpers.h"
 #include "AUI/SDLHelpers.h"
 #include "AUI/WidgetWeakRef.h"
 #include "AUI/WidgetLocator.h"
-#include "AUI/Internal/Ignore.h"
+#include "AUI/Image.h"
+#include "AUI/DragDropData.h"
 #include "AUI/Internal/Log.h"
 #include "AUI/Internal/AUIAssert.h"
 #include <algorithm>
@@ -20,6 +20,9 @@ Widget::Widget(const SDL_Rect& inLogicalExtent, const std::string& inDebugName)
 , clippedExtent{fullExtent}
 , isVisible{true}
 , isFocusable{false}
+, dragDropData{nullptr}
+, children{}
+, trackedRefs{}
 {
     Core::incWidgetCount();
 }
@@ -94,47 +97,53 @@ bool Widget::getIsFocusable() const
     return isFocusable;
 }
 
-EventResult Widget::onPreviewMouseDown(MouseButtonType buttonType,
-                                       const SDL_Point& cursorPosition)
+Image* Widget::getDragDropImage()
 {
-    ignore(buttonType);
-    ignore(cursorPosition);
+    return nullptr;
+}
+
+void Widget::setDragDropData(std::unique_ptr<DragDropData> inDragDropData)
+{
+    dragDropData = std::move(inDragDropData);
+}
+
+const DragDropData* Widget::getDragDropData() const
+{
+    return dragDropData.get();
+}
+
+bool Widget::getIsDragDroppable()
+{
+    return (getDragDropImage() && getDragDropData());
+}
+
+EventResult Widget::onPreviewMouseDown(MouseButtonType, const SDL_Point&)
+{
     return EventResult{.wasHandled{false}};
 }
 
-EventResult Widget::onMouseDown(MouseButtonType buttonType,
-                                const SDL_Point& cursorPosition)
+EventResult Widget::onMouseDown(MouseButtonType, const SDL_Point&)
 {
-    ignore(buttonType);
-    ignore(cursorPosition);
     return EventResult{.wasHandled{false}};
 }
 
-EventResult Widget::onMouseUp(MouseButtonType buttonType,
-                              const SDL_Point& cursorPosition)
+EventResult Widget::onMouseUp(MouseButtonType, const SDL_Point&)
 {
-    ignore(buttonType);
-    ignore(cursorPosition);
     return EventResult{.wasHandled{false}};
 }
 
-EventResult Widget::onMouseDoubleClick(MouseButtonType buttonType,
-                                       const SDL_Point& cursorPosition)
+EventResult Widget::onMouseDoubleClick(MouseButtonType, const SDL_Point&)
 {
-    ignore(buttonType);
-    ignore(cursorPosition);
     return EventResult{.wasHandled{false}};
 }
 
-EventResult Widget::onMouseWheel(int amountScrolled)
+EventResult Widget::onMouseWheel(int)
 {
-    ignore(amountScrolled);
     return EventResult{.wasHandled{false}};
 }
 
-EventResult Widget::onMouseMove(const SDL_Point& cursorPosition)
+EventResult Widget::onMouseMove(const SDL_Point&)
 {
-    ignore(cursorPosition);
     return EventResult{.wasHandled{false}};
 }
 
@@ -147,32 +156,45 @@ EventResult Widget::onFocusGained()
     return EventResult{.wasHandled{false}};
 }
 
-void Widget::onFocusLost(FocusLostType focusLostType)
+void Widget::onFocusLost(FocusLostType)
 {
-    ignore(focusLostType);
 }
 
-EventResult Widget::onPreviewKeyDown(SDL_Keycode keyCode)
+EventResult Widget::onPreviewKeyDown(SDL_Keycode)
 {
-    ignore(keyCode);
     return EventResult{.wasHandled{false}};
 }
 
-EventResult Widget::onKeyDown(SDL_Keycode keyCode)
+EventResult Widget::onKeyDown(SDL_Keycode)
 {
-    ignore(keyCode);
     return EventResult{.wasHandled{false}};
 }
 
-EventResult Widget::onKeyUp(SDL_Keycode keyCode)
+EventResult Widget::onKeyUp(SDL_Keycode)
 {
-    ignore(keyCode);
     return EventResult{.wasHandled{false}};
 }
 
-EventResult Widget::onTextInput(const std::string& inputText)
+EventResult Widget::onTextInput(const std::string&)
 {
-    ignore(inputText);
+    return EventResult{.wasHandled{false}};
+}
+
+void Widget::onDragStart() {}
+
+void Widget::onDragEnd() {}
+
+EventResult Widget::onDragMove(const SDL_Point&)
+{
+    return EventResult{.wasHandled{false}};
+}
+
+void Widget::onDragEnter() {}
+
+void Widget::onDragLeave() {}
+
+EventResult Widget::onDrop(const DragDropData&)
+{
     return EventResult{.wasHandled{false}};
 }
 

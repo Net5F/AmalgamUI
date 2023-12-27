@@ -1,6 +1,7 @@
 #include "AUI/Screen.h"
 #include "AUI/Core.h"
 #include "AUI/SDLHelpers.h"
+#include "AUI/Image.h"
 #include "AUI/Internal/Ignore.h"
 #include "AUI/Internal/Log.h"
 
@@ -142,6 +143,15 @@ void Screen::render()
         if (window.getIsVisible()) {
             window.render();
         }
+    }
+
+    // If we're dragging a widget, render its drag drop image at the current 
+    // mouse position. 
+    if (Image* dragDropImage{eventRouter.getDragDropImage()}) {
+        SDL_Point cursorPosition{};
+        SDL_GetMouseState(&(cursorPosition.x), &(cursorPosition.y));
+
+        dragDropImage->render(cursorPosition);
     }
 }
 

@@ -28,6 +28,11 @@ public:
      *       counts as being inside.
      */
     static bool rectInRect(const SDL_Rect& rectA, const SDL_Rect& rectB);
+
+    /**
+     * Returns the squared distance between the given points.
+     */
+    static int squaredDistance(const SDL_Point& pointA, const SDL_Point& pointB);
 };
 
 } // namespace AUI

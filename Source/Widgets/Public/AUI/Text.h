@@ -2,6 +2,7 @@
 
 #include "AUI/Widget.h"
 #include "AUI/AssetCache.h" // FontHandle
+#include "AUI/ScreenResolution.h"
 #include <SDL_ttf.h>
 #include <string_view>
 #include <string>

@@ -11,6 +11,7 @@ namespace AUI
 {
 
 class Screen;
+class Image;
 
 /**
  * Translates SDL events to AUI events and handles their routing.
@@ -99,12 +100,18 @@ public:
      */
     void dropFocus();
 
+    /**
+     * If a widget is currently being dragged, returns widget.getDragDropImage().
+     * Else, returns nullptr.
+     */
+    Image* getDragDropImage();
+
 private:
     /**
-     * Used for passing data from a specific event handler function back up to
-     * a general event handler function.
+     * Used for passing data from an event router function back up to an event 
+     * event handler function.
      */
-    struct HandlerReturnData {
+    struct RouterReturnData {
         /** If true, a widget handled the event. */
         bool eventWasHandled{false};
         /** If true, a handler explicitly set focus while the event was 
@@ -146,32 +153,31 @@ private:
     /**
      * Routes a MouseDown to the given widget path.
      */
-    HandlerReturnData handleMouseDown(MouseButtonType buttonType,
-                                  const SDL_Point& cursorPosition,
-                                  WidgetPath& clickPath);
+    RouterReturnData routeMouseDown(MouseButtonType buttonType,
+                                    const SDL_Point& cursorPosition,
+                                    WidgetPath& clickPath);
 
     /**
      * Routes a MouseDoubleClick to the given widget path.
      */
-    HandlerReturnData handleMouseDoubleClick(MouseButtonType buttonType,
-                                         const SDL_Point& cursorPosition,
-                                         WidgetPath& clickPath);
+    RouterReturnData routeMouseDoubleClick(MouseButtonType buttonType,
+                                           const SDL_Point& cursorPosition,
+                                           WidgetPath& clickPath);
 
     /**
      * Compares hoverPath to lastHoveredWidgetPath and routes MouseEnter and
-     * MouseLeave events appropriately.
+     * MouseLeave (or DragEnter/DragLeave) events appropriately.
      *
      * Note: This returns void because MouseEnter and MouseLeave don't return
      *       EventResult.
      */
-    void handleMouseEnterAndLeave(WidgetPath& hoverPath);
+    void routeMouseEnterAndLeave(WidgetPath& hoverPath);
 
     /**
-     * Routes a MouseMove to the widgets in hoverPath.
+     * Routes a MouseMove (or DragMove) to the widgets in hoverPath.
      * @return true if the event was handled, else false.
      */
-    bool handleUncapturedMouseMove(const SDL_Point& cursorPosition,
-                                   WidgetPath& hoverPath);
+    bool routeMouseMove(const SDL_Point& cursorPosition, WidgetPath& hoverPath);
 
     /**
      * Sets focus to a path from eventPath's root to its leafmost focusable 
@@ -186,13 +192,13 @@ private:
      * If focus is set, routes a FocusLost to the leafmost widget in focusPath.
      * Routes a FocusGained to the leafmost widget in newFocusPath.
      */
-    void handleSetFocus(WidgetPath& newFocusPath);
+    void setFocus(WidgetPath& newFocusPath);
 
     /**
      * If focusPath is set, clears it and routes a FocusLost to the leafmost
      * widget.
      */
-    void handleDropFocus(FocusLostType focusLostType);
+    void dropFocus(FocusLostType focusLostType);
 
     /**
      * Routes a KeyDown through the current focus path.
@@ -203,14 +209,34 @@ private:
      * @pre focusPath.back() must be a valid widget reference.
      * @return true if the event was handled, else false.
      */
-    bool handleFocusedKeyDown(SDL_Keycode keyCode);
+    bool routeFocusedKeyDown(SDL_Keycode keyCode);
 
     /**
      * Routes a KeyUp through the current focus path.
      * @pre focusPath.back() must be a valid widget reference.
      * @return true if the event was handled, else false.
      */
-    bool handleKeyUp(SDL_Keycode keyCode);
+    bool routeKeyUp(SDL_Keycode keyCode);
+
+    /**
+     * If eventPath contains a draggable widget, stages it for drag detection.
+     * A drag event won't actually be started until the user drags the mouse 
+     * beyond Core::dragTriggerDistance.
+     */
+    void setDragIfDraggable(WidgetPath& eventPath, SDL_Point& cursorPosition);
+
+    /**
+     * Routes a MouseLeave through lastHoveredWidgetPath, then routes a 
+     * DragStart to the currently dragged widget.
+     */
+    void routeDragStart();
+
+    /**
+     * Routes a Drop event through hoverPath, then routes a DragEnd to the 
+     * currently dragged widget, then routes DragLeave and MouseEnter events 
+     * to the hovered widgets.
+     */
+    void routeDrop(WidgetPath& hoverPath);
 
     /**
      * Processes the given event result. May update mouse capture, etc.
@@ -250,6 +276,23 @@ private:
               widget. KeyDown events will be tunneled then bubbled through
               the entire path. */
     WidgetPath focusPath;
+
+    /** If non-empty, holds the currently clicked drag/drop widget.
+        When a draggable widget is clicked, drag detection begins. If the 
+        mouse moves beyond Core::dragTriggerDistance, the drag event starts.
+        Check dragUnderway to see if we're actually dragging or not.
+        Note: This path just holds the first draggable widget. We use a path 
+              instead of using a single ref because the semantics are more 
+              clear. */
+    WidgetPath dragPath;
+
+    /** If dragPath is non-empty, this is actual position where the drag started.
+        If the mouse moves beyond Core::dragTriggerDistance, a drag event 
+        will start. */
+    SDL_Point dragOrigin;
+
+    /** If true, we're currently dragging a widget. */
+    bool dragUnderway;
 };
 
 } // End namespace AUI

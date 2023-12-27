@@ -62,6 +62,14 @@ public:
     static void setActualScreenSize(ScreenResolution inScaledScreenSize);
 
     /**
+     * Sets the distance (in pixels) that the mouse must travel while clicking a 
+     * draggable widget to trigger a drag and drop event.
+     *
+     * See EventRouter.h member comments for full information on drag and drop.
+     */
+    static void setDragTriggerDistance(int newDragTriggerDistance);
+
+    /**
      * If true, a TextInput widget is currently focused and receiving keyboard 
      * input.
      *
@@ -71,9 +79,10 @@ public:
     static bool getIsTextInputFocused();
 
     static SDL_Renderer* getRenderer();
-    static AUI::AssetCache& getAssetCache();
     static ScreenResolution getLogicalScreenSize();
     static ScreenResolution getActualScreenSize();
+    static AUI::AssetCache& getAssetCache();
+    static int getSquaredDragTriggerDistance();
 
 private:
     /** Friend Widget so it can update the widget count. */
@@ -102,6 +111,12 @@ private:
 
     /** The asset cache for font objects. */
     static std::unique_ptr<AssetCache> assetCache;
+
+    /** The distance in pixels that the mouse must travel to trigger to a drag 
+        and drop event. */
+    static int dragTriggerDistance;
+    /** The squared dragTriggerDistance, for more efficient calculations. */
+    static int squaredDragTriggerDistance;
 
     /** Keeps a count of the number of currently constructed widgets.
         Used to check if it's safe to Quit(). */

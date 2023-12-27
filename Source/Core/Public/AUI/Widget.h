@@ -1,19 +1,18 @@
 #pragma once
 
-#include "AUI/ScreenResolution.h"
 #include "AUI/MouseButtonType.h"
 #include "AUI/FocusLostType.h"
 #include "AUI/EventResult.h"
 #include <SDL_rect.h>
 #include <SDL_events.h>
 #include <string>
-#include <array>
+#include <memory>
 #include <vector>
-#include <functional>
 
 namespace AUI
 {
-class Screen;
+class Image;
+class DragDropData;
 class WidgetWeakRef;
 class WidgetLocator;
 
@@ -76,6 +75,23 @@ public:
     /** See Widget::isFocusable. */
     virtual void setIsFocusable(bool inIsFocusable);
     bool getIsFocusable() const;
+
+    // Note: We'd prefer to return a const Image*, but render() is non-const.
+    /** Returns the image that should follow the mouse while this widget is 
+        being dragged.
+        Widgets that want to support drag and drop must override this.
+        This may be called frequently, so try to keep it lightweight.
+        Note: If this widget is e.g. in a disabled state, you can return nullptr
+              here to disable drag and drop. */
+    virtual Image* getDragDropImage();
+
+    /** See Widget::dragDropData. */
+    void setDragDropData(std::unique_ptr<DragDropData> inDragDropData);
+    const DragDropData* getDragDropData() const;
+
+    /** Returns true if getDragDropImage() and getDragDropData() both return 
+        non-nullptr. */
+    bool getIsDragDroppable();
 
     /**
      * Called during the tunneling preview pass for a MouseDown event.
@@ -212,6 +228,49 @@ public:
     virtual EventResult onTextInput(const std::string& inputText);
 
     /**
+     * Called when this widget starts being dragged.
+     */
+    virtual void onDragStart();
+
+    /**
+     * Called when this widget is released after being dragged.
+     */
+    virtual void onDragEnd();
+
+    /**
+     * Called when the mouse cursor moves within this widget's bounds while 
+     * another widget is being dragged.
+     *
+     * This event is routed to the widget that is capturing the mouse. If
+     * there's no mouse captor, it's bubbled to widgets under the mouse.
+     *
+     * @param cursorPosition  The cursor's position, relative to this widget's
+     *                        parent window.
+     */
+    virtual EventResult onDragMove(const SDL_Point& cursorPosition);
+
+    /**
+     * Called when the mouse cursor first enters this widget's bounds while 
+     * another widget is being dragged
+     *
+     * This event is routed to widgets that are newly under the mouse.
+     */
+    virtual void onDragEnter();
+
+    /**
+     * Called when the mouse cursor leaves this widget's bounds while another 
+     * widget is being dragged.
+     *
+     * This event is routed to widgets that were previously under the mouse.
+     */
+    virtual void onDragLeave();
+
+    /**
+     * Called when a dragged widget is dropped onto this widget.
+     */
+    virtual EventResult onDrop(const DragDropData& dragDropData);
+
+    /**
      * Called when the current screen's tick() is called.
      *
      * Note: If you override this function, you must call onTick() on all of
@@ -313,6 +372,10 @@ protected:
         key. When a widget is focused, it will receive key press and character 
         events. */
     bool isFocusable;
+
+    /** If non-nullptr, this is the data that should be given to the target 
+        when this widget is dropped. */
+    std::unique_ptr<DragDropData> dragDropData;
 
     /** An ordered list of references to this widget's children.
         Widgets must be added to this list to be involved in layout, rendering,

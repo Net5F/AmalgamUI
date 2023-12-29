@@ -1,9 +1,9 @@
 #include "AUI/Screen.h"
 #include "AUI/Core.h"
-#include "AUI/SDLHelpers.h"
 #include "AUI/Image.h"
 #include "AUI/Internal/Ignore.h"
 #include "AUI/Internal/Log.h"
+#include <SDL_rect.h>
 
 namespace AUI
 {
@@ -24,7 +24,7 @@ Window* Screen::getWindowUnderPoint(const SDL_Point& point)
         }
 
         // If the window contains the given point, return it.
-        if (SDLHelpers::pointInRect(point, window.getScaledExtent())) {
+        if (SDL_PointInRect(&point, &(window.getScaledExtent()))) {
             return &window;
         }
     }

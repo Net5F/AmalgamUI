@@ -114,18 +114,19 @@ void Image::render(const SDL_Point& windowTopLeft)
         double heightDiffFactor{imageType->currentTexExtent.h
                                 / static_cast<double>(fullExtent.h)};
 
-        // Calc the size of the clipped region.
-        int clipWidth{clippedExtent.x - fullExtent.x};
-        int clipHeight{clippedExtent.y - fullExtent.y};
-        AUI_ASSERT(clipWidth >= 0, "Clipped region was negative.");
-        AUI_ASSERT(clipHeight >= 0, "Clipped region was negative.");
-
-        // Scale the clipped region to match the texture, and calc the 
-        // clipped texture extent.
-        clippedTexExtent.x += static_cast<int>(clipWidth * widthDiffFactor);
-        clippedTexExtent.y += static_cast<int>(clipHeight * heightDiffFactor);
-        clippedTexExtent.w -= static_cast<int>(clipWidth * widthDiffFactor);
-        clippedTexExtent.h -= static_cast<int>(clipHeight * heightDiffFactor);
+        // Use the difference factor to calc the clipped texture extent.
+        // The idea here is that clippedTexExtent/clippedExtent should have 
+        // the same scale relationship as currentTexExtent/fullExtent.
+        // Note: We need to subtract fullExtent's origin to make clippedExtent
+        //       relative to (0, 0) like currentTexExtent is.
+        clippedTexExtent.x = static_cast<int>((clippedExtent.x - fullExtent.x)
+                                              * widthDiffFactor);
+        clippedTexExtent.y = static_cast<int>((clippedExtent.y - fullExtent.y)
+                                              * heightDiffFactor);
+        clippedTexExtent.w
+            = static_cast<int>(clippedExtent.w * widthDiffFactor);
+        clippedTexExtent.h
+            = static_cast<int>(clippedExtent.h * heightDiffFactor);
     }
 
     // Render the image.

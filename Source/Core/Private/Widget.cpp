@@ -1,13 +1,13 @@
 #include "AUI/Widget.h"
 #include "AUI/Core.h"
 #include "AUI/ScalingHelpers.h"
-#include "AUI/SDLHelpers.h"
 #include "AUI/WidgetWeakRef.h"
 #include "AUI/WidgetLocator.h"
 #include "AUI/Image.h"
 #include "AUI/DragDropData.h"
 #include "AUI/Internal/Log.h"
 #include "AUI/Internal/AUIAssert.h"
+#include <SDL_rect.h>
 #include <algorithm>
 
 namespace AUI
@@ -38,7 +38,7 @@ Widget::~Widget()
 
 bool Widget::containsPoint(const SDL_Point& windowPoint)
 {
-    return SDLHelpers::pointInRect(windowPoint, clippedExtent);
+    return SDL_PointInRect(&windowPoint, &clippedExtent);
 }
 
 void Widget::setLogicalExtent(const SDL_Rect& inLogicalExtent)
@@ -52,22 +52,22 @@ void Widget::setLogicalExtent(const SDL_Rect& inLogicalExtent)
     // TODO: Invalidate the layout
 }
 
-SDL_Rect Widget::getLogicalExtent() const
+const SDL_Rect& Widget::getLogicalExtent() const
 {
     return logicalExtent;
 }
 
-SDL_Rect Widget::getScaledExtent() const
+const SDL_Rect& Widget::getScaledExtent() const
 {
     return scaledExtent;
 }
 
-SDL_Rect Widget::getFullExtent() const
+const SDL_Rect& Widget::getFullExtent() const
 {
     return fullExtent;
 }
 
-SDL_Rect Widget::getClippedExtent() const
+const SDL_Rect& Widget::getClippedExtent() const
 {
     return clippedExtent;
 }

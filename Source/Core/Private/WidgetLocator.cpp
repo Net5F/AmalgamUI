@@ -1,9 +1,9 @@
 #include "AUI/WidgetLocator.h"
 #include "AUI/Widget.h"
 #include "AUI/ScalingHelpers.h"
-#include "AUI/SDLHelpers.h"
 #include "AUI/Internal/Log.h"
 #include "AUI/Internal/AUIAssert.h"
+#include <SDL_rect.h>
 #include <cmath>
 #include <algorithm>
 
@@ -75,7 +75,7 @@ void WidgetLocator::clear()
 WidgetPath WidgetLocator::getPathUnderPoint(const SDL_Point& actualPoint) const
 {
     AUI_ASSERT(
-        SDLHelpers::pointInRect(actualPoint, gridScreenExtent),
+        SDL_PointInRect(&actualPoint, &gridScreenExtent),
         "Tried to get path for a point that is outside this locator's bounds.");
 
     // Convert the actual screen-space point to a window-relative point.

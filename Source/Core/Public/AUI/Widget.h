@@ -58,13 +58,13 @@ public:
     virtual void setLogicalExtent(const SDL_Rect& inLogicalExtent);
 
     /** See Widget::logicalExtent. */
-    SDL_Rect getLogicalExtent() const;
+    const SDL_Rect& getLogicalExtent() const;
     /** See Widget::scaledExtent. */
-    SDL_Rect getScaledExtent() const;
+    const SDL_Rect& getScaledExtent() const;
     /** See Widget::fullExtent. */
-    SDL_Rect getFullExtent() const;
+    const SDL_Rect& getFullExtent() const;
     /** See Widget::clippedExtent. */
-    SDL_Rect getClippedExtent() const;
+    const SDL_Rect& getClippedExtent() const;
 
     const std::string& getDebugName() const;
 
@@ -374,7 +374,8 @@ protected:
     bool isFocusable;
 
     /** If non-nullptr, this is the data that should be given to the target 
-        when this widget is dropped. */
+        when this widget is dropped.
+        If nullptr, drag and drop will be disabled. */
     std::unique_ptr<DragDropData> dragDropData;
 
     /** An ordered list of references to this widget's children.

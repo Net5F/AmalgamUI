@@ -1,10 +1,10 @@
 #include "AUI/CollapsibleContainer.h"
 #include "AUI/ScalingHelpers.h"
-#include "AUI/SDLHelpers.h"
 #include "AUI/WidgetLocator.h"
 #include "AUI/Internal/Log.h"
 #include <cmath>
 #include <algorithm>
+#include <SDL_rect.h>
 
 namespace AUI
 {
@@ -114,7 +114,7 @@ EventResult CollapsibleContainer::onMouseDown(MouseButtonType,
 {
     // If the click region was clicked, toggle the collapsed state.
     SDL_Rect clickRegionExtent{getClickRegionExtent()};
-    if (SDLHelpers::pointInRect(cursorPosition, clickRegionExtent)) {
+    if (SDL_PointInRect(&cursorPosition, &clickRegionExtent)) {
         setIsCollapsed(!isCollapsed);
 
         return EventResult{.wasHandled{true}};

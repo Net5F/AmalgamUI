@@ -2,7 +2,6 @@
 #include "AUI/Screen.h"
 #include "AUI/Core.h"
 #include "AUI/ScalingHelpers.h"
-#include "AUI/Internal/Ignore.h"
 #include <cstring>
 
 namespace AUI
@@ -147,11 +146,8 @@ void TextInput::setOnTextCommitted(std::function<void(void)> inOnTextCommitted)
     onTextCommitted = std::move(inOnTextCommitted);
 }
 
-EventResult TextInput::onMouseDown(MouseButtonType buttonType,
-                                   const SDL_Point& cursorPosition)
+EventResult TextInput::onMouseDown(MouseButtonType buttonType, const SDL_Point&)
 {
-    ignore(cursorPosition);
-
     // Only respond to the left mouse button.
     if (buttonType != MouseButtonType::Left) {
         return EventResult{.wasHandled{false}};
@@ -320,10 +316,8 @@ EventResult TextInput::onKeyDown(SDL_Keycode keyCode)
     return eventResult;
 }
 
-EventResult TextInput::onKeyUp(SDL_Keycode keyCode)
+EventResult TextInput::onKeyUp(SDL_Keycode)
 {
-    ignore(keyCode);
-
     // We need to handle all key events so that parent widgets don't get them
     // while we're working with the TextInput events.
     return EventResult{.wasHandled{true}};

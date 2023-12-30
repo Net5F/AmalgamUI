@@ -2,7 +2,6 @@
 #include "AUI/Core.h"
 #include "AUI/AssetCache.h"
 #include "AUI/Internal/AUIAssert.h"
-#include "AUI/Internal/Ignore.h"
 
 namespace AUI
 {
@@ -50,10 +49,8 @@ void MultiResImage::clear()
     resolutionMap.clear();
 }
 
-void MultiResImage::refresh(const SDL_Rect& scaledExtent)
+void MultiResImage::refresh(const SDL_Rect&)
 {
-    ignore(scaledExtent);
-
     // Re-calculate which resolution of texture to use.
     refreshChosenResolution();
 }

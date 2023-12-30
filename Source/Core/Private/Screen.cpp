@@ -1,7 +1,6 @@
 #include "AUI/Screen.h"
 #include "AUI/Core.h"
 #include "AUI/Image.h"
-#include "AUI/Internal/Ignore.h"
 #include "AUI/Internal/Log.h"
 #include <SDL_rect.h>
 
@@ -105,9 +104,8 @@ bool Screen::handleOSEvent(SDL_Event& event)
     return false;
 }
 
-bool Screen::onKeyDown(SDL_Keycode keyCode)
+bool Screen::onKeyDown(SDL_Keycode)
 {
-    ignore(keyCode);
     return false;
 }
 

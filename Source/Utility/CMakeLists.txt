@@ -13,7 +13,6 @@ target_sources(AmalgamUI
         #       pollute an IDE's suggestions with files that the consumer
         #       isn't likely to need.
         Public/AUI/Internal/AUIAssert.h
-        Public/AUI/Internal/Ignore.h
         Public/AUI/Internal/Log.h
 )
 

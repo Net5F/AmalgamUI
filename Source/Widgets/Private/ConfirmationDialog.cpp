@@ -1,7 +1,6 @@
 #include "AUI/ConfirmationDialog.h"
 #include "AUI/Screen.h"
 #include "AUI/Core.h"
-#include "AUI/Internal/Ignore.h"
 
 namespace AUI
 {

@@ -1,7 +1,6 @@
 #pragma once
 
 #include "AUI/Widget.h"
-#include "AUI/Internal/Ignore.h"
 #include <SDL_render.h>
 #include <string>
 #include <memory>

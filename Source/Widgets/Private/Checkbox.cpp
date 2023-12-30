@@ -1,7 +1,6 @@
 #include "AUI/Checkbox.h"
 #include "AUI/Screen.h"
 #include "AUI/Core.h"
-#include "AUI/Internal/Ignore.h"
 
 namespace AUI
 {
@@ -56,11 +55,8 @@ void Checkbox::setOnUnchecked(std::function<void(void)> inOnUnchecked)
     onUnchecked = std::move(inOnUnchecked);
 }
 
-EventResult Checkbox::onMouseDown(MouseButtonType buttonType,
-                                  const SDL_Point& cursorPosition)
+EventResult Checkbox::onMouseDown(MouseButtonType buttonType, const SDL_Point&)
 {
-    ignore(cursorPosition);
-
     // Only respond to the left mouse button.
     if (buttonType != MouseButtonType::Left) {
         return EventResult{.wasHandled{false}};

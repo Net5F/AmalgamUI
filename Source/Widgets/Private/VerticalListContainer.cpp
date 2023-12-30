@@ -78,7 +78,7 @@ void VerticalListContainer::updateLayout(const SDL_Point& startPosition,
         return;
     }
 
-    // If our content changed and is now shorter than this widget, reset the 
+    // If our content changed and is now shorter than this widget, reset the
     // scroll distance.
     int contentHeight{calcContentHeight()};
     if (contentHeight < scaledExtent.h) {
@@ -106,7 +106,7 @@ void VerticalListContainer::updateLayout(const SDL_Point& startPosition,
 
 int VerticalListContainer::calcContentHeight()
 {
-    // TODO: We've had to do some hokey stuff in CollapsibleContainer and Text 
+    // TODO: We've had to do some hokey stuff in CollapsibleContainer and Text
     //       to get this to work. If we hit a third special case, we should just
     //       refactor updateLayout() into measure()/arrange().
 
@@ -115,7 +115,7 @@ int VerticalListContainer::calcContentHeight()
     int contentHeight{0};
     for (const std::unique_ptr<Widget>& widget : elements) {
         contentHeight += scaledGapSize;
-        // Note: We scale manually since there's no guarantee updateLayout() 
+        // Note: We scale manually since there's no guarantee updateLayout()
         //       has ran already to update this widget's scaledExtent.
         contentHeight
             += ScalingHelpers::logicalToActual(widget->getLogicalExtent().h);

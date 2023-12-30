@@ -56,8 +56,8 @@ void Screen::setFocus(const Widget* widget)
         eventRouter.setFocus(widget);
     }
     else {
-        // The widget isn't in the layout. If you hit this, make sure the 
-        // widget is visible and has been through a layout pass before trying 
+        // The widget isn't in the layout. If you hit this, make sure the
+        // widget is visible and has been through a layout pass before trying
         // to set focus to it.
         AUI_LOG_ERROR("Tried to set focus to widget that isn't in the layout.");
     }
@@ -143,8 +143,8 @@ void Screen::render()
         }
     }
 
-    // If we're dragging a widget, render its drag drop image at the current 
-    // mouse position. 
+    // If we're dragging a widget, render its drag drop image at the current
+    // mouse position.
     if (Image* dragDropImage{eventRouter.getDragDropImage()}) {
         SDL_Point cursorPosition{};
         SDL_GetMouseState(&(cursorPosition.x), &(cursorPosition.y));

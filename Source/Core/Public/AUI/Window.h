@@ -59,7 +59,7 @@ public:
 
     /**
      * Returns true if this window contains the given widget.
-     * Note: This may not be accurate for invisible widgets, or widgets that 
+     * Note: This may not be accurate for invisible widgets, or widgets that
      *       have just been made visible and haven't yet been laid out.
      */
     bool containsWidget(const Widget* widget) const;

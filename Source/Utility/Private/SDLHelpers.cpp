@@ -4,7 +4,8 @@
 
 namespace AUI
 {
-int SDLHelpers::squaredDistance(const SDL_Point& pointA, const SDL_Point& pointB)
+int SDLHelpers::squaredDistance(const SDL_Point& pointA,
+                                const SDL_Point& pointB)
 {
     // Get the differences between the points.
     int xDif{pointA.x - pointB.x};

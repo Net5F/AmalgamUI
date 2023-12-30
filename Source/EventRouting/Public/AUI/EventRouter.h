@@ -45,8 +45,8 @@ class Image;
  *   setting the dropFocus field in EventResult, or implicitly by using the
  *   setFocus field to switch focus to a new widget.
  *
- *   Sometimes you want to receive key events without having focus, e.g. 
- *   to open a menu. To do this, use Screen::onKeyDown(). It will receive 
+ *   Sometimes you want to receive key events without having focus, e.g.
+ *   to open a menu. To do this, use Screen::onKeyDown(). It will receive
  *   any key events that aren't handled by a focused widget.
  */
 class EventRouter
@@ -101,20 +101,20 @@ public:
     void dropFocus();
 
     /**
-     * If a widget is currently being dragged, returns widget.getDragDropImage().
-     * Else, returns nullptr.
+     * If a widget is currently being dragged, returns
+     * widget.getDragDropImage(). Else, returns nullptr.
      */
     Image* getDragDropImage();
 
 private:
     /**
-     * Used for passing data from an event router function back up to an event 
+     * Used for passing data from an event router function back up to an event
      * event handler function.
      */
     struct RouterReturnData {
         /** If true, a widget handled the event. */
         bool eventWasHandled{false};
-        /** If true, a handler explicitly set focus while the event was 
+        /** If true, a handler explicitly set focus while the event was
             propagating. */
         bool focusWasSet{false};
         /** If eventResult.wasHandled == true, this points to the widget that
@@ -135,7 +135,7 @@ private:
     SDL_Point screenToWindowRelative(const SDL_Point& cursorPosition);
 
     /**
-     * Returns a path that traces from the first hit window, up to its top-most 
+     * Returns a path that traces from the first hit window, up to its top-most
      * hit child widget (inclusive).
      *
      * If no widgets are under the cursor, returns an empty path.
@@ -180,9 +180,9 @@ private:
     bool routeMouseMove(const SDL_Point& cursorPosition, WidgetPath& hoverPath);
 
     /**
-     * Sets focus to a path from eventPath's root to its leafmost focusable 
+     * Sets focus to a path from eventPath's root to its leafmost focusable
      * widget.
-     * @return true if focus was set, false if eventPath had no focusable 
+     * @return true if focus was set, false if eventPath had no focusable
      *         widgets.
      */
     bool setFocusIfFocusable(WidgetPath& eventPath);
@@ -220,20 +220,20 @@ private:
 
     /**
      * If eventPath contains a draggable widget, stages it for drag detection.
-     * A drag event won't actually be started until the user drags the mouse 
+     * A drag event won't actually be started until the user drags the mouse
      * beyond Core::dragTriggerDistance.
      */
     void setDragIfDraggable(WidgetPath& eventPath, SDL_Point& cursorPosition);
 
     /**
-     * Routes a MouseLeave through lastHoveredWidgetPath, then routes a 
+     * Routes a MouseLeave through lastHoveredWidgetPath, then routes a
      * DragStart to the currently dragged widget.
      */
     void routeDragStart();
 
     /**
-     * Routes a Drop event through hoverPath, then routes a DragEnd to the 
-     * currently dragged widget, then routes DragLeave and MouseEnter events 
+     * Routes a Drop event through hoverPath, then routes a DragEnd to the
+     * currently dragged widget, then routes DragLeave and MouseEnter events
      * to the hovered widgets.
      */
     void routeDrop(WidgetPath& hoverPath);
@@ -244,10 +244,10 @@ private:
      * @param eventResult  The event result to process.
      */
     void processEventResult(const EventResult& eventResult);
-    
+
     /**
      * Returns the current focused widget, or nullptr if there is none.
-     * Note: This does not check the validity of the widget. This is mostly 
+     * Note: This does not check the validity of the widget. This is mostly
      *       useful just to get a pointer for comparisons.
      */
     Widget* getFocusedWidget();
@@ -278,17 +278,17 @@ private:
     WidgetPath focusPath;
 
     /** If non-empty, holds the currently clicked drag/drop widget.
-        When a draggable widget is clicked, drag detection begins. If the 
+        When a draggable widget is clicked, drag detection begins. If the
         mouse moves beyond Core::dragTriggerDistance, the drag event starts.
         Check dragUnderway to see if we're actually dragging or not.
-        Note: This path just holds the first draggable widget. We use a path 
-              instead of using a single ref because the semantics are more 
+        Note: This path just holds the first draggable widget. We use a path
+              instead of using a single ref because the semantics are more
               clear. */
     WidgetPath dragPath;
 
-    /** If dragPath is non-empty, this is actual position where the drag started.
-        If the mouse moves beyond Core::dragTriggerDistance, a drag event 
-        will start. */
+    /** If dragPath is non-empty, this is actual position where the drag
+       started. If the mouse moves beyond Core::dragTriggerDistance, a drag
+       event will start. */
     SDL_Point dragOrigin;
 
     /** If true, we're currently dragging a widget. */

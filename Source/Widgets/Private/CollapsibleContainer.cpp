@@ -54,7 +54,7 @@ void CollapsibleContainer::setIsCollapsed(bool inIsCollapsed)
         expandedImage.setIsVisible(true);
         collapsedImage.setIsVisible(false);
 
-        // Note: We need to immediately update our height so that our parent 
+        // Note: We need to immediately update our height so that our parent
         //       can get an accurate height during the next updateLayout().
         logicalExtent.h = calcExpandedHeight();
     }
@@ -75,7 +75,7 @@ void CollapsibleContainer::setGapSize(int inLogicalGapSize)
 
 SDL_Rect CollapsibleContainer::getHeaderExtent()
 {
-    // Calculate the header's extent (we can't just use clippedExtent because 
+    // Calculate the header's extent (we can't just use clippedExtent because
     // when we're expanded it accounts for the whole container).
     SDL_Rect headerExtent{
         AUI::ScalingHelpers::logicalToActual(headerLogicalExtent)};
@@ -96,7 +96,8 @@ SDL_Rect CollapsibleContainer::getClickRegionExtent()
     return clickRegionExtent;
 }
 
-void CollapsibleContainer::setOnHeightChanged(std::function<void(void)> inOnHeightChanged)
+void CollapsibleContainer::setOnHeightChanged(
+    std::function<void(void)> inOnHeightChanged)
 {
     onHeightChanged = std::move(inOnHeightChanged);
 }
@@ -123,19 +124,20 @@ EventResult CollapsibleContainer::onMouseDown(MouseButtonType,
     return EventResult{.wasHandled{false}};
 }
 
-EventResult CollapsibleContainer::onMouseDoubleClick(MouseButtonType buttonType,
-                                          const SDL_Point& cursorPosition)
+EventResult
+    CollapsibleContainer::onMouseDoubleClick(MouseButtonType buttonType,
+                                             const SDL_Point& cursorPosition)
 {
     // We treat additional clicks as regular MouseDown events.
     return onMouseDown(buttonType, cursorPosition);
 }
 
 void CollapsibleContainer::updateLayout(const SDL_Point& startPosition,
-                                 const SDL_Rect& availableExtent,
-                                 WidgetLocator* widgetLocator)
+                                        const SDL_Rect& availableExtent,
+                                        WidgetLocator* widgetLocator)
 {
     // If we're in the expanded state, refresh our height.
-    // Note: We need to do this in case any of our elements changed their 
+    // Note: We need to do this in case any of our elements changed their
     //       extents.
     if (!isCollapsed) {
         int oldHeight{logicalExtent.h};
@@ -146,7 +148,7 @@ void CollapsibleContainer::updateLayout(const SDL_Point& startPosition,
         }
     }
 
-    // Run the normal layout step (will update us and our children, but won't 
+    // Run the normal layout step (will update us and our children, but won't
     // process any of our elements).
     Widget::updateLayout(startPosition, availableExtent, widgetLocator);
 
@@ -176,8 +178,8 @@ void CollapsibleContainer::updateLayout(const SDL_Point& startPosition,
         elements[i]->setIsVisible(true);
 
         // Update the element, passing it the calculated start position.
-        elements[i]->updateLayout({fullExtent.x, nextYPosition},
-                                  clippedExtent, widgetLocator);
+        elements[i]->updateLayout({fullExtent.x, nextYPosition}, clippedExtent,
+                                  widgetLocator);
 
         // Update nextYPosition for the next element.
         nextYPosition += (elements[i]->getScaledExtent().h + scaledGapSize);

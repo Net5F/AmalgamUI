@@ -159,7 +159,7 @@ private:
     /** The grid's relative extent, with cells as the unit. */
     SDL_Rect gridCellExtent;
 
-    /** The outer vector is a linearized 2D grid stored in row-major order, 
+    /** The outer vector is a linearized 2D grid stored in row-major order,
         holding the grid's cells.
         Each element in the grid is a vector of widgets--the widgets that
         currently intersect with that cell. */

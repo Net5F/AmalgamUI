@@ -115,7 +115,7 @@ void Thumbnail::setStateWithoutCallbacks(bool isSelected, bool isActive)
     if (isActivateable) {
         setIsActive(isActive);
 
-        // If active, flag that we aren't hovered (can't be hovered while 
+        // If active, flag that we aren't hovered (can't be hovered while
         // active.)
         if (isActive) {
             setIsHovered(false);
@@ -196,7 +196,7 @@ void Thumbnail::setTextHorizontalAlignment(
         text.setHorizontalAlignment(inHorizontalAlignment);
     }
     else {
-        // Else the text is too big to fit, right align it so we can see the 
+        // Else the text is too big to fit, right align it so we can see the
         // end (since the end is likely more informative than the beginning).
         text.setHorizontalAlignment(Text::HorizontalAlignment::Right);
     }
@@ -229,9 +229,9 @@ void Thumbnail::setOnMouseDown(
     userOnMouseDown = std::move(inOnMouseDown);
 }
 
-EventResult Thumbnail::onMouseDown(MouseButtonType buttonType, const SDL_Point& )
+EventResult Thumbnail::onMouseDown(MouseButtonType buttonType, const SDL_Point&)
 {
-    // If the user set a MouseDown callback and it handles this event, return 
+    // If the user set a MouseDown callback and it handles this event, return
     // early.
     if (userOnMouseDown && userOnMouseDown(this, buttonType)) {
         return EventResult{.wasHandled{true}};

@@ -62,7 +62,7 @@ public:
     static void setActualScreenSize(ScreenResolution inScaledScreenSize);
 
     /**
-     * Sets the distance (in pixels) that the mouse must travel while clicking a 
+     * Sets the distance (in pixels) that the mouse must travel while clicking a
      * draggable widget to trigger a drag and drop event.
      *
      * See EventRouter.h member comments for full information on drag and drop.
@@ -70,10 +70,10 @@ public:
     static void setDragTriggerDistance(int newDragTriggerDistance);
 
     /**
-     * If true, a TextInput widget is currently focused and receiving keyboard 
+     * If true, a TextInput widget is currently focused and receiving keyboard
      * input.
      *
-     * Use this to tell when you should stop polling the keyboard state for 
+     * Use this to tell when you should stop polling the keyboard state for
      * held inputs.
      */
     static bool getIsTextInputFocused();
@@ -112,7 +112,7 @@ private:
     /** The asset cache for font objects. */
     static std::unique_ptr<AssetCache> assetCache;
 
-    /** The distance in pixels that the mouse must travel to trigger to a drag 
+    /** The distance in pixels that the mouse must travel to trigger to a drag
         and drop event. */
     static int dragTriggerDistance;
     /** The squared dragTriggerDistance, for more efficient calculations. */

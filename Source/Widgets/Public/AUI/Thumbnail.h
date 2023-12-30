@@ -18,7 +18,7 @@ namespace AUI
  *
  * Note: This widget may be immediately useful to you, but exists more as
  *       an easily copyable example of how to make this sort of thing. With
- *       minor tweaks you can make any sort of selectable or thumbnail-based 
+ *       minor tweaks you can make any sort of selectable or thumbnail-based
  *       UI element (e.g. items in an inventory, navigation in a settings menu).
  */
 class Thumbnail : public Widget
@@ -79,7 +79,7 @@ public:
     void deactivate();
 
     /**
-     * Same as select(), deselect(), activate(), or deactivate(), but doesn't 
+     * Same as select(), deselect(), activate(), or deactivate(), but doesn't
      * call any callbacks.
      * Useful for making this thumbnail reflect some existing state.
      */
@@ -169,10 +169,10 @@ public:
     void setOnDeactivated(std::function<void(Thumbnail*)> inOnDeactivated);
 
     /**
-     * A raw MouseDown interface, in case you want to handle clicks without 
+     * A raw MouseDown interface, in case you want to handle clicks without
      * the widget changing state to selected/activated.
-     * @param inOnMouseDown A callback that expects a pointer to the widget 
-     *                      that was clicked and returns true if the click 
+     * @param inOnMouseDown A callback that expects a pointer to the widget
+     *                      that was clicked and returns true if the click
      *                      was handled.
      */
     void setOnMouseDown(

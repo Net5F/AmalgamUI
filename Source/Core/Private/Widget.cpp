@@ -156,9 +156,7 @@ EventResult Widget::onFocusGained()
     return EventResult{.wasHandled{false}};
 }
 
-void Widget::onFocusLost(FocusLostType)
-{
-}
+void Widget::onFocusLost(FocusLostType) {}
 
 EventResult Widget::onPreviewKeyDown(SDL_Keycode)
 {
@@ -226,7 +224,7 @@ void Widget::updateLayout(const SDL_Point& startPosition,
         clippedExtent = intersectionResult;
     }
     else {
-        // fullExtent does not intersect availableExtent (e.g. this widget 
+        // fullExtent does not intersect availableExtent (e.g. this widget
         // is fully clipped). Zero-out clippedExtent and return early.
         clippedExtent = {0, 0, 0, 0};
         return;
@@ -243,8 +241,8 @@ void Widget::updateLayout(const SDL_Point& startPosition,
     //       events.
     for (Widget& child : children) {
         if (child.getIsVisible()) {
-            child.updateLayout({fullExtent.x, fullExtent.y},
-                               clippedExtent, widgetLocator);
+            child.updateLayout({fullExtent.x, fullExtent.y}, clippedExtent,
+                               widgetLocator);
         }
     }
 }

@@ -17,7 +17,7 @@ public:
     // Public definitions
     //-------------------------------------------------------------------------
     /**
-     * The direction that this container's elements should flow in. See 
+     * The direction that this container's elements should flow in. See
      * setDirection().
      */
     enum class FlowDirection { TopToBottom, BottomToTop };
@@ -26,7 +26,8 @@ public:
     // Public interface
     //-------------------------------------------------------------------------
     VerticalListContainer(const SDL_Rect& inLogicalExtent,
-                  const std::string& inDebugName = "VerticalListContainer");
+                          const std::string& inDebugName
+                          = "VerticalListContainer");
 
     virtual ~VerticalListContainer() = default;
 
@@ -41,10 +42,11 @@ public:
     void setScrollHeight(int inLogicalScrollHeight);
 
     /**
-     * Sets whether widgets get added to the top of this container's extent and 
+     * Sets whether widgets get added to the top of this container's extent and
      * flow downwards, or to the bottom of its extent and flow upwards.
      *
-     * TopToBottom is good for a normal list, BottomToTop is good for a chat box.
+     * TopToBottom is good for a normal list, BottomToTop is good for a chat
+     * box.
      */
     void setFlowDirection(FlowDirection inFlowDirection);
 
@@ -64,13 +66,13 @@ private:
     int calcContentHeight();
 
     /**
-     * Lay out our elements starting at the top of this container's extent and 
+     * Lay out our elements starting at the top of this container's extent and
      * growing downwards
      */
     void arrangeElementsTopToBottom(WidgetLocator* widgetLocator);
 
     /**
-     * Lay out our elements starting at the bottom of this container's extent 
+     * Lay out our elements starting at the bottom of this container's extent
      * and growing upwards.
      */
     void arrangeElementsBottomToTop(WidgetLocator* widgetLocator);
@@ -88,7 +90,7 @@ private:
     /** The scaled size in actual space of the gap between elements. */
     int scaledGapSize;
 
-    /** The direction that child widgets should flow in. See 
+    /** The direction that child widgets should flow in. See
         setFlowDirection(). */
     FlowDirection flowDirection;
 

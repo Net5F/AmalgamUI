@@ -106,15 +106,15 @@ public:
     void setHorizontalAlignment(HorizontalAlignment inHorizontalAlignment);
 
     /**
-     * If true, text that is longer than this widget's extent will be wrapped 
+     * If true, text that is longer than this widget's extent will be wrapped
      * at word boundaries.
      */
     void setWordWrapEnabled(bool inWordWrapEnabled);
 
     /**
-     * If true, this widget's height will automatically grow or shrink to fit 
+     * If true, this widget's height will automatically grow or shrink to fit
      * its text.
-     * Note: If you need the height adjusted immediately (such as for content 
+     * Note: If you need the height adjusted immediately (such as for content
      *       size calculations), see refreshTexture().
      */
     void setAutoHeightEnabled(bool inAutoHeightEnabled);
@@ -143,7 +143,7 @@ public:
     /**
      * Re-renders the text texture, using all current property values.
      *
-     * Note: If you're relying on auto height and need this widget's height 
+     * Note: If you're relying on auto height and need this widget's height
      *       to be adjusted immediately, you can do so by calling this.
      *       Otherwise, don't worry about it. It'll be handled automatically.
      */
@@ -228,11 +228,11 @@ private:
     /** The render mode. Affects the quality of the rendered image. */
     RenderMode renderMode;
 
-    /** If true, text that is longer than this widget's extent will be wrapped 
+    /** If true, text that is longer than this widget's extent will be wrapped
         at word boundaries. */
     bool wordWrapEnabled;
 
-    /** If true, this widget's height will automatically grow or shrink to fit 
+    /** If true, this widget's height will automatically grow or shrink to fit
         its text. */
     bool autoHeightEnabled;
 

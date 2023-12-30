@@ -153,12 +153,12 @@ void Text::refreshTexture()
                 surface = TTF_RenderUTF8_Blended_Wrapped(
                     font.get(), textToRender->c_str(), color, scaledExtent.w);
                 break;
-            // Note: Removed because SDL_ttf on 22.04 doesn't support it.
-            //case RenderMode::LCD:
-            //    surface = TTF_RenderUTF8_LCD_Wrapped(
-            //        font.get(), textToRender->c_str(), color, backgroundColor,
-            //        scaledExtent.w);
-            //    break;
+                // Note: Removed because SDL_ttf on 22.04 doesn't support it.
+                // case RenderMode::LCD:
+                //    surface = TTF_RenderUTF8_LCD_Wrapped(
+                //        font.get(), textToRender->c_str(), color,
+                //        backgroundColor, scaledExtent.w);
+                //    break;
         }
     }
     else {
@@ -175,11 +175,12 @@ void Text::refreshTexture()
                 surface = TTF_RenderUTF8_Blended(font.get(),
                                                  textToRender->c_str(), color);
                 break;
-            // Note: Removed because SDL_ttf on 22.04 doesn't support it.
-            //case RenderMode::LCD:
-            //    surface = TTF_RenderUTF8_LCD(font.get(), textToRender->c_str(),
-            //                                 color, backgroundColor);
-            //    break;
+                // Note: Removed because SDL_ttf on 22.04 doesn't support it.
+                // case RenderMode::LCD:
+                //    surface = TTF_RenderUTF8_LCD(font.get(),
+                //    textToRender->c_str(),
+                //                                 color, backgroundColor);
+                //    break;
         }
     }
     if (surface == nullptr) {

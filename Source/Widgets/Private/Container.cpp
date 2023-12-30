@@ -118,7 +118,7 @@ void Container::render(const SDL_Point& windowTopLeft)
         return;
     }
 
-    // Run the normal render step (will render our children, but won't render 
+    // Run the normal render step (will render our children, but won't render
     // any of our elements).
     Widget::render(windowTopLeft);
 

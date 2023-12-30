@@ -77,7 +77,7 @@ public:
     bool getIsFocusable() const;
 
     // Note: We'd prefer to return a const Image*, but render() is non-const.
-    /** Returns the image that should follow the mouse while this widget is 
+    /** Returns the image that should follow the mouse while this widget is
         being dragged.
         Widgets that want to support drag and drop must override this.
         This may be called frequently, so try to keep it lightweight.
@@ -89,7 +89,7 @@ public:
     void setDragDropData(std::unique_ptr<DragDropData> inDragDropData);
     const DragDropData* getDragDropData() const;
 
-    /** Returns true if getDragDropImage() and getDragDropData() both return 
+    /** Returns true if getDragDropImage() and getDragDropData() both return
         non-nullptr. */
     bool getIsDragDroppable();
 
@@ -238,7 +238,7 @@ public:
     virtual void onDragEnd();
 
     /**
-     * Called when the mouse cursor moves within this widget's bounds while 
+     * Called when the mouse cursor moves within this widget's bounds while
      * another widget is being dragged.
      *
      * This event is routed to the widget that is capturing the mouse. If
@@ -250,7 +250,7 @@ public:
     virtual EventResult onDragMove(const SDL_Point& cursorPosition);
 
     /**
-     * Called when the mouse cursor first enters this widget's bounds while 
+     * Called when the mouse cursor first enters this widget's bounds while
      * another widget is being dragged
      *
      * This event is routed to widgets that are newly under the mouse.
@@ -258,7 +258,7 @@ public:
     virtual void onDragEnter();
 
     /**
-     * Called when the mouse cursor leaves this widget's bounds while another 
+     * Called when the mouse cursor leaves this widget's bounds while another
      * widget is being dragged.
      *
      * This event is routed to widgets that were previously under the mouse.
@@ -356,9 +356,9 @@ protected:
     /** This widget's final window-relative extent within the layout. Equal to
         fullExtent, but clipped to fit within the parent. Ready for use in
         rendering and hit testing for events.
-        Note: During updateLayout(), this widget may be found to not fit 
+        Note: During updateLayout(), this widget may be found to not fit
               within the availableExtent. If so, this will be {0, 0, 0, 0}.
-              You can test for this with SDL_RectEmpty(clippedExtent), and 
+              You can test for this with SDL_RectEmpty(clippedExtent), and
               should do so before using this extent. */
     SDL_Rect clippedExtent;
 
@@ -368,12 +368,12 @@ protected:
     /** If true, this widget is focusable.
         Focusable widgets can be focused by left clicking on them, or by
         explicitly setting focus through an EventResult or Screen::setFocus().
-        Focus can be removed by clicking elsewhere, or by hitting the escape 
-        key. When a widget is focused, it will receive key press and character 
+        Focus can be removed by clicking elsewhere, or by hitting the escape
+        key. When a widget is focused, it will receive key press and character
         events. */
     bool isFocusable;
 
-    /** If non-nullptr, this is the data that should be given to the target 
+    /** If non-nullptr, this is the data that should be given to the target
         when this widget is dropped.
         If nullptr, drag and drop will be disabled. */
     std::unique_ptr<DragDropData> dragDropData;

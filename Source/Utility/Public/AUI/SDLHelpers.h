@@ -13,7 +13,8 @@ public:
     /**
      * Returns the squared distance between the given points.
      */
-    static int squaredDistance(const SDL_Point& pointA, const SDL_Point& pointB);
+    static int squaredDistance(const SDL_Point& pointA,
+                               const SDL_Point& pointB);
 };
 
 } // namespace AUI

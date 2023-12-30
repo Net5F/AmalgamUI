@@ -116,7 +116,7 @@ WidgetPath WidgetLocator::getPathUnderWidget(const Widget* widget) const
     widgetCenter.x = widgetExtent.x + (widgetExtent.w / 2);
     widgetCenter.y = widgetExtent.y + (widgetExtent.h / 2);
 
-    // Convert the window-relative point to screen-relative so we can use 
+    // Convert the window-relative point to screen-relative so we can use
     // getPathUnderPoint().
     widgetCenter.x += gridScreenExtent.x;
     widgetCenter.y += gridScreenExtent.y;

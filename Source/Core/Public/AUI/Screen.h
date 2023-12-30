@@ -53,10 +53,10 @@ public:
     void dropFocus();
 
     /**
-     * Saves the given widget pointer and attempts to set focus to it after the 
+     * Saves the given widget pointer and attempts to set focus to it after the
      * next layout update.
-     * Use this if you've just made a widget visible and want it to be the 
-     * focus target. You can't set focus to it immediately because it isn't 
+     * Use this if you've just made a widget visible and want it to be the
+     * focus target. You can't set focus to it immediately because it isn't
      * yet in the layout, but this will do it at the correct time.
      */
     void setFocusAfterNextLayout(Widget* widget);
@@ -114,7 +114,7 @@ protected:
     /** Translates SDL events to AUI events and handles routing them. */
     EventRouter eventRouter;
 
-    /** If non-empty, the referenced widget will be given focus after the next 
+    /** If non-empty, the referenced widget will be given focus after the next
         layout update. */
     std::optional<WidgetWeakRef> pendingFocusTarget;
 };

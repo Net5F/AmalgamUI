@@ -115,7 +115,7 @@ void Image::render(const SDL_Point& windowTopLeft)
                                 / static_cast<double>(fullExtent.h)};
 
         // Use the difference factor to calc the clipped texture extent.
-        // The idea here is that clippedTexExtent/clippedExtent should have 
+        // The idea here is that clippedTexExtent/clippedExtent should have
         // the same scale relationship as currentTexExtent/fullExtent.
         // Note: We need to subtract fullExtent's origin to make clippedExtent
         //       relative to (0, 0) like currentTexExtent is.

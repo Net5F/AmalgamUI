@@ -9,14 +9,14 @@ namespace AUI
 {
 /**
  * Initially, this container shows only a header with an image and some text.
- * When clicked, it expands to reveal its child elements. The header can then 
+ * When clicked, it expands to reveal its child elements. The header can then
  * be clicked to collapse it again.
  *
  * By default, the whole header acts as the click region for the expand/collapse
  * action. You can modify this using setClickRegionLogicalExtent().
  *
- * Note: The extent that you give this widget to will be used as the header 
- *       size. When the container is expanded, it will get taller to fit its 
+ * Note: The extent that you give this widget to will be used as the header
+ *       size. When the container is expanded, it will get taller to fit its
  *       elements.
  */
 class CollapsibleContainer : public Container
@@ -26,7 +26,8 @@ public:
     // Public interface
     //-------------------------------------------------------------------------
     CollapsibleContainer(const SDL_Rect& inLogicalExtent,
-                  const std::string& inDebugName = "CollapsibleContainer");
+                         const std::string& inDebugName
+                         = "CollapsibleContainer");
 
     virtual ~CollapsibleContainer() = default;
 
@@ -51,7 +52,7 @@ public:
     SDL_Rect getHeaderExtent();
 
     /**
-     * @return The clipped, window-relative extent for this widget's click 
+     * @return The clipped, window-relative extent for this widget's click
      *         region.
      */
     SDL_Rect getClickRegionExtent();
@@ -100,7 +101,7 @@ protected:
 
     std::function<void(void)> onHeightChanged;
 
-    /** The logical extent of the header. Used to return to the original size 
+    /** The logical extent of the header. Used to return to the original size
         when this container goes from expanded to collapsed. */
     SDL_Rect headerLogicalExtent;
 

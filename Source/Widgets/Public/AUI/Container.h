@@ -91,8 +91,8 @@ public:
      */
     void push_back(std::unique_ptr<Widget> newElement);
 
-    // Note: We intentionally exclude resize() since it's easy to misuse. 
-    //       (The new elements must immediately be set, or else the next 
+    // Note: We intentionally exclude resize() since it's easy to misuse.
+    //       (The new elements must immediately be set, or else the next
     //       layout update will cause a crash.)
 
     //-------------------------------------------------------------------------

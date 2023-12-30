@@ -3,8 +3,6 @@
 namespace AUI
 {
 
-void ImageType::refresh(const SDL_Rect&)
-{
-}
+void ImageType::refresh(const SDL_Rect&) {}
 
 } // namespace AUI

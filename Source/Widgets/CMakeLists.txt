@@ -30,6 +30,7 @@ target_sources(AmalgamUI
         Public/AUI/ConfirmationDialog.h
         Public/AUI/Container.h
         Public/AUI/Image.h
+        Public/AUI/Scrollbar.h
         Public/AUI/Text.h
         Public/AUI/TextInput.h
         Public/AUI/Thumbnail.h

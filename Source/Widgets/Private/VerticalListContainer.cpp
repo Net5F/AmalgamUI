@@ -10,6 +10,7 @@ namespace AUI
 VerticalListContainer::VerticalListContainer(const SDL_Rect& inLogicalExtent,
                                              const std::string& inDebugName)
 : Container(inLogicalExtent, inDebugName)
+, scrollbar{{0, 0, 1, logicalExtent.h}}
 , logicalScrollHeight{LOGICAL_DEFAULT_SCROLL_DISTANCE}
 , scaledScrollHeight{ScalingHelpers::logicalToActual(logicalScrollHeight)}
 , logicalGapSize{0}
@@ -17,6 +18,12 @@ VerticalListContainer::VerticalListContainer(const SDL_Rect& inLogicalExtent,
 , flowDirection{FlowDirection::TopToBottom}
 , scrollDistance{0}
 {
+    // Hide the scrollbar by default.
+    scrollbar.setIsVisible(false);
+
+    // When the scrollbar moves, scroll the content.
+    scrollbar.setOnPositionChanged(
+        [this](float newPosition) { onScrollbarPositionChanged(newPosition); });
 }
 
 void VerticalListContainer::setGapSize(int inLogicalGapSize)
@@ -37,6 +44,21 @@ void VerticalListContainer::setFlowDirection(FlowDirection inFlowDirection)
 
     // Reset the scroll distance since it's going in the other direction now.
     scrollDistance = 0;
+}
+
+void VerticalListContainer::showScrollbar(int inLogicalScrollbarWidth)
+{
+    SDL_Rect scrollbarExtent{scrollbar.getLogicalExtent()};
+    scrollbarExtent.x = logicalExtent.w - inLogicalScrollbarWidth;
+    scrollbarExtent.w = inLogicalScrollbarWidth;
+    scrollbar.setLogicalExtent(scrollbarExtent);
+
+    scrollbar.setIsVisible(true);
+}
+
+void VerticalListContainer::hideScrollbar()
+{
+    scrollbar.setIsVisible(false);
 }
 
 EventResult VerticalListContainer::onMouseWheel(int amountScrolled)
@@ -63,6 +85,13 @@ EventResult VerticalListContainer::onMouseWheel(int amountScrolled)
     scrollDistance = std::clamp(scrollDistance, 0, maxScrollDistance);
 
     return EventResult{.wasHandled{true}};
+}
+
+// TODO: MouseWheel being handled separately from Scrollbar is kinda wild. 
+//       Do we want to make a scroll zone? Or handle it differently?
+void VerticalListContainer::onScrollbarPositionChanged(float newPosition)
+{
+    // TODO
 }
 
 void VerticalListContainer::updateLayout(const SDL_Point& startPosition,
@@ -94,6 +123,11 @@ void VerticalListContainer::updateLayout(const SDL_Point& startPosition,
     // Refresh the scroll height and gap size.
     scaledScrollHeight = ScalingHelpers::logicalToActual(logicalScrollHeight);
     scaledGapSize = ScalingHelpers::logicalToActual(logicalGapSize);
+
+    // If the scroll bar is visible, lay it out.
+    if (scrollbar.getIsVisible()) {
+        scrollbar.updateLayout({0, 0}, clippedExtent, widgetLocator);
+    }
 
     // Lay out our elements in the appropriate direction.
     if (flowDirection == FlowDirection::TopToBottom) {
@@ -134,6 +168,13 @@ void VerticalListContainer::arrangeElementsTopToBottom(
     // offset.
     int nextYOffset{0};
 
+    // If the scrollbar is visible, shrink the content extent to make room 
+    // for it.
+    SDL_Rect contentExtent{clippedExtent};
+    if (scrollbar.getIsVisible()) {
+        contentExtent.w -= scrollbar.getClippedExtent().w;
+    }
+
     // Lay out our elements in a vertical flow.
     for (std::size_t i = 0; i < elements.size(); ++i) {
         // Figure out where the element should be placed.
@@ -145,7 +186,7 @@ void VerticalListContainer::arrangeElementsTopToBottom(
 
         // Update the element, passing it the calculated start position.
         elements[i]->updateLayout({elementExtent.x, elementExtent.y},
-                                  clippedExtent, widgetLocator);
+                                  contentExtent, widgetLocator);
 
         // Update nextYOffset for the next element.
         nextYOffset += (elements[i]->getScaledExtent().h + scaledGapSize);

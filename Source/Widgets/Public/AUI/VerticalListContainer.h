@@ -1,6 +1,7 @@
 #pragma once
 
 #include "AUI/Container.h"
+#include "AUI/Scrollbar.h"
 
 namespace AUI
 {
@@ -50,6 +51,24 @@ public:
      */
     void setFlowDirection(FlowDirection inFlowDirection);
 
+    /**
+     * Shows a scrollbar that is always visible.
+     * 
+     * This container's content space will be shrunk to make room for the 
+     * scrollbar.
+     */
+    void showScrollbar(int inLogicalScrollbarWidth);
+
+    /**
+     * Hides the scrollbar.
+     */
+    void hideScrollbar();
+
+    //-------------------------------------------------------------------------
+    // Public child widgets
+    //-------------------------------------------------------------------------
+    Scrollbar scrollbar;
+
     //-------------------------------------------------------------------------
     // Widget class overrides
     //-------------------------------------------------------------------------
@@ -60,6 +79,8 @@ public:
                       WidgetLocator* widgetLocator) override;
 
 private:
+    void onScrollbarPositionChanged(float newPosition);
+
     /**
      * Calculates the height of this container's content, including gaps.
      */

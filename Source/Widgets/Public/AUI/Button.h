@@ -65,9 +65,14 @@ public:
     // Callback registration
     //-------------------------------------------------------------------------
     /**
-     * @param inOnPressed  A callback for when this button is pressed.
+     * @param inOnPressed A callback for when this button is pressed.
      */
     void setOnPressed(std::function<void(void)> inOnPressed);
+
+    /**
+     * @param inOnReleased A callback for when this button is released.
+     */
+    void setOnReleased(std::function<void(void)> inOnReleased);
 
     //-------------------------------------------------------------------------
     // Base class overrides
@@ -87,13 +92,14 @@ public:
 
     void onMouseLeave() override;
 
-private:
+protected:
     /**
      * Sets currentState and updates child widget visibility.
      */
     void setCurrentState(State inState);
 
     std::function<void(void)> onPressed;
+    std::function<void(void)> onReleased;
 
     /** Tracks this button's current visual and logical state. */
     State currentState;

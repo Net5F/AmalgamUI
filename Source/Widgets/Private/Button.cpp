@@ -62,6 +62,11 @@ void Button::setOnPressed(std::function<void(void)> inOnPressed)
     onPressed = std::move(inOnPressed);
 }
 
+void Button::setOnReleased(std::function<void(void)> inOnReleased)
+{
+    onReleased = std::move(inOnReleased);
+}
+
 void Button::setIsVisible(bool inIsVisible)
 {
     // If we're being made invisible, set our state back to normal.
@@ -121,6 +126,11 @@ EventResult Button::onMouseUp(MouseButtonType buttonType,
         else {
             // Mouse is gone, go to normal.
             setCurrentState(State::Normal);
+        }
+
+        // If the user set a callback, call it.
+        if (onReleased) {
+            onReleased();
         }
     }
 

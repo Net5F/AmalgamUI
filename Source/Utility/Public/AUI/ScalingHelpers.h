@@ -58,6 +58,16 @@ public:
 
     /** Overload for SDL_Point. See actualToLogical(int). */
     static SDL_Point actualToLogical(const SDL_Point& actualPoint);
+
+    /**
+     * Scales logicalExtent to actual space, offsets it to start at 
+     * startPosition, then clips it to fit within availableExtent.
+     *
+     * Returns an extent that's ready for rendering.
+     */
+    static SDL_Rect logicalToClipped(const SDL_Rect& logicalExtent,
+                                     const SDL_Point& startPosition,
+                                     const SDL_Rect& availableExtent);
 };
 
 } // namespace AUI

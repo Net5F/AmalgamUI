@@ -5,28 +5,30 @@
 namespace AUI
 {
 /**
- * Lays out widgets in a grid that grows vertically.
+ * Lays out widgets in a grid that grows horizontally.
+ *
+ * Supports horizontal scrolling with the mouse wheel.
  *
  * TODO: After scrolling the list, our elements still have hover states based
  *       on their pre-scroll positions. We need to find a way to update them.
  */
-class VerticalGridContainer : public Container
+class HorizontalGridContainer : public Container
 {
 public:
     //-------------------------------------------------------------------------
     // Public interface
     //-------------------------------------------------------------------------
-    VerticalGridContainer(const SDL_Rect& inLogicalExtent,
-                          const std::string& inDebugName
-                          = "VerticalGridContainer");
+    HorizontalGridContainer(const SDL_Rect& inLogicalExtent,
+                            const std::string& inDebugName
+                            = "HorizontalGridContainer");
 
-    virtual ~VerticalGridContainer() = default;
+    virtual ~HorizontalGridContainer() = default;
 
     /**
-     * The number of columns to arrange widgets in. Layout occurs across the 
-     * columns, then down to the next row.
+     * The number of rows to arrange widgets in. Layout occurs down the rows,
+     * then across to the next column
      */
-    void setNumColumns(unsigned int inNumColumns);
+    void setNumRows(unsigned int inNumRows);
 
     /**
      * Sets the width of a grid cell. The elements of this container will be
@@ -41,7 +43,7 @@ public:
     void setCellHeight(unsigned int inLogicalCellHeight);
 
     /**
-     * If true, vertical scrolling with the mouse wheel will be enabled.
+     * If true, horizontal scrolling with the mouse wheel will be enabled.
      */
     void setScrollingEnabled(bool isEnabled);
 
@@ -59,19 +61,19 @@ private:
     static constexpr int LOGICAL_DEFAULT_CELL_WIDTH = 100;
 
     /**
-     * Scrolls the visible elements in the container up or down, bringing
+     * Scrolls the visible elements in the container left or right, bringing
      * offscreen elements onto the screen.
      *
      * If there aren't any offscreen elements in the selected direction, does
      * nothing.
      *
-     * @param scrollUp  If true, scrolls up by 1 element. If false, scrolls 
-     *                  down by 1 element.
+     * @param scrollLeft If true, scrolls left by 1 element. If false, scrolls 
+     *                   down by 1 element.
      */
-    void scrollElements(bool scrollUp);
+    void scrollElements(bool scrollLeft);
 
     /** The number of columns to render widgets in. */
-    unsigned int numColumns;
+    unsigned int numRows;
 
     /** The width in logical space of a grid cell. */
     int logicalCellWidth;
@@ -83,12 +85,12 @@ private:
     /** The scaled height in actual space of a grid cell. */
     int scaledCellHeight;
 
-    /** How many rows downwards we're currently scrolled. */
-    unsigned int rowScroll;
-
     /** If true, mouse wheel events should scroll this container's elements 
-        vertically. */
+        horizontally. */
     bool isScrollingEnabled;
+
+    /** How many columns to the right we're currently scrolled. */
+    unsigned int columnScroll;
 };
 
 } // namespace AUI

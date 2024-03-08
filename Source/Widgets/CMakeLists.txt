@@ -10,6 +10,7 @@ target_sources(AmalgamUI
         Private/CollapsibleContainer.cpp
         Private/ConfirmationDialog.cpp
         Private/Container.cpp
+        Private/HorizontalGridContainer.cpp
         Private/Image.cpp
         Private/Text.cpp
         Private/TextInput.cpp
@@ -29,6 +30,7 @@ target_sources(AmalgamUI
         Public/AUI/CollapsibleContainer.h
         Public/AUI/ConfirmationDialog.h
         Public/AUI/Container.h
+        Public/AUI/HorizontalGridContainer.h
         Public/AUI/Image.h
         Public/AUI/Text.h
         Public/AUI/TextInput.h

@@ -166,4 +166,26 @@ SDL_Point ScalingHelpers::actualToLogical(const SDL_Point& actualPoint)
     return logicalPoint;
 }
 
+SDL_Rect ScalingHelpers::logicalToClipped(const SDL_Rect& logicalExtent,
+                                          const SDL_Point& startPosition,
+                                          const SDL_Rect& availableExtent)
+{
+    // Scale our logicalExtent to get our scaled extent, then offset it to get 
+    // our fullExtent.
+    SDL_Rect fullExtent{ScalingHelpers::logicalToActual(logicalExtent)};
+    fullExtent.x += startPosition.x;
+    fullExtent.y += startPosition.y;
+
+    // Clip fullExtent to the available space to get our clipped extent.
+    SDL_Rect intersectionResult{};
+    if (SDL_IntersectRect(&fullExtent, &availableExtent, &intersectionResult)) {
+        return intersectionResult;
+    }
+    else {
+        // fullExtent does not intersect availableExtent (e.g. this extent 
+        // is fully clipped). Zero-out clippedExtent and return early.
+        return {0, 0, 0, 0};
+    }
+}
+
 } // namespace AUI

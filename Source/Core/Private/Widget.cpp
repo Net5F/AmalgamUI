@@ -210,6 +210,10 @@ void Widget::updateLayout(const SDL_Point& startPosition,
                           const SDL_Rect& availableExtent,
                           WidgetLocator* widgetLocator)
 {
+    // Note: This logical -> clipped conversion should match ScalingHelpers::
+    //       logicalToClipped(), but we don't use it because we need to save 
+    //       all of the intermediate extents.
+
     // Scale our logicalExtent to get our scaledExtent.
     scaledExtent = ScalingHelpers::logicalToActual(logicalExtent);
 

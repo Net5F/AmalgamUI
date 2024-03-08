@@ -7,6 +7,8 @@ namespace AUI
 /**
  * Lays out widgets in a scrollable vertical list.
  *
+ * Supports vertical scrolling with the mouse wheel.
+ *
  * TODO: After scrolling the list, our elements still have hover states based
  *       on their pre-scroll positions. We need to find a way to update them.
  */

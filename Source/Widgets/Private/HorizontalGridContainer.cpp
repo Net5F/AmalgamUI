@@ -1,65 +1,66 @@
-#include "AUI/VerticalGridContainer.h"
+#include "AUI/HorizontalGridContainer.h"
 #include "AUI/ScalingHelpers.h"
 #include "AUI/WidgetLocator.h"
 #include "AUI/Internal/Log.h"
 #include <cmath>
+#include "AUI/Core.h"
 
 namespace AUI
 {
-VerticalGridContainer::VerticalGridContainer(const SDL_Rect& inLogicalExtent,
+HorizontalGridContainer::HorizontalGridContainer(const SDL_Rect& inLogicalExtent,
                                              const std::string& inDebugName)
 : Container(inLogicalExtent, inDebugName)
-, numColumns{1}
+, numRows{1}
 , logicalCellWidth{LOGICAL_DEFAULT_CELL_WIDTH}
 , scaledCellWidth{ScalingHelpers::logicalToActual(logicalCellWidth)}
 , logicalCellHeight{LOGICAL_DEFAULT_CELL_WIDTH}
 , scaledCellHeight{ScalingHelpers::logicalToActual(logicalCellHeight)}
-, rowScroll{0}
+, columnScroll{0}
 , isScrollingEnabled{true}
 {
 }
 
-void VerticalGridContainer::setNumColumns(unsigned int inNumColumns)
+void HorizontalGridContainer::setNumRows(unsigned int inNumRows)
 {
-    numColumns = inNumColumns;
+    numRows = inNumRows;
 }
 
-void VerticalGridContainer::setCellWidth(unsigned int inLogicalCellWidth)
+void HorizontalGridContainer::setCellWidth(unsigned int inLogicalCellWidth)
 {
     logicalCellWidth = static_cast<int>(inLogicalCellWidth);
     scaledCellWidth = ScalingHelpers::logicalToActual(logicalCellWidth);
 }
 
-void VerticalGridContainer::setCellHeight(unsigned int inLogicalCellHeight)
+void HorizontalGridContainer::setCellHeight(unsigned int inLogicalCellHeight)
 {
     logicalCellHeight = static_cast<int>(inLogicalCellHeight);
     scaledCellHeight = ScalingHelpers::logicalToActual(logicalCellHeight);
 }
 
-void VerticalGridContainer::setScrollingEnabled(bool isEnabled)
+void HorizontalGridContainer::setScrollingEnabled(bool isEnabled)
 {
     isScrollingEnabled = isEnabled;
 }
 
-EventResult VerticalGridContainer::onMouseWheel(int amountScrolled)
+EventResult HorizontalGridContainer::onMouseWheel(int amountScrolled)
 {
     if (!isScrollingEnabled) {
         return EventResult{.wasHandled{false}};
     }
 
     if (amountScrolled > 0) {
-        // Scroll up.
+        // Scroll right.
         scrollElements(true);
     }
     else {
-        // Scroll down.
+        // Scroll left.
         scrollElements(false);
     }
 
     return EventResult{.wasHandled{true}};
 }
 
-void VerticalGridContainer::updateLayout(const SDL_Point& startPosition,
+void HorizontalGridContainer::updateLayout(const SDL_Point& startPosition,
                                          const SDL_Rect& availableExtent,
                                          WidgetLocator* widgetLocator)
 {
@@ -79,15 +80,15 @@ void VerticalGridContainer::updateLayout(const SDL_Point& startPosition,
     // Lay out our elements in a vertical grid.
     for (std::size_t i = 0; i < elements.size(); ++i) {
         // Get the cell coordinates for this element.
-        std::size_t cellColumn{i % numColumns};
-        std::size_t cellRow{i / numColumns};
+        std::size_t cellRow{i % numRows};
+        std::size_t cellColumn{i / numRows};
 
         // Get the offsets for the cell at the calculated coordinates.
         int cellXOffset{static_cast<int>(cellColumn * scaledCellWidth)};
         int cellYOffset{static_cast<int>(cellRow * scaledCellHeight)};
 
-        // Move the Y offset based on our current scroll position.
-        cellYOffset -= (rowScroll * scaledCellHeight);
+        // Move the X offset based on our current scroll position.
+        cellXOffset -= (columnScroll * scaledCellWidth);
 
         // Add this widget's offset to get our final offset.
         int finalX{fullExtent.x + cellXOffset};
@@ -97,29 +98,29 @@ void VerticalGridContainer::updateLayout(const SDL_Point& startPosition,
     }
 }
 
-void VerticalGridContainer::scrollElements(bool scrollUp)
+void HorizontalGridContainer::scrollElements(bool scrollLeft)
 {
-    // Calc how many rows are currently present.
-    int currentRows{static_cast<int>(
-        std::ceil(elements.size() / static_cast<float>(numColumns)))};
+    // Calc how many columns are currently present.
+    int currentColumns{static_cast<int>(
+        std::ceil(elements.size() / static_cast<float>(numRows)))};
 
-    // Calc how many rows can fit onscreen at once.
-    int maxVisibleRows{logicalExtent.h / logicalCellHeight};
+    // Calc how many columns can fit onscreen at once.
+    int maxVisibleColumns{logicalExtent.w / logicalCellWidth};
 
-    // If we're being asked to scroll up and we've scrolled down previously.
-    if (scrollUp && (rowScroll > 0)) {
-        // Scroll up 1 row.
-        rowScroll--;
+    // If we're being asked to scroll left and we've scrolled right previously.
+    if (scrollLeft && (columnScroll > 0)) {
+        // Scroll left 1 row.
+        columnScroll--;
     }
-    else if (!scrollUp) {
-        // Else if we're being asked to scroll down, calculate if there are
-        // any rows below to scroll to.
-        int rowsBelow{currentRows - maxVisibleRows
-                      - static_cast<int>(rowScroll)};
+    else if (!scrollLeft) {
+        // Else if we're being asked to scroll right, calculate if there are
+        // any columns to the right to scroll to.
+        int columnsRight{currentColumns - maxVisibleColumns
+                         - static_cast<int>(columnScroll)};
 
-        // If there are any elements offscreen below, scroll down 1 row.
-        if (rowsBelow > 0) {
-            rowScroll++;
+        // If there are any elements offscreen, scroll to the right 1 column.
+        if (columnsRight > 0) {
+            columnScroll++;
         }
     }
 }

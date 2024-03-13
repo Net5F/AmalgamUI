@@ -11,6 +11,8 @@ namespace AUI
  *
  * TODO: After scrolling the list, our elements still have hover states based
  *       on their pre-scroll positions. We need to find a way to update them.
+ * TODO: Remake this using ScrollArea, replacing FlowDirection with ScrollOrigin
+ *       for chat box behavior.
  */
 class VerticalListContainer : public Container
 {

@@ -1,4 +1,4 @@
-#include "AUI/VerticalListContainer.h"
+#include "AUI/ScrollArea.h"
 #include "AUI/ScalingHelpers.h"
 #include "AUI/WidgetLocator.h"
 #include "AUI/Internal/Log.h"
@@ -7,70 +7,74 @@
 
 namespace AUI
 {
-VerticalListContainer::VerticalListContainer(const SDL_Rect& inLogicalExtent,
+ScrollArea::ScrollArea(const SDL_Rect& inLogicalExtent,
                                              const std::string& inDebugName)
 : Container(inLogicalExtent, inDebugName)
-, logicalScrollHeight{LOGICAL_DEFAULT_SCROLL_DISTANCE}
-, scaledScrollHeight{ScalingHelpers::logicalToActual(logicalScrollHeight)}
-, logicalGapSize{0}
-, scaledGapSize{0}
-, flowDirection{FlowDirection::TopToBottom}
-, scrollDistance{0}
+, content{nullptr}
+, logicalScrollStepX{LOGICAL_DEFAULT_SCROLL_STEP_X}
+, scaledScrollStepX{ScalingHelpers::logicalToActual(logicalScrollStepX)}
+, logicalScrollStepY{LOGICAL_DEFAULT_SCROLL_STEP_Y}
+, scaledScrollStepY{ScalingHelpers::logicalToActual(logicalScrollStepY)}
+, scrollOrientation{Orientation::Vertical}
+, scrollOrigin{ScrollOrigin::TopLeft}
+, scrollDistanceX{0}
+, scrollDistanceY{0}
 {
 }
 
-void VerticalListContainer::setGapSize(int inLogicalGapSize)
+void ScrollArea::setScrollStepX(int inLogicalScrollStepX)
 {
-    logicalGapSize = inLogicalGapSize;
-    scaledGapSize = ScalingHelpers::logicalToActual(logicalGapSize);
+    logicalScrollStepX = inLogicalScrollStepX;
+    scaledScrollStepX = ScalingHelpers::logicalToActual(logicalScrollStepX);
 }
 
-void VerticalListContainer::setScrollHeight(int inLogicalScrollHeight)
+void ScrollArea::setScrollStepY(int inLogicalScrollStepY)
 {
-    logicalScrollHeight = inLogicalScrollHeight;
-    scaledScrollHeight = ScalingHelpers::logicalToActual(logicalScrollHeight);
+    logicalScrollStepY = inLogicalScrollStepY;
+    scaledScrollStepY = ScalingHelpers::logicalToActual(logicalScrollStepY);
 }
 
-void VerticalListContainer::setFlowDirection(FlowDirection inFlowDirection)
+void ScrollArea::setScrollOrientation(Orientation inScrollOrientation)
 {
-    flowDirection = inFlowDirection;
-
-    // Reset the scroll distance since it's going in the other direction now.
-    scrollDistance = 0;
+    scrollOrientation = inScrollOrientation;
 }
 
-EventResult VerticalListContainer::onMouseWheel(int amountScrolled)
+void ScrollArea::setScrollOrigin(ScrollOrigin inScrollOrigin)
 {
-    // If the content isn't taller than this widget, don't scroll.
-    int contentHeight{calcContentHeight()};
-    if (contentHeight < scaledExtent.h) {
-        return EventResult{.wasHandled{true}};
+    scrollOrigin = inScrollOrigin;
+}
+
+int ScrollArea::getScrollDistanceX()
+{
+    return scrollDistanceX;
+}
+
+int ScrollArea::getScrollDistanceY()
+{
+    return scrollDistanceY;
+}
+
+EventResult ScrollArea::onMouseWheel(int amountScrolled)
+{
+    if (!content) {
+        return EventResult{.wasHandled{false}};
     }
 
-    // Calc how far we would need to scroll for the last widget to be fully on
-    // screen.
-    int maxScrollDistance{contentHeight - scaledExtent.h};
-
-    // Calc the updated scroll distance.
-    if (flowDirection == FlowDirection::TopToBottom) {
-        scrollDistance -= (amountScrolled * scaledScrollHeight);
+    if (scrollOrientation == Orientation::Horizontal) {
+        handleMouseScrollHorizontal(amountScrolled);
     }
-    else if (flowDirection == FlowDirection::BottomToTop) {
-        scrollDistance += (amountScrolled * scaledScrollHeight);
+    else {
+        handleMouseScrollVertical(amountScrolled);
     }
-
-    // Clamp the scroll distance so we don't go too far.
-    scrollDistance = std::clamp(scrollDistance, 0, maxScrollDistance);
 
     return EventResult{.wasHandled{true}};
 }
 
-void VerticalListContainer::updateLayout(const SDL_Point& startPosition,
-                                         const SDL_Rect& availableExtent,
-                                         WidgetLocator* widgetLocator)
+void ScrollArea::updateLayout(const SDL_Point& startPosition,
+                              const SDL_Rect& availableExtent,
+                              WidgetLocator* widgetLocator)
 {
-    // Run the normal layout step (will update us, but won't process any of
-    // our elements).
+    // Run the normal layout step (will update us, but won't process our child).
     Widget::updateLayout(startPosition, availableExtent, widgetLocator);
 
     // If this widget is fully clipped, return early.
@@ -78,106 +82,124 @@ void VerticalListContainer::updateLayout(const SDL_Point& startPosition,
         return;
     }
 
-    // If our content changed and is now shorter than this widget, reset the
+    // If our content changed and is now smaller than this widget, reset the
     // scroll distance.
-    int contentHeight{calcContentHeight()};
-    if (contentHeight < scaledExtent.h) {
-        // Content is shorter than widget, reset scroll distance.
-        scrollDistance = 0;
+    SDL_Rect contentExtent{calcContentExtent()};
+    if (contentExtent.w < scaledExtent.w) {
+        // Content is more narrow than widget, reset scroll distance.
+        scrollDistanceY = 0;
     }
-    else if (int maxScrollDistance{contentHeight - scaledExtent.h};
-             scrollDistance > maxScrollDistance) {
+    else if (int maxScrollDistance{contentExtent.w - scaledExtent.w};
+             scrollDistanceX > maxScrollDistance) {
         // Scroll distance is too far (element was erased), clamp it back.
-        scrollDistance = std::clamp(scrollDistance, 0, maxScrollDistance);
+        scrollDistanceX = std::clamp(scrollDistanceX, 0, maxScrollDistance);
     }
 
-    // Refresh the scroll height and gap size.
-    scaledScrollHeight = ScalingHelpers::logicalToActual(logicalScrollHeight);
-    scaledGapSize = ScalingHelpers::logicalToActual(logicalGapSize);
-
-    // Lay out our elements in the appropriate direction.
-    if (flowDirection == FlowDirection::TopToBottom) {
-        arrangeElementsTopToBottom(widgetLocator);
+    if (contentExtent.h < scaledExtent.h) {
+        // Content is shorter than widget, reset scroll distance.
+        scrollDistanceY = 0;
     }
-    else {
-        arrangeElementsBottomToTop(widgetLocator);
-    }
-}
-
-int VerticalListContainer::calcContentHeight()
-{
-    // TODO: We've had to do some hokey stuff in CollapsibleContainer and Text
-    //       to get this to work. If we hit a third special case, we should just
-    //       refactor updateLayout() into measure()/arrange().
-
-    // Calc the content height by summing our element's heights and adding the
-    // gaps.
-    int contentHeight{0};
-    for (const std::unique_ptr<Widget>& widget : elements) {
-        contentHeight += scaledGapSize;
-        // Note: We scale manually since there's no guarantee updateLayout()
-        //       has ran already to update this widget's scaledExtent.
-        contentHeight
-            += ScalingHelpers::logicalToActual(widget->getLogicalExtent().h);
+    else if (int maxScrollDistance{contentExtent.h - scaledExtent.h};
+             scrollDistanceY > maxScrollDistance) {
+        // Scroll distance is too far (element was erased), clamp it back.
+        scrollDistanceY = std::clamp(scrollDistanceY, 0, maxScrollDistance);
     }
 
-    // Subtract 1 gap size, so we don't have a gap on the bottom.
-    contentHeight -= scaledGapSize;
+    // Refresh the scroll step.
+    scaledScrollStepX = ScalingHelpers::logicalToActual(logicalScrollStepX);
+    scaledScrollStepY = ScalingHelpers::logicalToActual(logicalScrollStepY);
 
-    return contentHeight;
-}
+    // Lay out our child content widget.
+    if (content) {
+        // Figure out where our content should be placed.
+        SDL_Rect contentExtent{calcContentExtent()};
+        contentExtent.x += fullExtent.x;
+        contentExtent.x -= scrollDistanceX;
+        contentExtent.y += fullExtent.y;
+        if (scrollOrigin == ScrollOrigin::TopLeft) {
+            contentExtent.y -= scrollDistanceY;
+        }
+        else if (scrollOrigin == ScrollOrigin::BottomLeft) {
+            contentExtent.y += scrollDistanceY;
+        }
 
-void VerticalListContainer::arrangeElementsTopToBottom(
-    WidgetLocator* widgetLocator)
-{
-    // We'll use this to track how far the next element should be vertically
-    // offset.
-    int nextYOffset{0};
-
-    // Lay out our elements in a vertical flow.
-    for (std::size_t i = 0; i < elements.size(); ++i) {
-        // Figure out where the element should be placed.
-        SDL_Rect elementExtent{elements[i]->getScaledExtent()};
-        elementExtent.x += fullExtent.x;
-        elementExtent.y += fullExtent.y;
-        elementExtent.y += nextYOffset;
-        elementExtent.y -= scrollDistance;
-
-        // Update the element, passing it the calculated start position.
-        elements[i]->updateLayout({elementExtent.x, elementExtent.y},
-                                  clippedExtent, widgetLocator);
-
-        // Update nextYOffset for the next element.
-        nextYOffset += (elements[i]->getScaledExtent().h + scaledGapSize);
+        // Update the content, passing it the calculated start position.
+        content->updateLayout({contentExtent.x, contentExtent.y}, clippedExtent,
+                              widgetLocator);
     }
 }
 
-void VerticalListContainer::arrangeElementsBottomToTop(
-    WidgetLocator* widgetLocator)
+void ScrollArea::render(const SDL_Point& windowTopLeft)
 {
-    // We'll use this to track how far the next element should be vertically
-    // offset.
-    int nextYOffset{0};
-
-    // Lay out our elements in a vertical flow.
-    for (std::size_t i = 0; i < elements.size(); ++i) {
-        // Update nextYOffset for this element.
-        nextYOffset += elements[i]->getScaledExtent().h;
-
-        // Figure out where the element should be placed.
-        SDL_Rect elementExtent{elements[i]->getScaledExtent()};
-        elementExtent.x += fullExtent.x;
-        elementExtent.y += (fullExtent.y + fullExtent.h);
-        elementExtent.y -= nextYOffset;
-        elementExtent.y += scrollDistance;
-
-        // Update the element, passing it the calculated start position.
-        elements[i]->updateLayout({elementExtent.x, elementExtent.y},
-                                  clippedExtent, widgetLocator);
-
-        // Add a gap for the next element.
-        nextYOffset += scaledGapSize;
+    // If this widget is fully clipped, don't render it.
+    if (SDL_RectEmpty(&clippedExtent)) {
+        return;
     }
+
+    // Render our content.
+    content->render(windowTopLeft);
+}
+
+void ScrollArea::handleMouseScrollHorizontal(int amountScrolled)
+{
+    if (!content) {
+        return;
+    }
+
+    // If the content isn't wider than this widget, don't scroll.
+    int contentWidth{calcContentExtent().w};
+    if (contentWidth < scaledExtent.w) {
+        return;
+    }
+
+    // Calc how far we would need to scroll for the last widget to be fully on
+    // screen.
+    int maxScrollDistance{contentWidth - scaledExtent.w};
+
+    // Calc the updated scroll distance.
+    scrollDistanceX += (amountScrolled * scaledScrollStepX);
+
+    // Clamp the scroll distance so we don't go too far.
+    scrollDistanceX = std::clamp(scrollDistanceX, 0, maxScrollDistance);
+}
+
+void ScrollArea::handleMouseScrollVertical(int amountScrolled)
+{
+    if (!content) {
+        return;
+    }
+
+    // If the content isn't taller than this widget, don't scroll.
+    int contentHeight{calcContentExtent().h};
+    if (contentHeight < scaledExtent.h) {
+        return;
+    }
+
+    // Calc how far we would need to scroll for the last widget to be fully on
+    // screen.
+    int maxScrollDistance{contentHeight - scaledExtent.h};
+
+    // Calc the updated scroll distance.
+    if (scrollOrigin == ScrollOrigin::TopLeft) {
+        scrollDistanceY -= (amountScrolled * scaledScrollStepY);
+    }
+    else if (scrollOrigin == ScrollOrigin::BottomLeft) {
+        scrollDistanceY += (amountScrolled * scaledScrollStepY);
+    }
+
+    // Clamp the scroll distance so we don't go too far.
+    scrollDistanceY = std::clamp(scrollDistanceY, 0, maxScrollDistance);
+}
+
+SDL_Rect ScrollArea::calcContentExtent()
+{
+    if (!content) {
+        return {};
+    }
+
+    // Note: We scale manually since there's no guarantee updateLayout()
+    //       has ran already to update the content's scaledExtent.
+    return ScalingHelpers::logicalToActual(content->getLogicalExtent());
 }
 
 } // namespace AUI

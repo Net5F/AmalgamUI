@@ -12,6 +12,7 @@ target_sources(AmalgamUI
         Private/Container.cpp
         Private/HorizontalGridContainer.cpp
         Private/Image.cpp
+        Private/ScrollArea.cpp
         Private/Text.cpp
         Private/TextInput.cpp
         Private/Thumbnail.cpp
@@ -32,6 +33,7 @@ target_sources(AmalgamUI
         Public/AUI/Container.h
         Public/AUI/HorizontalGridContainer.h
         Public/AUI/Image.h
+        Public/AUI/ScrollArea.h
         Public/AUI/Text.h
         Public/AUI/TextInput.h
         Public/AUI/Thumbnail.h

@@ -70,6 +70,14 @@ EventResult ScrollArea::onMouseWheel(int amountScrolled)
     return EventResult{.wasHandled{true}};
 }
 
+void ScrollArea::onTick(double timestepS)
+{
+    // Call the content's onTick().
+    if (content) {
+        content->onTick(timestepS);
+    }
+}
+
 void ScrollArea::updateLayout(const SDL_Point& startPosition,
                               const SDL_Rect& availableExtent,
                               WidgetLocator* widgetLocator)

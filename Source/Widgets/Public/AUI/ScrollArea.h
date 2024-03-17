@@ -81,6 +81,8 @@ public:
     //-------------------------------------------------------------------------
     EventResult onMouseWheel(int amountScrolled) override;
 
+    void onTick(double timestepS) override;
+
     void updateLayout(const SDL_Point& startPosition,
                       const SDL_Rect& availableExtent,
                       WidgetLocator* widgetLocator) override;

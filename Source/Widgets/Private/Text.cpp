@@ -9,7 +9,9 @@ Text::Text(const SDL_Rect& inLogicalExtent, const std::string& inDebugName)
 : Widget(inLogicalExtent, inDebugName)
 , fontPath{""}
 , logicalFontSize{10}
+, logicalFontOutlineSize{0}
 , font{}
+, outlinedFont{}
 , color{0, 0, 0, 255}
 , backgroundColor{0, 0, 0, 0}
 , renderMode{RenderMode::Blended}
@@ -29,11 +31,13 @@ Text::Text(const SDL_Rect& inLogicalExtent, const std::string& inDebugName)
 {
 }
 
-void Text::setFont(std::string_view inFontPath, int size)
+void Text::setFont(std::string_view inFontPath, int inLogicalFontSize,
+                   int inLogicalFontOutlineSize)
 {
     // Save the data for later scaling.
     fontPath = inFontPath;
-    logicalFontSize = size;
+    logicalFontSize = inLogicalFontSize;
+    logicalFontOutlineSize = inLogicalFontOutlineSize;
 
     // Load the new font object.
     refreshFontObject();
@@ -128,63 +132,34 @@ void Text::refreshTexture()
                       debugName.c_str());
     }
 
-    // If the text string is empty, render a space instead.
-    std::string spaceText{" "};
-    std::string* textToRender{&text};
-    if (text == "") {
-        textToRender = &spaceText;
-    }
+    // Create a temporary surface on the cpu and render our text image using the
+    // current renderMode.
+    SDL_Surface* surface{getSurface(font.get(), color, backgroundColor)};
 
-    // Create a temporary surface on the cpu and render our image using the
-    // set renderMode.
-    SDL_Surface* surface{nullptr};
-    if (wordWrapEnabled) {
-        switch (renderMode) {
-            case RenderMode::Solid:
-                surface = TTF_RenderUTF8_Solid_Wrapped(
-                    font.get(), textToRender->c_str(), color, scaledExtent.w);
-                break;
-            case RenderMode::Shaded:
-                surface = TTF_RenderUTF8_Shaded_Wrapped(
-                    font.get(), textToRender->c_str(), color, backgroundColor,
-                    scaledExtent.w);
-                break;
-            case RenderMode::Blended:
-                surface = TTF_RenderUTF8_Blended_Wrapped(
-                    font.get(), textToRender->c_str(), color, scaledExtent.w);
-                break;
-                // Note: Removed because SDL_ttf on 22.04 doesn't support it.
-                // case RenderMode::LCD:
-                //    surface = TTF_RenderUTF8_LCD_Wrapped(
-                //        font.get(), textToRender->c_str(), color,
-                //        backgroundColor, scaledExtent.w);
-                //    break;
-        }
-    }
-    else {
-        switch (renderMode) {
-            case RenderMode::Solid:
-                surface = TTF_RenderUTF8_Solid(font.get(),
-                                               textToRender->c_str(), color);
-                break;
-            case RenderMode::Shaded:
-                surface = TTF_RenderUTF8_Shaded(
-                    font.get(), textToRender->c_str(), color, backgroundColor);
-                break;
-            case RenderMode::Blended:
-                surface = TTF_RenderUTF8_Blended(font.get(),
-                                                 textToRender->c_str(), color);
-                break;
-                // Note: Removed because SDL_ttf on 22.04 doesn't support it.
-                // case RenderMode::LCD:
-                //    surface = TTF_RenderUTF8_LCD(font.get(),
-                //    textToRender->c_str(),
-                //                                 color, backgroundColor);
-                //    break;
-        }
-    }
-    if (surface == nullptr) {
-        AUI_LOG_FATAL("Failed to create surface.");
+    // If we have an outline, create an outlined background surface and blit 
+    // the text image onto it.
+    if (logicalFontOutlineSize > 0) {
+        // Create a temporary surface using the outlined background text.
+        SDL_Color blackColor{0, 0, 0, 0};
+        SDL_Surface* backgroundSurface{
+            getSurface(outlinedFont.get(), blackColor, blackColor)};
+
+        // Calculate the foreground text's offset to center it on the 
+        // outlined background text.
+        int actualOutlineSize{
+            ScalingHelpers::logicalToActual(logicalFontOutlineSize)};
+        SDL_Rect foregroundExtent{actualOutlineSize, actualOutlineSize,
+                                  surface->w - actualOutlineSize,
+                                  surface->h - actualOutlineSize};
+
+        // Blit the foreground text onto the background outlined text.
+        SDL_SetSurfaceBlendMode(surface, SDL_BLENDMODE_BLEND);
+        SDL_BlitSurface(surface, nullptr, backgroundSurface, &foregroundExtent);
+
+        // Free the old foreground surface and set the new combined surface 
+        // as the one to use.
+        SDL_FreeSurface(surface);
+        surface = backgroundSurface;
     }
 
     // Move the image to a texture on the gpu.
@@ -386,9 +361,81 @@ void Text::refreshFontObject()
     // Scale the font size to the current actual size.
     int actualFontSize{ScalingHelpers::logicalToActual(logicalFontSize)};
 
-    // Attempt to load the given font (errors on failure).
+    // Attempt to load the desired font (errors on failure).
     AssetCache& assetCache{Core::getAssetCache()};
-    font = assetCache.requestFont(fontPath, actualFontSize);
+    font = assetCache.requestFont(fontPath, actualFontSize, 0);
+
+    // If we have an outline, load the outlined font as well.
+    if (logicalFontOutlineSize > 0) {
+        int actualFontOutlineSize{
+            ScalingHelpers::logicalToActual(logicalFontOutlineSize)};
+        outlinedFont = assetCache.requestFont(fontPath, actualFontSize,
+                                              actualFontOutlineSize);
+    }
+}
+
+SDL_Surface* Text::getSurface(TTF_Font* font, const SDL_Color& fontColor,
+                              const SDL_Color& fontBackgroundColor)
+{
+    // If the text string is empty, render a space instead.
+    std::string spaceText{" "};
+    std::string_view textToRender{text};
+    if (text == "") {
+        textToRender = " ";
+    }
+
+    // Create a temporary surface on the cpu and render our image using the
+    // set renderMode.
+    SDL_Surface* surface{nullptr};
+    if (wordWrapEnabled) {
+        switch (renderMode) {
+            case RenderMode::Solid:
+                surface = TTF_RenderUTF8_Solid_Wrapped(
+                    font, textToRender.data(), fontColor, scaledExtent.w);
+                break;
+            case RenderMode::Shaded:
+                surface = TTF_RenderUTF8_Shaded_Wrapped(
+                    font, textToRender.data(), fontColor, fontBackgroundColor,
+                    scaledExtent.w);
+                break;
+            case RenderMode::Blended:
+                surface = TTF_RenderUTF8_Blended_Wrapped(
+                    font, textToRender.data(), fontColor, scaledExtent.w);
+                break;
+                // Note: Removed because SDL_ttf on 22.04 doesn't support it.
+                // case RenderMode::LCD:
+                //    surface = TTF_RenderUTF8_LCD_Wrapped(
+                //        font, textToRender.data(), fontColor,
+                //        fontBackgroundColor, scaledExtent.w);
+                //    break;
+        }
+    }
+    else {
+        switch (renderMode) {
+            case RenderMode::Solid:
+                surface = TTF_RenderUTF8_Solid(font, textToRender.data(),
+                                               fontColor);
+                break;
+            case RenderMode::Shaded:
+                surface = TTF_RenderUTF8_Shaded(font, textToRender.data(),
+                                                fontColor, fontBackgroundColor);
+                break;
+            case RenderMode::Blended:
+                surface = TTF_RenderUTF8_Blended(font, textToRender.data(),
+                                                 fontColor);
+                break;
+                // Note: Removed because SDL_ttf on 22.04 doesn't support it.
+                // case RenderMode::LCD:
+                //    surface = TTF_RenderUTF8_LCD(font,
+                //        textToRender.data(), fontColor, fontBackgroundColor);
+                //    break;
+        }
+    }
+    if (surface == nullptr) {
+        AUI_LOG_FATAL("Failed to create surface.");
+    }
+
+    return surface;
 }
 
 } // namespace AUI

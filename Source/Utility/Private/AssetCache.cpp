@@ -30,11 +30,13 @@ std::shared_ptr<SDL_Texture>
 }
 
 std::shared_ptr<TTF_Font> AssetCache::requestFont(const std::string& fontPath,
-                                                  int size)
+                                                  int fontSize,
+                                                  int fontOutlineSize)
 {
-    // Prepare the cache ID for this font ("fontPath_size").
+    // Prepare the cache ID for this font ("fontPath_fontSize_fontOutlineSize").
     std::string idString{fontPath};
-    idString += "_" + std::to_string(size);
+    idString += "_" + std::to_string(fontSize);
+    idString += "_" + std::to_string(fontOutlineSize);
 
     // If the font is already loaded, return it.
     auto it = fontCache.find(idString);
@@ -43,14 +45,19 @@ std::shared_ptr<TTF_Font> AssetCache::requestFont(const std::string& fontPath,
     }
 
     // Load the font.
-    TTF_Font* rawFont = TTF_OpenFont(fontPath.c_str(), size);
+    TTF_Font* rawFont{TTF_OpenFont(fontPath.c_str(), fontSize)};
     if (rawFont == nullptr) {
         AUI_LOG_FATAL("Failed to load font: %s", fontPath.c_str());
     }
 
     // Wrap the font in a shared_ptr.
-    std::shared_ptr<TTF_Font> font = std::shared_ptr<TTF_Font>(
-        rawFont, [](TTF_Font* p) { TTF_CloseFont(p); });
+    std::shared_ptr<TTF_Font> font{std::shared_ptr<TTF_Font>(
+        rawFont, [](TTF_Font* p) { TTF_CloseFont(p); })};
+
+    // If non-zero, set the font outline.
+    if (fontOutlineSize > 0) {
+        TTF_SetFontOutline(font.get(), fontOutlineSize);
+    }
 
     // Save the font in the cache.
     fontCache[idString] = font;

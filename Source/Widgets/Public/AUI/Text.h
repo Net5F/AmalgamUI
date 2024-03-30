@@ -68,10 +68,13 @@ public:
     /**
      * Sets the font and size. Uses the internal ID format "font_size".
      *
-     * @param fontPath  The full path to the font file.
-     * @param size  The size of the font.
+     * @param fontPath The full path to the font file.
+     * @param inLogicalFontSize The size of the font.
+     * @param inLogicalFontOutlineSize The size of the font's outline. 0 == 
+     *                                 no outline.
      */
-    void setFont(std::string_view fontPath, int size);
+    void setFont(std::string_view fontPath, int inLogicalFontSize,
+                 int inLogicalFontOutlineSize = 0);
 
     /**
      * Sets the font color to use.
@@ -155,8 +158,8 @@ public:
     /**
      * Used to tell where within the widget a particular character starts.
      *
-     * @param index  The index of the desired character in the underlying
-     *               string.
+     * @param index The index of the desired character in the underlying
+     *              string.
      * @return An extent containing the offset of the top left of the desired
      *         character, and the character's height. This extent is relative
      *         to scaledExtent.
@@ -209,6 +212,13 @@ private:
      */
     void refreshFontObject();
 
+    /**
+     * Returns a surface for the given font, using our current text, colors,
+     * extent, and renderMode.
+     */
+    SDL_Surface* getSurface(TTF_Font* font, const SDL_Color& fontColor,
+                            const SDL_Color& fontBackgroundColor);
+
     /** Full path to the font file. */
     std::string fontPath;
 
@@ -216,8 +226,15 @@ private:
         logicalScreenSize. */
     int logicalFontSize;
 
+    /** Logical font outline size. */
+    int logicalFontOutlineSize;
+
     /** The handle to our font object. */
     std::shared_ptr<TTF_Font> font;
+
+    /** If logicalFontOutlineSize > 0, this is the handle to our outlined font 
+        object. */
+    std::shared_ptr<TTF_Font> outlinedFont;
 
     /** The color of our text. */
     SDL_Color color;

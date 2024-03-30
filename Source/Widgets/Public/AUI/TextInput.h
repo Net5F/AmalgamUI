@@ -99,7 +99,7 @@ public:
     /** Calls text.asString(). */
     const std::string& getText();
     /** Calls text.setFont(). */
-    void setTextFont(const std::string& fontPath, int size);
+    void setTextFont(const std::string& fontPath, int inLogicalFontSize);
     /** Calls text.setColor(). */
     void setTextColor(const SDL_Color& inColor);
 

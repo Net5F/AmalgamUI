@@ -108,9 +108,9 @@ TextInput::State TextInput::getCurrentState()
     return currentState;
 }
 
-void TextInput::setTextFont(const std::string& fontPath, int size)
+void TextInput::setTextFont(const std::string& fontPath, int inLogicalFontSize)
 {
-    text.setFont(fontPath, size);
+    text.setFont(fontPath, inLogicalFontSize);
 }
 
 void TextInput::setTextColor(const SDL_Color& inColor)

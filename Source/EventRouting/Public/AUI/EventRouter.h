@@ -246,6 +246,19 @@ private:
     void processEventResult(const EventResult& eventResult);
 
     /**
+     * Returns true if the mouse is captured and the captor is invalid. Else, 
+     * returns false.
+     */
+    bool isMouseCaptorInvalid();
+
+    /**
+     * Sets mouse capture to the given widget and routes MouseEnter/MouseLeave 
+     * events appropriately.
+     * If newCaptorWidget == nullptr, releases mouse capture. 
+     */
+    void setMouseCapture(AUI::Widget* newCaptorWidget);
+
+    /**
      * Returns the current focused widget, or nullptr if there is none.
      * Note: This does not check the validity of the widget. This is mostly
      *       useful just to get a pointer for comparisons.

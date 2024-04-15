@@ -105,6 +105,10 @@ bool EventRouter::handleMouseButtonUp(SDL_MouseButtonEvent& event)
 
             eventWasHandled = eventResult.wasHandled;
         }
+        else {
+            // Mouse capture is no longer valid. Release it.
+            setMouseCapture(nullptr);
+        }
     }
 
     return eventWasHandled;
@@ -116,6 +120,12 @@ bool EventRouter::handleMouseWheel(SDL_MouseWheelEvent& event)
     int amountScrolled{event.y};
     if (event.direction == SDL_MOUSEWHEEL_FLIPPED) {
         amountScrolled *= -1;
+    }
+
+    // If the mouse captor has become invalid, release capture and refresh 
+    // the mouse hover path.
+    if (isMouseCaptorInvalid()) {
+        setMouseCapture(nullptr);
     }
 
     // If the mouse is captured, pass the event to the captor widget.
@@ -165,6 +175,12 @@ bool EventRouter::handleMouseWheel(SDL_MouseWheelEvent& event)
 
 bool EventRouter::handleMouseMove(SDL_MouseMotionEvent& event)
 {
+    // If the mouse captor has become invalid, release capture (we'll rebuild 
+    // the hover path below).
+    if (isMouseCaptorInvalid()) {
+        mouseCapturePath.clear();
+    }
+
     // Build the event path based on whether the mouse is captured or not.
     SDL_Point cursorPosition{event.x, event.y};
     WidgetPath eventPath{};
@@ -807,24 +823,13 @@ void EventRouter::processEventResult(const EventResult& eventResult)
 {
     // If mouse capture was requested.
     if (eventResult.setMouseCapture != nullptr) {
-        // Set the new captor widget.
-        mouseCapturePath.clear();
-        mouseCapturePath.push_back(*(eventResult.setMouseCapture));
-
-        // We're no longer considered to be hovering the previously hovered
-        // widgets. Send them a MouseLeave and clear the path.
-        for (WidgetWeakRef& widgetWeakRef : lastHoveredWidgetPath) {
-            if (widgetWeakRef.isValid()) {
-                widgetWeakRef.get().onMouseLeave();
-            }
-        }
-
-        lastHoveredWidgetPath.clear();
+        // Release any previous mouse capture and set the new captor widget.
+        setMouseCapture(eventResult.setMouseCapture);
     }
 
-    // If mouse capture release was requested.
+    // If mouse capture release was requested, release it.
     if (eventResult.releaseMouseCapture) {
-        mouseCapturePath.clear();
+        setMouseCapture(nullptr);
     }
 
     // If focus was requested.
@@ -840,6 +845,52 @@ void EventRouter::processEventResult(const EventResult& eventResult)
     else if (eventResult.dropFocus) {
         dropFocus(FocusLostType::Requested);
     }
+}
+
+bool EventRouter::isMouseCaptorInvalid()
+{
+    // If there's a mouse captor and it has become invalid, return true.
+    // Note: We don't count hidden widgets as invalid because they should still 
+    //       receive events and have an opportunity to release capture. 
+    if (!(mouseCapturePath.empty())) {
+        WidgetWeakRef& widgetWeakRef{mouseCapturePath.back()};
+        if (!(widgetWeakRef.isValid())) {
+            return true;
+        }
+    }
+
+    return false;
+}
+
+void EventRouter::setMouseCapture(AUI::Widget* newCaptorWidget)
+{
+    // Clear any existing mouse capture.
+    // Note: We expect any captor to also be in lastHoveredWidgetPath, so we 
+    //       don't need to pass it a MouseLeave (it'll happen below).
+    mouseCapturePath.clear();
+
+    // If we were given a new captor widget, set it.
+    if (newCaptorWidget) {
+        mouseCapturePath.push_back(*newCaptorWidget);
+    }
+
+    // Build a current hovered widget path based on whether the mouse is 
+    // captured or not.
+    SDL_Point cursorPosition{};
+    SDL_GetMouseState(&(cursorPosition.x), &(cursorPosition.y));
+    WidgetPath currentHoveredWidgetPath{};
+    if (!(mouseCapturePath.empty())) {
+        currentHoveredWidgetPath = mouseCapturePath;
+    }
+    else {
+        currentHoveredWidgetPath = getPathUnderCursor(cursorPosition);
+    }
+
+    // Route MouseEnter/MouseLeave (or DragEnter/DragLeave) events.
+    routeMouseEnterAndLeave(currentHoveredWidgetPath);
+
+    // Save the new hovered widget path.
+    lastHoveredWidgetPath = currentHoveredWidgetPath;
 }
 
 Widget* EventRouter::getFocusedWidget()

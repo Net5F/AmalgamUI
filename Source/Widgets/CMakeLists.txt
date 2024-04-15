@@ -14,6 +14,7 @@ target_sources(AmalgamUI
         Private/Image.cpp
         Private/ScrollArea.cpp
         Private/Text.cpp
+        Private/TextButton.cpp
         Private/TextInput.cpp
         Private/Thumbnail.cpp
         Private/VerticalGridContainer.cpp
@@ -35,6 +36,7 @@ target_sources(AmalgamUI
         Public/AUI/Image.h
         Public/AUI/ScrollArea.h
         Public/AUI/Text.h
+        Public/AUI/TextButton.h
         Public/AUI/TextInput.h
         Public/AUI/Thumbnail.h
         Public/AUI/VerticalGridContainer.h

@@ -1,37 +1,48 @@
-#include "AUI/Button.h"
+#include "AUI/TextButton.h"
 #include "AUI/Screen.h"
 #include "AUI/Core.h"
 
 namespace AUI
 {
-Button::Button(const SDL_Rect& inLogicalExtent, const std::string& inDebugName)
+TextButton::TextButton(const SDL_Rect& inLogicalExtent, const std::string& inDebugName)
 : Widget(inLogicalExtent, inDebugName)
-, normalImage({0, 0, logicalExtent.w, logicalExtent.h})
-, hoveredImage({0, 0, logicalExtent.w, logicalExtent.h})
-, pressedImage({0, 0, logicalExtent.w, logicalExtent.h})
-, disabledImage({0, 0, logicalExtent.w, logicalExtent.h})
 , text({0, 0, logicalExtent.w, logicalExtent.h})
-, currentState{State::Normal}
+, normalColor{0, 0, 0, 255}
+, hoveredColor{255, 255, 255, 255}
+, pressedColor{0, 0, 0, 255}
+, disabledColor{0, 0, 0, 255}
+, currentState{Button::State::Normal}
 {
     // Add our children so they're included in rendering, etc.
-    children.push_back(normalImage);
-    children.push_back(hoveredImage);
-    children.push_back(pressedImage);
-    children.push_back(disabledImage);
     children.push_back(text);
-
-    // Default to centering the text within the button. The user can set it
-    // otherwise if they care to.
-    text.setVerticalAlignment(Text::VerticalAlignment::Center);
-    text.setHorizontalAlignment(Text::HorizontalAlignment::Center);
-
-    // Make the backgrounds we aren't using invisible.
-    hoveredImage.setIsVisible(false);
-    pressedImage.setIsVisible(false);
-    disabledImage.setIsVisible(false);
 }
 
-void Button::enable()
+void TextButton::setNormalColor(const SDL_Color& color)
+{
+    // Set the color and refresh our text widget.
+    normalColor = color;
+    setCurrentState(currentState);
+}
+
+void TextButton::setHoveredColor(const SDL_Color& color)
+{
+    hoveredColor = color;
+    setCurrentState(currentState);
+}
+
+void TextButton::setPressedColor(const SDL_Color& color)
+{
+    pressedColor = color;
+    setCurrentState(currentState);
+}
+
+void TextButton::setDisabledColor(const SDL_Color& color)
+{
+    disabledColor = color;
+    setCurrentState(currentState);
+}
+
+void TextButton::enable()
 {
     SDL_Point cursorPosition{};
     SDL_GetMouseState(&(cursorPosition.x), &(cursorPosition.y));
@@ -40,51 +51,51 @@ void Button::enable()
 
     // Check if we're currently hovered.
     if (containsPoint(cursorPosition)) {
-        setCurrentState(State::Hovered);
+        setCurrentState(Button::State::Hovered);
     }
     else {
-        setCurrentState(State::Normal);
+        setCurrentState(Button::State::Normal);
     }
 }
 
-void Button::disable()
+void TextButton::disable()
 {
-    setCurrentState(State::Disabled);
+    setCurrentState(Button::State::Disabled);
 }
 
-Button::State Button::getCurrentState()
+Button::State TextButton::getCurrentState()
 {
     return currentState;
 }
 
-void Button::setOnPressed(std::function<void(void)> inOnPressed)
+void TextButton::setOnPressed(std::function<void(void)> inOnPressed)
 {
     onPressed = std::move(inOnPressed);
 }
 
-void Button::setOnReleased(std::function<void(void)> inOnReleased)
+void TextButton::setOnReleased(std::function<void(void)> inOnReleased)
 {
     onReleased = std::move(inOnReleased);
 }
 
-void Button::setIsVisible(bool inIsVisible)
+void TextButton::setIsVisible(bool inIsVisible)
 {
     // If we're being made invisible, set our state back to normal.
     if (!inIsVisible) {
-        setCurrentState(State::Normal);
+        setCurrentState(Button::Button::State::Normal);
     }
 
     Widget::setIsVisible(inIsVisible);
 }
 
-EventResult Button::onMouseDown(MouseButtonType buttonType, const SDL_Point&)
+EventResult TextButton::onMouseDown(MouseButtonType buttonType, const SDL_Point&)
 {
     // Only respond to the left mouse button.
     if (buttonType != MouseButtonType::Left) {
         return EventResult{.wasHandled{false}};
     }
     // If we're disabled, ignore the event.
-    else if (currentState == State::Disabled) {
+    else if (currentState == Button::State::Disabled) {
         return EventResult{.wasHandled{false}};
     }
 
@@ -94,7 +105,7 @@ EventResult Button::onMouseDown(MouseButtonType buttonType, const SDL_Point&)
     }
 
     // Set our state to pressed.
-    setCurrentState(State::Pressed);
+    setCurrentState(Button::State::Pressed);
 
     // Call the user's onPressed callback.
     onPressed();
@@ -103,7 +114,7 @@ EventResult Button::onMouseDown(MouseButtonType buttonType, const SDL_Point&)
     return EventResult{.wasHandled{true}, .setMouseCapture{this}};
 }
 
-EventResult Button::onMouseUp(MouseButtonType buttonType,
+EventResult TextButton::onMouseUp(MouseButtonType buttonType,
                               const SDL_Point& cursorPosition)
 {
     // Only respond to the left mouse button.
@@ -111,21 +122,21 @@ EventResult Button::onMouseUp(MouseButtonType buttonType,
         return EventResult{.wasHandled{false}};
     }
     // If we're disabled, ignore the event.
-    else if (currentState == State::Disabled) {
+    else if (currentState == Button::State::Disabled) {
         // Note: We need to release mouse capture in case we were disabled
         //       while a click was being held.
         return EventResult{.wasHandled{false}, .releaseMouseCapture{true}};
     }
 
     // If we were being pressed.
-    if (currentState == State::Pressed) {
+    if (currentState == Button::State::Pressed) {
         // If the mouse is still over this widget, go to hovered.
         if (containsPoint(cursorPosition)) {
-            setCurrentState(State::Hovered);
+            setCurrentState(Button::State::Hovered);
         }
         else {
             // Mouse is gone, go to normal.
-            setCurrentState(State::Normal);
+            setCurrentState(Button::State::Normal);
         }
 
         // If the user set a callback, call it.
@@ -137,65 +148,60 @@ EventResult Button::onMouseUp(MouseButtonType buttonType,
     return EventResult{.wasHandled{true}, .releaseMouseCapture{true}};
 }
 
-EventResult Button::onMouseDoubleClick(MouseButtonType buttonType,
+EventResult TextButton::onMouseDoubleClick(MouseButtonType buttonType,
                                        const SDL_Point& cursorPosition)
 {
     // We treat additional clicks as regular MouseDown events.
     return onMouseDown(buttonType, cursorPosition);
 }
 
-void Button::onMouseEnter()
+void TextButton::onMouseEnter()
 {
     // If we're disabled, ignore the event.
-    if (currentState == State::Disabled) {
+    if (currentState == Button::State::Disabled) {
         return;
     }
 
     // If we're normal, change to hovered.
-    if (currentState == State::Normal) {
-        setCurrentState(State::Hovered);
+    if (currentState == Button::State::Normal) {
+        setCurrentState(Button::State::Hovered);
     }
 }
 
-void Button::onMouseLeave()
+void TextButton::onMouseLeave()
 {
     // If we're disabled, ignore the event.
-    if (currentState == State::Disabled) {
+    if (currentState == Button::State::Disabled) {
         return;
     }
 
     // We won't get a MouseLeave while Pressed because we capture the mouse, 
     // and we know we aren't disabled. This must be an unhover or a release, 
     // so go to normal.
-    setCurrentState(State::Normal);
+    setCurrentState(Button::State::Normal);
 }
 
-void Button::setCurrentState(State inState)
+void TextButton::setCurrentState(Button::State inState)
 {
     // Set the new state.
     currentState = inState;
 
-    // Make the associated background visible and make the rest invisible.
-    normalImage.setIsVisible(false);
-    hoveredImage.setIsVisible(false);
-    pressedImage.setIsVisible(false);
-    disabledImage.setIsVisible(false);
-
+    // Set the text color to match the current state.
     switch (currentState) {
-        case State::Normal: {
-            normalImage.setIsVisible(true);
+        case Button::State::Normal: {
+            text.setColor(normalColor);
             break;
         }
-        case State::Hovered: {
-            hoveredImage.setIsVisible(true);
+        case Button::State::Hovered: {
+            text.setColor(hoveredColor);
             break;
         }
-        case State::Pressed: {
-            pressedImage.setIsVisible(true);
+        case Button::State::Pressed: {
+            text.setColor(pressedColor);
             break;
         }
-        case State::Disabled: {
-            disabledImage.setIsVisible(true);
+        case Button::State::Disabled: {
+            text.setColor(disabledColor);
             break;
         }
     }

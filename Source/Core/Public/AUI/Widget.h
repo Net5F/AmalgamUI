@@ -229,6 +229,9 @@ public:
 
     /**
      * Called when this widget starts being dragged.
+     * Note: Dragging and mouse capture are completely independent. A widget 
+     *       can be dragged without ever requesting capture, it just won't 
+     *       receive a MouseUp.
      */
     virtual void onDragStart();
 

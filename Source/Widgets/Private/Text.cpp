@@ -74,13 +74,13 @@ void Text::setText(std::string_view inText)
 void Text::setVerticalAlignment(VerticalAlignment inVerticalAlignment)
 {
     verticalAlignment = inVerticalAlignment;
-    refreshAlignment();
+    alignmentIsDirty = true;
 }
 
 void Text::setHorizontalAlignment(HorizontalAlignment inHorizontalAlignment)
 {
     horizontalAlignment = inHorizontalAlignment;
-    refreshAlignment();
+    alignmentIsDirty = true;
 }
 
 void Text::setWordWrapEnabled(bool inWordWrapEnabled)
@@ -178,15 +178,8 @@ void Text::refreshTexture()
                      &(textureExtent.h));
     textExtent = {0, 0, textureExtent.w, textureExtent.h};
 
-    // If auto-height is enabled, set this widget's height to match the texture.
-    if (autoHeightEnabled) {
-        logicalExtent.h = ScalingHelpers::actualToLogical(textExtent.h);
-    }
-
-    // Calc our new aligned position.
-    refreshAlignment();
-
     textureIsDirty = false;
+    alignmentIsDirty = true;
 }
 
 const std::string& Text::asString()
@@ -245,16 +238,11 @@ void Text::setLogicalExtent(const SDL_Rect& inLogicalExtent)
     Widget::setLogicalExtent(inLogicalExtent);
 
     // Refresh our alignment.
-    refreshAlignment();
+    alignmentIsDirty = true;
 }
 
-void Text::updateLayout(const SDL_Point& startPosition,
-                        const SDL_Rect& availableExtent,
-                        WidgetLocator* widgetLocator)
+void Text::measure(const SDL_Rect& availableExtent)
 {
-    // Do the normal layout updating.
-    Widget::updateLayout(startPosition, availableExtent, widgetLocator);
-
     // If the UI scaling has changed, refresh everything.
     if (lastUsedScreenSize != Core::getActualScreenSize()) {
         refreshScaling();
@@ -265,9 +253,30 @@ void Text::updateLayout(const SDL_Point& startPosition,
         refreshTexture();
     }
 
+    // If auto-height is enabled, set this widget's height to match the texture.
+    if (autoHeightEnabled) {
+        logicalExtent.h = ScalingHelpers::actualToLogical(textExtent.h);
+        alignmentIsDirty = true;
+    }
+}
+
+void Text::arrange(const SDL_Point& startPosition,
+                   const SDL_Rect& availableExtent,
+                   WidgetLocator* widgetLocator)
+{
+    // Run the normal arrange step.
+    Widget::arrange(startPosition, availableExtent, widgetLocator);
+
     // If this widget is fully clipped, return early.
     if (SDL_RectEmpty(&clippedExtent)) {
         return;
+    }
+
+    // If the text alignment is dirty, refresh it.
+    // Note: We have to do this after Widget::arrange(), since it relies on 
+    //       scaledExtent.
+    if (alignmentIsDirty) {
+        refreshAlignment();
     }
 
     // Offset our textExtent to start at startPosition.
@@ -308,15 +317,15 @@ void Text::render(const SDL_Point& windowTopLeft)
 
 void Text::refreshScaling()
 {
-    // Refresh our alignment since the extent has moved.
-    refreshAlignment();
-
     // Refresh our font object to match the new scale.
     refreshFontObject();
 
     // Re-render the text texture.
     refreshTexture();
-    textureIsDirty = false;
+
+    // Refresh our alignment in case the extent has moved or the text has 
+    // changed.
+    alignmentIsDirty = true;
 }
 
 void Text::refreshAlignment()
@@ -354,6 +363,8 @@ void Text::refreshAlignment()
             break;
         }
     }
+
+    alignmentIsDirty = false;
 }
 
 void Text::refreshFontObject()

@@ -13,7 +13,7 @@ namespace AUI
  * TODO: After scrolling, our elements still have hover states based on their 
  *       pre-scroll positions. We need to find a way to update them.
  */
-class ScrollArea : public Container
+class ScrollArea : public Widget
 {
 public:
     //-------------------------------------------------------------------------
@@ -83,9 +83,11 @@ public:
 
     void onTick(double timestepS) override;
 
-    void updateLayout(const SDL_Point& startPosition,
-                      const SDL_Rect& availableExtent,
-                      WidgetLocator* widgetLocator) override;
+    void measure(const SDL_Rect& availableExtent) override;
+
+    void arrange(const SDL_Point& startPosition,
+                 const SDL_Rect& availableExtent,
+                 WidgetLocator* widgetLocator) override;
 
     void render(const SDL_Point& windowTopLeft) override;
 

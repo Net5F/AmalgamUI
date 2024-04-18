@@ -67,12 +67,12 @@ void Image::setCustomImage(std::unique_ptr<ImageType> inImageType)
     imageType = std::move(inImageType);
 }
 
-void Image::updateLayout(const SDL_Point& startPosition,
-                         const SDL_Rect& availableExtent,
-                         WidgetLocator* widgetLocator)
+void Image::arrange(const SDL_Point& startPosition,
+                    const SDL_Rect& availableExtent,
+                    WidgetLocator* widgetLocator)
 {
-    // Do the normal layout updating.
-    Widget::updateLayout(startPosition, availableExtent, widgetLocator);
+    // Run the normal arrange step.
+    Widget::arrange(startPosition, availableExtent, widgetLocator);
 
     // If this widget is fully clipped, return early.
     if (SDL_RectEmpty(&clippedExtent)) {
@@ -83,6 +83,7 @@ void Image::updateLayout(const SDL_Point& startPosition,
     if (!SDL_RectEquals(&scaledExtent, &lastScaledExtent)) {
         // Refresh the image, in case it needs to regenerate to match the
         // new size.
+        // Note: We can't do this in measure() since we need to use scaledExtent.
         if (imageType != nullptr) {
             imageType->refresh(scaledExtent);
         }

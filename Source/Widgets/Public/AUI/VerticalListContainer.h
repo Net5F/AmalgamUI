@@ -59,9 +59,11 @@ public:
     //-------------------------------------------------------------------------
     EventResult onMouseWheel(int amountScrolled) override;
 
-    void updateLayout(const SDL_Point& startPosition,
-                      const SDL_Rect& availableExtent,
-                      WidgetLocator* widgetLocator) override;
+    void measure(const SDL_Rect& availableExtent) override;
+
+    void arrange(const SDL_Point& startPosition,
+                 const SDL_Rect& availableExtent,
+                 WidgetLocator* widgetLocator) override;
 
 private:
     /**

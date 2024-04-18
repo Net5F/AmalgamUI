@@ -9,7 +9,7 @@ namespace AUI
 {
 ScrollArea::ScrollArea(const SDL_Rect& inLogicalExtent,
                                              const std::string& inDebugName)
-: Container(inLogicalExtent, inDebugName)
+: Widget(inLogicalExtent, inDebugName)
 , content{nullptr}
 , logicalScrollStepX{LOGICAL_DEFAULT_SCROLL_STEP_X}
 , scaledScrollStepX{ScalingHelpers::logicalToActual(logicalScrollStepX)}
@@ -78,12 +78,23 @@ void ScrollArea::onTick(double timestepS)
     }
 }
 
-void ScrollArea::updateLayout(const SDL_Point& startPosition,
-                              const SDL_Rect& availableExtent,
-                              WidgetLocator* widgetLocator)
+void ScrollArea::measure(const SDL_Rect& availableExtent)
 {
-    // Run the normal layout step (will update us, but won't process our child).
-    Widget::updateLayout(startPosition, availableExtent, widgetLocator);
+    // Give our content widget a chance to update its logical extent.
+    content->measure(logicalExtent);
+
+    // Run the normal measure step (doesn't affect us since we don't use the 
+    // children vector, but good to do in case of extension).
+    Widget::measure(availableExtent);
+}
+
+void ScrollArea::arrange(const SDL_Point& startPosition,
+                         const SDL_Rect& availableExtent,
+                         WidgetLocator* widgetLocator)
+{
+    // Run the normal arrange step (will arrange us, but won't arrange our 
+    // content).
+    Widget::arrange(startPosition, availableExtent, widgetLocator);
 
     // If this widget is fully clipped, return early.
     if (SDL_RectEmpty(&clippedExtent)) {
@@ -131,9 +142,9 @@ void ScrollArea::updateLayout(const SDL_Point& startPosition,
             contentExtent.y += scrollDistanceY;
         }
 
-        // Update the content, passing it the calculated start position.
-        content->updateLayout({contentExtent.x, contentExtent.y}, clippedExtent,
-                              widgetLocator);
+        // Arrange the content, passing it the calculated start position.
+        content->arrange({contentExtent.x, contentExtent.y}, clippedExtent,
+                         widgetLocator);
     }
 }
 

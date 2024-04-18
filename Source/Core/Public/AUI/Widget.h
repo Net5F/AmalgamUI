@@ -46,8 +46,8 @@ public:
      * If this widget's screen extent contains the given point, returns
      * true. Else, returns false.
      *
-     * @param windowPoint  A point on the screen, relative to the top left of
-     *                     this widget's parent window.
+     * @param windowPoint A point on the screen, relative to the top left of
+     *                    this widget's parent window.
      */
     bool containsPoint(const SDL_Point& windowPoint);
 
@@ -99,8 +99,8 @@ public:
      * Note: If this event is handled, it will also stop the MouseDown event
      *       from bubbling afterwards.
      *
-     * @param cursorPosition  The cursor's position, relative to this widget's
-     *                        parent window.
+     * @param cursorPosition The cursor's position, relative to this widget's
+     *                       parent window.
      */
     virtual EventResult onPreviewMouseDown(MouseButtonType buttonType,
                                            const SDL_Point& cursorPosition);
@@ -110,8 +110,8 @@ public:
      *
      * This event is bubbled to widgets under the mouse.
      *
-     * @param cursorPosition  The cursor's position, relative to this widget's
-     *                        parent window.
+     * @param cursorPosition The cursor's position, relative to this widget's
+     *                       parent window.
      */
     virtual EventResult onMouseDown(MouseButtonType buttonType,
                                     const SDL_Point& cursorPosition);
@@ -121,8 +121,8 @@ public:
      *
      * This event is only routed to the widget that is capturing the mouse.
      *
-     * @param cursorPosition  The cursor's position, relative to this widget's
-     *                        parent window.
+     * @param cursorPosition The cursor's position, relative to this widget's
+     *                       parent window.
      */
     virtual EventResult onMouseUp(MouseButtonType buttonType,
                                   const SDL_Point& cursorPosition);
@@ -133,8 +133,8 @@ public:
      *
      * This event is bubbled to widgets under the mouse.
      *
-     * @param cursorPosition  The cursor's position, relative to this widget's
-     *                        parent window.
+     * @param cursorPosition The cursor's position, relative to this widget's
+     *                       parent window.
      */
     virtual EventResult onMouseDoubleClick(MouseButtonType buttonType,
                                            const SDL_Point& cursorPosition);
@@ -146,10 +146,10 @@ public:
      * This event is routed to the widget that is capturing the mouse. If
      * there's no mouse captor, it's bubbled to widgets under the mouse.
      *
-     * @param amountScrolled  The amount that the wheel was scrolled. Movements
-     *                        up (scroll forward) generate positive values,
-     *                        movements down (scroll backward) generate
-     *                        negative values.
+     * @param amountScrolled The amount that the wheel was scrolled. Movements
+     *                       up (scroll forward) generate positive values,
+     *                       movements down (scroll backward) generate
+     *                       negative values.
      */
     virtual EventResult onMouseWheel(int amountScrolled);
 
@@ -247,8 +247,8 @@ public:
      * This event is routed to the widget that is capturing the mouse. If
      * there's no mouse captor, it's bubbled to widgets under the mouse.
      *
-     * @param cursorPosition  The cursor's position, relative to this widget's
-     *                        parent window.
+     * @param cursorPosition The cursor's position, relative to this widget's
+     *                       parent window.
      */
     virtual EventResult onDragMove(const SDL_Point& cursorPosition);
 
@@ -279,30 +279,47 @@ public:
      * Note: If you override this function, you must call onTick() on all of
      *       your children. You can do this by calling Widget::onTick().
      *
-     * @param timestepS  The amount of time that has passed since the last
-     *                   tick() call, in seconds.
+     * @param timestepS The amount of time that has passed since the last
+     *                  tick() call, in seconds.
      */
     virtual void onTick(double timestepS);
 
     /**
-     * Updates this widget's extents to be properly scaled and positioned
-     * within the parent window.
+     * Gives the widget an opportunity to update its logical extent if 
+     * necessary.
+     * 
+     * @param availableExtent The available room for this widget to occupy, 
+     *                        in logical space. 
+     *                        If width or height == -1, the parent will scale 
+     *                        to fit its children in that direction.
+     *                        logicalExtent may go beyond this extent, this 
+     *                        is just for widgets that want to grow/shrink to 
+     *                        fit their parent.
      *
-     * @param startPosition  The position where this widget should begin its
-     *                       layout. Typically will be equal to the parent's
-     *                       top left, though containers may use this to add
-     *                       additional offsets while arranging their elements.
-     * @param availableExtent  The available space for this widget to take up.
-     * @param widgetLocator  (If non-nullptr) The widget locator that this
-     *                       widget should add itself to after updating.
+     * @post logicalExtent is up-to-date.
+     */
+    virtual void measure(const SDL_Rect& availableExtent);
+
+    /**
+     * Updates this widget's extents to be properly scaled and positioned
+     * within the parent widget.
+     *
+     * @param startPosition The position where this widget should begin its
+     *                      layout. Typically will be equal to the parent's
+     *                      top left, though containers may use this to add
+     *                      additional offsets while arranging their elements.
+     * @param availableExtent The available space for this widget to take up.
+     * @param widgetLocator (If non-nullptr) The widget locator that this
+     *                      widget should add itself to after updating.
+     *
      * @post scaledExtent matches the current Core::actualScreenSize.
-     *       offsetExtent and clippedExtent are properly positioned.
+     *       fullExtent and clippedExtent are properly positioned.
      *       clippedExtent is clipped to the given availableExtent and is ready
      *       for use in rendering and hit testing.
      */
-    virtual void updateLayout(const SDL_Point& startPosition,
-                              const SDL_Rect& availableExtent,
-                              WidgetLocator* widgetLocator);
+    virtual void arrange(const SDL_Point& startPosition,
+                         const SDL_Rect& availableExtent,
+                         WidgetLocator* widgetLocator);
 
     /**
      * Renders this widget to the current rendering target.
@@ -311,10 +328,10 @@ public:
      * children list. Some overrides may directly call SDL functions like
      * SDL_RenderCopy().
      *
-     * @param windowTopLeft  The top left coordinate of this widget's parent
-     *                       window. This is used to translate the widget's
-     *                       window-relative extent into a final screen
-     *                       position.
+     * @param windowTopLeft The top left coordinate of this widget's parent
+     *                      window. This is used to translate the widget's
+     *                      window-relative extent into a final screen
+     *                      position.
      */
     virtual void render(const SDL_Point& windowTopLeft);
 

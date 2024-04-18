@@ -126,7 +126,8 @@ void Screen::render()
     // Update our visible window's layouts.
     for (Window& window : windows) {
         if (window.getIsVisible()) {
-            window.updateLayout();
+            window.measure();
+            window.arrange();
         }
     }
 

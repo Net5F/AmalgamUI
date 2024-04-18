@@ -60,13 +60,27 @@ EventResult HorizontalGridContainer::onMouseWheel(int amountScrolled)
     return EventResult{.wasHandled{true}};
 }
 
-void HorizontalGridContainer::updateLayout(const SDL_Point& startPosition,
-                                         const SDL_Rect& availableExtent,
-                                         WidgetLocator* widgetLocator)
+void HorizontalGridContainer::measure(const SDL_Rect& availableExtent)
 {
-    // Run the normal layout step (will update us, but won't process any of
+    // Give our elements a chance to update their logical extent.
+    for (auto& element : elements) {
+        // Note: We measure/arrange all elements, even if they're invisible, 
+        //       so we can get the rest of the elements offsets correct.
+        element->measure(logicalExtent);
+    }
+
+    // Run the normal measure step (doesn't affect us since we don't use the 
+    // children vector, but good to do in case of extension).
+    Widget::measure(availableExtent);
+}
+
+void HorizontalGridContainer::arrange(const SDL_Point& startPosition,
+                                      const SDL_Rect& availableExtent,
+                                      WidgetLocator* widgetLocator)
+{
+    // Run the normal arrange step (will arrange us, but won't arrange any of
     // our elements).
-    Widget::updateLayout(startPosition, availableExtent, widgetLocator);
+    Widget::arrange(startPosition, availableExtent, widgetLocator);
 
     // If this widget is fully clipped, return early.
     if (SDL_RectEmpty(&clippedExtent)) {
@@ -93,8 +107,7 @@ void HorizontalGridContainer::updateLayout(const SDL_Point& startPosition,
         // Add this widget's offset to get our final offset.
         int finalX{fullExtent.x + cellXOffset};
         int finalY{fullExtent.y + cellYOffset};
-        elements[i]->updateLayout({finalX, finalY}, clippedExtent,
-                                  widgetLocator);
+        elements[i]->arrange({finalX, finalY}, clippedExtent, widgetLocator);
     }
 }
 

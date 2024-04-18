@@ -41,27 +41,14 @@ void CollapsibleContainer::setIsCollapsed(bool inIsCollapsed)
 {
     isCollapsed = inIsCollapsed;
 
-    int oldHeight{logicalExtent.h};
-
-    // Update our visible children and extent to match the new state.
+    // Update our visible children to match the new state.
     if (isCollapsed) {
         expandedImage.setIsVisible(false);
         collapsedImage.setIsVisible(true);
-
-        logicalExtent = headerLogicalExtent;
     }
     else {
         expandedImage.setIsVisible(true);
         collapsedImage.setIsVisible(false);
-
-        // Note: We need to immediately update our height so that our parent
-        //       can get an accurate height during the next updateLayout().
-        logicalExtent.h = calcExpandedHeight();
-    }
-
-    // If our height changed, call the user's onHeightChanged callback.
-    if ((onHeightChanged != nullptr) && (logicalExtent.h != oldHeight)) {
-        onHeightChanged();
     }
 
     // TODO: Invalidate layout
@@ -96,12 +83,6 @@ SDL_Rect CollapsibleContainer::getClickRegionExtent()
     return clickRegionExtent;
 }
 
-void CollapsibleContainer::setOnHeightChanged(
-    std::function<void(void)> inOnHeightChanged)
-{
-    onHeightChanged = std::move(inOnHeightChanged);
-}
-
 void CollapsibleContainer::setLogicalExtent(const SDL_Rect& inLogicalExtent)
 {
     Widget::setLogicalExtent(inLogicalExtent);
@@ -132,25 +113,36 @@ EventResult
     return onMouseDown(buttonType, cursorPosition);
 }
 
-void CollapsibleContainer::updateLayout(const SDL_Point& startPosition,
-                                        const SDL_Rect& availableExtent,
-                                        WidgetLocator* widgetLocator)
+void CollapsibleContainer::measure(const SDL_Rect& availableExtent)
 {
-    // If we're in the expanded state, refresh our height.
-    // Note: We need to do this in case any of our elements changed their
-    //       extents.
+    // If we're expanded, set our height to fit our elements.
     if (!isCollapsed) {
-        int oldHeight{logicalExtent.h};
-        logicalExtent.h = calcExpandedHeight();
-
-        if ((onHeightChanged != nullptr) && (logicalExtent.h != oldHeight)) {
-            onHeightChanged();
+        // Measure our elements, giving them infinite available height.
+        SDL_Rect elementAvailableExtent{0, 0, logicalExtent.w, -1};
+        for (auto& element : elements) {
+            element->measure(elementAvailableExtent);
         }
+
+        // Calc our new height based on our elements.
+        logicalExtent.h = calcExpandedHeight();
+    }
+    else {
+        // We're collapsed. Set our height to the header's height.
+        logicalExtent.h = headerLogicalExtent.h;
     }
 
-    // Run the normal layout step (will update us and our children, but won't
-    // process any of our elements).
-    Widget::updateLayout(startPosition, availableExtent, widgetLocator);
+    // Run the normal measure step (doesn't affect us since we don't use the 
+    // children vector, but good to do in case of extension).
+    Widget::measure(availableExtent);
+}
+
+void CollapsibleContainer::arrange(const SDL_Point& startPosition,
+                                   const SDL_Rect& availableExtent,
+                                   WidgetLocator* widgetLocator)
+{
+    // Run the normal arrange step (will arrange us and our children, but won't
+    // arrange any of our elements).
+    Widget::arrange(startPosition, availableExtent, widgetLocator);
 
     // If this widget is fully clipped, return early.
     if (SDL_RectEmpty(&clippedExtent)) {
@@ -160,8 +152,8 @@ void CollapsibleContainer::updateLayout(const SDL_Point& startPosition,
     // If we're collapsed, return without updating our elements.
     if (isCollapsed) {
         // Make sure all of our elements are invisible.
-        for (std::size_t i = 0; i < elements.size(); ++i) {
-            elements[i]->setIsVisible(false);
+        for (auto& element : elements) {
+            element->setIsVisible(false);
         }
         return;
     }
@@ -173,16 +165,16 @@ void CollapsibleContainer::updateLayout(const SDL_Point& startPosition,
     int nextYPosition{fullExtent.y + scaledHeaderHeight};
 
     // Lay out our elements.
-    for (std::size_t i = 0; i < elements.size(); ++i) {
+    for (auto& element : elements) {
         // Make sure the element is visible.
-        elements[i]->setIsVisible(true);
+        element->setIsVisible(true);
 
-        // Update the element, passing it the calculated start position.
-        elements[i]->updateLayout({fullExtent.x, nextYPosition}, clippedExtent,
-                                  widgetLocator);
+        // Arrange the element, passing it the calculated start position.
+        element->arrange({fullExtent.x, nextYPosition}, clippedExtent,
+                         widgetLocator);
 
         // Update nextYPosition for the next element.
-        nextYPosition += (elements[i]->getScaledExtent().h + scaledGapSize);
+        nextYPosition += (element->getScaledExtent().h + scaledGapSize);
     }
 }
 

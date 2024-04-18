@@ -106,12 +106,12 @@ public:
     // Base class overrides
     //-------------------------------------------------------------------------
     /**
-     * Calls Widget::updateLayout() and refreshes the image if this widget's
+     * Calls Widget::arrange() and refreshes the image if this widget's
      * scaledExtent changed.
      */
-    void updateLayout(const SDL_Point& startPosition,
-                      const SDL_Rect& availableExtent,
-                      WidgetLocator* widgetLocator) override;
+    void arrange(const SDL_Point& startPosition,
+                 const SDL_Rect& availableExtent,
+                 WidgetLocator* widgetLocator) override;
 
     void render(const SDL_Point& windowTopLeft) override;
 

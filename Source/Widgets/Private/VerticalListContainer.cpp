@@ -65,13 +65,27 @@ EventResult VerticalListContainer::onMouseWheel(int amountScrolled)
     return EventResult{.wasHandled{true}};
 }
 
-void VerticalListContainer::updateLayout(const SDL_Point& startPosition,
-                                         const SDL_Rect& availableExtent,
-                                         WidgetLocator* widgetLocator)
+void VerticalListContainer::measure(const SDL_Rect& availableExtent)
 {
-    // Run the normal layout step (will update us, but won't process any of
-    // our elements).
-    Widget::updateLayout(startPosition, availableExtent, widgetLocator);
+    // Give our elements a chance to update their logical extent.
+    for (auto& element : elements) {
+        // Note: We measure/arrange all elements, even if they're invisible, 
+        //       so we can get the rest of the elements offsets correct.
+        element->measure(logicalExtent);
+    }
+
+    // Run the normal measure step (doesn't affect us since we don't use the 
+    // children vector, but good to do in case of extension).
+    Widget::measure(availableExtent);
+}
+
+void VerticalListContainer::arrange(const SDL_Point& startPosition,
+                                    const SDL_Rect& availableExtent,
+                                    WidgetLocator* widgetLocator)
+{
+    // Run the normal arrange step (will arrange us and our children, but won't
+    // arrange any of our elements).
+    Widget::arrange(startPosition, availableExtent, widgetLocator);
 
     // If this widget is fully clipped, return early.
     if (SDL_RectEmpty(&clippedExtent)) {
@@ -106,16 +120,12 @@ void VerticalListContainer::updateLayout(const SDL_Point& startPosition,
 
 int VerticalListContainer::calcContentHeight()
 {
-    // TODO: We've had to do some hokey stuff in CollapsibleContainer and Text
-    //       to get this to work. If we hit a third special case, we should just
-    //       refactor updateLayout() into measure()/arrange().
-
     // Calc the content height by summing our element's heights and adding the
     // gaps.
     int contentHeight{0};
     for (const std::unique_ptr<Widget>& widget : elements) {
         contentHeight += scaledGapSize;
-        // Note: We scale manually since there's no guarantee updateLayout()
+        // Note: We scale manually since there's no guarantee arrange()
         //       has ran already to update this widget's scaledExtent.
         contentHeight
             += ScalingHelpers::logicalToActual(widget->getLogicalExtent().h);
@@ -143,9 +153,9 @@ void VerticalListContainer::arrangeElementsTopToBottom(
         elementExtent.y += nextYOffset;
         elementExtent.y -= scrollDistance;
 
-        // Update the element, passing it the calculated start position.
-        elements[i]->updateLayout({elementExtent.x, elementExtent.y},
-                                  clippedExtent, widgetLocator);
+        // Arrange the element, passing it the calculated start position.
+        elements[i]->arrange({elementExtent.x, elementExtent.y}, clippedExtent,
+                             widgetLocator);
 
         // Update nextYOffset for the next element.
         nextYOffset += (elements[i]->getScaledExtent().h + scaledGapSize);
@@ -171,9 +181,9 @@ void VerticalListContainer::arrangeElementsBottomToTop(
         elementExtent.y -= nextYOffset;
         elementExtent.y += scrollDistance;
 
-        // Update the element, passing it the calculated start position.
-        elements[i]->updateLayout({elementExtent.x, elementExtent.y},
-                                  clippedExtent, widgetLocator);
+        // Arrange the element, passing it the calculated start position.
+        elements[i]->arrange({elementExtent.x, elementExtent.y}, clippedExtent,
+                             widgetLocator);
 
         // Add a gap for the next element.
         nextYOffset += scaledGapSize;

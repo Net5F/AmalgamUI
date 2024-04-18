@@ -3,7 +3,6 @@
 #include "AUI/Container.h"
 #include "AUI/Image.h"
 #include "AUI/Text.h"
-#include <functional>
 
 namespace AUI
 {
@@ -70,15 +69,6 @@ public:
     Text headerText;
 
     //-------------------------------------------------------------------------
-    // Callback registration
-    //-------------------------------------------------------------------------
-    /**
-     * @param inOnHeightChanged  A callback for when this container is expanded
-     *                           or collapsed.
-     */
-    void setOnHeightChanged(std::function<void(void)> inOnHeightChanged);
-
-    //-------------------------------------------------------------------------
     // Base class overrides
     //-------------------------------------------------------------------------
     void setLogicalExtent(const SDL_Rect& inLogicalExtent) override;
@@ -89,17 +79,17 @@ public:
     EventResult onMouseDoubleClick(MouseButtonType buttonType,
                                    const SDL_Point& cursorPosition) override;
 
-    void updateLayout(const SDL_Point& startPosition,
-                      const SDL_Rect& availableExtent,
-                      WidgetLocator* widgetLocator) override;
+    void measure(const SDL_Rect& availableExtent) override;
+
+    void arrange(const SDL_Point& startPosition,
+                 const SDL_Rect& availableExtent,
+                 WidgetLocator* widgetLocator) override;
 
 protected:
     /**
      * Calculates the height of this widget, if it was in an expanded state.
      */
     int calcExpandedHeight();
-
-    std::function<void(void)> onHeightChanged;
 
     /** The logical extent of the header. Used to return to the original size
         when this container goes from expanded to collapsed. */

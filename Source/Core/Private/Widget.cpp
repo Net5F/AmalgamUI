@@ -206,9 +206,21 @@ void Widget::onTick(double timestepS)
     }
 }
 
-void Widget::updateLayout(const SDL_Point& startPosition,
-                          const SDL_Rect& availableExtent,
-                          WidgetLocator* widgetLocator)
+void Widget::measure(const SDL_Rect&)
+{
+    // Give our children a chance to update their logical extent.
+    // Note: We skip invisible children since they won't be rendered or receive
+    //       events.
+    for (Widget& child : children) {
+        if (child.getIsVisible()) {
+            child.measure(logicalExtent);
+        }
+    }
+}
+
+void Widget::arrange(const SDL_Point& startPosition,
+                     const SDL_Rect& availableExtent,
+                     WidgetLocator* widgetLocator)
 {
     // Note: This logical -> clipped conversion should match ScalingHelpers::
     //       logicalToClipped(), but we don't use it because we need to save 
@@ -245,8 +257,8 @@ void Widget::updateLayout(const SDL_Point& startPosition,
     //       events.
     for (Widget& child : children) {
         if (child.getIsVisible()) {
-            child.updateLayout({fullExtent.x, fullExtent.y}, clippedExtent,
-                               widgetLocator);
+            child.arrange({fullExtent.x, fullExtent.y}, clippedExtent,
+                          widgetLocator);
         }
     }
 }

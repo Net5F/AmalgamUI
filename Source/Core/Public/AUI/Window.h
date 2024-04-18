@@ -65,13 +65,20 @@ public:
     bool containsWidget(const Widget* widget) const;
 
     /**
+     * Performs the measure pass.
+     *
+     * @post This window and all children have up-to-date logical extents.
+     */
+    virtual void measure();
+
+    /**
      * Clears the old widget positions from widgetLocator and performs the
-     * layout pass.
+     * arrange pass.
      *
      * @post This window and all children have up-to-date extents, and are
      *       added to this window's widgetLocator in the correct order.
      */
-    virtual void updateLayout();
+    virtual void arrange();
 
     /**
      * Renders this window to the current rendering target.
@@ -94,10 +101,10 @@ protected:
     WidgetLocator widgetLocator;
 
 private:
-    // We hide the Widget update/render implementations, because Windows have
+    // We hide the Widget arrange/render implementations, because Windows have
     // different needs. Specifically, they don't receive layout info from
     // their parent, and they own their widgetLocator.
-    using Widget::updateLayout;
+    using Widget::arrange;
     using Widget::render;
 };
 

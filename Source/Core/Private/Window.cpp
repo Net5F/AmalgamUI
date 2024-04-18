@@ -20,7 +20,18 @@ WidgetPath Window::getPathUnderWidget(const Widget* widget) const
     return widgetLocator.getPathUnderWidget(widget);
 }
 
-void Window::updateLayout()
+void Window::measure()
+{
+    // Note: We skip invisible children since they won't be rendered or receive
+    //       events.
+    for (Widget& child : children) {
+        if (child.getIsVisible()) {
+            child.measure(logicalExtent);
+        }
+    }
+}
+
+void Window::arrange()
 {
     // Scale our logicalExtent to get our scaledExtent.
     // Windows don't have a parent, so scaledExtent is their final extent in
@@ -43,8 +54,7 @@ void Window::updateLayout()
     // Add ourself to the locator.
     widgetLocator.addWidget(this);
 
-    // Update our visible children's layouts and let them add themselves to
-    // the locator.
+    // Arrange our visible children and let them add themselves to the locator.
     // Note: We skip invisible children since they won't be rendered or receive
     //       events.
     SDL_Rect availableExtent{scaledExtent};
@@ -52,7 +62,7 @@ void Window::updateLayout()
     availableExtent.y = 0;
     for (Widget& child : children) {
         if (child.getIsVisible()) {
-            child.updateLayout({0, 0}, availableExtent, &widgetLocator);
+            child.arrange({0, 0}, availableExtent, &widgetLocator);
         }
     }
 }

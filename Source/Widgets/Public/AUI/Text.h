@@ -184,12 +184,14 @@ public:
      */
     void setLogicalExtent(const SDL_Rect& inLogicalExtent) override;
 
+    void measure(const SDL_Rect& availableExtent) override;
+
     /**
-     * Calls Widget::updateLayout() and updates our special extents.
+     * Calls Widget::arrange() and updates our special extents.
      */
-    void updateLayout(const SDL_Point& startPosition,
-                      const SDL_Rect& availableExtent,
-                      WidgetLocator* widgetLocator) override;
+    void arrange(const SDL_Point& startPosition,
+                 const SDL_Rect& availableExtent,
+                 WidgetLocator* widgetLocator) override;
 
     void render(const SDL_Point& windowTopLeft) override;
 
@@ -270,6 +272,10 @@ private:
     /** If true, a property has been changed and the font texture must be
         re-rendered. */
     bool textureIsDirty;
+    
+    /** If true, this widget's extent or textureExtent has been changed and 
+        alignment must be refreshed. */
+    bool alignmentIsDirty;
 
     /** A deleter to use with fontTexture. */
     struct TextureDeleter {

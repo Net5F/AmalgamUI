@@ -367,17 +367,12 @@ void TextInput::onTick(double timestepS)
     Widget::onTick(timestepS);
 }
 
-void TextInput::updateLayout(const SDL_Point& startPosition,
-                             const SDL_Rect& availableExtent,
-                             WidgetLocator* widgetLocator)
+void TextInput::arrange(const SDL_Point& startPosition,
+                        const SDL_Rect& availableExtent,
+                        WidgetLocator* widgetLocator)
 {
-    // Do the normal layout updating.
-    Widget::updateLayout(startPosition, availableExtent, widgetLocator);
-
-    // If this widget is fully clipped, return early.
-    if (SDL_RectEmpty(&clippedExtent)) {
-        return;
-    }
+    // Run the normal arrange step.
+    Widget::arrange(startPosition, availableExtent, widgetLocator);
 
     // Refresh our cursor size.
     scaledCursorWidth = ScalingHelpers::logicalToActual(logicalCursorWidth);

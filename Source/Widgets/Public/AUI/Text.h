@@ -117,8 +117,6 @@ public:
     /**
      * If true, this widget's height will automatically grow or shrink to fit
      * its text.
-     * Note: If you need the height adjusted immediately (such as for content
-     *       size calculations), see refreshTexture().
      */
     void setAutoHeightEnabled(bool inAutoHeightEnabled);
 
@@ -145,10 +143,6 @@ public:
 
     /**
      * Re-renders the text texture, using all current property values.
-     *
-     * Note: If you're relying on auto height and need this widget's height
-     *       to be adjusted immediately, you can do so by calling this.
-     *       Otherwise, don't worry about it. It'll be handled automatically.
      */
     void refreshTexture();
 
@@ -270,7 +264,9 @@ private:
     ScreenResolution lastUsedScreenSize;
 
     /** If true, a property has been changed and the font texture must be
-        re-rendered. */
+        re-rendered.
+        Every time we refresh the font texture, alignmentIsDirty will be set 
+        to true (so if you want both to be done, you only need to set this). */
     bool textureIsDirty;
     
     /** If true, this widget's extent or textureExtent has been changed and 

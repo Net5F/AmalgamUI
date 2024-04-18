@@ -21,7 +21,7 @@ public:
     // Public interface
     //-------------------------------------------------------------------------
     TextButton(const SDL_Rect& inLogicalExtent,
-           const std::string& inDebugName = "TextButton");
+               const std::string& inDebugName = "TextButton");
 
     virtual ~TextButton() = default;
 
@@ -44,6 +44,12 @@ public:
      * Sets the text color for when this widget is disabled.
      */
     void setDisabledColor(const SDL_Color& color);
+
+    /**
+     * If true, this widget's height will automatically grow or shrink to fit
+     * its text.
+     */
+    void setAutoHeightEnabled(bool inAutoHeightEnabled);
 
     /**
      * Enables this button.
@@ -100,6 +106,11 @@ public:
 
     void onMouseLeave() override;
 
+    /**
+     * Resizes this widget to fit its text.
+     */
+    void measure(const SDL_Rect& availableExtent) override;
+
 protected:
     /**
      * Sets currentState and updates child widget visibility.
@@ -111,6 +122,10 @@ protected:
     SDL_Color hoveredColor;
     SDL_Color pressedColor;
     SDL_Color disabledColor;
+
+    /** If true, this widget's height will automatically grow or shrink to fit
+        its text. */
+    bool autoHeightEnabled;
 
     std::function<void(void)> onPressed;
     std::function<void(void)> onReleased;

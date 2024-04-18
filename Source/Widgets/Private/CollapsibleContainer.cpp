@@ -115,6 +115,10 @@ EventResult
 
 void CollapsibleContainer::measure(const SDL_Rect& availableExtent)
 {
+    // Run the normal measure step (doesn't affect us since we don't use the 
+    // children vector, but good to do in case of extension).
+    Widget::measure(availableExtent);
+
     // If we're expanded, set our height to fit our elements.
     if (!isCollapsed) {
         // Measure our elements, giving them infinite available height.
@@ -130,10 +134,6 @@ void CollapsibleContainer::measure(const SDL_Rect& availableExtent)
         // We're collapsed. Set our height to the header's height.
         logicalExtent.h = headerLogicalExtent.h;
     }
-
-    // Run the normal measure step (doesn't affect us since we don't use the 
-    // children vector, but good to do in case of extension).
-    Widget::measure(availableExtent);
 }
 
 void CollapsibleContainer::arrange(const SDL_Point& startPosition,

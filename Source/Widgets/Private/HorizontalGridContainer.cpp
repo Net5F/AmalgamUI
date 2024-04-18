@@ -62,16 +62,16 @@ EventResult HorizontalGridContainer::onMouseWheel(int amountScrolled)
 
 void HorizontalGridContainer::measure(const SDL_Rect& availableExtent)
 {
+    // Run the normal measure step (doesn't affect us since we don't use the 
+    // children vector, but good to do in case of extension).
+    Widget::measure(availableExtent);
+
     // Give our elements a chance to update their logical extent.
     for (auto& element : elements) {
         // Note: We measure/arrange all elements, even if they're invisible, 
         //       so we can get the rest of the elements offsets correct.
         element->measure(logicalExtent);
     }
-
-    // Run the normal measure step (doesn't affect us since we don't use the 
-    // children vector, but good to do in case of extension).
-    Widget::measure(availableExtent);
 }
 
 void HorizontalGridContainer::arrange(const SDL_Point& startPosition,

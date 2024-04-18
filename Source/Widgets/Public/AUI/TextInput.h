@@ -224,6 +224,10 @@ private:
     /** Tracks whether the text cursor should be drawn or not. */
     bool cursorIsVisible;
 
+    /** If true, the text has been modified or moved and our scroll offset
+        must be refreshed. */
+    bool isTextScrollOffsetDirty;
+
     /** The last text string that was committed to this text input.
         Text is committed on Enter key press or focus loss (click away),
         but text is reverted to this string on Escape key press. */

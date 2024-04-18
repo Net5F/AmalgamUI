@@ -17,11 +17,12 @@ Text::Text(const SDL_Rect& inLogicalExtent, const std::string& inDebugName)
 , renderMode{RenderMode::Blended}
 , wordWrapEnabled{true}
 , autoHeightEnabled{false}
-, text("Initialized")
+, text{"Initialized"}
 , verticalAlignment{VerticalAlignment::Top}
 , horizontalAlignment{HorizontalAlignment::Left}
 , lastUsedScreenSize{0, 0}
 , textureIsDirty{true}
+, alignmentIsDirty{true}
 , textTexture{nullptr}
 , textureExtent{}
 , textExtent{}
@@ -322,10 +323,6 @@ void Text::refreshScaling()
 
     // Re-render the text texture.
     refreshTexture();
-
-    // Refresh our alignment in case the extent has moved or the text has 
-    // changed.
-    alignmentIsDirty = true;
 }
 
 void Text::refreshAlignment()

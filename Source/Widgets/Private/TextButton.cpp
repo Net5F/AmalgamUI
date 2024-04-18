@@ -1,6 +1,7 @@
 #include "AUI/TextButton.h"
 #include "AUI/Screen.h"
 #include "AUI/Core.h"
+#include "AUI/ScalingHelpers.h"
 
 namespace AUI
 {
@@ -11,6 +12,7 @@ TextButton::TextButton(const SDL_Rect& inLogicalExtent, const std::string& inDeb
 , hoveredColor{255, 255, 255, 255}
 , pressedColor{0, 0, 0, 255}
 , disabledColor{0, 0, 0, 255}
+, autoHeightEnabled{false}
 , currentState{Button::State::Normal}
 {
     // Add our children so they're included in rendering, etc.
@@ -40,6 +42,11 @@ void TextButton::setDisabledColor(const SDL_Color& color)
 {
     disabledColor = color;
     setCurrentState(currentState);
+}
+
+void TextButton::setAutoHeightEnabled(bool inAutoHeightEnabled)
+{
+    autoHeightEnabled = inAutoHeightEnabled;
 }
 
 void TextButton::enable()
@@ -179,6 +186,18 @@ void TextButton::onMouseLeave()
     // and we know we aren't disabled. This must be an unhover or a release, 
     // so go to normal.
     setCurrentState(Button::State::Normal);
+}
+
+void TextButton::measure(const SDL_Rect& availableExtent)
+{
+    // Run the normal measure step (measures our children).
+    Widget::measure(availableExtent);
+
+    // If auto-height is enabled, set this widget's height to match the text.
+    if (autoHeightEnabled) {
+        logicalExtent.h
+            = ScalingHelpers::actualToLogical(text.getLogicalExtent().h);
+    }
 }
 
 void TextButton::setCurrentState(Button::State inState)

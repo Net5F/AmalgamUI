@@ -80,12 +80,12 @@ void ScrollArea::onTick(double timestepS)
 
 void ScrollArea::measure(const SDL_Rect& availableExtent)
 {
-    // Give our content widget a chance to update its logical extent.
-    content->measure(logicalExtent);
-
     // Run the normal measure step (doesn't affect us since we don't use the 
     // children vector, but good to do in case of extension).
     Widget::measure(availableExtent);
+
+    // Give our content widget a chance to update its logical extent.
+    content->measure(logicalExtent);
 }
 
 void ScrollArea::arrange(const SDL_Point& startPosition,

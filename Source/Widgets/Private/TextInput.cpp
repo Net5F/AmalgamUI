@@ -20,6 +20,7 @@ TextInput::TextInput(const SDL_Rect& inLogicalExtent,
 , scaledCursorWidth{ScalingHelpers::logicalToActual(logicalCursorWidth)}
 , cursorIndex{0}
 , cursorIsVisible{false}
+, isTextScrollOffsetDirty{false}
 , lastCommittedText{""}
 , text({0, 0, logicalExtent.w, logicalExtent.h})
 {
@@ -76,20 +77,20 @@ void TextInput::disable()
     cursorIndex = 0;
 
     // Refresh the text position to account for the change.
-    refreshTextScrollOffset();
+    isTextScrollOffsetDirty = true;
 }
 
 void TextInput::setPadding(Padding inLogicalPadding)
 {
     // Set the text widget to be the size of this widget, minus the
-    // margins.
+    // padding.
     text.setLogicalExtent(
         {inLogicalPadding.left, inLogicalPadding.top,
          (logicalExtent.w - inLogicalPadding.left - inLogicalPadding.right),
          (logicalExtent.h - inLogicalPadding.top - inLogicalPadding.bottom)});
 
     // Refresh the text position to account for the change.
-    refreshTextScrollOffset();
+    isTextScrollOffsetDirty = true;
 }
 
 void TextInput::setCursorColor(const SDL_Color& inCursorColor)
@@ -128,7 +129,7 @@ void TextInput::setText(std::string_view inText)
     cursorIndex = 0;
 
     // Refresh the text position to account for the change.
-    refreshTextScrollOffset();
+    isTextScrollOffsetDirty = true;
 }
 
 const std::string& TextInput::getText()
@@ -211,7 +212,7 @@ EventResult TextInput::onFocusGained()
     cursorIndex = text.asString().length();
 
     // Refresh the text position to account for the change.
-    refreshTextScrollOffset();
+    isTextScrollOffsetDirty = true;
 
     return EventResult{.wasHandled{true}};
 }
@@ -246,7 +247,7 @@ void TextInput::onFocusLost(FocusLostType focusLostType)
         cursorIndex = 0;
 
         // Refresh the text position to account for the change.
-        refreshTextScrollOffset();
+        isTextScrollOffsetDirty = true;
 
         // If a callback is registered, signal that the text was committed.
         if (onTextCommitted) {
@@ -332,7 +333,7 @@ EventResult TextInput::onTextInput(const std::string& inputText)
     cursorIndex += inputText.length();
 
     // Refresh the text position to account for the change.
-    refreshTextScrollOffset();
+    isTextScrollOffsetDirty = true;
 
     // Make the cursor visible and reset the blink time so it stays solid
     // while interacting.
@@ -374,6 +375,11 @@ void TextInput::arrange(const SDL_Point& startPosition,
     // Run the normal arrange step.
     Widget::arrange(startPosition, availableExtent, widgetLocator);
 
+    if (isTextScrollOffsetDirty) {
+        refreshTextScrollOffset();
+        isTextScrollOffsetDirty = false;
+    }
+
     // Refresh our cursor size.
     scaledCursorWidth = ScalingHelpers::logicalToActual(logicalCursorWidth);
 }
@@ -407,7 +413,7 @@ EventResult TextInput::handleBackspaceEvent()
         accumulatedBlinkTime = 0;
 
         // Refresh the text position to account for the change.
-        refreshTextScrollOffset();
+        isTextScrollOffsetDirty = true;
 
         // If a callback is registered, signal that the text was changed.
         if (onTextChanged) {
@@ -428,7 +434,7 @@ EventResult TextInput::handleDeleteEvent()
         accumulatedBlinkTime = 0;
 
         // Refresh the text position to account for the change.
-        refreshTextScrollOffset();
+        isTextScrollOffsetDirty = true;
 
         // If a callback is registered, signal that the the text was changed.
         if (onTextChanged) {
@@ -471,7 +477,7 @@ EventResult TextInput::handleCutEvent()
             cursorIndex = 0;
 
             // Refresh the text position to account for the change.
-            refreshTextScrollOffset();
+            isTextScrollOffsetDirty = true;
 
             // If a callback is registered, signal that the the text was
             // changed.
@@ -500,7 +506,7 @@ EventResult TextInput::handlePasteEvent()
             SDL_free(clipboardText);
 
             // Refresh the text position to account for the change.
-            refreshTextScrollOffset();
+            isTextScrollOffsetDirty = true;
 
             // If a callback is registered, signal that the the text was
             // changed.
@@ -520,7 +526,7 @@ EventResult TextInput::handleLeftEvent()
         cursorIndex--;
 
         // Refresh the text position to account for the change.
-        refreshTextScrollOffset();
+        isTextScrollOffsetDirty = true;
     }
 
     // Make the cursor visible and reset the blink time so it stays
@@ -538,7 +544,7 @@ EventResult TextInput::handleRightEvent()
         cursorIndex++;
 
         // Refresh the text position to account for the change.
-        refreshTextScrollOffset();
+        isTextScrollOffsetDirty = true;
     }
 
     // Make the cursor visible and reset the blink time so it stays
@@ -555,7 +561,7 @@ EventResult TextInput::handleHomeEvent()
     cursorIndex = 0;
 
     // Refresh the text position to account for the change.
-    refreshTextScrollOffset();
+    isTextScrollOffsetDirty = true;
 
     return EventResult{.wasHandled{true}};
 }
@@ -566,7 +572,7 @@ EventResult TextInput::handleEndEvent()
     cursorIndex = text.asString().length();
 
     // Refresh the text position to account for the change.
-    refreshTextScrollOffset();
+    isTextScrollOffsetDirty = true;
 
     return EventResult{.wasHandled{true}};
 }

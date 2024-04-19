@@ -105,6 +105,8 @@ public:
     //-------------------------------------------------------------------------
     // Base class overrides
     //-------------------------------------------------------------------------
+    void measure(const SDL_Rect& availableExtent);
+
     /**
      * Calls Widget::arrange() and refreshes the image if this widget's
      * scaledExtent changed.

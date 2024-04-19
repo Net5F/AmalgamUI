@@ -46,9 +46,6 @@ void Widget::setLogicalExtent(const SDL_Rect& inLogicalExtent)
     // Set our logical screen extent.
     logicalExtent = inLogicalExtent;
 
-    // Update our scaled extent.
-    scaledExtent = ScalingHelpers::logicalToActual(logicalExtent);
-
     // TODO: Invalidate the layout
 }
 
@@ -208,6 +205,9 @@ void Widget::onTick(double timestepS)
 
 void Widget::measure(const SDL_Rect&)
 {
+    // Scale our logicalExtent to get our scaledExtent.
+    scaledExtent = ScalingHelpers::logicalToActual(logicalExtent);
+
     // Give our children a chance to update their logical extent.
     // Note: We skip invisible children since they won't be rendered or receive
     //       events.
@@ -225,9 +225,6 @@ void Widget::arrange(const SDL_Point& startPosition,
     // Note: This logical -> clipped conversion should match ScalingHelpers::
     //       logicalToClipped(), but we don't use it because we need to save 
     //       all of the intermediate extents.
-
-    // Scale our logicalExtent to get our scaledExtent.
-    scaledExtent = ScalingHelpers::logicalToActual(logicalExtent);
 
     // Offset our scaledExtent to get our fullExtent.
     fullExtent = scaledExtent;

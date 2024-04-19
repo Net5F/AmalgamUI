@@ -67,8 +67,7 @@ EventResult VerticalListContainer::onMouseWheel(int amountScrolled)
 
 void VerticalListContainer::measure(const SDL_Rect& availableExtent)
 {
-    // Run the normal measure step (doesn't affect us since we don't use the 
-    // children vector, but good to do in case of extension).
+    // Run the normal measure step (sets our scaledExtent).
     Widget::measure(availableExtent);
 
     // Give our elements a chance to update their logical extent.
@@ -76,6 +75,23 @@ void VerticalListContainer::measure(const SDL_Rect& availableExtent)
         // Note: We measure/arrange all elements, even if they're invisible, 
         //       so we can get the rest of the elements offsets correct.
         element->measure(logicalExtent);
+    }
+
+    // Refresh the scroll height and gap size.
+    scaledScrollHeight = ScalingHelpers::logicalToActual(logicalScrollHeight);
+    scaledGapSize = ScalingHelpers::logicalToActual(logicalGapSize);
+
+    // If our content changed and is now shorter than this widget, reset the
+    // scroll distance.
+    int contentHeight{calcContentHeight()};
+    if (contentHeight < scaledExtent.h) {
+        // Content is shorter than widget, reset scroll distance.
+        scrollDistance = 0;
+    }
+    else if (int maxScrollDistance{contentHeight - scaledExtent.h};
+             scrollDistance > maxScrollDistance) {
+        // Scroll distance is too far (element was erased), clamp it back.
+        scrollDistance = std::clamp(scrollDistance, 0, maxScrollDistance);
     }
 }
 
@@ -91,23 +107,6 @@ void VerticalListContainer::arrange(const SDL_Point& startPosition,
     if (SDL_RectEmpty(&clippedExtent)) {
         return;
     }
-
-    // If our content changed and is now shorter than this widget, reset the
-    // scroll distance.
-    int contentHeight{calcContentHeight()};
-    if (contentHeight < scaledExtent.h) {
-        // Content is shorter than widget, reset scroll distance.
-        scrollDistance = 0;
-    }
-    else if (int maxScrollDistance{contentHeight - scaledExtent.h};
-             scrollDistance > maxScrollDistance) {
-        // Scroll distance is too far (element was erased), clamp it back.
-        scrollDistance = std::clamp(scrollDistance, 0, maxScrollDistance);
-    }
-
-    // Refresh the scroll height and gap size.
-    scaledScrollHeight = ScalingHelpers::logicalToActual(logicalScrollHeight);
-    scaledGapSize = ScalingHelpers::logicalToActual(logicalGapSize);
 
     // Lay out our elements in the appropriate direction.
     if (flowDirection == FlowDirection::TopToBottom) {

@@ -22,6 +22,12 @@ WidgetPath Window::getPathUnderWidget(const Widget* widget) const
 
 void Window::measure()
 {
+    // Scale our logicalExtent to get our scaledExtent.
+    // Windows don't have a parent, so scaledExtent is their final extent in
+    // the layout.
+    scaledExtent = ScalingHelpers::logicalToActual(logicalExtent);
+
+    // Give our children a chance to update their logical extent.
     // Note: We skip invisible children since they won't be rendered or receive
     //       events.
     for (Widget& child : children) {
@@ -33,11 +39,6 @@ void Window::measure()
 
 void Window::arrange()
 {
-    // Scale our logicalExtent to get our scaledExtent.
-    // Windows don't have a parent, so scaledExtent is their final extent in
-    // the layout.
-    scaledExtent = ScalingHelpers::logicalToActual(logicalExtent);
-
     // fullExtent and clippedExtent are window-relative, so we need to 0-out
     // their position. This is important for the locator to work correctly.
     fullExtent = scaledExtent;

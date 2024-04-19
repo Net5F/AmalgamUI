@@ -147,12 +147,7 @@ public:
 
     void onTick(double timestepS) override;
 
-    /**
-     * Calls Widget::arrange() and also updates scaledCursorWidth.
-     */
-    void arrange(const SDL_Point& startPosition,
-                 const SDL_Rect& availableExtent,
-                 WidgetLocator* widgetLocator) override;
+    void measure(const SDL_Rect& availableExtent);
 
     void render(const SDL_Point& windowTopLeft) override;
 

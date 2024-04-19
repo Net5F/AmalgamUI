@@ -67,6 +67,22 @@ void Image::setCustomImage(std::unique_ptr<ImageType> inImageType)
     imageType = std::move(inImageType);
 }
 
+void Image::measure(const SDL_Rect& availableExtent)
+{
+    // Run the normal measure step (sets our scaledExtent).
+    Widget::measure(availableExtent);
+
+    // If this widget's size has changed, refresh the image.
+    if (!SDL_RectEquals(&scaledExtent, &lastScaledExtent)) {
+        if (imageType != nullptr) {
+            // We do this in case it needs to regenerate to match the new size.
+            imageType->refresh(scaledExtent);
+        }
+
+        lastScaledExtent = scaledExtent;
+    }
+}
+
 void Image::arrange(const SDL_Point& startPosition,
                     const SDL_Rect& availableExtent,
                     WidgetLocator* widgetLocator)
@@ -77,18 +93,6 @@ void Image::arrange(const SDL_Point& startPosition,
     // If this widget is fully clipped, return early.
     if (SDL_RectEmpty(&clippedExtent)) {
         return;
-    }
-
-    // If this widget's size has changed.
-    if (!SDL_RectEquals(&scaledExtent, &lastScaledExtent)) {
-        // Refresh the image, in case it needs to regenerate to match the
-        // new size.
-        // Note: We can't do this in measure() since we need to use scaledExtent.
-        if (imageType != nullptr) {
-            imageType->refresh(scaledExtent);
-        }
-
-        lastScaledExtent = scaledExtent;
     }
 }
 

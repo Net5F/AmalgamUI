@@ -285,8 +285,8 @@ public:
     virtual void onTick(double timestepS);
 
     /**
-     * Gives the widget an opportunity to update its logical extent if 
-     * necessary.
+     * Gives the widget an opportunity to update its logicalExtent if 
+     * necessary, then scales it and sets scaledExtent.
      * 
      * @param availableExtent The available room for this widget to occupy, 
      *                        in logical space. 
@@ -297,6 +297,7 @@ public:
      *                        fit their parent.
      *
      * @post logicalExtent is up-to-date.
+     *       scaledExtent matches the current Core::actualScreenSize.
      */
     virtual void measure(const SDL_Rect& availableExtent);
 
@@ -312,8 +313,7 @@ public:
      * @param widgetLocator (If non-nullptr) The widget locator that this
      *                      widget should add itself to after updating.
      *
-     * @post scaledExtent matches the current Core::actualScreenSize.
-     *       fullExtent and clippedExtent are properly positioned.
+     * @post fullExtent and clippedExtent are properly positioned.
      *       clippedExtent is clipped to the given availableExtent and is ready
      *       for use in rendering and hit testing.
      */

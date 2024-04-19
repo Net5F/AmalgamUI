@@ -190,13 +190,14 @@ void TextButton::onMouseLeave()
 
 void TextButton::measure(const SDL_Rect& availableExtent)
 {
-    // Run the normal measure step (measures our children).
+    // Run the normal measure step (measures our children and sets our 
+    // scaledExtent).
     Widget::measure(availableExtent);
 
     // If auto-height is enabled, set this widget's height to match the text.
     if (autoHeightEnabled) {
-        logicalExtent.h
-            = ScalingHelpers::actualToLogical(text.getLogicalExtent().h);
+        logicalExtent.h = text.getLogicalExtent().h;
+        scaledExtent = ScalingHelpers::logicalToActual(logicalExtent);
     }
 }
 

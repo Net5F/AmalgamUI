@@ -61,9 +61,12 @@ EventResult VerticalGridContainer::onMouseWheel(int amountScrolled)
 
 void VerticalGridContainer::measure(const SDL_Rect& availableExtent)
 {
-    // Run the normal measure step (doesn't affect us since we don't use the 
-    // children vector, but good to do in case of extension).
+    // Run the normal measure step (sets our scaledExtent).
     Widget::measure(availableExtent);
+
+    // Refresh the cell width and height.
+    scaledCellWidth = ScalingHelpers::logicalToActual(logicalCellWidth);
+    scaledCellHeight = ScalingHelpers::logicalToActual(logicalCellHeight);
 
     // Give our elements a chance to update their logical extent.
     for (auto& element : elements) {
@@ -85,10 +88,6 @@ void VerticalGridContainer::arrange(const SDL_Point& startPosition,
     if (SDL_RectEmpty(&clippedExtent)) {
         return;
     }
-
-    // Refresh the cell width and height.
-    scaledCellWidth = ScalingHelpers::logicalToActual(logicalCellWidth);
-    scaledCellHeight = ScalingHelpers::logicalToActual(logicalCellHeight);
 
     // Lay out our elements in a vertical grid.
     for (std::size_t i = 0; i < elements.size(); ++i) {

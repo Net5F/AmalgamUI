@@ -368,20 +368,20 @@ void TextInput::onTick(double timestepS)
     Widget::onTick(timestepS);
 }
 
-void TextInput::arrange(const SDL_Point& startPosition,
-                        const SDL_Rect& availableExtent,
-                        WidgetLocator* widgetLocator)
+void TextInput::measure(const SDL_Rect& availableExtent)
 {
-    // Run the normal arrange step.
-    Widget::arrange(startPosition, availableExtent, widgetLocator);
-
-    if (isTextScrollOffsetDirty) {
-        refreshTextScrollOffset();
-        isTextScrollOffsetDirty = false;
-    }
+    // Run the normal measure step (sets our scaledExtent).
+    Widget::measure(availableExtent);
 
     // Refresh our cursor size.
     scaledCursorWidth = ScalingHelpers::logicalToActual(logicalCursorWidth);
+
+    // If the text scroll offset is dirty, refresh it.
+    // Note: This sets our child text widget's textOffset, which is used in its
+    //       arrange().
+    if (isTextScrollOffsetDirty) {
+        refreshTextScrollOffset();
+    }
 }
 
 void TextInput::render(const SDL_Point& windowTopLeft)
@@ -651,6 +651,8 @@ void TextInput::refreshTextScrollOffset()
 
     // Set the new offset.
     text.setTextOffset(textOffset);
+
+    isTextScrollOffsetDirty = false;
 }
 
 void TextInput::renderTextCursor(const SDL_Point& windowTopLeft)

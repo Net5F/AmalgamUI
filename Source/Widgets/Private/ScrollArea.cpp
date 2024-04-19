@@ -80,26 +80,15 @@ void ScrollArea::onTick(double timestepS)
 
 void ScrollArea::measure(const SDL_Rect& availableExtent)
 {
-    // Run the normal measure step (doesn't affect us since we don't use the 
-    // children vector, but good to do in case of extension).
+    // Run the normal measure step (sets our scaledExtent).
     Widget::measure(availableExtent);
 
     // Give our content widget a chance to update its logical extent.
     content->measure(logicalExtent);
-}
 
-void ScrollArea::arrange(const SDL_Point& startPosition,
-                         const SDL_Rect& availableExtent,
-                         WidgetLocator* widgetLocator)
-{
-    // Run the normal arrange step (will arrange us, but won't arrange our 
-    // content).
-    Widget::arrange(startPosition, availableExtent, widgetLocator);
-
-    // If this widget is fully clipped, return early.
-    if (SDL_RectEmpty(&clippedExtent)) {
-        return;
-    }
+    // Refresh the scroll step.
+    scaledScrollStepX = ScalingHelpers::logicalToActual(logicalScrollStepX);
+    scaledScrollStepY = ScalingHelpers::logicalToActual(logicalScrollStepY);
 
     // If our content changed and is now smaller than this widget, reset the
     // scroll distance.
@@ -123,10 +112,20 @@ void ScrollArea::arrange(const SDL_Point& startPosition,
         // Scroll distance is too far (element was erased), clamp it back.
         scrollDistanceY = std::clamp(scrollDistanceY, 0, maxScrollDistance);
     }
+}
 
-    // Refresh the scroll step.
-    scaledScrollStepX = ScalingHelpers::logicalToActual(logicalScrollStepX);
-    scaledScrollStepY = ScalingHelpers::logicalToActual(logicalScrollStepY);
+void ScrollArea::arrange(const SDL_Point& startPosition,
+                         const SDL_Rect& availableExtent,
+                         WidgetLocator* widgetLocator)
+{
+    // Run the normal arrange step (will arrange us, but won't arrange our 
+    // content).
+    Widget::arrange(startPosition, availableExtent, widgetLocator);
+
+    // If this widget is fully clipped, return early.
+    if (SDL_RectEmpty(&clippedExtent)) {
+        return;
+    }
 
     // Lay out our child content widget.
     if (content) {

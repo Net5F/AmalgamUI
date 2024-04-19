@@ -259,6 +259,16 @@ void Text::measure(const SDL_Rect& availableExtent)
         logicalExtent.h = ScalingHelpers::actualToLogical(textExtent.h);
         alignmentIsDirty = true;
     }
+
+    // Run the normal measure step (sets our scaledExtent).
+    // Note: This must be done after setting logicalExtent above.
+    Widget::measure(availableExtent);
+
+    // If the text alignment is dirty, refresh it.
+    // Note: This must be done after measure(), since it uses scaledExtent.
+    if (alignmentIsDirty) {
+        refreshAlignment();
+    }
 }
 
 void Text::arrange(const SDL_Point& startPosition,
@@ -271,13 +281,6 @@ void Text::arrange(const SDL_Point& startPosition,
     // If this widget is fully clipped, return early.
     if (SDL_RectEmpty(&clippedExtent)) {
         return;
-    }
-
-    // If the text alignment is dirty, refresh it.
-    // Note: We have to do this after Widget::arrange(), since it relies on 
-    //       scaledExtent.
-    if (alignmentIsDirty) {
-        refreshAlignment();
     }
 
     // Offset our textExtent to start at startPosition.

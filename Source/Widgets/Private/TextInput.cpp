@@ -34,8 +34,7 @@ TextInput::TextInput(const SDL_Rect& inLogicalExtent,
     // Flag ourselves as focusable, so we can receive keyboard events.
     isFocusable = true;
 
-    // Default to left-justifying the text within the button. The user can set
-    // it otherwise if they care to.
+    // Default to left-justifying the text within the button.
     text.setVerticalAlignment(AUI::Text::VerticalAlignment::Center);
     text.setHorizontalAlignment(AUI::Text::HorizontalAlignment::Left);
 

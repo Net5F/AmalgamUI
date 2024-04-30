@@ -15,11 +15,20 @@
     } while (false)
 
 #ifdef NDEBUG
+#define AUI_LOG_DEBUG(...)                                                         \
+    do {                                                                       \
+    } while (false)
+
 #define AUI_LOG_ERROR(...)                                                     \
     do {                                                                       \
         AUI::Log::error(__FILE__, __LINE__, __VA_ARGS__);                      \
     } while (false)
 #else
+#define AUI_LOG_DEBUG(...)                                                         \
+    do {                                                                       \
+        AM::Log::info(__VA_ARGS__);                                            \
+    } while (false)
+
 #define AUI_LOG_ERROR(...)                                                     \
     do {                                                                       \
         AUI::Log::error(__FILE__, __LINE__, __VA_ARGS__);                      \

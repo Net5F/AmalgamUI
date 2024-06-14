@@ -16,7 +16,7 @@ std::shared_ptr<SDL_Texture>
     SDL_Texture* rawTexture{
         IMG_LoadTexture(Core::getRenderer(), imagePath.c_str())};
     if (rawTexture == nullptr) {
-        AUI_LOG_FATAL("Failed to load texture: %s", imagePath.c_str());
+        AUI_LOG_ERROR("Failed to load texture: %s", imagePath.c_str());
     }
 
     // Wrap the texture in a shared_ptr.
@@ -47,7 +47,7 @@ std::shared_ptr<TTF_Font> AssetCache::requestFont(const std::string& fontPath,
     // Load the font.
     TTF_Font* rawFont{TTF_OpenFont(fontPath.c_str(), fontSize)};
     if (rawFont == nullptr) {
-        AUI_LOG_FATAL("Failed to load font: %s", fontPath.c_str());
+        AUI_LOG_ERROR("Failed to load font: %s", fontPath.c_str());
     }
 
     // Wrap the font in a shared_ptr.

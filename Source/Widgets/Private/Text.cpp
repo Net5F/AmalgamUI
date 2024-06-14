@@ -399,25 +399,28 @@ SDL_Surface* Text::getSurface(TTF_Font* font, const SDL_Color& fontColor,
     // set renderMode.
     SDL_Surface* surface{nullptr};
     if (wordWrapEnabled) {
+        // Note: We need to manually scale our width since it may not yet have 
+        //       been updated.
+        int scaledWidth{ScalingHelpers::logicalToActual(logicalExtent.w)};
         switch (renderMode) {
             case RenderMode::Solid:
                 surface = TTF_RenderUTF8_Solid_Wrapped(
-                    font, textToRender.data(), fontColor, scaledExtent.w);
+                    font, textToRender.data(), fontColor, scaledWidth);
                 break;
             case RenderMode::Shaded:
                 surface = TTF_RenderUTF8_Shaded_Wrapped(
                     font, textToRender.data(), fontColor, fontBackgroundColor,
-                    scaledExtent.w);
+                    scaledWidth);
                 break;
             case RenderMode::Blended:
                 surface = TTF_RenderUTF8_Blended_Wrapped(
-                    font, textToRender.data(), fontColor, scaledExtent.w);
+                    font, textToRender.data(), fontColor, scaledWidth);
                 break;
                 // Note: Removed because SDL_ttf on 22.04 doesn't support it.
                 // case RenderMode::LCD:
                 //    surface = TTF_RenderUTF8_LCD_Wrapped(
                 //        font, textToRender.data(), fontColor,
-                //        fontBackgroundColor, scaledExtent.w);
+                //        fontBackgroundColor, scaledWidth);
                 //    break;
         }
     }

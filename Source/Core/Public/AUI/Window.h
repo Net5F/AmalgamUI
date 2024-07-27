@@ -64,6 +64,7 @@ public:
      */
     bool containsWidget(const Widget* widget) const;
 
+    using Widget::measure;
     /**
      * Performs the measure pass.
      *

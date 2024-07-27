@@ -15,8 +15,8 @@ HorizontalGridContainer::HorizontalGridContainer(const SDL_Rect& inLogicalExtent
 , scaledCellWidth{ScalingHelpers::logicalToActual(logicalCellWidth)}
 , logicalCellHeight{LOGICAL_DEFAULT_CELL_WIDTH}
 , scaledCellHeight{ScalingHelpers::logicalToActual(logicalCellHeight)}
-, columnScroll{0}
 , isScrollingEnabled{true}
+, columnScroll{0}
 {
 }
 

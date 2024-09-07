@@ -6,10 +6,11 @@
 namespace AUI
 {
 Initializer::Initializer(SDL_Renderer* sdlRenderer,
-                         ScreenResolution logicalScreenSize)
+                         ScreenResolution logicalScreenSize,
+                         ScreenResolution actualScreenSize)
 {
     // Initialize AUI.
-    Core::initialize(sdlRenderer, logicalScreenSize);
+    Core::initialize(sdlRenderer, logicalScreenSize, actualScreenSize);
 }
 
 Initializer::~Initializer()

@@ -10,7 +10,7 @@ namespace AUI
  * Note: UI widgets exist in two spaces: logical and actual.
  *       Logical screen space is used for all developer-given widget
  *       measurements, and is relative to the value of Core::logicalScreenSize.
- *       Actual screen space is what's actually used in rendering to the
+ *       Actual screen space is what's used when actually rendering to the
  *       screen, and is relative to the value of Core::actualScreenSize.
  *
  *       The intent is that the developer will set a logical screen size and

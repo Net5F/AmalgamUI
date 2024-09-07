@@ -36,12 +36,14 @@ public:
      *
      * Alternatively, use the Initializer class.
      *
-     * @param inSdlRenderer  The renderer to use for constructing textures and
-     *                       rendering.
-     * @param inLogicalScreenSize  See ScalingHelpers.h class comment.
+     * @param inSdlRenderer The renderer to use for constructing textures and
+     *                      rendering.
+     * @param inLogicalScreenSize See ScalingHelpers.h class comment.
+     * @param inActualScreenSize See ScalingHelpers.h class comment.
      */
     static void initialize(SDL_Renderer* inSdlRenderer,
-                           ScreenResolution inLogicalScreenSize);
+                           ScreenResolution inLogicalScreenSize,
+                           ScreenResolution inActualScreenSize);
 
     /**
      * Cleans up this library and SDL_image/SDL_ttf.

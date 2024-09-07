@@ -19,11 +19,13 @@ class Initializer
 {
 public:
     /**
-     * @param sdlRenderer  The renderer to use for constructing textures and
-     *                     rendering.
-     * @param logicalScreenSize  See Core::setLogicalScreenSize().
+     * @param sdlRenderer The renderer to use for constructing textures and
+     *                    rendering.
+     * @param logicalScreenSize See ScalingHelpers.h class comment.
+     * @param actualScreenSize See ScalingHelpers.h class comment.
      */
-    Initializer(SDL_Renderer* sdlRenderer, ScreenResolution logicalScreenSize);
+    Initializer(SDL_Renderer* sdlRenderer, ScreenResolution logicalScreenSize,
+                ScreenResolution actualScreenSize);
 
     ~Initializer();
 };

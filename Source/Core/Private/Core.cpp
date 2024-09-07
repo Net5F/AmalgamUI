@@ -15,14 +15,15 @@ std::atomic<bool> Core::isTextInputFocused{false};
 std::atomic<int> Core::widgetCount{0};
 
 void Core::initialize(SDL_Renderer* inSdlRenderer,
-                      ScreenResolution inLogicalScreenSize)
+                      ScreenResolution inLogicalScreenSize,
+                      ScreenResolution inActualScreenSize)
 {
     sdlRenderer = inSdlRenderer;
     assetCache = std::make_unique<AssetCache>();
 
-    // Set the screen sizes. Default actual to the same as logical.
+    // Set the screen sizes.
     logicalScreenSize = inLogicalScreenSize;
-    actualScreenSize = inLogicalScreenSize;
+    actualScreenSize = inActualScreenSize;
 
     // Initialize SDL_img (safe to call if already initialized).
     IMG_Init(IMG_INIT_PNG | IMG_INIT_JPG);

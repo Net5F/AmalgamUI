@@ -5,22 +5,21 @@
 
 namespace AUI
 {
-void NineSliceImage::set(const std::string& imagePath, SliceSizes inSliceSizes,
+void NineSliceImage::set(const std::string& textureID, SliceSizes inSliceSizes,
                          const SDL_Rect& scaledExtent)
 {
-    // Attempt to load the image (errors on failure).
-    AssetCache& assetCache{Core::getAssetCache()};
-    sourceTexture = assetCache.requestTexture(imagePath);
+    // Attempt to load the image.
+    if (sourceTexture = Core::getAssetCache().requestTexture(textureID)) {
+        // Save the new slice sizes (will be used by the regenerate function).
+        sliceSizes = inSliceSizes;
 
-    // Save the new slice sizes (will be used by the regenerate function).
-    sliceSizes = inSliceSizes;
+        // We're going to generate a texture as large as the given extent.
+        currentTexExtent.w = scaledExtent.w;
+        currentTexExtent.h = scaledExtent.h;
 
-    // We're going to generate a texture as large as the given extent.
-    currentTexExtent.w = scaledExtent.w;
-    currentTexExtent.h = scaledExtent.h;
-
-    // Re-generate our nine slice texture.
-    regenerateNineSliceTexture();
+        // Re-generate our nine slice texture.
+        regenerateNineSliceTexture();
+    }
 }
 
 void NineSliceImage::refresh(const SDL_Rect& scaledExtent)

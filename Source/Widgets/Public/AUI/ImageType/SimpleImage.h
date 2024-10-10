@@ -19,22 +19,18 @@ public:
     /**
      * Sets the image that this widget will render.
      *
-     * Errors if the given path doesn't point to an image file.
-     *
-     * @param imagePath  The full path to the image file.
+     * @param textureID A user-defined ID (for manually added textures), or the
+     *                  full path to an image file.
      */
-    void set(const std::string& imagePath);
+    void set(const std::string& textureID);
 
     /**
      * Overload to specify texExtent. Use this if you only want to display a
      * portion of the texture.
      *
-     * Errors if the given path doesn't point to an image file.
-     *
-     * @param imagePath  The full path to the image file.
-     * @param inTexExtent  The extent within the texture to display.
+     * @param inTexExtent The extent within the texture to display.
      */
-    void set(const std::string& imagePath, const SDL_Rect& inTexExtent);
+    void set(const std::string& textureID, const SDL_Rect& inTexExtent);
 
     /**
      * Clears this image's current texture.

@@ -6,18 +6,19 @@
 namespace AUI
 {
 void MultiResImage::addResolution(const ScreenResolution& resolution,
-                                  const std::string& imagePath)
+                                  const std::string& textureID)
 {
     // If we already have the given resolution, fail.
     if (resolutionMap.find(resolution) != resolutionMap.end()) {
-        AUI_LOG_FATAL("Tried to add image resolution that is already in use. "
+        AUI_LOG_ERROR("Tried to add image resolution that is already in use. "
                       "Resolution: (%d, %d)",
                       resolution.width, resolution.height);
+        return;
     }
 
     // Start constructing the TextureData.
-    TextureData textureData;
-    textureData.imagePath = imagePath;
+    TextureData textureData{};
+    textureData.textureID = textureID;
     textureData.userProvidedExtent = false;
 
     // Add the resolution to the map.
@@ -28,11 +29,11 @@ void MultiResImage::addResolution(const ScreenResolution& resolution,
 }
 
 void MultiResImage::addResolution(const ScreenResolution& resolution,
-                                  const std::string& imagePath,
+                                  const std::string& textureID,
                                   const SDL_Rect& texExtent)
 {
     // Do all the same steps from the less specific overload.
-    addResolution(resolution, imagePath);
+    addResolution(resolution, textureID);
 
     // Set the texture extent to the given extent.
     resolutionMap[resolution].extent = texExtent;
@@ -78,18 +79,18 @@ void MultiResImage::refreshChosenResolution()
         selectedTextureData = &(largestIt->second);
     }
 
-    // Attempt to load the matching image (errors on failure).
-    AssetCache& assetCache{Core::getAssetCache()};
-    currentTexture = assetCache.requestTexture(selectedTextureData->imagePath);
-
-    // If the user provided an extent, use it.
-    if (selectedTextureData->userProvidedExtent) {
-        currentTexExtent = selectedTextureData->extent;
-    }
-    else {
-        // No user-provided extent, use the actual texture size.
-        SDL_QueryTexture(currentTexture.get(), nullptr, nullptr,
-                         &(currentTexExtent.w), &(currentTexExtent.h));
+    // Attempt to load the matching image.
+    if (currentTexture = Core::getAssetCache().requestTexture(
+            selectedTextureData->textureID)) {
+        // If the user provided an extent, use it.
+        if (selectedTextureData->userProvidedExtent) {
+            currentTexExtent = selectedTextureData->extent;
+        }
+        else {
+            // No user-provided extent, use the actual texture size.
+            SDL_QueryTexture(currentTexture.get(), nullptr, nullptr,
+                             &(currentTexExtent.w), &(currentTexExtent.h));
+        }
     }
 }
 

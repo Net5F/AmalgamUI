@@ -15,41 +15,42 @@ Image::Image(const SDL_Rect& inLogicalExtent, const std::string& inDebugName)
 {
 }
 
-void Image::setSimpleImage(const std::string& imagePath)
+void Image::setSimpleImage(const std::string& textureID)
 {
     imageType = std::make_unique<SimpleImage>();
     SimpleImage* simpleImage{static_cast<SimpleImage*>(imageType.get())};
-    simpleImage->set(imagePath);
+    simpleImage->set(textureID);
 }
 
-void Image::setSimpleImage(const std::string& imagePath, SDL_Rect texExtent)
+void Image::setSimpleImage(const std::string& textureID, SDL_Rect texExtent)
 {
     imageType = std::make_unique<SimpleImage>();
     SimpleImage* simpleImage{static_cast<SimpleImage*>(imageType.get())};
-    simpleImage->set(imagePath, texExtent);
+    simpleImage->set(textureID, texExtent);
 }
 
-void Image::setNineSliceImage(const std::string& imagePath,
+void Image::setNineSliceImage(const std::string& textureID,
                               NineSliceImage::SliceSizes sliceSizes)
 {
     imageType = std::make_unique<NineSliceImage>();
     NineSliceImage* nineSliceImage{
         static_cast<NineSliceImage*>(imageType.get())};
-    nineSliceImage->set(imagePath, sliceSizes, scaledExtent);
+    nineSliceImage->set(textureID, sliceSizes, scaledExtent);
 }
 
-void Image::setMultiResImage(const std::vector<MultiResImageInfo>& imageInfo)
+void Image::setMultiResImage(
+    const std::vector<MultiResImagePathInfo>& imageInfo)
 {
     imageType = std::make_unique<MultiResImage>();
     MultiResImage* multiResImage{static_cast<MultiResImage*>(imageType.get())};
 
-    for (const MultiResImageInfo& info : imageInfo) {
+    for (const MultiResImagePathInfo& info : imageInfo) {
         if ((info.texExtent.x == 0) && (info.texExtent.y == 0)
             && (info.texExtent.w == 0) && (info.texExtent.h == 0)) {
-            multiResImage->addResolution(info.resolution, info.imagePath);
+            multiResImage->addResolution(info.resolution, info.textureID);
         }
         else {
-            multiResImage->addResolution(info.resolution, info.imagePath,
+            multiResImage->addResolution(info.resolution, info.textureID,
                                          info.texExtent);
         }
     }
@@ -65,6 +66,65 @@ void Image::setTiledImage(const std::string& imagePath)
 void Image::setCustomImage(std::unique_ptr<ImageType> inImageType)
 {
     imageType = std::move(inImageType);
+}
+
+void Image::setSimpleImage(SDL_Texture* texture, const std::string& textureID)
+{
+    Core::getAssetCache().addTexture(texture, textureID);
+
+    imageType = std::make_unique<SimpleImage>();
+    SimpleImage* simpleImage{static_cast<SimpleImage*>(imageType.get())};
+    simpleImage->set(textureID);
+}
+
+void Image::setSimpleImage(SDL_Texture* texture, const std::string& textureID,
+                           SDL_Rect texExtent)
+{
+    Core::getAssetCache().addTexture(texture, textureID);
+
+    imageType = std::make_unique<SimpleImage>();
+    SimpleImage* simpleImage{static_cast<SimpleImage*>(imageType.get())};
+    simpleImage->set(textureID, texExtent);
+}
+
+void Image::setNineSliceImage(SDL_Texture* texture,
+                              const std::string& textureID,
+                              NineSliceImage::SliceSizes inSliceSizes)
+{
+    Core::getAssetCache().addTexture(texture, textureID);
+
+    imageType = std::make_unique<NineSliceImage>();
+    NineSliceImage* nineSliceImage{
+        static_cast<NineSliceImage*>(imageType.get())};
+    nineSliceImage->set(textureID, inSliceSizes, scaledExtent);
+}
+
+void Image::setMultiResImage(
+    const std::vector<MultiResImageTextureInfo>& imageInfo)
+{
+    imageType = std::make_unique<MultiResImage>();
+    MultiResImage* multiResImage{static_cast<MultiResImage*>(imageType.get())};
+
+    for (const MultiResImageTextureInfo& info : imageInfo) {
+        Core::getAssetCache().addTexture(info.texture, info.textureID);
+        if ((info.texExtent.x == 0) && (info.texExtent.y == 0)
+            && (info.texExtent.w == 0) && (info.texExtent.h == 0)) {
+            multiResImage->addResolution(info.resolution, info.textureID);
+        }
+        else {
+            multiResImage->addResolution(info.resolution, info.textureID,
+                                         info.texExtent);
+        }
+    }
+}
+
+void Image::setTiledImage(SDL_Texture* texture, const std::string& textureID)
+{
+    Core::getAssetCache().addTexture(texture, textureID);
+
+    imageType = std::make_unique<TiledImage>();
+    TiledImage* tiledImage{static_cast<TiledImage*>(imageType.get())};
+    tiledImage->set(textureID, scaledExtent);
 }
 
 void Image::measure(const SDL_Rect& availableExtent)

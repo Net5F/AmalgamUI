@@ -5,18 +5,18 @@
 
 namespace AUI
 {
-void TiledImage::set(const std::string& imagePath, const SDL_Rect& scaledExtent)
+void TiledImage::set(const std::string& textureID,
+                     const SDL_Rect& scaledExtent)
 {
-    // Attempt to load the image (errors on failure).
-    AssetCache& assetCache{Core::getAssetCache()};
-    sourceTexture = assetCache.requestTexture(imagePath);
+    // Attempt to load the image.
+    if (sourceTexture = Core::getAssetCache().requestTexture(textureID)) {
+        // We're going to generate a texture as large as the given extent.
+        currentTexExtent.w = scaledExtent.w;
+        currentTexExtent.h = scaledExtent.h;
 
-    // We're going to generate a texture as large as the given extent.
-    currentTexExtent.w = scaledExtent.w;
-    currentTexExtent.h = scaledExtent.h;
-
-    // Re-generate our tiled texture.
-    regenerateTiledTexture();
+        // Re-generate our tiled texture.
+        regenerateTiledTexture();
+    }
 }
 
 void TiledImage::refresh(const SDL_Rect& scaledExtent)

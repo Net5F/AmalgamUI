@@ -35,11 +35,12 @@ public:
     /**
      * Sets the image that this widget will slice and render.
      *
-     * @param imagePath  The full path to the image file.
-     * @param sliceSizes  How far to slice into the image, in each direction.
-     * @param scaledExtent  The desired size of the generated texture.
+     * @param textureID A user-defined ID (for textures added using 
+     *                  addTexture()), or the full path to an image file.
+     * @param inSliceSizes How far to slice into the image, in each direction.
+     * @param scaledExtent The desired size of the generated texture.
      */
-    void set(const std::string& imagePath, SliceSizes sliceSizes,
+    void set(const std::string& textureID, SliceSizes inSliceSizes,
              const SDL_Rect& scaledExtent);
 
     /**

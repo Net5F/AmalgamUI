@@ -11,7 +11,8 @@ namespace AUI
  * Supports vertical scrolling with the mouse wheel.
  *
  * TODO: After scrolling, our elements still have hover states based on their 
- *       pre-scroll positions. We need to find a way to update them.
+ *       pre-scroll positions. If possible, finding a way to update them would 
+ *       be nice.
  */
 class ScrollArea : public Widget
 {

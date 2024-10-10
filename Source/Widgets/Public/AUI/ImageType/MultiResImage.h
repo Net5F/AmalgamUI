@@ -35,24 +35,26 @@ public:
      * Errors if the given path doesn't point to an image file, or the given
      * resolution is already in use.
      *
-     * @param resolution  The actual screen resolution that this texture
-     *                    should be used for.
-     * @param imagePath  The full path to the image file.
+     * @param resolution The actual screen resolution that this texture
+     *                   should be used for.
+     * @param textureID A user-defined ID (for manually added textures), or the
+     *                  full path to an image file.
      */
     void addResolution(const ScreenResolution& resolution,
-                       const std::string& imagePath);
+                       const std::string& textureID);
 
     /**
      * Overload to specify texExtent. Used if you only want to display a
      * portion of the texture.
      *
-     * @param resolution  The actual screen resolution that this texture
-     *                    should be used for.
-     * @param imagePath  The full path to the image file.
-     * @param inTexExtent  The extent within the texture to display.
+     * @param resolution The actual screen resolution that this texture
+     *                   should be used for.
+     * @param textureID A user-defined ID (for manually added textures), or the
+     *                  full path to an image file.
+     * @param inTexExtent The extent within the texture to display.
      */
     void addResolution(const ScreenResolution& resolution,
-                       const std::string& imagePath, const SDL_Rect& texExtent);
+                       const std::string& textureID, const SDL_Rect& texExtent);
 
     /**
      * Clears this image's current texture and the textures in its
@@ -76,8 +78,9 @@ private:
      * The data needed to render an image's texture.
      */
     struct TextureData {
-        /** The full path to the image file. */
-        std::string imagePath;
+        /** A user-defined ID (for manually added textures), or the full path 
+            to an image file. */
+        std::string textureID;
 
         /** If true, the user gave us an extent to use. If false, we'll
             use the full texture. */

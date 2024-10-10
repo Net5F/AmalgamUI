@@ -27,12 +27,26 @@ public:
     // Note: We use const std::string& instead of std::string_view because we
     //       need to pass C strings into the SDL APIs.
     /**
-     * If a texture associated with the given path is in the cache, returns it.
-     * If not, loads it and adds it to the cache, then returns it.
+     * If a texture with the given ID is in the cache, returns it.
+     * If not and the ID is a valid file path to an image, adds the image to 
+     * the cache and returns it.
      *
-     * @param imagePath The full path to the image file.
+     * @param textureID A user-defined ID (for textures added using 
+     *                  addTexture()), or the full path to an image file.
+     * @return A valid texture if one was found, else nullptr.
      */
-    std::shared_ptr<SDL_Texture> requestTexture(const std::string& imagePath);
+    std::shared_ptr<SDL_Texture> requestTexture(const std::string& textureID);
+
+    /**
+     * Adds the given texture to the cache, using the given ID.
+     * If a texture already exists with the given ID, it will be overwritten.
+     *
+     * Note: Ownership of the texture will be taken. Do not free it.
+     *
+     * @return A valid texture.
+     */
+    std::shared_ptr<SDL_Texture> addTexture(SDL_Texture* inTexture,
+                                            const std::string& textureID);
 
     /**
      * If a font associated with the given path and size is in the cache,

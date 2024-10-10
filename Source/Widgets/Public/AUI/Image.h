@@ -49,34 +49,37 @@ public:
      *
      * Errors if the given path doesn't point to an image file.
      *
-     * @param imagePath  The full path to the image file.
+     * @param textureID A user-defined ID (for manually added textures), or the
+     *                  full path to an image file.
      */
-    void setSimpleImage(const std::string& imagePath);
+    void setSimpleImage(const std::string& textureID);
 
     /**
      * Overload to specify texExtent. Use this if you only want to display a
      * portion of the image.
      *
-     * @param inTexExtent  The extent within the texture to display.
+     * @param inTexExtent The extent within the texture to display.
      */
-    void setSimpleImage(const std::string& imagePath, SDL_Rect texExtent);
+    void setSimpleImage(const std::string& textureID, SDL_Rect texExtent);
 
     /**
      * Sets this widget to render a NineSliceImage (see class comment).
      *
      * Errors if the given path doesn't point to an image file.
      *
-     * @param imagePath  The full path to the image file.
-     * @param sliceSizes  How far to slice into the image, in each direction.
+     * @param textureID A user-defined ID (for manually added textures), or the
+     *                  full path to an image file.
+     * @param sliceSizes How far to slice into the image, in each direction.
      */
-    void setNineSliceImage(const std::string& imagePath,
+    void setNineSliceImage(const std::string& textureID,
                            NineSliceImage::SliceSizes inSliceSizes);
 
-    struct MultiResImageInfo {
+    struct MultiResImagePathInfo {
         /** The screen resolution that this texture should be used for. */
         ScreenResolution resolution{};
-        /** The full path to the image file. */
-        std::string imagePath{};
+        /** A user-defined ID (for manually added textures), or the full path 
+            to an image file. */
+        std::string textureID{};
         /** The extent within the texture to display. If left default, the
             full image texture will be used. */
         SDL_Rect texExtent{};
@@ -86,21 +89,54 @@ public:
      *
      * Errors if any given path doesn't point to an image file.
      */
-    void setMultiResImage(const std::vector<MultiResImageInfo>& imageInfo);
+    void setMultiResImage(const std::vector<MultiResImagePathInfo>& imageInfo);
 
     /**
      * Sets this widget to render a TiledImage (see class comment).
      *
      * Errors if the given path doesn't point to an image file.
      *
-     * @param imagePath  The full path to the image file.
+     * @param textureID A user-defined ID (for manually added textures), or the
+     *                  full path to an image file.
      */
-    void setTiledImage(const std::string& imagePath);
+    void setTiledImage(const std::string& textureID);
 
     /**
      * Sets this widget to render the given custom image type.
      */
     void setCustomImage(std::unique_ptr<ImageType> inImageType);
+
+    struct MultiResImageTextureInfo {
+        /** The screen resolution that this texture should be used for. */
+        ScreenResolution resolution{};
+        /** The image texture to take ownership of. */
+        SDL_Texture* texture{nullptr};
+        /** The ID to associate with the given texture in the asset cache. */
+        const std::string& textureID{};
+        /** The extent within the texture to display. If left default, the
+            full image texture will be used. */
+        SDL_Rect texExtent{};
+    };
+    /**
+     * Overload that uses the given texture.
+     *
+     * Note: Ownership of the texture will be taken. Do not free it.
+     * Note: These are just for convenience. You can do the same thing by 
+     *       calling AUI::Core::getAssetCache().addTexture() before using the 
+     *       regular setters.
+     *
+     * @param texture The image texture to take ownership of.
+     * @param textureID The ID to associate with the given texture in the 
+     *                  asset cache.
+     */
+    void setSimpleImage(SDL_Texture* texture, const std::string& textureID);
+    void setSimpleImage(SDL_Texture* texture, const std::string& textureID,
+                        SDL_Rect texExtent);
+    void setNineSliceImage(SDL_Texture* texture, const std::string& textureID,
+                           NineSliceImage::SliceSizes inSliceSizes);
+    void setMultiResImage(
+        const std::vector<MultiResImageTextureInfo>& imageInfo);
+    void setTiledImage(SDL_Texture* texture, const std::string& textureID);
 
     //-------------------------------------------------------------------------
     // Base class overrides

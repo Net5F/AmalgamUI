@@ -56,9 +56,12 @@ bool EventRouter::handleMouseButtonDown(SDL_MouseButtonEvent& event)
         Widget* currentFocusedWidget{getFocusedWidget()};
         if (previousFocusedWidget == currentFocusedWidget) {
             // Try to set focus to a widget in the path.
-            if (!setFocusIfFocusable(truncatedPath)) {
-                // Nothing in truncatedPath took focus. We didn't re-click the
-                // focused widget (if there is one), so we need to drop it.
+            // Note: The event must be handled for a widget to gain focus.
+            if ((!returnData.eventWasHandled)
+                || !setFocusIfFocusable(truncatedPath)) {
+                // Event wasn't handled or nothing in truncatedPath took focus.
+                // We didn't re-click the focused widget (if there is one), so 
+                // we need to drop it.
                 dropFocus(FocusLostType::Click);
             }
         }

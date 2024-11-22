@@ -52,7 +52,7 @@ void Button::disable()
     setCurrentState(State::Disabled);
 }
 
-Button::State Button::getCurrentState()
+Button::State Button::getCurrentState() const
 {
     return currentState;
 }

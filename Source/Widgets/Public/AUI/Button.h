@@ -44,7 +44,7 @@ public:
      */
     void disable();
 
-    State getCurrentState();
+    State getCurrentState() const;
 
     //-------------------------------------------------------------------------
     // Public child widgets

@@ -15,18 +15,20 @@ Image::Image(const SDL_Rect& inLogicalExtent, const std::string& inDebugName)
 {
 }
 
-void Image::setSimpleImage(const std::string& textureID)
+void Image::setSimpleImage(const std::string& textureID,
+                           SDL_ScaleMode scaleMode)
 {
     imageType = std::make_unique<SimpleImage>();
     SimpleImage* simpleImage{static_cast<SimpleImage*>(imageType.get())};
-    simpleImage->set(textureID);
+    simpleImage->set(textureID, scaleMode);
 }
 
-void Image::setSimpleImage(const std::string& textureID, SDL_Rect texExtent)
+void Image::setSimpleImage(const std::string& textureID, SDL_Rect texExtent,
+                           SDL_ScaleMode scaleMode)
 {
     imageType = std::make_unique<SimpleImage>();
     SimpleImage* simpleImage{static_cast<SimpleImage*>(imageType.get())};
-    simpleImage->set(textureID, texExtent);
+    simpleImage->set(textureID, texExtent, scaleMode);
 }
 
 void Image::setNineSliceImage(const std::string& textureID,
@@ -47,11 +49,12 @@ void Image::setMultiResImage(
     for (const MultiResImagePathInfo& info : imageInfo) {
         if ((info.texExtent.x == 0) && (info.texExtent.y == 0)
             && (info.texExtent.w == 0) && (info.texExtent.h == 0)) {
-            multiResImage->addResolution(info.resolution, info.textureID);
+            multiResImage->addResolution(info.resolution, info.textureID,
+                                         info.scaleMode);
         }
         else {
             multiResImage->addResolution(info.resolution, info.textureID,
-                                         info.texExtent);
+                                         info.texExtent, info.scaleMode);
         }
     }
 }
@@ -68,23 +71,24 @@ void Image::setCustomImage(std::unique_ptr<ImageType> inImageType)
     imageType = std::move(inImageType);
 }
 
-void Image::setSimpleImage(SDL_Texture* texture, const std::string& textureID)
+void Image::setSimpleImage(SDL_Texture* texture, const std::string& textureID,
+                           SDL_ScaleMode scaleMode)
 {
     Core::getAssetCache().addTexture(texture, textureID);
 
     imageType = std::make_unique<SimpleImage>();
     SimpleImage* simpleImage{static_cast<SimpleImage*>(imageType.get())};
-    simpleImage->set(textureID);
+    simpleImage->set(textureID, scaleMode);
 }
 
 void Image::setSimpleImage(SDL_Texture* texture, const std::string& textureID,
-                           SDL_Rect texExtent)
+                           SDL_Rect texExtent, SDL_ScaleMode scaleMode)
 {
     Core::getAssetCache().addTexture(texture, textureID);
 
     imageType = std::make_unique<SimpleImage>();
     SimpleImage* simpleImage{static_cast<SimpleImage*>(imageType.get())};
-    simpleImage->set(textureID, texExtent);
+    simpleImage->set(textureID, texExtent, scaleMode);
 }
 
 void Image::setNineSliceImage(SDL_Texture* texture,
@@ -109,11 +113,12 @@ void Image::setMultiResImage(
         Core::getAssetCache().addTexture(info.texture, info.textureID);
         if ((info.texExtent.x == 0) && (info.texExtent.y == 0)
             && (info.texExtent.w == 0) && (info.texExtent.h == 0)) {
-            multiResImage->addResolution(info.resolution, info.textureID);
+            multiResImage->addResolution(info.resolution, info.textureID,
+                                         info.scaleMode);
         }
         else {
             multiResImage->addResolution(info.resolution, info.textureID,
-                                         info.texExtent);
+                                         info.texExtent, info.scaleMode);
         }
     }
 }

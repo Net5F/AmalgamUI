@@ -39,9 +39,12 @@ public:
      *                   should be used for.
      * @param textureID A user-defined ID (for manually added textures), or the
      *                  full path to an image file.
+     * @param scaleMode The filtering/scaling mode that this texture should use 
+     *                  ("nearest" by default, to maximize sharpness).
      */
     void addResolution(const ScreenResolution& resolution,
-                       const std::string& textureID);
+                       const std::string& textureID,
+                       SDL_ScaleMode scaleMode = SDL_ScaleModeNearest);
 
     /**
      * Overload to specify texExtent. Used if you only want to display a
@@ -52,9 +55,12 @@ public:
      * @param textureID A user-defined ID (for manually added textures), or the
      *                  full path to an image file.
      * @param inTexExtent The extent within the texture to display.
+     * @param scaleMode The filtering/scaling mode that this texture should use 
+     *                  ("nearest" by default, to maximize sharpness).
      */
     void addResolution(const ScreenResolution& resolution,
-                       const std::string& textureID, const SDL_Rect& texExtent);
+                       const std::string& textureID, const SDL_Rect& texExtent,
+                       SDL_ScaleMode scaleMode = SDL_ScaleModeNearest);
 
     /**
      * Clears this image's current texture and the textures in its
@@ -89,6 +95,9 @@ private:
         /** If userProvidedExtent is true, holds the extent of the desired
             image within the texture. */
         SDL_Rect extent{};
+
+        /** The filtering/scaling mode to use for this texture. */
+        SDL_ScaleMode scaleMode{};
     };
 
     /** Maps screen resolutions to the data that should be used to display this

@@ -51,16 +51,22 @@ public:
      *
      * @param textureID A user-defined ID (for manually added textures), or the
      *                  full path to an image file.
+     * @param scaleMode The filtering/scaling mode that this texture should use 
+     *                  ("nearest" by default, to maximize sharpness).
      */
-    void setSimpleImage(const std::string& textureID);
+    void setSimpleImage(const std::string& textureID,
+                        SDL_ScaleMode scaleMode = SDL_ScaleModeNearest);
 
     /**
      * Overload to specify texExtent. Use this if you only want to display a
      * portion of the image.
      *
      * @param inTexExtent The extent within the texture to display.
+     * @param scaleMode The filtering/scaling mode that this texture should use 
+     *                  ("nearest" by default, to maximize sharpness).
      */
-    void setSimpleImage(const std::string& textureID, SDL_Rect texExtent);
+    void setSimpleImage(const std::string& textureID, SDL_Rect texExtent,
+                        SDL_ScaleMode scaleMode = SDL_ScaleModeNearest);
 
     /**
      * Sets this widget to render a NineSliceImage (see class comment).
@@ -83,6 +89,9 @@ public:
         /** The extent within the texture to display. If left default, the
             full image texture will be used. */
         SDL_Rect texExtent{};
+        /** The filtering/scaling mode to use for this texture ("nearest" by 
+            default, to maximize sharpness). */
+        SDL_ScaleMode scaleMode{SDL_ScaleModeNearest};
     };
     /**
      * Sets this widget to render a MultiResImage (see class comment).
@@ -116,6 +125,9 @@ public:
         /** The extent within the texture to display. If left default, the
             full image texture will be used. */
         SDL_Rect texExtent{};
+        /** The filtering/scaling mode to use for this texture ("nearest" by 
+            default, to maximize sharpness). */
+        SDL_ScaleMode scaleMode{SDL_ScaleModeNearest};
     };
     /**
      * Overload that uses the given texture.
@@ -129,9 +141,11 @@ public:
      * @param textureID The ID to associate with the given texture in the 
      *                  asset cache.
      */
-    void setSimpleImage(SDL_Texture* texture, const std::string& textureID);
     void setSimpleImage(SDL_Texture* texture, const std::string& textureID,
-                        SDL_Rect texExtent);
+                        SDL_ScaleMode scaleMode = SDL_ScaleModeNearest);
+    void setSimpleImage(SDL_Texture* texture, const std::string& textureID,
+                        SDL_Rect texExtent,
+                        SDL_ScaleMode scaleMode = SDL_ScaleModeNearest);
     void setNineSliceImage(SDL_Texture* texture, const std::string& textureID,
                            NineSliceImage::SliceSizes inSliceSizes);
     void setMultiResImage(

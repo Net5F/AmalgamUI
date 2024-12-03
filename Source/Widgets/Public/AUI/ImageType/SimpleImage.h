@@ -21,16 +21,22 @@ public:
      *
      * @param textureID A user-defined ID (for manually added textures), or the
      *                  full path to an image file.
+     * @param scaleMode The filtering/scaling mode that this texture should use 
+     *                  ("nearest" by default, to maximize sharpness).
      */
-    void set(const std::string& textureID);
+    void set(const std::string& textureID,
+             SDL_ScaleMode scaleMode = SDL_ScaleModeNearest);
 
     /**
      * Overload to specify texExtent. Use this if you only want to display a
      * portion of the texture.
      *
      * @param inTexExtent The extent within the texture to display.
+     * @param scaleMode The filtering/scaling mode that this texture should use 
+     *                  ("nearest" by default, to maximize sharpness).
      */
-    void set(const std::string& textureID, const SDL_Rect& inTexExtent);
+    void set(const std::string& textureID, const SDL_Rect& inTexExtent,
+             SDL_ScaleMode scaleMode = SDL_ScaleModeNearest);
 
     /**
      * Clears this image's current texture.

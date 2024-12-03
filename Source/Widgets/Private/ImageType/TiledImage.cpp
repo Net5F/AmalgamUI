@@ -9,7 +9,10 @@ void TiledImage::set(const std::string& textureID,
                      const SDL_Rect& scaledExtent)
 {
     // Attempt to load the image.
-    if (sourceTexture = Core::getAssetCache().requestTexture(textureID)) {
+    // Note: We assume that tiled textures will want to use "nearest" scaling 
+    //       to maintain sharpness.
+    if (sourceTexture = Core::getAssetCache().requestTexture(
+            textureID, SDL_ScaleModeNearest)) {
         // We're going to generate a texture as large as the given extent.
         currentTexExtent.w = scaledExtent.w;
         currentTexExtent.h = scaledExtent.h;

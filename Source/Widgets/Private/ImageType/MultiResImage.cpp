@@ -6,7 +6,8 @@
 namespace AUI
 {
 void MultiResImage::addResolution(const ScreenResolution& resolution,
-                                  const std::string& textureID)
+                                  const std::string& textureID,
+                                  SDL_ScaleMode scaleMode)
 {
     // If we already have the given resolution, fail.
     if (resolutionMap.find(resolution) != resolutionMap.end()) {
@@ -20,6 +21,7 @@ void MultiResImage::addResolution(const ScreenResolution& resolution,
     TextureData textureData{};
     textureData.textureID = textureID;
     textureData.userProvidedExtent = false;
+    textureData.scaleMode = scaleMode;
 
     // Add the resolution to the map.
     resolutionMap[resolution] = textureData;
@@ -30,10 +32,11 @@ void MultiResImage::addResolution(const ScreenResolution& resolution,
 
 void MultiResImage::addResolution(const ScreenResolution& resolution,
                                   const std::string& textureID,
-                                  const SDL_Rect& texExtent)
+                                  const SDL_Rect& texExtent,
+                                  SDL_ScaleMode scaleMode)
 {
     // Do all the same steps from the less specific overload.
-    addResolution(resolution, textureID);
+    addResolution(resolution, textureID, scaleMode);
 
     // Set the texture extent to the given extent.
     resolutionMap[resolution].extent = texExtent;
@@ -81,7 +84,7 @@ void MultiResImage::refreshChosenResolution()
 
     // Attempt to load the matching image.
     if (currentTexture = Core::getAssetCache().requestTexture(
-            selectedTextureData->textureID)) {
+            selectedTextureData->textureID, selectedTextureData->scaleMode)) {
         // If the user provided an extent, use it.
         if (selectedTextureData->userProvidedExtent) {
             currentTexExtent = selectedTextureData->extent;

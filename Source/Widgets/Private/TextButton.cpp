@@ -2,6 +2,7 @@
 #include "AUI/Screen.h"
 #include "AUI/Core.h"
 #include "AUI/ScalingHelpers.h"
+#include "AUI/Internal/Log.h"
 
 namespace AUI
 {

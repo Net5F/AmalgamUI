@@ -1,5 +1,6 @@
 #include "AUI/AssetCache.h"
 #include "AUI/Core.h"
+#include "AUI/Internal/Log.h"
 
 namespace AUI
 {

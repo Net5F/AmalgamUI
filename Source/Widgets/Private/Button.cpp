@@ -1,6 +1,7 @@
 #include "AUI/Button.h"
 #include "AUI/Screen.h"
 #include "AUI/Core.h"
+#include "AUI/Internal/Log.h"
 
 namespace AUI
 {

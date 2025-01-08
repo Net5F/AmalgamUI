@@ -1,6 +1,7 @@
 #include "AUI/Text.h"
 #include "AUI/Core.h"
 #include "AUI/ScalingHelpers.h"
+#include "AUI/Internal/Log.h"
 #include <SDL_render.h>
 
 namespace AUI

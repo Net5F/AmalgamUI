@@ -1,6 +1,7 @@
 #include "AUI/ImageType/TiledImage.h"
 #include "AUI/Core.h"
 #include "AUI/AssetCache.h"
+#include "AUI/Internal/Log.h"
 #include <SDL_render.h>
 
 namespace AUI

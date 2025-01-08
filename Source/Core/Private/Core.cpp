@@ -1,4 +1,5 @@
 #include "AUI/Core.h"
+#include "AUI/Internal/Log.h"
 #include <SDL_render.h>
 #include <SDL_image.h>
 #include <SDL_ttf.h>

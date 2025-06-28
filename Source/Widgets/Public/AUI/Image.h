@@ -152,6 +152,12 @@ public:
         const std::vector<MultiResImageTextureInfo>& imageInfo);
     void setTiledImage(SDL_Texture* texture, const std::string& textureID);
 
+    /**
+     * Sets the image's alpha tranparency (opacity) modifier.
+     * @param newAlphaMod A new alpha percentage from 0.0 - 1.0.
+     */
+    void setAlphaMod(float newAlphaMod);
+
     //-------------------------------------------------------------------------
     // Base class overrides
     //-------------------------------------------------------------------------
@@ -174,6 +180,9 @@ private:
         Used to tell when this widget's size changes, so we can refresh the
         image. */
     SDL_Rect lastScaledExtent;
+
+    /** The alpha mod to apply to the image texture. */
+    float alphaMod;
 };
 
 } // namespace AUI

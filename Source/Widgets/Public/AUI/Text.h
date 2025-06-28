@@ -163,8 +163,16 @@ public:
     /**
      * Calculates the width that the given string would have if rendered using
      * this widget's current font.
+     * Note: This doesn't take word wrapping into account.
      */
     int calcStringWidth(const std::string& string);
+
+    /**
+     * Returns the logical extent of the current generated text texture.
+     * Note: If the text is changed, the new texture will be generated in 
+     *       the next call to measure().
+     */
+    SDL_Rect getLogicalTextureExtent();
 
     VerticalAlignment getVerticalAlignment();
     HorizontalAlignment getHorizontalAlignment();

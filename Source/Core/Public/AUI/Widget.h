@@ -287,11 +287,15 @@ public:
     /**
      * Gives the widget an opportunity to update its logicalExtent if 
      * necessary, then scales it and sets scaledExtent.
+     *
+     * The widget's size after this function should be its "desired size". 
+     * The parent widget will then consider that desired size and provide a 
+     * final available extent in arrange().
      * 
      * @param availableExtent The available room for this widget to occupy, 
      *                        in logical space. 
-     *                        If width or height == -1, the parent will scale 
-     *                        to fit its children in that direction.
+     *                        If width or height == -1, there's no limit in 
+     *                        that direction.
      *                        logicalExtent may go beyond this extent, this 
      *                        is just for widgets that want to grow/shrink to 
      *                        fit their parent.

@@ -219,6 +219,11 @@ int Text::calcStringWidth(const std::string& string)
     return stringWidth;
 }
 
+SDL_Rect Text::getLogicalTextureExtent()
+{
+    return ScalingHelpers::actualToLogical(textureExtent);
+}
+
 Text::VerticalAlignment Text::getVerticalAlignment()
 {
     return verticalAlignment;
@@ -256,6 +261,9 @@ void Text::measure(const SDL_Rect& availableExtent)
     }
 
     // If auto-height is enabled, set this widget's height to match the texture.
+    // Note: We don't adjust to fit availableExtent because we want to match 
+    //       the texture's size, not the parent's size. We'll clip in arrange()
+    //       if necessary.
     if (autoHeightEnabled) {
         logicalExtent.h = ScalingHelpers::actualToLogical(textExtent.h);
         alignmentIsDirty = true;

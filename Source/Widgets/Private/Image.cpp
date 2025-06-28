@@ -12,6 +12,7 @@ Image::Image(const SDL_Rect& inLogicalExtent, const std::string& inDebugName)
 : Widget(inLogicalExtent, inDebugName)
 , imageType{nullptr}
 , lastScaledExtent{scaledExtent}
+, alphaMod{1.0}
 {
 }
 
@@ -132,6 +133,11 @@ void Image::setTiledImage(SDL_Texture* texture, const std::string& textureID)
     tiledImage->set(textureID, scaledExtent);
 }
 
+void Image::setAlphaMod(float newAlphaMod)
+{
+    alphaMod = newAlphaMod;
+}
+
 void Image::measure(const SDL_Rect& availableExtent)
 {
     // Run the normal measure step (sets our scaledExtent).
@@ -198,6 +204,11 @@ void Image::render(const SDL_Point& windowTopLeft)
         clippedTexExtent.h
             = static_cast<int>(clippedExtent.h * heightDiffFactor);
     }
+
+    // Apply the current alpha mod.
+    // TODO: When we update SDL, replace this with SDL_SetTextureAlphaModFloat.
+    Uint8 alphaModUint{static_cast<Uint8>(255 * alphaMod)};
+    SDL_SetTextureAlphaMod(imageType->currentTexture.get(), alphaModUint);
 
     // Render the image.
     SDL_Rect finalExtent{clippedExtent};

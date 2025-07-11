@@ -83,8 +83,8 @@ void MultiResImage::refreshChosenResolution()
     }
 
     // Attempt to load the matching image.
-    if (currentTexture = Core::getAssetCache().requestTexture(
-            selectedTextureData->textureID, selectedTextureData->scaleMode)) {
+    if ((currentTexture = Core::getAssetCache().requestTexture(
+             selectedTextureData->textureID, selectedTextureData->scaleMode))) {
         // If the user provided an extent, use it.
         if (selectedTextureData->userProvidedExtent) {
             currentTexExtent = selectedTextureData->extent;

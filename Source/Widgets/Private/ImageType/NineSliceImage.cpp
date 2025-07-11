@@ -11,8 +11,8 @@ void NineSliceImage::set(const std::string& textureID, SliceSizes inSliceSizes,
     // Attempt to load the image.
     // Note: We assume that nine slice textures will want to use "nearest" 
     //       scaling to maintain sharpness.
-    if (sourceTexture = Core::getAssetCache().requestTexture(
-            textureID, SDL_ScaleModeNearest)) {
+    if ((sourceTexture = Core::getAssetCache().requestTexture(
+             textureID, SDL_ScaleModeNearest))) {
         // Save the new slice sizes (will be used by the regenerate function).
         sliceSizes = inSliceSizes;
 

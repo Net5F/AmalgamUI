@@ -90,18 +90,32 @@ public:
     // Limited public interface of private widgets
     //-------------------------------------------------------------------------
     /**
-     * Sets our text to inText and updates the cursor.
+     * Sets text to inText and updates the cursor.
      *
      * Note: This doesn't call onTextCommitted.
      */
     void setText(std::string_view inText);
 
-    /** Calls text.asString(). */
+    /** Returns the current shown text, or an empty string if the hint text is 
+        currently being displayed. */
     const std::string& getText();
     /** Calls text.setFont(). */
     void setTextFont(const std::string& fontPath, int inLogicalFontSize);
-    /** Calls text.setColor(). */
+    /** Sets the user text color. */
     void setTextColor(const SDL_Color& inColor);
+
+    /**
+     * Sets the text that is displayed when no user text is entered, and this 
+     * widget isn't focused.
+     *
+     * Set this to "" to disable hint text.
+     */
+    void setHintText(std::string_view inHintText);
+
+    /** Returns the last set hint text. */
+    const std::string& getHintText();
+    /** Sets the hint text color. */
+    void setHintTextColor(const SDL_Color& inColor);
 
     //-------------------------------------------------------------------------
     // Callback registration
@@ -176,6 +190,12 @@ private:
     EventResult handleEnterEvent();
 
     /**
+     * Sets hint text as active or inactive, and sets the text color 
+     * appropriately. If active, the text will also be set to the hint text.
+     */
+    void setHintTextActive(bool inHintTextActive);
+
+    /**
      * Sets currentState and updates child widget visibility.
      */
     void setCurrentState(State inState);
@@ -197,7 +217,19 @@ private:
     /** See setOnTextCommitted(). */
     std::function<void(void)> onTextCommitted;
 
-    /** Tracks this button's current visual and logical state. */
+    /** The current color of the user text. */
+    SDL_Color textColor;
+    
+    /** Text that is optionally displayed when no user text is entered. */
+    std::string hintText;
+    /** The current color of the hint text. */
+    SDL_Color hintTextColor;
+    /** If true, hint text should be used when the user text is empty. */
+    bool hintTextEnabled;
+    /** If true, hint text is currently being displayed. */
+    bool hintTextActive;
+
+    /** Tracks this widget's current visual and logical state. */
     State currentState;
 
     /** The accumulated time since we last toggled the text cursor's

@@ -6,6 +6,19 @@
 
 namespace AUI
 {
+/**
+ * An empty string for getText() to return when we're displaying hint text.
+ *
+ * TODO: Make getText() return std::string_view. This will require updating a 
+ *       lot of ResourceImporter code to use std::from_chars (std::stoi doesn't
+ *       support std::string_view), but it's probably worth it.
+ */
+const std::string& getEmptyString()
+{
+    static std::string emptyString{};
+    return emptyString;
+}
+
 TextInput::TextInput(const SDL_Rect& inLogicalExtent,
                      const std::string& inDebugName)
 : Widget(inLogicalExtent, inDebugName)
@@ -13,6 +26,11 @@ TextInput::TextInput(const SDL_Rect& inLogicalExtent,
 , hoveredImage({0, 0, logicalExtent.w, logicalExtent.h})
 , focusedImage({0, 0, logicalExtent.w, logicalExtent.h})
 , disabledImage({0, 0, logicalExtent.w, logicalExtent.h})
+, textColor{0, 0, 0, 255} // Matches Text default
+, hintText{""}
+, hintTextColor{168, 168, 168, 255}
+, hintTextEnabled{false}
+, hintTextActive{false}
 , currentState{State::Normal}
 , accumulatedBlinkTime{0}
 , cursorColor{0, 0, 0, 255}
@@ -108,21 +126,21 @@ TextInput::State TextInput::getCurrentState()
     return currentState;
 }
 
-void TextInput::setTextFont(const std::string& fontPath, int inLogicalFontSize)
-{
-    text.setFont(fontPath, inLogicalFontSize);
-}
-
-void TextInput::setTextColor(const SDL_Color& inColor)
-{
-    text.setColor(inColor);
-}
-
 void TextInput::setText(std::string_view inText)
 {
     // Set the committed text.
     lastCommittedText = inText;
-    text.setText(inText);
+
+    // If we aren't focused, the text is empty, and hint text is enabled, 
+    // activate it.
+    if ((currentState != State::Focused) && inText.empty() && hintTextEnabled) {
+        setHintTextActive(true);
+    }
+    else {
+        // Not displaying hint text, set the user text.
+        setHintTextActive(false);
+        text.setText(inText);
+    }
 
     // Move the cursor to the front (seems to be the most expected behavior).
     cursorIndex = 0;
@@ -133,7 +151,61 @@ void TextInput::setText(std::string_view inText)
 
 const std::string& TextInput::getText()
 {
+    // If we're displaying the hint text, return an empty string.
+    if (hintTextActive) {
+        return getEmptyString();
+    }
+
+    // Not displaying hint text. Return the current text as-shown.
     return text.asString();
+}
+
+void TextInput::setTextFont(const std::string& fontPath, int inLogicalFontSize)
+{
+    text.setFont(fontPath, inLogicalFontSize);
+}
+
+void TextInput::setTextColor(const SDL_Color& inColor)
+{
+    textColor = inColor;
+
+    // If we're displaying user text, update the color.
+    if (!hintTextActive) {
+        text.setColor(inColor);
+    }
+}
+
+void TextInput::setHintText(std::string_view inHintText)
+{
+    hintText = inHintText;
+
+    // Set the enabled state based on whether there's hint text or not.
+    if (!(hintText.empty())) {
+        hintTextEnabled = true;
+
+        // If we aren't focused, display the new hint text.
+        if (currentState != State::Focused) {
+            setHintTextActive(true);
+        }
+    }
+    else {
+        hintTextEnabled = false;
+    }
+}
+
+const std::string& TextInput::getHintText()
+{
+    return hintText;
+}
+
+void TextInput::setHintTextColor(const SDL_Color& inColor)
+{
+    hintTextColor = inColor;
+
+    // If we're displaying hint text, update the color.
+    if (hintTextActive) {
+        text.setColor(inColor);
+    }
 }
 
 void TextInput::setOnTextChanged(std::function<void(void)> inOnTextChanged)
@@ -202,6 +274,12 @@ EventResult TextInput::onFocusGained()
     // Update the core flag so apps know to stop polling keyboard held state.
     Core::isTextInputFocused = true;
 
+    // Deactive hint text, if activated.
+    if (hintTextActive) {
+        setHintTextActive(false);
+        text.setText("");
+    }
+
     // Reset the text cursor's state.
     // Show the text cursor immediately so the user can see where they're at.
     cursorIsVisible = true;
@@ -236,11 +314,17 @@ void TextInput::onFocusLost(FocusLostType focusLostType)
     // committed text state.
     if (focusLostType == FocusLostType::Escape) {
         // Note: Moves the cursor to the front.
+        // Note: Handles hint text state.
         setText(lastCommittedText);
     }
     else {
         // We lost focus for some other reason, commit the current text.
         lastCommittedText = text.asString();
+
+        // If hint text is enabled and the text is empty, activate it.
+        if (hintTextEnabled && lastCommittedText.empty()) {
+            setHintTextActive(true);
+        }
 
         // Scroll back to the front (the most expected behavior).
         cursorIndex = 0;
@@ -581,6 +665,27 @@ EventResult TextInput::handleEnterEvent()
     // On Enter key press, we drop focus (which will call onFocusLost() to
     // set our internal state and call onTextCommitted()).
     return EventResult{.wasHandled{true}, .dropFocus{true}};
+}
+
+void TextInput::setHintTextActive(bool inHintTextActive)
+{
+    if (inHintTextActive) {
+        // If hint text isn't already active, apply it.
+        if (!hintTextActive) {
+            text.setText(hintText);
+            text.setColor(hintTextColor);
+            hintTextActive = true;
+        }
+    }
+    else {
+        // Deactivate hint text.
+        // Note: The caller is responsible for setting text to the current user
+        //       text.
+        if (hintTextActive) {
+            text.setColor(textColor);
+            hintTextActive = false;
+        }
+    }
 }
 
 void TextInput::setCurrentState(State inState)

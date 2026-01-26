@@ -14,7 +14,7 @@ namespace AUI
  * The rendering order for this widget's children is:
  *   Background: backdropImage
  *   Middle-ground: thumbnailImage
- *   Foreground: activeImage, hoveredImage, selectedImage, text
+ *   Foreground: activeImage, hoveredImage, selectedImage, disabledImage, text
  *
  * Note: This widget may be immediately useful to you, but exists more as
  *       an easily copyable example of how to make this sort of thing. With
@@ -79,15 +79,31 @@ public:
     void deactivate();
 
     /**
+     * Enables this widet.
+     *
+     * @post This widget will visually be in the previous state and will respond
+     *       to events.
+     */
+    void enable();
+
+    /**
+     * Disables this widget.
+     *
+     * @post This widget will visually be in the Disabled state and will
+     *       ignore all events.
+     */
+    void disable();
+
+    /**
      * Same as select(), deselect(), activate(), or deactivate(), but doesn't
      * call any callbacks.
      * Useful for making this thumbnail reflect some existing state.
      */
     void setStateWithoutCallbacks(bool isSelected, bool isActive);
 
-    bool getIsHovered();
-    bool getIsSelected();
-    bool getIsActive();
+    bool getIsHovered() const;
+    bool getIsSelected() const;
+    bool getIsActive() const;
 
     /** If true, this widget is able to be hovered. */
     void setIsHoverable(bool inIsHoverable);
@@ -113,6 +129,8 @@ public:
     Image hoveredImage;
     /** Foreground highlight image, selected state. */
     Image selectedImage;
+    /** Foreground highlight image, disabled state. */
+    Image disabledImage;
 
     //-------------------------------------------------------------------------
     // Limited public interface of private widgets
@@ -145,26 +163,34 @@ public:
     // Callback registration
     //-------------------------------------------------------------------------
     /**
-     * @param inOnSelected  A callback that expects a pointer to the widget
-     *                      that was selected.
+     * @param inOnHovered A callback that expects a pointer to the widget that 
+     *                    was hovered.
+     */
+    void setOnHovered(std::function<void(Thumbnail*)> inOnHovered);
+
+    void setOnUnhovered(std::function<void(Thumbnail*)> inOnUnhovered);
+
+    /**
+     * @param inOnSelected A callback that expects a pointer to the widget
+     *                     that was selected.
      */
     void setOnSelected(std::function<void(Thumbnail*)> inOnSelected);
 
     /**
-     * @param inOnDeselected  A callback that expects a pointer to the
-     *                        widget that was deselected.
+     * @param inOnDeselected A callback that expects a pointer to the
+     *                       widget that was deselected.
      */
     void setOnDeselected(std::function<void(Thumbnail*)> inOnDeselected);
 
     /**
-     * @param inOnActivated  A callback that expects a pointer to the widget
-     *                       that was activated.
+     * @param inOnActivated A callback that expects a pointer to the widget
+     *                      that was activated.
      */
     void setOnActivated(std::function<void(Thumbnail*)> inOnActivated);
 
     /**
-     * @param inOnDeactivated  A callback that expects a pointer to the
-     *                         widget that was deactivated.
+     * @param inOnDeactivated A callback that expects a pointer to the
+     *                        widget that was deactivated.
      */
     void setOnDeactivated(std::function<void(Thumbnail*)> inOnDeactivated);
 
@@ -198,7 +224,11 @@ private:
     void setIsSelected(bool inIsSelected);
     /** Sets isActive and updates the visibility of activeImage. */
     void setIsActive(bool inIsActive);
+    /** Sets isDisabled and updates the visibility of disabledImage. */
+    void setIsDisabled(bool inIsDisabled);
 
+    std::function<void(Thumbnail*)> onHovered;
+    std::function<void(Thumbnail*)> onUnhovered;
     std::function<void(Thumbnail*)> onSelected;
     std::function<void(Thumbnail*)> onDeselected;
     std::function<void(Thumbnail*)> onActivated;
@@ -222,6 +252,9 @@ private:
 
     /** Tracks whether this widget is currently active. */
     bool isActive;
+
+    /** Tracks whether this widget is currently disabled. */
+    bool isDisabled;
 
     /** Stores the last set horizontal text alignment. We re-apply this
         alignment any time the text is set to a string that fits within its

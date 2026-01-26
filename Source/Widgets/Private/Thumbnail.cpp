@@ -12,12 +12,14 @@ Thumbnail::Thumbnail(const SDL_Rect& inLogicalExtent,
 , activeImage({0, 0, logicalExtent.w, logicalExtent.h})
 , hoveredImage({0, 0, logicalExtent.w, logicalExtent.h})
 , selectedImage({0, 0, logicalExtent.w, logicalExtent.h})
+, disabledImage({0, 0, logicalExtent.w, logicalExtent.h})
 , isHoverable{true}
 , isSelectable{true}
 , isActivateable{true}
 , isHovered{false}
 , isSelected{false}
 , isActive{false}
+, isDisabled{false}
 , savedTextAlignment{Text::HorizontalAlignment::Center}
 , text({0, 0, logicalExtent.w, logicalExtent.h})
 {
@@ -27,6 +29,7 @@ Thumbnail::Thumbnail(const SDL_Rect& inLogicalExtent,
     children.push_back(activeImage);
     children.push_back(hoveredImage);
     children.push_back(selectedImage);
+    children.push_back(disabledImage);
     children.push_back(text);
 
     // Default to centering the text. The user can set it otherwise if they
@@ -37,6 +40,7 @@ Thumbnail::Thumbnail(const SDL_Rect& inLogicalExtent,
     activeImage.setIsVisible(false);
     hoveredImage.setIsVisible(false);
     selectedImage.setIsVisible(false);
+    disabledImage.setIsVisible(false);
 }
 
 void Thumbnail::select()
@@ -106,6 +110,34 @@ void Thumbnail::deactivate()
     }
 }
 
+void Thumbnail::enable()
+{
+    // If we aren't disabled, do nothing.
+    if (!isDisabled) {
+        return;
+    }
+
+    // Flag that we're now enabled.
+    setIsDisabled(false);
+
+    // Note: Re-enabling returns the widget to its previous selected/active 
+    //       states.
+}
+
+void Thumbnail::disable()
+{
+    // If we aren't enabled, do nothing.
+    if (isDisabled) {
+        return;
+    }
+
+    // Flag that we're now disabled.
+    setIsDisabled(true);
+
+    // Flag that we aren't hovered (can't be hovered while disabled.)
+    setIsHovered(false);
+}
+
 void Thumbnail::setStateWithoutCallbacks(bool isSelected, bool isActive)
 {
     if (isSelectable) {
@@ -123,17 +155,17 @@ void Thumbnail::setStateWithoutCallbacks(bool isSelected, bool isActive)
     }
 }
 
-bool Thumbnail::getIsHovered()
+bool Thumbnail::getIsHovered() const
 {
     return isHovered;
 }
 
-bool Thumbnail::getIsSelected()
+bool Thumbnail::getIsSelected() const
 {
     return isSelected;
 }
 
-bool Thumbnail::getIsActive()
+bool Thumbnail::getIsActive() const
 {
     return isActive;
 }
@@ -202,6 +234,16 @@ void Thumbnail::setTextHorizontalAlignment(
     }
 }
 
+void Thumbnail::setOnHovered(std::function<void(Thumbnail*)> inOnHovered)
+{
+    onHovered = std::move(inOnHovered);
+}
+
+void Thumbnail::setOnUnhovered(std::function<void(Thumbnail*)> inOnUnhovered)
+{
+    onUnhovered = std::move(inOnUnhovered);
+}
+
 void Thumbnail::setOnSelected(std::function<void(Thumbnail*)> inOnSelected)
 {
     onSelected = std::move(inOnSelected);
@@ -231,9 +273,13 @@ void Thumbnail::setOnMouseDown(
 
 EventResult Thumbnail::onMouseDown(MouseButtonType buttonType, const SDL_Point&)
 {
+    // If we're disabled, ignore the event.
+    if (isDisabled) {
+        return EventResult{.wasHandled{false}};
+    }
     // If the user set a MouseDown callback and it handles this event, return
     // early.
-    if (userOnMouseDown && userOnMouseDown(this, buttonType)) {
+    else if (userOnMouseDown && userOnMouseDown(this, buttonType)) {
         return EventResult{.wasHandled{true}};
     }
 
@@ -271,6 +317,10 @@ EventResult Thumbnail::onMouseDoubleClick(MouseButtonType buttonType,
     if (buttonType != MouseButtonType::Left) {
         return EventResult{.wasHandled{false}};
     }
+    // If we're disabled, ignore the event.
+    else if (isDisabled) {
+        return EventResult{.wasHandled{false}};
+    }
 
     // If we aren't already active, activate.
     if (isActivateable && !isActive) {
@@ -291,14 +341,23 @@ EventResult Thumbnail::onMouseDoubleClick(MouseButtonType buttonType,
 
 void Thumbnail::onMouseEnter()
 {
+    // If we're disabled, ignore the event.
+    if (isDisabled) {
+        return;
+    }
     // If we're active, don't change to hovered.
-    if (isActive) {
+    else if (isActive) {
         return;
     }
 
     // If we're not hovered, become hovered.
     if (!isHovered) {
         setIsHovered(true);
+
+        // If the user set a callback for this event, call it.
+        if (onHovered) {
+            onHovered(this);
+        }
     }
 }
 
@@ -307,6 +366,11 @@ void Thumbnail::onMouseLeave()
     // If we're hovered, unhover.
     if (isHovered) {
         setIsHovered(false);
+
+        // If the user set a callback for this event, call it.
+        if (onUnhovered) {
+            onUnhovered(this);
+        }
     }
 }
 
@@ -326,6 +390,12 @@ void Thumbnail::setIsActive(bool inIsActive)
 {
     isActive = inIsActive;
     activeImage.setIsVisible(isActive);
+}
+
+void Thumbnail::setIsDisabled(bool inIsDisabled)
+{
+    isDisabled = inIsDisabled;
+    disabledImage.setIsVisible(isDisabled);
 }
 
 } // namespace AUI

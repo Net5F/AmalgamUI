@@ -138,6 +138,12 @@ void Image::setAlphaMod(float newAlphaMod)
     alphaMod = newAlphaMod;
 }
 
+SDL_Rect Image::getCurrentImageTextureExtent() const
+{
+    AUI_ASSERT(imageType, "Tried to get extent while image did not exist.");
+    return imageType->currentTexExtent;
+}
+
 void Image::measure(const SDL_Rect& availableExtent)
 {
     // Run the normal measure step (sets our scaledExtent).

@@ -158,6 +158,11 @@ public:
      */
     void setAlphaMod(float newAlphaMod);
 
+    /**
+     * Returns the extent of the current image texture.
+     */
+    SDL_Rect getCurrentImageTextureExtent() const;
+
     //-------------------------------------------------------------------------
     // Base class overrides
     //-------------------------------------------------------------------------

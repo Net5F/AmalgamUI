@@ -1,3 +1,6 @@
+# SDL2 Branch
+This is a long-term support branch for SDL2. When possible, it's encouraged to update to SDL3.
+
 # AmalgamUI
 A simple image-based UI library, built on the SDL2 native renderer.
 

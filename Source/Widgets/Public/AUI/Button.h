@@ -23,7 +23,7 @@ public:
     //-------------------------------------------------------------------------
     // Public interface
     //-------------------------------------------------------------------------
-    Button(const SDL_Rect& inLogicalExtent,
+    Button(const SDL_FRect& inLogicalExtent,
            const std::string& inDebugName = "Button");
 
     virtual ~Button() = default;
@@ -80,13 +80,13 @@ public:
     void setIsVisible(bool inIsVisible) override;
 
     EventResult onMouseDown(MouseButtonType buttonType,
-                            const SDL_Point& cursorPosition) override;
+                            const SDL_FPoint& cursorPosition) override;
 
     EventResult onMouseUp(MouseButtonType buttonType,
-                          const SDL_Point& cursorPosition) override;
+                          const SDL_FPoint& cursorPosition) override;
 
     EventResult onMouseDoubleClick(MouseButtonType buttonType,
-                                   const SDL_Point& cursorPosition) override;
+                                   const SDL_FPoint& cursorPosition) override;
 
     void onMouseEnter() override;
 

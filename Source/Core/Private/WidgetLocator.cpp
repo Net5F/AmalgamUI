@@ -3,14 +3,14 @@
 #include "AUI/ScalingHelpers.h"
 #include "AUI/Internal/Log.h"
 #include "AUI/Internal/AUIAssert.h"
-#include <SDL_rect.h>
+#include <SDL3/SDL_rect.h>
 #include <cmath>
 #include <algorithm>
 
 namespace AUI
 {
 
-WidgetLocator::WidgetLocator(const SDL_Rect& inScreenExtent)
+WidgetLocator::WidgetLocator(const SDL_FRect& inScreenExtent)
 : cellWidth{ScalingHelpers::logicalToActual(LOGICAL_DEFAULT_CELL_WIDTH)}
 , gridScreenExtent{}
 , gridRelativeExtent{}
@@ -23,8 +23,8 @@ void WidgetLocator::addWidget(Widget* widget)
 {
     // Note: This is relative to the parent window's extent (which matches
     //       this locator's extent).
-    SDL_Rect widgetRelativeExtent{widget->getClippedExtent()};
-    AUI_ASSERT(SDL_HasIntersection(&widgetRelativeExtent, &gridRelativeExtent),
+    SDL_FRect widgetRelativeExtent{widget->getClippedExtent()};
+    AUI_ASSERT(SDL_HasRectIntersectionFloat(&widgetRelativeExtent, &gridRelativeExtent),
                "Tried to add a widget that is outside this locator's bounds. "
                "Widget name: %s",
                widget->getDebugName().c_str());
@@ -72,15 +72,15 @@ void WidgetLocator::clear()
     }
 }
 
-WidgetPath WidgetLocator::getPathUnderPoint(const SDL_Point& actualPoint) const
+WidgetPath WidgetLocator::getPathUnderPoint(const SDL_FPoint& actualPoint) const
 {
     AUI_ASSERT(
-        SDL_PointInRect(&actualPoint, &gridScreenExtent),
+        SDL_PointInRectFloat(&actualPoint, &gridScreenExtent),
         "Tried to get path for a point that is outside this locator's bounds.");
 
     // Convert the actual screen-space point to a window-relative point.
-    SDL_Point relativePoint{(actualPoint.x - gridScreenExtent.x),
-                            (actualPoint.y - gridScreenExtent.y)};
+    SDL_FPoint relativePoint{(actualPoint.x - gridScreenExtent.x),
+                             (actualPoint.y - gridScreenExtent.y)};
 
     // Get the cell that contains the given point.
     float hitCellX{relativePoint.x / cellWidth};
@@ -111,8 +111,8 @@ WidgetPath WidgetLocator::getPathUnderPoint(const SDL_Point& actualPoint) const
 WidgetPath WidgetLocator::getPathUnderWidget(const Widget* widget) const
 {
     // Calc the center of the given widget.
-    SDL_Rect widgetExtent{widget->getClippedExtent()};
-    SDL_Point widgetCenter{};
+    SDL_FRect widgetExtent{widget->getClippedExtent()};
+    SDL_FPoint widgetCenter{};
     widgetCenter.x = widgetExtent.x + (widgetExtent.w / 2);
     widgetCenter.y = widgetExtent.y + (widgetExtent.h / 2);
 
@@ -130,7 +130,7 @@ bool WidgetLocator::containsWidget(const Widget* widget) const
     return widgetMap.contains(widget);
 }
 
-void WidgetLocator::setExtent(const SDL_Rect& inScreenExtent)
+void WidgetLocator::setExtent(const SDL_FRect& inScreenExtent)
 {
     gridScreenExtent = inScreenExtent;
     gridRelativeExtent = gridScreenExtent;
@@ -183,23 +183,21 @@ void WidgetLocator::clearWidgetLocation(const Widget* widget,
     }
 }
 
-SDL_Rect WidgetLocator::screenToCellExtent(const SDL_Rect& screenExtent)
+SDL_Rect WidgetLocator::screenToCellExtent(const SDL_FRect& screenExtent)
 {
     // Find the top left and bottom right cell coordinates for the screen
     // extent.
-    SDL_Point topLeft{};
-    topLeft.x = static_cast<int>(std::floor(screenExtent.x / cellWidth));
-    topLeft.y = static_cast<int>(std::floor(screenExtent.y / cellWidth));
+    int topLeftX{static_cast<int>(std::floor(screenExtent.x / cellWidth))};
+    int topLeftY{static_cast<int>(std::floor(screenExtent.y / cellWidth))};
 
-    SDL_Point bottomRight{};
-    bottomRight.x = static_cast<int>(
-        std::ceil((screenExtent.x + screenExtent.w) / cellWidth));
-    bottomRight.y = static_cast<int>(
-        std::ceil((screenExtent.y + screenExtent.h) / cellWidth));
+    int bottomRightX{static_cast<int>(
+        std::ceil((screenExtent.x + screenExtent.w) / cellWidth))};
+    int bottomRightY{static_cast<int>(
+        std::ceil((screenExtent.y + screenExtent.h) / cellWidth))};
 
     // Use the top left and bottom right to build the total cell extent.
-    return {topLeft.x, topLeft.y, (bottomRight.x - topLeft.x),
-            (bottomRight.y - topLeft.y)};
+    return {topLeftX, topLeftY, (bottomRightX - topLeftX),
+            (bottomRightY - topLeftY)};
 }
 
 } // End namespace AUI

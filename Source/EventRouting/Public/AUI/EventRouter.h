@@ -5,7 +5,7 @@
 #include "AUI/MouseButtonType.h"
 #include "AUI/FocusLostType.h"
 #include "AUI/EventResult.h"
-#include <SDL_events.h>
+#include <SDL3/SDL_events.h>
 
 namespace AUI
 {
@@ -55,37 +55,37 @@ public:
     EventRouter(Screen& inScreen);
 
     /**
-     * Call when a SDL_MOUSEBUTTONDOWN event occurs.
+     * Call when a SDL_EVENT_MOUSE_BUTTON_DOWN event occurs.
      * @return true if the event was consumed, else false.
      */
     bool handleMouseButtonDown(SDL_MouseButtonEvent& event);
 
     /**
-     * Call when a SDL_MOUSEBUTTONUP event occurs.
+     * Call when a SDL_EVENT_MOUSE_BUTTON_UP event occurs.
      * @return true if the event was consumed, else false.
      */
     bool handleMouseButtonUp(SDL_MouseButtonEvent& event);
 
     /**
-     * Call when a SDL_MOUSEWHEEL event occurs.
+     * Call when a SDL_EVENT_MOUSE_WHEEL event occurs.
      * @return true if the event was consumed, else false.
      */
     bool handleMouseWheel(SDL_MouseWheelEvent& event);
 
     /**
-     * Call when a SDL_MOUSEMOTION event occurs.
+     * Call when a SDL_EVENT_MOUSE_MOTION event occurs.
      * @return true if the event was consumed, else false.
      */
     bool handleMouseMove(SDL_MouseMotionEvent& event);
 
     /**
-     * Call when a SDL_KEYDOWN event occurs.
+     * Call when a SDL_EVENT_KEY_DOWN event occurs.
      * @return true if the event was consumed, else false.
      */
     bool handleKeyDown(SDL_KeyboardEvent& event);
 
     /**
-     * Call when a SDL_TEXTINPUT event occurs.
+     * Call when a SDL_EVENT_TEXT_INPUT event occurs.
      * @return true if the event was consumed, else false.
      */
     bool handleTextInput(SDL_TextInputEvent& event);
@@ -132,7 +132,7 @@ private:
      * window that it's hovering over.
      * If cursorPosition is not over a window, does nothing.
      */
-    SDL_Point screenToWindowRelative(const SDL_Point& cursorPosition);
+    SDL_FPoint screenToWindowRelative(const SDL_FPoint& cursorPosition);
 
     /**
      * Returns a path that traces from the first hit window, up to its top-most
@@ -140,7 +140,7 @@ private:
      *
      * If no widgets are under the cursor, returns an empty path.
      */
-    WidgetPath getPathUnderCursor(const SDL_Point& cursorPosition);
+    WidgetPath getPathUnderCursor(const SDL_FPoint& cursorPosition);
 
     /**
      * Returns a path that traces from the given widget's parent Window, up to
@@ -154,14 +154,14 @@ private:
      * Routes a MouseDown to the given widget path.
      */
     RouterReturnData routeMouseDown(MouseButtonType buttonType,
-                                    const SDL_Point& cursorPosition,
+                                    const SDL_FPoint& cursorPosition,
                                     WidgetPath& clickPath);
 
     /**
      * Routes a MouseDoubleClick to the given widget path.
      */
     RouterReturnData routeMouseDoubleClick(MouseButtonType buttonType,
-                                           const SDL_Point& cursorPosition,
+                                           const SDL_FPoint& cursorPosition,
                                            WidgetPath& clickPath);
 
     /**
@@ -177,7 +177,7 @@ private:
      * Routes a MouseMove (or DragMove) to the widgets in hoverPath.
      * @return true if the event was handled, else false.
      */
-    bool routeMouseMove(const SDL_Point& cursorPosition, WidgetPath& hoverPath);
+    bool routeMouseMove(const SDL_FPoint& cursorPosition, WidgetPath& hoverPath);
 
     /**
      * Sets focus to a path from eventPath's root to its leafmost focusable
@@ -223,7 +223,7 @@ private:
      * A drag event won't actually be started until the user drags the mouse
      * beyond Core::dragTriggerDistance.
      */
-    void setDragIfDraggable(WidgetPath& eventPath, SDL_Point& cursorPosition);
+    void setDragIfDraggable(WidgetPath& eventPath, SDL_FPoint& cursorPosition);
 
     /**
      * Routes a MouseLeave through lastHoveredWidgetPath, then routes a
@@ -302,7 +302,7 @@ private:
     /** If dragPath is non-empty, this is actual position where the drag
        started. If the mouse moves beyond Core::dragTriggerDistance, a drag
        event will start. */
-    SDL_Point dragOrigin;
+    SDL_FPoint dragOrigin;
 
     /** If true, we're currently dragging a widget. */
     bool dragUnderway;

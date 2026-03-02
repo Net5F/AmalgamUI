@@ -1,6 +1,6 @@
 #pragma once
 
-#include <SDL_rect.h>
+#include <SDL3/SDL_rect.h>
 
 namespace AUI
 {
@@ -13,8 +13,8 @@ public:
     /**
      * Returns the squared distance between the given points.
      */
-    static int squaredDistance(const SDL_Point& pointA,
-                               const SDL_Point& pointB);
+    static float squaredDistance(const SDL_FPoint& pointA,
+                                const SDL_FPoint& pointB);
 };
 
 } // namespace AUI

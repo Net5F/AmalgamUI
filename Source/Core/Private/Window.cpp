@@ -4,13 +4,13 @@
 
 namespace AUI
 {
-Window::Window(const SDL_Rect& inLogicalExtent, const std::string& inDebugName)
+Window::Window(const SDL_FRect& inLogicalExtent, const std::string& inDebugName)
 : Widget(inLogicalExtent, inDebugName)
 , widgetLocator{ScalingHelpers::logicalToActual(inLogicalExtent)}
 {
 }
 
-WidgetPath Window::getPathUnderPoint(const SDL_Point& actualPoint) const
+WidgetPath Window::getPathUnderPoint(const SDL_FPoint& actualPoint) const
 {
     return widgetLocator.getPathUnderPoint(actualPoint);
 }
@@ -58,7 +58,7 @@ void Window::arrange()
     // Arrange our visible children and let them add themselves to the locator.
     // Note: We skip invisible children since they won't be rendered or receive
     //       events.
-    SDL_Rect availableExtent{scaledExtent};
+    SDL_FRect availableExtent{scaledExtent};
     availableExtent.x = 0;
     availableExtent.y = 0;
     for (Widget& child : children) {

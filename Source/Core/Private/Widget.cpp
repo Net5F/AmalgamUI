@@ -7,12 +7,12 @@
 #include "AUI/DragDropData.h"
 #include "AUI/Internal/Log.h"
 #include "AUI/Internal/AUIAssert.h"
-#include <SDL_rect.h>
+#include <SDL3/SDL_rect.h>
 #include <algorithm>
 
 namespace AUI
 {
-Widget::Widget(const SDL_Rect& inLogicalExtent, const std::string& inDebugName)
+Widget::Widget(const SDL_FRect& inLogicalExtent, const std::string& inDebugName)
 : debugName{inDebugName}
 , logicalExtent{inLogicalExtent}
 , scaledExtent{ScalingHelpers::logicalToActual(logicalExtent)}
@@ -36,12 +36,12 @@ Widget::~Widget()
     Core::decWidgetCount();
 }
 
-bool Widget::containsPoint(const SDL_Point& windowPoint)
+bool Widget::containsPoint(const SDL_FPoint& windowPoint)
 {
-    return SDL_PointInRect(&windowPoint, &clippedExtent);
+    return SDL_PointInRectFloat(&windowPoint, &clippedExtent);
 }
 
-void Widget::setLogicalExtent(const SDL_Rect& inLogicalExtent)
+void Widget::setLogicalExtent(const SDL_FRect& inLogicalExtent)
 {
     // Set our logical screen extent.
     logicalExtent = inLogicalExtent;
@@ -49,22 +49,22 @@ void Widget::setLogicalExtent(const SDL_Rect& inLogicalExtent)
     // TODO: Invalidate the layout
 }
 
-const SDL_Rect& Widget::getLogicalExtent() const
+const SDL_FRect& Widget::getLogicalExtent() const
 {
     return logicalExtent;
 }
 
-const SDL_Rect& Widget::getScaledExtent() const
+const SDL_FRect& Widget::getScaledExtent() const
 {
     return scaledExtent;
 }
 
-const SDL_Rect& Widget::getFullExtent() const
+const SDL_FRect& Widget::getFullExtent() const
 {
     return fullExtent;
 }
 
-const SDL_Rect& Widget::getClippedExtent() const
+const SDL_FRect& Widget::getClippedExtent() const
 {
     return clippedExtent;
 }
@@ -114,32 +114,32 @@ bool Widget::getIsDragDroppable()
     return (getDragDropImage() && getDragDropData());
 }
 
-EventResult Widget::onPreviewMouseDown(MouseButtonType, const SDL_Point&)
+EventResult Widget::onPreviewMouseDown(MouseButtonType, const SDL_FPoint&)
 {
     return EventResult{.wasHandled{false}};
 }
 
-EventResult Widget::onMouseDown(MouseButtonType, const SDL_Point&)
+EventResult Widget::onMouseDown(MouseButtonType, const SDL_FPoint&)
 {
     return EventResult{.wasHandled{false}};
 }
 
-EventResult Widget::onMouseUp(MouseButtonType, const SDL_Point&)
+EventResult Widget::onMouseUp(MouseButtonType, const SDL_FPoint&)
 {
     return EventResult{.wasHandled{false}};
 }
 
-EventResult Widget::onMouseDoubleClick(MouseButtonType, const SDL_Point&)
+EventResult Widget::onMouseDoubleClick(MouseButtonType, const SDL_FPoint&)
 {
     return EventResult{.wasHandled{false}};
 }
 
-EventResult Widget::onMouseWheel(int)
+EventResult Widget::onMouseWheel(float)
 {
     return EventResult{.wasHandled{false}};
 }
 
-EventResult Widget::onMouseMove(const SDL_Point&)
+EventResult Widget::onMouseMove(const SDL_FPoint&)
 {
     return EventResult{.wasHandled{false}};
 }
@@ -179,7 +179,7 @@ void Widget::onDragStart() {}
 
 void Widget::onDragEnd() {}
 
-EventResult Widget::onDragMove(const SDL_Point&)
+EventResult Widget::onDragMove(const SDL_FPoint&)
 {
     return EventResult{.wasHandled{false}};
 }
@@ -203,7 +203,7 @@ void Widget::onTick(double timestepS)
     }
 }
 
-void Widget::measure(const SDL_Rect&)
+void Widget::measure(const SDL_FRect&)
 {
     // Scale our logicalExtent to get our scaledExtent.
     scaledExtent = ScalingHelpers::logicalToActual(logicalExtent);
@@ -218,12 +218,12 @@ void Widget::measure(const SDL_Rect&)
     }
 }
 
-void Widget::arrange(const SDL_Point& startPosition,
-                     const SDL_Rect& availableExtent,
+void Widget::arrange(const SDL_FPoint& startPosition,
+                     const SDL_FRect& availableExtent,
                      WidgetLocator* widgetLocator)
 {
     // Note: This logical -> clipped conversion should match ScalingHelpers::
-    //       logicalToClipped(), but we don't use it because we need to save 
+    //       logicalToClipped(), but we don't use it because we need to save
     //       all of the intermediate extents.
 
     // Offset our scaledExtent to get our fullExtent.
@@ -232,8 +232,8 @@ void Widget::arrange(const SDL_Point& startPosition,
     fullExtent.y += startPosition.y;
 
     // Clip fullExtent to the available space to get our clippedExtent.
-    SDL_Rect intersectionResult{};
-    if (SDL_IntersectRect(&fullExtent, &availableExtent, &intersectionResult)) {
+    SDL_FRect intersectionResult{};
+    if (SDL_GetRectIntersectionFloat(&fullExtent, &availableExtent, &intersectionResult)) {
         clippedExtent = intersectionResult;
     }
     else {
@@ -260,10 +260,10 @@ void Widget::arrange(const SDL_Point& startPosition,
     }
 }
 
-void Widget::render(const SDL_Point& windowTopLeft)
+void Widget::render(const SDL_FPoint& windowTopLeft)
 {
     // If this widget is fully clipped, don't render it.
-    if (SDL_RectEmpty(&clippedExtent)) {
+    if (SDL_RectEmptyFloat(&clippedExtent)) {
         return;
     }
 

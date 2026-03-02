@@ -10,12 +10,12 @@ void SimpleImage::set(const std::string& textureID, SDL_ScaleMode scaleMode)
     if ((currentTexture
          = Core::getAssetCache().requestTexture(textureID, scaleMode))) {
         // Set the texture extent to the actual texture size.
-        SDL_QueryTexture(currentTexture.get(), nullptr, nullptr,
-                         &(currentTexExtent.w), &(currentTexExtent.h));
+        SDL_GetTextureSize(currentTexture.get(), &(currentTexExtent.w),
+                           &(currentTexExtent.h));
     }
 }
 
-void SimpleImage::set(const std::string& textureID, const SDL_Rect& inTexExtent,
+void SimpleImage::set(const std::string& textureID, const SDL_FRect& inTexExtent,
                       SDL_ScaleMode scaleMode)
 {
     // Attempt to load the image.
@@ -29,7 +29,7 @@ void SimpleImage::set(const std::string& textureID, const SDL_Rect& inTexExtent,
 void SimpleImage::clear()
 {
     currentTexture = nullptr;
-    currentTexExtent = SDL_Rect{};
+    currentTexExtent = SDL_FRect{};
 }
 
 } // namespace AUI

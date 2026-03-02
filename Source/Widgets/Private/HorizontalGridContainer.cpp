@@ -7,7 +7,7 @@
 
 namespace AUI
 {
-HorizontalGridContainer::HorizontalGridContainer(const SDL_Rect& inLogicalExtent,
+HorizontalGridContainer::HorizontalGridContainer(const SDL_FRect& inLogicalExtent,
                                              const std::string& inDebugName)
 : Container(inLogicalExtent, inDebugName)
 , numRows{1}
@@ -25,15 +25,15 @@ void HorizontalGridContainer::setNumRows(unsigned int inNumRows)
     numRows = inNumRows;
 }
 
-void HorizontalGridContainer::setCellWidth(unsigned int inLogicalCellWidth)
+void HorizontalGridContainer::setCellWidth(float inLogicalCellWidth)
 {
-    logicalCellWidth = static_cast<int>(inLogicalCellWidth);
+    logicalCellWidth = inLogicalCellWidth;
     scaledCellWidth = ScalingHelpers::logicalToActual(logicalCellWidth);
 }
 
-void HorizontalGridContainer::setCellHeight(unsigned int inLogicalCellHeight)
+void HorizontalGridContainer::setCellHeight(float inLogicalCellHeight)
 {
-    logicalCellHeight = static_cast<int>(inLogicalCellHeight);
+    logicalCellHeight = inLogicalCellHeight;
     scaledCellHeight = ScalingHelpers::logicalToActual(logicalCellHeight);
 }
 
@@ -42,7 +42,7 @@ void HorizontalGridContainer::setScrollingEnabled(bool isEnabled)
     isScrollingEnabled = isEnabled;
 }
 
-EventResult HorizontalGridContainer::onMouseWheel(int amountScrolled)
+EventResult HorizontalGridContainer::onMouseWheel(float amountScrolled)
 {
     if (!isScrollingEnabled) {
         return EventResult{.wasHandled{false}};
@@ -60,7 +60,7 @@ EventResult HorizontalGridContainer::onMouseWheel(int amountScrolled)
     return EventResult{.wasHandled{true}};
 }
 
-void HorizontalGridContainer::measure(const SDL_Rect& availableExtent)
+void HorizontalGridContainer::measure(const SDL_FRect& availableExtent)
 {
     // Run the normal measure step (sets our scaledExtent).
     Widget::measure(availableExtent);
@@ -77,8 +77,8 @@ void HorizontalGridContainer::measure(const SDL_Rect& availableExtent)
     }
 }
 
-void HorizontalGridContainer::arrange(const SDL_Point& startPosition,
-                                      const SDL_Rect& availableExtent,
+void HorizontalGridContainer::arrange(const SDL_FPoint& startPosition,
+                                      const SDL_FRect& availableExtent,
                                       WidgetLocator* widgetLocator)
 {
     // Run the normal arrange step (will arrange us, but won't arrange any of
@@ -86,26 +86,26 @@ void HorizontalGridContainer::arrange(const SDL_Point& startPosition,
     Widget::arrange(startPosition, availableExtent, widgetLocator);
 
     // If this widget is fully clipped, return early.
-    if (SDL_RectEmpty(&clippedExtent)) {
+    if (SDL_RectEmptyFloat(&clippedExtent)) {
         return;
     }
 
     // Lay out our elements in a vertical grid.
-    for (std::size_t i = 0; i < elements.size(); ++i) {
+    for (std::size_t i{0}; i < elements.size(); ++i) {
         // Get the cell coordinates for this element.
         std::size_t cellRow{i % numRows};
         std::size_t cellColumn{i / numRows};
 
         // Get the offsets for the cell at the calculated coordinates.
-        int cellXOffset{static_cast<int>(cellColumn * scaledCellWidth)};
-        int cellYOffset{static_cast<int>(cellRow * scaledCellHeight)};
+        float cellXOffset{cellColumn * scaledCellWidth};
+        float cellYOffset{cellRow * scaledCellHeight};
 
         // Move the X offset based on our current scroll position.
         cellXOffset -= (columnScroll * scaledCellWidth);
 
         // Add this widget's offset to get our final offset.
-        int finalX{fullExtent.x + cellXOffset};
-        int finalY{fullExtent.y + cellYOffset};
+        float finalX{fullExtent.x + cellXOffset};
+        float finalY{fullExtent.y + cellYOffset};
         elements[i]->arrange({finalX, finalY}, clippedExtent, widgetLocator);
     }
 }
@@ -117,7 +117,7 @@ void HorizontalGridContainer::scrollElements(bool scrollLeft)
         std::ceil(elements.size() / static_cast<float>(numRows)))};
 
     // Calc how many columns can fit onscreen at once.
-    int maxVisibleColumns{logicalExtent.w / logicalCellWidth};
+    int maxVisibleColumns{static_cast<int>(logicalExtent.w / logicalCellWidth)};
 
     // If we're being asked to scroll left and we've scrolled right previously.
     if (scrollLeft && (columnScroll > 0)) {

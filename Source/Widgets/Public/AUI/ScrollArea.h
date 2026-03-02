@@ -35,7 +35,7 @@ public:
     //-------------------------------------------------------------------------
     // Public interface
     //-------------------------------------------------------------------------
-    ScrollArea(const SDL_Rect& inLogicalExtent,
+    ScrollArea(const SDL_FRect& inLogicalExtent,
                const std::string& inDebugName = "ScrollArea");
 
     virtual ~ScrollArea() = default;
@@ -43,12 +43,12 @@ public:
     /**
      * Sets how far a single horizontal scroll event should scroll the container.
      */
-    void setScrollStepX(int inLogicalScrollStepX);
+    void setScrollStepX(float inLogicalScrollStepX);
 
     /**
      * Sets how far a single vertical scroll event should scroll the container.
      */
-    void setScrollStepY(int inLogicalScrollStepY);
+    void setScrollStepY(float inLogicalScrollStepY);
 
     /**
      * Sets which direction the mouse wheel will scroll in.
@@ -80,42 +80,42 @@ public:
     //-------------------------------------------------------------------------
     // Widget class overrides
     //-------------------------------------------------------------------------
-    EventResult onMouseWheel(int amountScrolled) override;
+    EventResult onMouseWheel(float amountScrolled) override;
 
     void onTick(double timestepS) override;
 
-    void measure(const SDL_Rect& availableExtent) override;
+    void measure(const SDL_FRect& availableExtent) override;
 
-    void arrange(const SDL_Point& startPosition,
-                 const SDL_Rect& availableExtent,
+    void arrange(const SDL_FPoint& startPosition,
+                 const SDL_FRect& availableExtent,
                  WidgetLocator* widgetLocator) override;
 
-    void render(const SDL_Point& windowTopLeft) override;
+    void render(const SDL_FPoint& windowTopLeft) override;
 
 private:
-    void handleMouseScrollHorizontal(int amountScrolled);
-    void handleMouseScrollVertical(int amountScrolled);
+    void handleMouseScrollHorizontal(float amountScrolled);
+    void handleMouseScrollVertical(float amountScrolled);
 
     /**
      * Calculates the actual-space extent of our child's content.
      */
-    SDL_Rect calcContentExtent();
+    SDL_FRect calcContentExtent();
 
     /** The default logical pixel distance of a horizontal scroll event. */
-    static constexpr int LOGICAL_DEFAULT_SCROLL_STEP_X{15};
+    static constexpr float LOGICAL_DEFAULT_SCROLL_STEP_X{15};
 
     /** The default logical pixel distance of a vertical scroll event. */
-    static constexpr int LOGICAL_DEFAULT_SCROLL_STEP_Y{15};
+    static constexpr float LOGICAL_DEFAULT_SCROLL_STEP_Y{15};
 
     /** The width in logical space of a single scroll event. */
-    int logicalScrollStepX;
+    float logicalScrollStepX;
     /** The scaled width in actual space of a single scroll event. */
-    int scaledScrollStepX;
+    float scaledScrollStepX;
 
     /** The height in logical space of a single scroll event. */
-    int logicalScrollStepY;
+    float logicalScrollStepY;
     /** The scaled height in actual space of a single scroll event. */
-    int scaledScrollStepY;
+    float scaledScrollStepY;
 
     /** The direction that the mouse wheel will scroll in. */
     Orientation scrollOrientation;
@@ -124,10 +124,10 @@ private:
     ScrollOrigin scrollOrigin;
 
     /** How far we're currently scrolled along the X axis, in scaled units. */
-    int scrollDistanceX;
+    float scrollDistanceX;
 
     /** How far we're currently scrolled along the Y axis, in scaled units. */
-    int scrollDistanceY;
+    float scrollDistanceY;
 };
 
 } // namespace AUI

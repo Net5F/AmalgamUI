@@ -23,7 +23,7 @@ public:
     //-------------------------------------------------------------------------
     // Public interface
     //-------------------------------------------------------------------------
-    Checkbox(const SDL_Rect& inLogicalExtent,
+    Checkbox(const SDL_FRect& inLogicalExtent,
              const std::string& inDebugName = "Checkbox");
 
     virtual ~Checkbox() = default;
@@ -57,10 +57,10 @@ public:
     // Base class overrides
     //-------------------------------------------------------------------------
     EventResult onMouseDown(MouseButtonType buttonType,
-                            const SDL_Point& cursorPosition) override;
+                            const SDL_FPoint& cursorPosition) override;
 
     EventResult onMouseDoubleClick(MouseButtonType buttonType,
-                                   const SDL_Point& cursorPosition) override;
+                                   const SDL_FPoint& cursorPosition) override;
 
 private:
     std::function<void(void)> onChecked;

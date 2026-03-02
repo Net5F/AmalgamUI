@@ -29,7 +29,7 @@ public:
     //-------------------------------------------------------------------------
     // Public interface
     //-------------------------------------------------------------------------
-    VerticalListContainer(const SDL_Rect& inLogicalExtent,
+    VerticalListContainer(const SDL_FRect& inLogicalExtent,
                           const std::string& inDebugName
                           = "VerticalListContainer");
 
@@ -38,12 +38,12 @@ public:
     /**
      * Sets the distance between elements.
      */
-    void setGapSize(int inLogicalGapSize);
+    void setGapSize(float inLogicalGapSize);
 
     /**
      * Sets how far a single scroll event should scroll the container.
      */
-    void setScrollHeight(int inLogicalScrollHeight);
+    void setScrollHeight(float inLogicalScrollHeight);
 
     /**
      * Sets whether widgets get added to the top of this container's extent and
@@ -57,19 +57,19 @@ public:
     //-------------------------------------------------------------------------
     // Widget class overrides
     //-------------------------------------------------------------------------
-    EventResult onMouseWheel(int amountScrolled) override;
+    EventResult onMouseWheel(float amountScrolled) override;
 
-    void measure(const SDL_Rect& availableExtent) override;
+    void measure(const SDL_FRect& availableExtent) override;
 
-    void arrange(const SDL_Point& startPosition,
-                 const SDL_Rect& availableExtent,
+    void arrange(const SDL_FPoint& startPosition,
+                 const SDL_FRect& availableExtent,
                  WidgetLocator* widgetLocator) override;
 
 private:
     /**
      * Calculates the height of this container's content, including gaps.
      */
-    int calcContentHeight();
+    float calcContentHeight();
 
     /**
      * Lay out our elements starting at the top of this container's extent and
@@ -84,24 +84,24 @@ private:
     void arrangeElementsBottomToTop(WidgetLocator* widgetLocator);
 
     /** The default logical pixel distance of a scroll event. */
-    static constexpr int LOGICAL_DEFAULT_SCROLL_DISTANCE{15};
+    static constexpr float LOGICAL_DEFAULT_SCROLL_DISTANCE{15};
 
     /** The height in logical space of a single scroll event. */
-    int logicalScrollHeight;
+    float logicalScrollHeight;
     /** The scaled height in actual space of a single scroll event. */
-    int scaledScrollHeight;
+    float scaledScrollHeight;
 
     /** The size in logical space of the gap between elements. */
-    int logicalGapSize;
+    float logicalGapSize;
     /** The scaled size in actual space of the gap between elements. */
-    int scaledGapSize;
+    float scaledGapSize;
 
     /** The direction that child widgets should flow in. See
         setFlowDirection(). */
     FlowDirection flowDirection;
 
     /** How far we're currently scrolled, in scaled units. */
-    int scrollDistance;
+    float scrollDistance;
 };
 
 } // namespace AUI

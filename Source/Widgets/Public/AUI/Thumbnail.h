@@ -27,7 +27,7 @@ public:
     //-------------------------------------------------------------------------
     // Public interface
     //-------------------------------------------------------------------------
-    Thumbnail(const SDL_Rect& inLogicalExtent,
+    Thumbnail(const SDL_FRect& inLogicalExtent,
               const std::string& inDebugName = "Thumbnail");
 
     virtual ~Thumbnail() = default;
@@ -151,7 +151,7 @@ public:
         Text::HorizontalAlignment inHorizontalAlignment);
 
     /** Calls text.setLogicalExtent(). */
-    void setTextLogicalExtent(const SDL_Rect& inLogicalExtent);
+    void setTextLogicalExtent(const SDL_FRect& inLogicalExtent);
     /** Calls text.setFont(). */
     void setTextFont(const std::string& fontPath, int inLogicalFontSize);
     /** Calls text.setColor(). */
@@ -208,10 +208,10 @@ public:
     // Base class overrides
     //-------------------------------------------------------------------------
     EventResult onMouseDown(MouseButtonType buttonType,
-                            const SDL_Point& cursorPosition) override;
+                            const SDL_FPoint& cursorPosition) override;
 
     EventResult onMouseDoubleClick(MouseButtonType buttonType,
-                                   const SDL_Point& cursorPosition) override;
+                                   const SDL_FPoint& cursorPosition) override;
 
     void onMouseEnter() override;
 

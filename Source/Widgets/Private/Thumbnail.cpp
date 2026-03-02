@@ -4,7 +4,7 @@
 
 namespace AUI
 {
-Thumbnail::Thumbnail(const SDL_Rect& inLogicalExtent,
+Thumbnail::Thumbnail(const SDL_FRect& inLogicalExtent,
                      const std::string& inDebugName)
 : Widget(inLogicalExtent, inDebugName)
 , backdropImage({0, 0, logicalExtent.w, logicalExtent.h})
@@ -185,7 +185,7 @@ void Thumbnail::setIsActivateable(bool inIsActivateable)
     isActivateable = inIsActivateable;
 }
 
-void Thumbnail::setTextLogicalExtent(const SDL_Rect& inLogicalExtent)
+void Thumbnail::setTextLogicalExtent(const SDL_FRect& inLogicalExtent)
 {
     text.setLogicalExtent(inLogicalExtent);
 }
@@ -271,7 +271,7 @@ void Thumbnail::setOnMouseDown(
     userOnMouseDown = std::move(inOnMouseDown);
 }
 
-EventResult Thumbnail::onMouseDown(MouseButtonType buttonType, const SDL_Point&)
+EventResult Thumbnail::onMouseDown(MouseButtonType buttonType, const SDL_FPoint&)
 {
     // If we're disabled, ignore the event.
     if (isDisabled) {
@@ -311,7 +311,7 @@ EventResult Thumbnail::onMouseDown(MouseButtonType buttonType, const SDL_Point&)
 }
 
 EventResult Thumbnail::onMouseDoubleClick(MouseButtonType buttonType,
-                                          const SDL_Point&)
+                                          const SDL_FPoint&)
 {
     // Only respond to the left mouse button.
     if (buttonType != MouseButtonType::Left) {

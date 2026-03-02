@@ -24,7 +24,7 @@ public:
     //-------------------------------------------------------------------------
     // Public interface
     //-------------------------------------------------------------------------
-    CollapsibleContainer(const SDL_Rect& inLogicalExtent,
+    CollapsibleContainer(const SDL_FRect& inLogicalExtent,
                          const std::string& inDebugName
                          = "CollapsibleContainer");
 
@@ -33,7 +33,7 @@ public:
     /**
      * Sets the extent of this widget's expand/collapse click region.
      */
-    void setClickRegionLogicalExtent(const SDL_Rect& inLogicalExtent);
+    void setClickRegionLogicalExtent(const SDL_FRect& inLogicalExtent);
 
     /**
      * Sets whether the container is collapsed or expanded.
@@ -43,18 +43,18 @@ public:
     /**
      * Sets the distance between elements.
      */
-    void setGapSize(int inLogicalGapSize);
+    void setGapSize(float inLogicalGapSize);
 
     /**
      * @return The clipped, window-relative extent for this widget's header.
      */
-    SDL_Rect getHeaderExtent();
+    SDL_FRect getHeaderExtent();
 
     /**
      * @return The clipped, window-relative extent for this widget's click
      *         region.
      */
-    SDL_Rect getClickRegionExtent();
+    SDL_FRect getClickRegionExtent();
 
     //-------------------------------------------------------------------------
     // Public child widgets
@@ -71,40 +71,40 @@ public:
     //-------------------------------------------------------------------------
     // Base class overrides
     //-------------------------------------------------------------------------
-    void setLogicalExtent(const SDL_Rect& inLogicalExtent) override;
+    void setLogicalExtent(const SDL_FRect& inLogicalExtent) override;
 
     EventResult onMouseDown(MouseButtonType buttonType,
-                            const SDL_Point& cursorPosition) override;
+                            const SDL_FPoint& cursorPosition) override;
 
     EventResult onMouseDoubleClick(MouseButtonType buttonType,
-                                   const SDL_Point& cursorPosition) override;
+                                   const SDL_FPoint& cursorPosition) override;
 
-    void measure(const SDL_Rect& availableExtent) override;
+    void measure(const SDL_FRect& availableExtent) override;
 
-    void arrange(const SDL_Point& startPosition,
-                 const SDL_Rect& availableExtent,
+    void arrange(const SDL_FPoint& startPosition,
+                 const SDL_FRect& availableExtent,
                  WidgetLocator* widgetLocator) override;
 
 protected:
     /**
      * Calculates the height of this widget, if it was in an expanded state.
      */
-    int calcExpandedHeight();
+    float calcExpandedHeight();
 
     /** The logical extent of the header. Used to return to the original size
         when this container goes from expanded to collapsed. */
-    SDL_Rect headerLogicalExtent;
+    SDL_FRect headerLogicalExtent;
 
     /** The region that must be clicked to expand or collapse this widget. */
-    SDL_Rect clickRegionLogicalExtent;
+    SDL_FRect clickRegionLogicalExtent;
 
     /** If true, the container is collapsed. If false, it's expanded. */
     bool isCollapsed;
 
     /** The size in logical space of the gap between elements. */
-    int logicalGapSize;
+    float logicalGapSize;
     /** The scaled size in actual space of the gap between elements. */
-    int scaledGapSize;
+    float scaledGapSize;
 };
 
 } // namespace AUI

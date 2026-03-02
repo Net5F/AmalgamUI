@@ -23,12 +23,12 @@ public:
      *                  full path to an image file.
      * @param scaledExtent The desired size of the generated texture.
      */
-    void set(const std::string& textureID, const SDL_Rect& scaledExtent);
+    void set(const std::string& textureID, const SDL_FRect& scaledExtent);
 
     /**
      * Overridden to generate a new tiled image texture.
      */
-    void refresh(const SDL_Rect& scaledExtent) override;
+    void refresh(const SDL_FRect& scaledExtent) override;
 
 private:
     /**

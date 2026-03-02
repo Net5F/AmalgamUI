@@ -27,7 +27,7 @@ bool EventRouter::handleMouseButtonDown(SDL_MouseButtonEvent& event)
 {
     // Check if the cursor is over an AUI window, or if it missed.
     RouterReturnData returnData{};
-    SDL_Point cursorPosition{event.x, event.y};
+    SDL_FPoint cursorPosition{event.x, event.y};
     WidgetPath clickPath{getPathUnderCursor(cursorPosition)};
     if (!(clickPath.empty())) {
         Widget* previousFocusedWidget{getFocusedWidget()};
@@ -84,7 +84,7 @@ bool EventRouter::handleMouseButtonDown(SDL_MouseButtonEvent& event)
 bool EventRouter::handleMouseButtonUp(SDL_MouseButtonEvent& event)
 {
     // If we're dragging, route the Drop event.
-    SDL_Point cursorPosition{event.x, event.y};
+    SDL_FPoint cursorPosition{event.x, event.y};
     if (dragUnderway) {
         WidgetPath hoverPath{getPathUnderCursor(cursorPosition)};
         routeDrop(hoverPath);
@@ -120,7 +120,7 @@ bool EventRouter::handleMouseButtonUp(SDL_MouseButtonEvent& event)
 bool EventRouter::handleMouseWheel(SDL_MouseWheelEvent& event)
 {
     // Normalize the scroll direction.
-    int amountScrolled{event.y};
+    float amountScrolled{event.y};
     if (event.direction == SDL_MOUSEWHEEL_FLIPPED) {
         amountScrolled *= -1;
     }
@@ -147,7 +147,7 @@ bool EventRouter::handleMouseWheel(SDL_MouseWheelEvent& event)
     else {
         // The mouse isn't captured. If the cursor is hovering over an AUI
         // window, bubble the event through the hovered widgets.
-        SDL_Point cursorPosition{};
+        SDL_FPoint cursorPosition{};
         SDL_GetMouseState(&(cursorPosition.x), &(cursorPosition.y));
         WidgetPath hoverPath{getPathUnderCursor(cursorPosition)};
         if (!(hoverPath.empty())) {
@@ -185,7 +185,7 @@ bool EventRouter::handleMouseMove(SDL_MouseMotionEvent& event)
     }
 
     // Build the event path based on whether the mouse is captured or not.
-    SDL_Point cursorPosition{event.x, event.y};
+    SDL_FPoint cursorPosition{event.x, event.y};
     WidgetPath eventPath{};
     if (!(mouseCapturePath.empty())) {
         eventPath = mouseCapturePath;
@@ -220,24 +220,24 @@ bool EventRouter::handleKeyDown(SDL_KeyboardEvent& event)
     // If we have a valid focused widget, route the event down the focus path.
     bool eventWasHandled{false};
     if (!(focusPath.empty()) && focusPath.back().isValid()) {
-        if (event.type == SDL_KEYDOWN) {
-            eventWasHandled = routeFocusedKeyDown(event.keysym.sym);
+        if (event.type == SDL_EVENT_KEY_DOWN) {
+            eventWasHandled = routeFocusedKeyDown(event.key);
         }
         else {
-            eventWasHandled = routeKeyUp(event.keysym.sym);
+            eventWasHandled = routeKeyUp(event.key);
         }
     }
 
     // If an escape key press wasn't handled, drop focus.
-    if ((event.type == SDL_KEYDOWN) && !eventWasHandled
-        && (event.keysym.sym == SDLK_ESCAPE)) {
+    if ((event.type == SDL_EVENT_KEY_DOWN) && !eventWasHandled
+        && (event.key == SDLK_ESCAPE)) {
         dropFocus(FocusLostType::Escape);
         eventWasHandled = true;
     }
 
     // If a KeyDown wasn't handled by our widgets, route it to the screen.
-    if ((event.type == SDL_KEYDOWN) && !eventWasHandled) {
-        eventWasHandled = screen.onKeyDown(event.keysym.sym);
+    if ((event.type == SDL_EVENT_KEY_DOWN) && !eventWasHandled) {
+        eventWasHandled = screen.onKeyDown(event.key);
     }
 
     return eventWasHandled;
@@ -327,13 +327,13 @@ MouseButtonType EventRouter::translateSDLButtonType(Uint8 sdlButtonType)
     }
 }
 
-SDL_Point EventRouter::screenToWindowRelative(const SDL_Point& cursorPosition)
+SDL_FPoint EventRouter::screenToWindowRelative(const SDL_FPoint& cursorPosition)
 {
     // If the cursor is hovering over a window, calculate the relative position.
     Window* hoveredWindow{screen.getWindowUnderPoint(cursorPosition)};
     if (hoveredWindow != nullptr) {
-        SDL_Rect windowExtent{hoveredWindow->getScaledExtent()};
-        SDL_Point windowRelativeCursor{cursorPosition};
+        SDL_FRect windowExtent{hoveredWindow->getScaledExtent()};
+        SDL_FPoint windowRelativeCursor{cursorPosition};
         windowRelativeCursor.x -= windowExtent.x;
         windowRelativeCursor.y -= windowExtent.y;
 
@@ -345,7 +345,7 @@ SDL_Point EventRouter::screenToWindowRelative(const SDL_Point& cursorPosition)
     }
 }
 
-WidgetPath EventRouter::getPathUnderCursor(const SDL_Point& cursorPosition)
+WidgetPath EventRouter::getPathUnderCursor(const SDL_FPoint& cursorPosition)
 {
     // Check if the cursor is hovering over an AUI window.
     Window* hoveredWindow{screen.getWindowUnderPoint(cursorPosition)};
@@ -372,7 +372,7 @@ WidgetPath EventRouter::getPathUnderWidget(const Widget* widget)
 
 EventRouter::RouterReturnData
     EventRouter::routeMouseDown(MouseButtonType buttonType,
-                                const SDL_Point& cursorPosition,
+                                const SDL_FPoint& cursorPosition,
                                 WidgetPath& clickPath)
 {
     // Perform the tunneling pass (root -> leaf, PreviewMouseDown).
@@ -438,7 +438,7 @@ EventRouter::RouterReturnData
 
 EventRouter::RouterReturnData
     EventRouter::routeMouseDoubleClick(MouseButtonType buttonType,
-                                       const SDL_Point& cursorPosition,
+                                       const SDL_FPoint& cursorPosition,
                                        WidgetPath& clickPath)
 {
     // Perform the bubbling pass (leaf -> root, MouseDoubleClick).
@@ -527,7 +527,7 @@ void EventRouter::routeMouseEnterAndLeave(WidgetPath& hoverPath)
     }
 }
 
-bool EventRouter::routeMouseMove(const SDL_Point& cursorPosition,
+bool EventRouter::routeMouseMove(const SDL_FPoint& cursorPosition,
                                  WidgetPath& hoverPath)
 {
     // Perform the bubbling pass (leaf -> root, MouseMove).
@@ -602,7 +602,7 @@ void EventRouter::setFocus(WidgetPath& newFocusPath)
         else if (focusPath.empty()) {
             // If there was no focused widget, text input events will have been
             // disabled. Enable them.
-            SDL_StartTextInput();
+            SDL_StartTextInput(SDL_GetRenderWindow(Core::getRenderer()));
         }
 
         // Pass a FocusGained event to the new widget.
@@ -633,7 +633,7 @@ void EventRouter::dropFocus(FocusLostType focusLostType)
 
         // Stop generating text input events, since there's no focused widget
         // to handle them.
-        SDL_StopTextInput();
+        SDL_StopTextInput(SDL_GetRenderWindow(Core::getRenderer()));
     }
 }
 
@@ -713,7 +713,7 @@ bool EventRouter::routeKeyUp(SDL_Keycode keyCode)
 }
 
 void EventRouter::setDragIfDraggable(WidgetPath& eventPath,
-                                     SDL_Point& cursorPosition)
+                                     SDL_FPoint& cursorPosition)
 {
     // Reverse iterate eventPath, looking for a drag/droppable widget.
     for (std::size_t i = eventPath.size(); i-- > 0;) {
@@ -879,7 +879,7 @@ void EventRouter::setMouseCapture(AUI::Widget* newCaptorWidget)
 
     // Build a current hovered widget path based on whether the mouse is 
     // captured or not.
-    SDL_Point cursorPosition{};
+    SDL_FPoint cursorPosition{};
     SDL_GetMouseState(&(cursorPosition.x), &(cursorPosition.y));
     WidgetPath currentHoveredWidgetPath{};
     if (!(mouseCapturePath.empty())) {

@@ -6,7 +6,7 @@
 
 namespace AUI
 {
-TextButton::TextButton(const SDL_Rect& inLogicalExtent, const std::string& inDebugName)
+TextButton::TextButton(const SDL_FRect& inLogicalExtent, const std::string& inDebugName)
 : Widget(inLogicalExtent, inDebugName)
 , text({0, 0, logicalExtent.w, logicalExtent.h})
 , normalColor{0, 0, 0, 255}
@@ -52,7 +52,7 @@ void TextButton::setAutoHeightEnabled(bool inAutoHeightEnabled)
 
 void TextButton::enable()
 {
-    SDL_Point cursorPosition{};
+    SDL_FPoint cursorPosition{};
     SDL_GetMouseState(&(cursorPosition.x), &(cursorPosition.y));
     cursorPosition.x -= clippedExtent.x;
     cursorPosition.y -= clippedExtent.y;
@@ -96,7 +96,7 @@ void TextButton::setIsVisible(bool inIsVisible)
     Widget::setIsVisible(inIsVisible);
 }
 
-EventResult TextButton::onMouseDown(MouseButtonType buttonType, const SDL_Point&)
+EventResult TextButton::onMouseDown(MouseButtonType buttonType, const SDL_FPoint&)
 {
     // Only respond to the left mouse button.
     if (buttonType != MouseButtonType::Left) {
@@ -123,7 +123,7 @@ EventResult TextButton::onMouseDown(MouseButtonType buttonType, const SDL_Point&
 }
 
 EventResult TextButton::onMouseUp(MouseButtonType buttonType,
-                              const SDL_Point& cursorPosition)
+                              const SDL_FPoint& cursorPosition)
 {
     // Only respond to the left mouse button.
     if (buttonType != MouseButtonType::Left) {
@@ -157,7 +157,7 @@ EventResult TextButton::onMouseUp(MouseButtonType buttonType,
 }
 
 EventResult TextButton::onMouseDoubleClick(MouseButtonType buttonType,
-                                       const SDL_Point& cursorPosition)
+                                       const SDL_FPoint& cursorPosition)
 {
     // We treat additional clicks as regular MouseDown events.
     return onMouseDown(buttonType, cursorPosition);
@@ -189,7 +189,7 @@ void TextButton::onMouseLeave()
     setCurrentState(Button::State::Normal);
 }
 
-void TextButton::measure(const SDL_Rect& availableExtent)
+void TextButton::measure(const SDL_FRect& availableExtent)
 {
     // Run the normal measure step (measures our children and sets our 
     // scaledExtent).

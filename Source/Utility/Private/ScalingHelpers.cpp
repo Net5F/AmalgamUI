@@ -37,7 +37,7 @@ float ScalingHelpers::logicalToActual(float logicalFloat)
     return static_cast<float>(std::round(logicalFloat * scale));
 }
 
-SDL_Rect ScalingHelpers::logicalToActual(const SDL_Rect& logicalExtent)
+SDL_FRect ScalingHelpers::logicalToActual(const SDL_FRect& logicalExtent)
 {
     // Calculate the scaling factor, going from logical size to actual.
     double xScale{static_cast<double>(Core::getActualScreenSize().width)
@@ -53,16 +53,16 @@ SDL_Rect ScalingHelpers::logicalToActual(const SDL_Rect& logicalExtent)
     }
 
     // Scale from logical to actual.
-    SDL_Rect actualExtent{};
-    actualExtent.x = static_cast<int>(std::round(logicalExtent.x * xScale));
-    actualExtent.y = static_cast<int>(std::round(logicalExtent.y * yScale));
-    actualExtent.w = static_cast<int>(std::round(logicalExtent.w * xScale));
-    actualExtent.h = static_cast<int>(std::round(logicalExtent.h * yScale));
+    SDL_FRect actualExtent{};
+    actualExtent.x = static_cast<float>(std::round(logicalExtent.x * xScale));
+    actualExtent.y = static_cast<float>(std::round(logicalExtent.y * yScale));
+    actualExtent.w = static_cast<float>(std::round(logicalExtent.w * xScale));
+    actualExtent.h = static_cast<float>(std::round(logicalExtent.h * yScale));
 
     return actualExtent;
 }
 
-SDL_Point ScalingHelpers::logicalToActual(const SDL_Point& logicalPoint)
+SDL_FPoint ScalingHelpers::logicalToActual(const SDL_FPoint& logicalPoint)
 {
     // Calculate the scaling factor, going from logical size to actual.
     double xScale{static_cast<double>(Core::getActualScreenSize().width)
@@ -78,9 +78,9 @@ SDL_Point ScalingHelpers::logicalToActual(const SDL_Point& logicalPoint)
     }
 
     // Scale from logical to actual.
-    SDL_Point actualPoint{};
-    actualPoint.x = static_cast<int>(std::round(logicalPoint.x * xScale));
-    actualPoint.y = static_cast<int>(std::round(logicalPoint.y * yScale));
+    SDL_FPoint actualPoint{};
+    actualPoint.x = static_cast<float>(std::round(logicalPoint.x * xScale));
+    actualPoint.y = static_cast<float>(std::round(logicalPoint.y * yScale));
 
     return actualPoint;
 }
@@ -118,7 +118,7 @@ float ScalingHelpers::actualToLogical(float actualFloat)
     return static_cast<float>((actualFloat * scale));
 }
 
-SDL_Rect ScalingHelpers::actualToLogical(const SDL_Rect& actualExtent)
+SDL_FRect ScalingHelpers::actualToLogical(const SDL_FRect& actualExtent)
 {
     // Calculate the scaling factor, going from actual size to logical.
     double xScale{static_cast<double>(Core::getLogicalScreenSize().width)
@@ -134,16 +134,16 @@ SDL_Rect ScalingHelpers::actualToLogical(const SDL_Rect& actualExtent)
     }
 
     // Scale from actual to logical.
-    SDL_Rect logicalExtent{};
-    logicalExtent.x = static_cast<int>(std::round(actualExtent.x * xScale));
-    logicalExtent.y = static_cast<int>(std::round(actualExtent.y * yScale));
-    logicalExtent.w = static_cast<int>(std::round(actualExtent.w * xScale));
-    logicalExtent.h = static_cast<int>(std::round(actualExtent.h * yScale));
+    SDL_FRect logicalExtent{};
+    logicalExtent.x = static_cast<float>(std::round(actualExtent.x * xScale));
+    logicalExtent.y = static_cast<float>(std::round(actualExtent.y * yScale));
+    logicalExtent.w = static_cast<float>(std::round(actualExtent.w * xScale));
+    logicalExtent.h = static_cast<float>(std::round(actualExtent.h * yScale));
 
     return logicalExtent;
 }
 
-SDL_Point ScalingHelpers::actualToLogical(const SDL_Point& actualPoint)
+SDL_FPoint ScalingHelpers::actualToLogical(const SDL_FPoint& actualPoint)
 {
     // Calculate the scaling factor, going from actual size to logical.
     double xScale{static_cast<double>(Core::getLogicalScreenSize().width)
@@ -159,26 +159,26 @@ SDL_Point ScalingHelpers::actualToLogical(const SDL_Point& actualPoint)
     }
 
     // Scale from actual to logical.
-    SDL_Point logicalPoint{};
-    logicalPoint.x = static_cast<int>(std::round(actualPoint.x * xScale));
-    logicalPoint.y = static_cast<int>(std::round(actualPoint.y * yScale));
+    SDL_FPoint logicalPoint{};
+    logicalPoint.x = static_cast<float>(std::round(actualPoint.x * xScale));
+    logicalPoint.y = static_cast<float>(std::round(actualPoint.y * yScale));
 
     return logicalPoint;
 }
 
-SDL_Rect ScalingHelpers::logicalToClipped(const SDL_Rect& logicalExtent,
-                                          const SDL_Point& startPosition,
-                                          const SDL_Rect& availableExtent)
+SDL_FRect ScalingHelpers::logicalToClipped(const SDL_FRect& logicalExtent,
+                                          const SDL_FPoint& startPosition,
+                                          const SDL_FRect& availableExtent)
 {
     // Scale our logicalExtent to get our scaled extent, then offset it to get 
     // our fullExtent.
-    SDL_Rect fullExtent{ScalingHelpers::logicalToActual(logicalExtent)};
+    SDL_FRect fullExtent{ScalingHelpers::logicalToActual(logicalExtent)};
     fullExtent.x += startPosition.x;
     fullExtent.y += startPosition.y;
 
     // Clip fullExtent to the available space to get our clipped extent.
-    SDL_Rect intersectionResult{};
-    if (SDL_IntersectRect(&fullExtent, &availableExtent, &intersectionResult)) {
+    SDL_FRect intersectionResult{};
+    if (SDL_GetRectIntersectionFloat(&fullExtent, &availableExtent, &intersectionResult)) {
         return intersectionResult;
     }
     else {

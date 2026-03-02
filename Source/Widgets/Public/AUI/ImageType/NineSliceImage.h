@@ -26,10 +26,10 @@ public:
      * Represents how far to slice into the image, in each direction.
      */
     struct SliceSizes {
-        int top{0};
-        int right{0};
-        int bottom{0};
-        int left{0};
+        float top{0};
+        float right{0};
+        float bottom{0};
+        float left{0};
     };
 
     /**
@@ -41,12 +41,12 @@ public:
      * @param scaledExtent The desired size of the generated texture.
      */
     void set(const std::string& textureID, SliceSizes inSliceSizes,
-             const SDL_Rect& scaledExtent);
+             const SDL_FRect& scaledExtent);
 
     /**
      * Overridden to generate a new nine slice texture.
      */
-    void refresh(const SDL_Rect& scaledExtent) override;
+    void refresh(const SDL_FRect& scaledExtent) override;
 
 private:
     /**
@@ -56,9 +56,9 @@ private:
 
     // Functions for copying the slices into the current render target (our
     // new texture). Used by regenerateNineSliceTexture().
-    void copyCorners(int sourceWidth, int sourceHeight);
-    void copySides(int sourceWidth, int sourceHeight);
-    void copyCenter(int sourceWidth, int sourceHeight);
+    void copyCorners(float sourceWidth, float sourceHeight);
+    void copySides(float sourceWidth, float sourceHeight);
+    void copyCenter(float sourceWidth, float sourceHeight);
 
     /** The source texture that we were given. */
     std::shared_ptr<SDL_Texture> sourceTexture;

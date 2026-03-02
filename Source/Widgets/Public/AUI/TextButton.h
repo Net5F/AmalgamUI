@@ -20,7 +20,7 @@ public:
     //-------------------------------------------------------------------------
     // Public interface
     //-------------------------------------------------------------------------
-    TextButton(const SDL_Rect& inLogicalExtent,
+    TextButton(const SDL_FRect& inLogicalExtent,
                const std::string& inDebugName = "TextButton");
 
     virtual ~TextButton() = default;
@@ -94,13 +94,13 @@ public:
     void setIsVisible(bool inIsVisible) override;
 
     EventResult onMouseDown(MouseButtonType buttonType,
-                            const SDL_Point& cursorPosition) override;
+                            const SDL_FPoint& cursorPosition) override;
 
     EventResult onMouseUp(MouseButtonType buttonType,
-                          const SDL_Point& cursorPosition) override;
+                          const SDL_FPoint& cursorPosition) override;
 
     EventResult onMouseDoubleClick(MouseButtonType buttonType,
-                                   const SDL_Point& cursorPosition) override;
+                                   const SDL_FPoint& cursorPosition) override;
 
     void onMouseEnter() override;
 
@@ -109,7 +109,7 @@ public:
     /**
      * Resizes this widget to fit its text.
      */
-    void measure(const SDL_Rect& availableExtent) override;
+    void measure(const SDL_FRect& availableExtent) override;
 
 protected:
     /**

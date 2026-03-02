@@ -2,7 +2,7 @@
 
 #include "AUI/Widget.h"
 #include "AUI/WidgetLocator.h"
-#include <SDL_events.h>
+#include <SDL3/SDL_events.h>
 #include <vector>
 
 namespace AUI
@@ -33,7 +33,7 @@ namespace AUI
 class Window : public Widget
 {
 public:
-    Window(const SDL_Rect& inLogicalExtent, const std::string& inDebugName);
+    Window(const SDL_FRect& inLogicalExtent, const std::string& inDebugName);
 
     virtual ~Window() = default;
 
@@ -45,7 +45,7 @@ public:
      * @return A widget path, ordered with the root-most widget at the front
      *         and the leaf-most widget at the back.
      */
-    WidgetPath getPathUnderPoint(const SDL_Point& actualPoint) const;
+    WidgetPath getPathUnderPoint(const SDL_FPoint& actualPoint) const;
 
     /**
      * Builds a path containing all tracked widgets that are underneath the
@@ -85,7 +85,7 @@ public:
      *
      * The default implementation simply calls render() on all widgets in our
      * children list. Some overrides may directly call SDL functions like
-     * SDL_RenderCopy().
+     * SDL_RenderTexture().
      */
     virtual void render();
 

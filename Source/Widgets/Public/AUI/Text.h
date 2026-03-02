@@ -3,7 +3,7 @@
 #include "AUI/Widget.h"
 #include "AUI/AssetCache.h" // FontHandle
 #include "AUI/ScreenResolution.h"
-#include <SDL_ttf.h>
+#include <SDL3_ttf/SDL_ttf.h>
 #include <string_view>
 #include <string>
 
@@ -43,10 +43,9 @@ public:
         Shaded,
         /** Slower, high quality, no box. */
         Blended,
-        // Note: Removed because SDL_ttf on 22.04 doesn't support it.
-        ///** Slowest, LCD subpixel quality, but has a box around it.
-        //    Useful for small font sizes. */
-        // LCD
+        /** Slowest, LCD subpixel quality, but has a box around it.
+            Useful for small font sizes. */
+        LCD
     };
 
     /**
@@ -62,7 +61,7 @@ public:
     //-------------------------------------------------------------------------
     // Public interface
     //-------------------------------------------------------------------------
-    Text(const SDL_Rect& inLogicalExtent,
+    Text(const SDL_FRect& inLogicalExtent,
          const std::string& inDebugName = "Text");
 
     /**
@@ -127,7 +126,7 @@ public:
      * This is done after all other offsets but pre-clipping, allowing you to
      * scroll the text and have it be clipped appropriately.
      */
-    void setTextOffset(int inTextOffset);
+    void setTextOffset(float inTextOffset);
 
     /**
      * Inserts the given text into the given position in the underlying string.
@@ -158,7 +157,7 @@ public:
      *         character, and the character's height. This extent is relative
      *         to scaledExtent.
      */
-    SDL_Rect calcCharacterOffset(std::size_t index);
+    SDL_FRect calcCharacterOffset(std::size_t index);
 
     /**
      * Calculates the width that the given string would have if rendered using
@@ -172,11 +171,11 @@ public:
      * Note: If the text is changed, the new texture will be generated in 
      *       the next call to measure().
      */
-    SDL_Rect getLogicalTextureExtent();
+    SDL_FRect getLogicalTextureExtent();
 
     VerticalAlignment getVerticalAlignment();
     HorizontalAlignment getHorizontalAlignment();
-    int getTextOffset();
+    float getTextOffset();
 
     //-------------------------------------------------------------------------
     // Base class overrides
@@ -184,18 +183,18 @@ public:
     /**
      * Calls Widget::setLogicalExtent(), then calls refreshAlignment().
      */
-    void setLogicalExtent(const SDL_Rect& inLogicalExtent) override;
+    void setLogicalExtent(const SDL_FRect& inLogicalExtent) override;
 
-    void measure(const SDL_Rect& availableExtent) override;
+    void measure(const SDL_FRect& availableExtent) override;
 
     /**
      * Calls Widget::arrange() and updates our special extents.
      */
-    void arrange(const SDL_Point& startPosition,
-                 const SDL_Rect& availableExtent,
+    void arrange(const SDL_FPoint& startPosition,
+                 const SDL_FRect& availableExtent,
                  WidgetLocator* widgetLocator) override;
 
-    void render(const SDL_Point& windowTopLeft) override;
+    void render(const SDL_FPoint& windowTopLeft) override;
 
 private:
     /**
@@ -294,27 +293,27 @@ private:
     /** The source extent of the image within the text texture.
         Since we use the whole texture, this is effectively the size of the
         texture. */
-    SDL_Rect textureExtent;
+    SDL_FRect textureExtent;
 
     /** Our textureExtent, aligned to our scaledExtent according to our
         vertical/horizontal alignment setting. This is the extent in actual
         space that the text texture should be rendered at. */
-    SDL_Rect textExtent;
+    SDL_FRect textExtent;
 
     /** An actual-space x-axis offset applied to the text's position before
         clipping. Effectively moves the text in relation to our scaledExtent.
         Used to scroll the text and have it be clipped appropriately. */
-    int textOffset;
+    float textOffset;
 
     /** Our textExtent, offset to match the parentExtent given during
         updateLayout() and clipped to renderExtent's bounds.
         Calc'd during updateLayout() and only valid for that frame. */
-    SDL_Rect offsetClippedTextExtent;
+    SDL_FRect offsetClippedTextExtent;
 
     /** Our offsetClippedTextExtent, pulled back into texture space
         ((0, 0) origin). Tells us what part of the texture to render.
         Calc'd during updateLayout() and only valid for that frame. */
-    SDL_Rect offsetClippedTextureExtent;
+    SDL_FRect offsetClippedTextureExtent;
 };
 
 } // namespace AUI

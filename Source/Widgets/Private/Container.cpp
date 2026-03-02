@@ -4,7 +4,7 @@
 
 namespace AUI
 {
-Container::Container(const SDL_Rect& inLogicalExtent,
+Container::Container(const SDL_FRect& inLogicalExtent,
                      const std::string& inDebugName)
 : Widget(inLogicalExtent, inDebugName)
 {
@@ -111,10 +111,10 @@ void Container::onTick(double timestepS)
     }
 }
 
-void Container::render(const SDL_Point& windowTopLeft)
+void Container::render(const SDL_FPoint& windowTopLeft)
 {
     // If this widget is fully clipped, don't render it.
-    if (SDL_RectEmpty(&clippedExtent)) {
+    if (SDL_RectEmptyFloat(&clippedExtent)) {
         return;
     }
 

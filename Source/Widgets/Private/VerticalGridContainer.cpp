@@ -6,7 +6,7 @@
 
 namespace AUI
 {
-VerticalGridContainer::VerticalGridContainer(const SDL_Rect& inLogicalExtent,
+VerticalGridContainer::VerticalGridContainer(const SDL_FRect& inLogicalExtent,
                                              const std::string& inDebugName)
 : Container(inLogicalExtent, inDebugName)
 , numColumns{1}
@@ -24,15 +24,15 @@ void VerticalGridContainer::setNumColumns(unsigned int inNumColumns)
     numColumns = inNumColumns;
 }
 
-void VerticalGridContainer::setCellWidth(unsigned int inLogicalCellWidth)
+void VerticalGridContainer::setCellWidth(float inLogicalCellWidth)
 {
-    logicalCellWidth = static_cast<int>(inLogicalCellWidth);
+    logicalCellWidth = inLogicalCellWidth;
     scaledCellWidth = ScalingHelpers::logicalToActual(logicalCellWidth);
 }
 
-void VerticalGridContainer::setCellHeight(unsigned int inLogicalCellHeight)
+void VerticalGridContainer::setCellHeight(float inLogicalCellHeight)
 {
-    logicalCellHeight = static_cast<int>(inLogicalCellHeight);
+    logicalCellHeight = inLogicalCellHeight;
     scaledCellHeight = ScalingHelpers::logicalToActual(logicalCellHeight);
 }
 
@@ -41,7 +41,7 @@ void VerticalGridContainer::setScrollingEnabled(bool isEnabled)
     isScrollingEnabled = isEnabled;
 }
 
-EventResult VerticalGridContainer::onMouseWheel(int amountScrolled)
+EventResult VerticalGridContainer::onMouseWheel(float amountScrolled)
 {
     if (!isScrollingEnabled) {
         return EventResult{.wasHandled{false}};
@@ -59,7 +59,7 @@ EventResult VerticalGridContainer::onMouseWheel(int amountScrolled)
     return EventResult{.wasHandled{true}};
 }
 
-void VerticalGridContainer::measure(const SDL_Rect& availableExtent)
+void VerticalGridContainer::measure(const SDL_FRect& availableExtent)
 {
     // Run the normal measure step (sets our scaledExtent).
     Widget::measure(availableExtent);
@@ -76,8 +76,8 @@ void VerticalGridContainer::measure(const SDL_Rect& availableExtent)
     }
 }
 
-void VerticalGridContainer::arrange(const SDL_Point& startPosition,
-                                    const SDL_Rect& availableExtent,
+void VerticalGridContainer::arrange(const SDL_FPoint& startPosition,
+                                    const SDL_FRect& availableExtent,
                                     WidgetLocator* widgetLocator)
 {
     // Run the normal arrange step (will arrange us, but won't arrange any of
@@ -85,7 +85,7 @@ void VerticalGridContainer::arrange(const SDL_Point& startPosition,
     Widget::arrange(startPosition, availableExtent, widgetLocator);
 
     // If this widget is fully clipped, return early.
-    if (SDL_RectEmpty(&clippedExtent)) {
+    if (SDL_RectEmptyFloat(&clippedExtent)) {
         return;
     }
 
@@ -96,15 +96,15 @@ void VerticalGridContainer::arrange(const SDL_Point& startPosition,
         std::size_t cellRow{i / numColumns};
 
         // Get the offsets for the cell at the calculated coordinates.
-        int cellXOffset{static_cast<int>(cellColumn * scaledCellWidth)};
-        int cellYOffset{static_cast<int>(cellRow * scaledCellHeight)};
+        float cellXOffset{static_cast<float>(cellColumn * scaledCellWidth)};
+        float cellYOffset{static_cast<float>(cellRow * scaledCellHeight)};
 
         // Move the Y offset based on our current scroll position.
         cellYOffset -= (rowScroll * scaledCellHeight);
 
         // Add this widget's offset to get our final offset.
-        int finalX{fullExtent.x + cellXOffset};
-        int finalY{fullExtent.y + cellYOffset};
+        float finalX{fullExtent.x + cellXOffset};
+        float finalY{fullExtent.y + cellYOffset};
         elements[i]->arrange({finalX, finalY}, clippedExtent, widgetLocator);
     }
 }
@@ -116,7 +116,7 @@ void VerticalGridContainer::scrollElements(bool scrollUp)
         std::ceil(elements.size() / static_cast<float>(numColumns)))};
 
     // Calc how many rows can fit onscreen at once.
-    int maxVisibleRows{logicalExtent.h / logicalCellHeight};
+    int maxVisibleRows{static_cast<int>(logicalExtent.h / logicalCellHeight)};
 
     // If we're being asked to scroll up and we've scrolled down previously.
     if (scrollUp && (rowScroll > 0)) {

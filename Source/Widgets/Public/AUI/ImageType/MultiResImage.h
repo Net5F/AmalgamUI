@@ -2,7 +2,7 @@
 
 #include "AUI/ImageType/ImageType.h"
 #include "AUI/ScreenResolution.h"
-#include <SDL_render.h>
+#include <SDL3/SDL_render.h>
 #include <map>
 #include <string>
 #include <memory>
@@ -44,7 +44,7 @@ public:
      */
     void addResolution(const ScreenResolution& resolution,
                        const std::string& textureID,
-                       SDL_ScaleMode scaleMode = SDL_ScaleModeNearest);
+                       SDL_ScaleMode scaleMode = SDL_SCALEMODE_NEAREST);
 
     /**
      * Overload to specify texExtent. Used if you only want to display a
@@ -59,8 +59,8 @@ public:
      *                  ("nearest" by default, to maximize sharpness).
      */
     void addResolution(const ScreenResolution& resolution,
-                       const std::string& textureID, const SDL_Rect& texExtent,
-                       SDL_ScaleMode scaleMode = SDL_ScaleModeNearest);
+                       const std::string& textureID, const SDL_FRect& texExtent,
+                       SDL_ScaleMode scaleMode = SDL_SCALEMODE_NEAREST);
 
     /**
      * Clears this image's current texture and the textures in its
@@ -71,7 +71,7 @@ public:
     /**
      * Overridden to choose the proper resolution of texture to use.
      */
-    void refresh(const SDL_Rect& scaledExtent) override;
+    void refresh(const SDL_FRect& scaledExtent) override;
 
 private:
     /**
@@ -94,7 +94,7 @@ private:
 
         /** If userProvidedExtent is true, holds the extent of the desired
             image within the texture. */
-        SDL_Rect extent{};
+        SDL_FRect extent{};
 
         /** The filtering/scaling mode to use for this texture. */
         SDL_ScaleMode scaleMode{};

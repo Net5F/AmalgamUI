@@ -8,7 +8,7 @@
 
 namespace AUI
 {
-Image::Image(const SDL_Rect& inLogicalExtent, const std::string& inDebugName)
+Image::Image(const SDL_FRect& inLogicalExtent, const std::string& inDebugName)
 : Widget(inLogicalExtent, inDebugName)
 , imageType{nullptr}
 , lastScaledExtent{scaledExtent}
@@ -24,7 +24,7 @@ void Image::setSimpleImage(const std::string& textureID,
     simpleImage->set(textureID, scaleMode);
 }
 
-void Image::setSimpleImage(const std::string& textureID, SDL_Rect texExtent,
+void Image::setSimpleImage(const std::string& textureID, SDL_FRect texExtent,
                            SDL_ScaleMode scaleMode)
 {
     imageType = std::make_unique<SimpleImage>();
@@ -83,7 +83,7 @@ void Image::setSimpleImage(SDL_Texture* texture, const std::string& textureID,
 }
 
 void Image::setSimpleImage(SDL_Texture* texture, const std::string& textureID,
-                           SDL_Rect texExtent, SDL_ScaleMode scaleMode)
+                           SDL_FRect texExtent, SDL_ScaleMode scaleMode)
 {
     Core::getAssetCache().addTexture(texture, textureID);
 
@@ -138,19 +138,19 @@ void Image::setAlphaMod(float newAlphaMod)
     alphaMod = newAlphaMod;
 }
 
-SDL_Rect Image::getCurrentImageTextureExtent() const
+SDL_FRect Image::getCurrentImageTextureExtent() const
 {
     AUI_ASSERT(imageType, "Tried to get extent while image did not exist.");
     return imageType->currentTexExtent;
 }
 
-void Image::measure(const SDL_Rect& availableExtent)
+void Image::measure(const SDL_FRect& availableExtent)
 {
     // Run the normal measure step (sets our scaledExtent).
     Widget::measure(availableExtent);
 
     // If this widget's size has changed, refresh the image.
-    if (!SDL_RectEquals(&scaledExtent, &lastScaledExtent)) {
+    if (!SDL_RectsEqualFloat(&scaledExtent, &lastScaledExtent)) {
         if (imageType != nullptr) {
             // We do this in case it needs to regenerate to match the new size.
             imageType->refresh(scaledExtent);
@@ -160,23 +160,23 @@ void Image::measure(const SDL_Rect& availableExtent)
     }
 }
 
-void Image::arrange(const SDL_Point& startPosition,
-                    const SDL_Rect& availableExtent,
+void Image::arrange(const SDL_FPoint& startPosition,
+                    const SDL_FRect& availableExtent,
                     WidgetLocator* widgetLocator)
 {
     // Run the normal arrange step.
     Widget::arrange(startPosition, availableExtent, widgetLocator);
 
     // If this widget is fully clipped, return early.
-    if (SDL_RectEmpty(&clippedExtent)) {
+    if (SDL_RectEmptyFloat(&clippedExtent)) {
         return;
     }
 }
 
-void Image::render(const SDL_Point& windowTopLeft)
+void Image::render(const SDL_FPoint& windowTopLeft)
 {
     // If this widget is fully clipped, don't render it.
-    if (SDL_RectEmpty(&clippedExtent)) {
+    if (SDL_RectEmptyFloat(&clippedExtent)) {
         return;
     }
 
@@ -187,40 +187,34 @@ void Image::render(const SDL_Point& windowTopLeft)
 
     // If this widget is partially clipped, calculate a matching clipped
     // extent for the texture.
-    SDL_Rect clippedTexExtent{imageType->currentTexExtent};
-    if (!SDL_RectEquals(&fullExtent, &clippedExtent)) {
+    SDL_FRect clippedTexExtent{imageType->currentTexExtent};
+    if (!SDL_RectsEqualFloat(&fullExtent, &clippedExtent)) {
         // Calc the size difference factor between the texture's extent and
         // this widget's full extent.
-        double widthDiffFactor{imageType->currentTexExtent.w
-                               / static_cast<double>(fullExtent.w)};
-        double heightDiffFactor{imageType->currentTexExtent.h
-                                / static_cast<double>(fullExtent.h)};
+        float widthDiffFactor{imageType->currentTexExtent.w / fullExtent.w};
+        float heightDiffFactor{imageType->currentTexExtent.h / fullExtent.h};
 
         // Use the difference factor to calc the clipped texture extent.
         // The idea here is that clippedTexExtent/clippedExtent should have
         // the same scale relationship as currentTexExtent/fullExtent.
         // Note: We need to subtract fullExtent's origin to make clippedExtent
         //       relative to (0, 0) like currentTexExtent is.
-        clippedTexExtent.x = static_cast<int>((clippedExtent.x - fullExtent.x)
-                                              * widthDiffFactor);
-        clippedTexExtent.y = static_cast<int>((clippedExtent.y - fullExtent.y)
-                                              * heightDiffFactor);
-        clippedTexExtent.w
-            = static_cast<int>(clippedExtent.w * widthDiffFactor);
-        clippedTexExtent.h
-            = static_cast<int>(clippedExtent.h * heightDiffFactor);
+        clippedTexExtent.x
+            = (clippedExtent.x - fullExtent.x) * widthDiffFactor;
+        clippedTexExtent.y
+            = (clippedExtent.y - fullExtent.y) * heightDiffFactor;
+        clippedTexExtent.w = clippedExtent.w * widthDiffFactor;
+        clippedTexExtent.h = clippedExtent.h * heightDiffFactor;
     }
 
     // Apply the current alpha mod.
-    // TODO: When we update SDL, replace this with SDL_SetTextureAlphaModFloat.
-    Uint8 alphaModUint{static_cast<Uint8>(255 * alphaMod)};
-    SDL_SetTextureAlphaMod(imageType->currentTexture.get(), alphaModUint);
+    SDL_SetTextureAlphaModFloat(imageType->currentTexture.get(), alphaMod);
 
     // Render the image.
-    SDL_Rect finalExtent{clippedExtent};
+    SDL_FRect finalExtent{clippedExtent};
     finalExtent.x += windowTopLeft.x;
     finalExtent.y += windowTopLeft.y;
-    SDL_RenderCopy(Core::getRenderer(), imageType->currentTexture.get(),
+    SDL_RenderTexture(Core::getRenderer(), imageType->currentTexture.get(),
                    &clippedTexExtent, &finalExtent);
 }
 

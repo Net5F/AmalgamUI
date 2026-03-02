@@ -2,18 +2,18 @@
 #include "AUI/Core.h"
 #include "AUI/AssetCache.h"
 #include "AUI/Internal/Log.h"
-#include <SDL_render.h>
+#include <SDL3/SDL_render.h>
 
 namespace AUI
 {
 void TiledImage::set(const std::string& textureID,
-                     const SDL_Rect& scaledExtent)
+                     const SDL_FRect& scaledExtent)
 {
     // Attempt to load the image.
     // Note: We assume that tiled textures will want to use "nearest" scaling 
     //       to maintain sharpness.
     if ((sourceTexture = Core::getAssetCache().requestTexture(
-             textureID, SDL_ScaleModeNearest))) {
+             textureID, SDL_SCALEMODE_NEAREST))) {
         // We're going to generate a texture as large as the given extent.
         currentTexExtent.w = scaledExtent.w;
         currentTexExtent.h = scaledExtent.h;
@@ -23,7 +23,7 @@ void TiledImage::set(const std::string& textureID,
     }
 }
 
-void TiledImage::refresh(const SDL_Rect& scaledExtent)
+void TiledImage::refresh(const SDL_FRect& scaledExtent)
 {
     // Set the new desired extent.
     currentTexExtent.w = scaledExtent.w;
@@ -36,16 +36,16 @@ void TiledImage::refresh(const SDL_Rect& scaledExtent)
 void TiledImage::regenerateTiledTexture()
 {
     // Get the texture's pixel format and size.
-    Uint32 pixelFormat{};
-    int sourceWidth{};
-    int sourceHeight{};
-    SDL_QueryTexture(sourceTexture.get(), &pixelFormat, nullptr, &sourceWidth,
-                     &sourceHeight);
+    SDL_PixelFormat pixelFormat{sourceTexture->format};
+    float sourceWidth{};
+    float sourceHeight{};
+    SDL_GetTextureSize(sourceTexture.get(), &sourceWidth, &sourceHeight);
 
     // Allocate the new texture.
     SDL_Texture* rawTexture{SDL_CreateTexture(
         Core::getRenderer(), pixelFormat, SDL_TEXTUREACCESS_TARGET,
-        currentTexExtent.w, currentTexExtent.h)};
+        static_cast<int>(currentTexExtent.w),
+        static_cast<int>(currentTexExtent.h))};
     if (rawTexture == nullptr) {
         AUI_LOG_FATAL("Failed to create texture: %s", SDL_GetError());
     }
@@ -56,30 +56,30 @@ void TiledImage::regenerateTiledTexture()
     SDL_SetRenderTarget(Core::getRenderer(), currentTexture.get());
 
     // Tile the image to cover the given extent.
-    for (int y = 0; y < currentTexExtent.h; y += sourceHeight) {
-        for (int x = 0; x < currentTexExtent.w; x += sourceWidth) {
+    for (float y{0}; y < currentTexExtent.h; y += sourceHeight) {
+        for (float x{0}; x < currentTexExtent.w; x += sourceWidth) {
             // Set up the tile's extents.
-            SDL_Rect tileExtent{x, y, sourceWidth, sourceHeight};
-            SDL_Rect tileTexExtent{0, 0, sourceWidth, sourceHeight};
+            SDL_FRect tileExtent{x, y, sourceWidth, sourceHeight};
+            SDL_FRect tileTexExtent{0, 0, sourceWidth, sourceHeight};
 
             // If the tile is too wide to fit, clip it.
-            int tileRight{tileExtent.x + tileExtent.w};
-            int offsetRight{currentTexExtent.x + currentTexExtent.w};
+            float tileRight{tileExtent.x + tileExtent.w};
+            float offsetRight{currentTexExtent.x + currentTexExtent.w};
             if (tileRight > offsetRight) {
                 tileExtent.w -= (tileRight - offsetRight);
                 tileTexExtent.w -= (tileRight - offsetRight);
             }
 
             // If the tile is too tall to fit, clip it.
-            int tileBottom{tileExtent.y + tileExtent.h};
-            int offsetBottom{currentTexExtent.y + currentTexExtent.h};
+            float tileBottom{tileExtent.y + tileExtent.h};
+            float offsetBottom{currentTexExtent.y + currentTexExtent.h};
             if (tileBottom > offsetBottom) {
                 tileExtent.h -= (tileBottom - offsetBottom);
                 tileTexExtent.h -= (tileBottom - offsetBottom);
             }
 
             // Render the tile.
-            SDL_RenderCopy(Core::getRenderer(), sourceTexture.get(),
+            SDL_RenderTexture(Core::getRenderer(), sourceTexture.get(),
                            &tileTexExtent, &tileExtent);
         }
     }

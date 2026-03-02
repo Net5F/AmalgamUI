@@ -25,7 +25,7 @@ public:
      *                  ("nearest" by default, to maximize sharpness).
      */
     void set(const std::string& textureID,
-             SDL_ScaleMode scaleMode = SDL_ScaleModeNearest);
+             SDL_ScaleMode scaleMode = SDL_SCALEMODE_NEAREST);
 
     /**
      * Overload to specify texExtent. Use this if you only want to display a
@@ -35,8 +35,8 @@ public:
      * @param scaleMode The filtering/scaling mode that this texture should use 
      *                  ("nearest" by default, to maximize sharpness).
      */
-    void set(const std::string& textureID, const SDL_Rect& inTexExtent,
-             SDL_ScaleMode scaleMode = SDL_ScaleModeNearest);
+    void set(const std::string& textureID, const SDL_FRect& inTexExtent,
+             SDL_ScaleMode scaleMode = SDL_SCALEMODE_NEAREST);
 
     /**
      * Clears this image's current texture.

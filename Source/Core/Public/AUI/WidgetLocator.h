@@ -2,7 +2,7 @@
 
 #include "AUI/WidgetPath.h"
 #include "AUI/WidgetWeakRef.h"
-#include <SDL_rect.h>
+#include <SDL3/SDL_rect.h>
 #include <vector>
 #include <unordered_map>
 
@@ -27,7 +27,7 @@ public:
      * @param inScreenExtent  The actual screen-space extent that this locator
      *                        should cover.
      */
-    WidgetLocator(const SDL_Rect& inScreenExtent);
+    WidgetLocator(const SDL_FRect& inScreenExtent);
 
     // There shouldn't be any reason to copy or move a locator. If it's needed,
     // we can revisit this.
@@ -74,7 +74,7 @@ public:
      * @return A widget path, ordered with the root-most widget at the front
      *         and the leaf-most widget at the back.
      */
-    WidgetPath getPathUnderPoint(const SDL_Point& actualPoint) const;
+    WidgetPath getPathUnderPoint(const SDL_FPoint& actualPoint) const;
 
     /**
      * Builds a path containing all tracked widgets that are underneath the
@@ -106,7 +106,7 @@ public:
      * @param inScreenExtent  The actual screen-space extent that this locator
      *                        should cover.
      */
-    void setExtent(const SDL_Rect& inScreenExtent);
+    void setExtent(const SDL_FRect& inScreenExtent);
 
     /**
      * Sets the width of the cells in the spatial partitioning grid and clears
@@ -145,16 +145,16 @@ private:
     /**
      * Converts the given screen extent to a cell extent.
      */
-    SDL_Rect screenToCellExtent(const SDL_Rect& screenExtent);
+    SDL_Rect screenToCellExtent(const SDL_FRect& screenExtent);
 
     /** The width of a grid cell in logical-space pixels. */
     float cellWidth;
 
     /** The grid's extent in actual screen space. */
-    SDL_Rect gridScreenExtent;
+    SDL_FRect gridScreenExtent;
 
     /** The grid's extent, relative to the parent window. */
-    SDL_Rect gridRelativeExtent;
+    SDL_FRect gridRelativeExtent;
 
     /** The grid's relative extent, with cells as the unit. */
     SDL_Rect gridCellExtent;

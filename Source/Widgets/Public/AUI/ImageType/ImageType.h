@@ -1,7 +1,7 @@
 #pragma once
 
 #include "AUI/Widget.h"
-#include <SDL_render.h>
+#include <SDL3/SDL_render.h>
 #include <string>
 #include <memory>
 
@@ -18,7 +18,7 @@ public:
      * @param scaledExtent  The extent of the parent Image widget. Some image
      *                      types use this in their render logic.
      */
-    virtual void refresh(const SDL_Rect& scaledExtent);
+    virtual void refresh(const SDL_FRect& scaledExtent);
 
 protected:
     // Friend class so Image::render() can use these fields, but outside users
@@ -29,7 +29,7 @@ protected:
     std::shared_ptr<SDL_Texture> currentTexture{};
 
     /** The extent within currentTexture to display. */
-    SDL_Rect currentTexExtent{};
+    SDL_FRect currentTexExtent{};
 };
 
 } // namespace AUI

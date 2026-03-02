@@ -1,8 +1,8 @@
 #include "AUI/Core.h"
 #include "AUI/Internal/Log.h"
-#include <SDL_render.h>
-#include <SDL_image.h>
-#include <SDL_ttf.h>
+#include <SDL3/SDL_render.h>
+#include <SDL3_image/SDL_image.h>
+#include <SDL3_ttf/SDL_ttf.h>
 
 namespace AUI
 {
@@ -10,8 +10,8 @@ SDL_Renderer* Core::sdlRenderer{nullptr};
 ScreenResolution Core::logicalScreenSize{};
 ScreenResolution Core::actualScreenSize{};
 std::unique_ptr<AssetCache> Core::assetCache{nullptr};
-int Core::dragTriggerDistance{10};
-int Core::squaredDragTriggerDistance{dragTriggerDistance * dragTriggerDistance};
+float Core::dragTriggerDistance{10};
+float Core::squaredDragTriggerDistance{dragTriggerDistance * dragTriggerDistance};
 std::atomic<bool> Core::isTextInputFocused{false};
 std::atomic<int> Core::widgetCount{0};
 
@@ -25,9 +25,6 @@ void Core::initialize(SDL_Renderer* inSdlRenderer,
     // Set the screen sizes.
     logicalScreenSize = inLogicalScreenSize;
     actualScreenSize = inActualScreenSize;
-
-    // Initialize SDL_img (safe to call if already initialized).
-    IMG_Init(IMG_INIT_PNG | IMG_INIT_JPG);
 
     // Initialize SDL_ttf if it hasn't already been called.
     if (TTF_WasInit() == 0) {
@@ -49,7 +46,6 @@ void Core::quit()
     sdlRenderer = nullptr;
     assetCache = nullptr;
 
-    IMG_Quit();
     TTF_Quit();
 }
 
@@ -58,7 +54,7 @@ void Core::setActualScreenSize(ScreenResolution inActualScreenSize)
     actualScreenSize = inActualScreenSize;
 }
 
-void Core::setDragTriggerDistance(int newDragTriggerDistance)
+void Core::setDragTriggerDistance(float newDragTriggerDistance)
 {
     dragTriggerDistance = newDragTriggerDistance;
     squaredDragTriggerDistance = dragTriggerDistance * dragTriggerDistance;
@@ -89,7 +85,7 @@ AssetCache& Core::getAssetCache()
     return *assetCache;
 }
 
-int Core::getSquaredDragTriggerDistance()
+float Core::getSquaredDragTriggerDistance()
 {
     return squaredDragTriggerDistance;
 }

@@ -1,6 +1,6 @@
 #pragma once
 
-#include <SDL_rect.h>
+#include <SDL3/SDL_rect.h>
 
 namespace AUI
 {
@@ -34,11 +34,11 @@ public:
     /** Overload for float. See logicalToActual(int). */
     static float logicalToActual(float logicalFloat);
 
-    /** Overload for SDL_Rect. See logicalToActual(int). */
-    static SDL_Rect logicalToActual(const SDL_Rect& logicalExtent);
+    /** Overload for SDL_FRect. See logicalToActual(int). */
+    static SDL_FRect logicalToActual(const SDL_FRect& logicalExtent);
 
-    /** Overload for SDL_Point. See logicalToActual(int). */
-    static SDL_Point logicalToActual(const SDL_Point& logicalPoint);
+    /** Overload for SDL_FPoint. See logicalToActual(int). */
+    static SDL_FPoint logicalToActual(const SDL_FPoint& logicalPoint);
 
     /**
      * Applies the inverse of the current UI scaling to the given actual-space
@@ -53,11 +53,11 @@ public:
     /** Overload for float. See actualToLogical(int). */
     static float actualToLogical(float actualFloat);
 
-    /** Overload for SDL_Rect. See actualToLogical(int). */
-    static SDL_Rect actualToLogical(const SDL_Rect& actualExtent);
+    /** Overload for SDL_FRect. See actualToLogical(int). */
+    static SDL_FRect actualToLogical(const SDL_FRect& actualExtent);
 
-    /** Overload for SDL_Point. See actualToLogical(int). */
-    static SDL_Point actualToLogical(const SDL_Point& actualPoint);
+    /** Overload for SDL_FPoint. See actualToLogical(int). */
+    static SDL_FPoint actualToLogical(const SDL_FPoint& actualPoint);
 
     /**
      * Scales logicalExtent to actual space, offsets it to start at 
@@ -65,9 +65,9 @@ public:
      *
      * Returns an extent that's ready for rendering.
      */
-    static SDL_Rect logicalToClipped(const SDL_Rect& logicalExtent,
-                                     const SDL_Point& startPosition,
-                                     const SDL_Rect& availableExtent);
+    static SDL_FRect logicalToClipped(const SDL_FRect& logicalExtent,
+                                     const SDL_FPoint& startPosition,
+                                     const SDL_FRect& availableExtent);
 };
 
 } // namespace AUI

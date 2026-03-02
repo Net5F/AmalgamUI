@@ -14,7 +14,7 @@ namespace AUI
 class ConfirmationDialog : public Window
 {
 public:
-    ConfirmationDialog(const SDL_Rect& inLogicalExtent,
+    ConfirmationDialog(const SDL_FRect& inLogicalExtent,
                        const std::string& inDebugName = "ConfirmationDialog");
 
     virtual ~ConfirmationDialog() = default;

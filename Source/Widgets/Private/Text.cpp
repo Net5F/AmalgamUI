@@ -2,11 +2,11 @@
 #include "AUI/Core.h"
 #include "AUI/ScalingHelpers.h"
 #include "AUI/Internal/Log.h"
-#include <SDL_render.h>
+#include <SDL3/SDL_render.h>
 
 namespace AUI
 {
-Text::Text(const SDL_Rect& inLogicalExtent, const std::string& inDebugName)
+Text::Text(const SDL_FRect& inLogicalExtent, const std::string& inDebugName)
 : Widget(inLogicalExtent, inDebugName)
 , fontPath{""}
 , logicalFontSize{10}
@@ -95,7 +95,7 @@ void Text::setAutoHeightEnabled(bool inAutoHeightEnabled)
     autoHeightEnabled = inAutoHeightEnabled;
 }
 
-void Text::setTextOffset(int inTextOffset)
+void Text::setTextOffset(float inTextOffset)
 {
     textOffset = inTextOffset;
 }
@@ -160,14 +160,14 @@ void Text::refreshTexture()
 
         // Free the old foreground surface and set the new combined surface 
         // as the one to use.
-        SDL_FreeSurface(surface);
+        SDL_DestroySurface(surface);
         surface = backgroundSurface;
     }
 
     // Move the image to a texture on the gpu.
     SDL_Texture* texture{
         SDL_CreateTextureFromSurface(Core::getRenderer(), surface)};
-    SDL_FreeSurface(surface);
+    SDL_DestroySurface(surface);
     if (texture == nullptr) {
         AUI_LOG_FATAL("Failed to create texture.");
     }
@@ -176,8 +176,8 @@ void Text::refreshTexture()
     textTexture = std::unique_ptr<SDL_Texture, TextureDeleter>(texture);
 
     // Save the width and height of the new texture.
-    SDL_QueryTexture(textTexture.get(), nullptr, nullptr, &(textureExtent.w),
-                     &(textureExtent.h));
+    SDL_GetTextureSize(textTexture.get(), &(textureExtent.w),
+                       &(textureExtent.h));
     textExtent = {0, 0, textureExtent.w, textureExtent.h};
 
     textureIsDirty = false;
@@ -189,15 +189,18 @@ const std::string& Text::asString()
     return text;
 }
 
-SDL_Rect Text::calcCharacterOffset(std::size_t index)
+SDL_FRect Text::calcCharacterOffset(std::size_t index)
 {
     // Get a null-terminated substring containing all characters up to index.
     std::string relevantChars{text, 0, index};
 
     // Get the x offset and height from the relevant characters.
-    SDL_Rect offsetExtent{};
-    TTF_SizeUTF8(font.get(), relevantChars.c_str(), &(offsetExtent.x),
-                 &(offsetExtent.h));
+    int offsetExtentX{0};
+    int offsetExtentH{0};
+    TTF_GetStringSize(font.get(), relevantChars.c_str(), relevantChars.size(),
+                      &offsetExtentX, &offsetExtentH);
+    SDL_FRect offsetExtent{static_cast<float>(offsetExtentX), 0, 0,
+                           static_cast<float>(offsetExtentH)};
 
     // Account for our alignment/position by adding the text extent's offset.
     offsetExtent.x += textExtent.x;
@@ -214,12 +217,13 @@ int Text::calcStringWidth(const std::string& string)
     // Calculate the width that the given string would have if rendered using
     // the current font.
     int stringWidth{0};
-    TTF_SizeUTF8(font.get(), string.c_str(), &(stringWidth), nullptr);
+    TTF_GetStringSize(font.get(), string.c_str(), string.size(), &(stringWidth),
+                      nullptr);
 
     return stringWidth;
 }
 
-SDL_Rect Text::getLogicalTextureExtent()
+SDL_FRect Text::getLogicalTextureExtent()
 {
     return ScalingHelpers::actualToLogical(textureExtent);
 }
@@ -234,12 +238,12 @@ Text::HorizontalAlignment Text::getHorizontalAlignment()
     return horizontalAlignment;
 }
 
-int Text::getTextOffset()
+float Text::getTextOffset()
 {
     return textOffset;
 }
 
-void Text::setLogicalExtent(const SDL_Rect& inLogicalExtent)
+void Text::setLogicalExtent(const SDL_FRect& inLogicalExtent)
 {
     // Scale and set the extent.
     Widget::setLogicalExtent(inLogicalExtent);
@@ -248,7 +252,7 @@ void Text::setLogicalExtent(const SDL_Rect& inLogicalExtent)
     alignmentIsDirty = true;
 }
 
-void Text::measure(const SDL_Rect& availableExtent)
+void Text::measure(const SDL_FRect& availableExtent)
 {
     // If the UI scaling has changed, refresh everything.
     if (lastUsedScreenSize != Core::getActualScreenSize()) {
@@ -280,26 +284,26 @@ void Text::measure(const SDL_Rect& availableExtent)
     }
 }
 
-void Text::arrange(const SDL_Point& startPosition,
-                   const SDL_Rect& availableExtent,
+void Text::arrange(const SDL_FPoint& startPosition,
+                   const SDL_FRect& availableExtent,
                    WidgetLocator* widgetLocator)
 {
     // Run the normal arrange step.
     Widget::arrange(startPosition, availableExtent, widgetLocator);
 
     // If this widget is fully clipped, return early.
-    if (SDL_RectEmpty(&clippedExtent)) {
+    if (SDL_RectEmptyFloat(&clippedExtent)) {
         return;
     }
 
     // Offset our textExtent to start at startPosition.
-    SDL_Rect offsetTextExtent{textExtent};
+    SDL_FRect offsetTextExtent{textExtent};
     offsetTextExtent.x += (startPosition.x + textOffset);
     offsetTextExtent.y += startPosition.y;
 
     // Clip the text image's extent to not go beyond this widget's extent.
-    SDL_IntersectRect(&offsetTextExtent, &clippedExtent,
-                      &offsetClippedTextExtent);
+    SDL_GetRectIntersectionFloat(&offsetTextExtent, &clippedExtent,
+                                 &offsetClippedTextExtent);
 
     // Pull offsetClippedTextExtent back into texture space ((0, 0) origin).
     // This tells us what part of the text image texture to actually render.
@@ -308,10 +312,10 @@ void Text::arrange(const SDL_Point& startPosition,
     offsetClippedTextureExtent.y -= offsetTextExtent.y;
 }
 
-void Text::render(const SDL_Point& windowTopLeft)
+void Text::render(const SDL_FPoint& windowTopLeft)
 {
     // If this widget is fully clipped, don't render it.
-    if (SDL_RectEmpty(&clippedExtent)) {
+    if (SDL_RectEmptyFloat(&clippedExtent)) {
         return;
     }
 
@@ -321,10 +325,10 @@ void Text::render(const SDL_Point& windowTopLeft)
     }
 
     // Render the text texture.
-    SDL_Rect finalExtent{offsetClippedTextExtent};
+    SDL_FRect finalExtent{offsetClippedTextExtent};
     finalExtent.x += windowTopLeft.x;
     finalExtent.y += windowTopLeft.y;
-    SDL_RenderCopy(Core::getRenderer(), textTexture.get(),
+    SDL_RenderTexture(Core::getRenderer(), textTexture.get(),
                    &offsetClippedTextureExtent, &finalExtent);
 }
 
@@ -408,50 +412,51 @@ SDL_Surface* Text::getSurface(TTF_Font* font, const SDL_Color& fontColor,
     // set renderMode.
     SDL_Surface* surface{nullptr};
     if (wordWrapEnabled) {
-        // Note: We need to manually scale our width since it may not yet have 
+        // Note: We need to manually scale our width since it may not yet have
         //       been updated.
-        int scaledWidth{ScalingHelpers::logicalToActual(logicalExtent.w)};
+        int scaledWidth{
+            static_cast<int>(ScalingHelpers::logicalToActual(logicalExtent.w))};
         switch (renderMode) {
             case RenderMode::Solid:
-                surface = TTF_RenderUTF8_Solid_Wrapped(
-                    font, textToRender.data(), fontColor, scaledWidth);
+                surface = TTF_RenderText_Solid_Wrapped(
+                    font, textToRender.data(), textToRender.size(), fontColor, scaledWidth);
                 break;
             case RenderMode::Shaded:
-                surface = TTF_RenderUTF8_Shaded_Wrapped(
-                    font, textToRender.data(), fontColor, fontBackgroundColor,
+                surface = TTF_RenderText_Shaded_Wrapped(
+                    font, textToRender.data(), textToRender.size(), fontColor, fontBackgroundColor,
                     scaledWidth);
                 break;
             case RenderMode::Blended:
-                surface = TTF_RenderUTF8_Blended_Wrapped(
-                    font, textToRender.data(), fontColor, scaledWidth);
+                surface = TTF_RenderText_Blended_Wrapped(
+                    font, textToRender.data(), textToRender.size(), fontColor, scaledWidth);
                 break;
-                // Note: Removed because SDL_ttf on 22.04 doesn't support it.
-                // case RenderMode::LCD:
-                //    surface = TTF_RenderUTF8_LCD_Wrapped(
-                //        font, textToRender.data(), fontColor,
-                //        fontBackgroundColor, scaledWidth);
-                //    break;
+			case RenderMode::LCD:
+                surface = TTF_RenderText_LCD_Wrapped(
+                    font, textToRender.data(), textToRender.size(), fontColor,
+                    fontBackgroundColor, scaledWidth);
+			    break;
         }
     }
     else {
         switch (renderMode) {
             case RenderMode::Solid:
-                surface = TTF_RenderUTF8_Solid(font, textToRender.data(),
-                                               fontColor);
+                surface = TTF_RenderText_Solid(font, textToRender.data(),
+                                               textToRender.size(), fontColor);
                 break;
             case RenderMode::Shaded:
-                surface = TTF_RenderUTF8_Shaded(font, textToRender.data(),
-                                                fontColor, fontBackgroundColor);
+                surface = TTF_RenderText_Shaded(font, textToRender.data(),
+                                                textToRender.size(), fontColor,
+                                                fontBackgroundColor);
                 break;
             case RenderMode::Blended:
-                surface = TTF_RenderUTF8_Blended(font, textToRender.data(),
-                                                 fontColor);
+                surface = TTF_RenderText_Blended(
+                    font, textToRender.data(), textToRender.size(), fontColor);
                 break;
-                // Note: Removed because SDL_ttf on 22.04 doesn't support it.
-                // case RenderMode::LCD:
-                //    surface = TTF_RenderUTF8_LCD(font,
-                //        textToRender.data(), fontColor, fontBackgroundColor);
-                //    break;
+            case RenderMode::LCD:
+                surface = TTF_RenderText_LCD(font, textToRender.data(),
+                                             textToRender.size(), fontColor,
+                                             fontBackgroundColor);
+                break;
         }
     }
     if (surface == nullptr) {

@@ -2,7 +2,7 @@
 #include "AUI/Core.h"
 #include "AUI/Image.h"
 #include "AUI/Internal/Log.h"
-#include <SDL_rect.h>
+#include <SDL3/SDL_rect.h>
 
 namespace AUI
 {
@@ -13,7 +13,7 @@ Screen::Screen(const std::string& inDebugName)
 {
 }
 
-Window* Screen::getWindowUnderPoint(const SDL_Point& point)
+Window* Screen::getWindowUnderPoint(const SDL_FPoint& point)
 {
     for (auto it = windows.rbegin(); it != windows.rend(); ++it) {
         // If the window isn't visible, skip it.
@@ -23,7 +23,7 @@ Window* Screen::getWindowUnderPoint(const SDL_Point& point)
         }
 
         // If the window contains the given point, return it.
-        if (SDL_PointInRect(&point, &(window.getScaledExtent()))) {
+        if (SDL_PointInRectFloat(&point, &(window.getScaledExtent()))) {
             return &window;
         }
     }
@@ -79,22 +79,22 @@ bool Screen::handleOSEvent(SDL_Event& event)
     //       top of the stack when they're clicked.
     // Pass the event to the appropriate handler.
     switch (event.type) {
-        case SDL_MOUSEBUTTONDOWN: {
+        case SDL_EVENT_MOUSE_BUTTON_DOWN: {
             return eventRouter.handleMouseButtonDown(event.button);
         }
-        case SDL_MOUSEBUTTONUP: {
+        case SDL_EVENT_MOUSE_BUTTON_UP: {
             return eventRouter.handleMouseButtonUp(event.button);
         }
-        case SDL_MOUSEMOTION: {
+        case SDL_EVENT_MOUSE_MOTION: {
             return eventRouter.handleMouseMove(event.motion);
         }
-        case SDL_MOUSEWHEEL: {
+        case SDL_EVENT_MOUSE_WHEEL: {
             return eventRouter.handleMouseWheel(event.wheel);
         }
-        case SDL_KEYDOWN: {
+        case SDL_EVENT_KEY_DOWN: {
             return eventRouter.handleKeyDown(event.key);
         }
-        case SDL_TEXTINPUT: {
+        case SDL_EVENT_TEXT_INPUT: {
             return eventRouter.handleTextInput(event.text);
         }
         default:
@@ -147,7 +147,7 @@ void Screen::render()
     // If we're dragging a widget, render its drag drop image at the current
     // mouse position.
     if (Image* dragDropImage{eventRouter.getDragDropImage()}) {
-        SDL_Point cursorPosition{};
+        SDL_FPoint cursorPosition{};
         SDL_GetMouseState(&(cursorPosition.x), &(cursorPosition.y));
 
         dragDropImage->render(cursorPosition);

@@ -3,8 +3,8 @@
 #include "AUI/MouseButtonType.h"
 #include "AUI/FocusLostType.h"
 #include "AUI/EventResult.h"
-#include <SDL_rect.h>
-#include <SDL_events.h>
+#include <SDL3/SDL_rect.h>
+#include <SDL3/SDL_events.h>
 #include <string>
 #include <memory>
 #include <vector>
@@ -49,22 +49,22 @@ public:
      * @param windowPoint A point on the screen, relative to the top left of
      *                    this widget's parent window.
      */
-    bool containsPoint(const SDL_Point& windowPoint);
+    bool containsPoint(const SDL_FPoint& windowPoint);
 
     /**
      * Sets the widget's logical extent to the given extent and
      * re-calculates its scaled extent.
      */
-    virtual void setLogicalExtent(const SDL_Rect& inLogicalExtent);
+    virtual void setLogicalExtent(const SDL_FRect& inLogicalExtent);
 
     /** See Widget::logicalExtent. */
-    const SDL_Rect& getLogicalExtent() const;
+    const SDL_FRect& getLogicalExtent() const;
     /** See Widget::scaledExtent. */
-    const SDL_Rect& getScaledExtent() const;
+    const SDL_FRect& getScaledExtent() const;
     /** See Widget::fullExtent. */
-    const SDL_Rect& getFullExtent() const;
+    const SDL_FRect& getFullExtent() const;
     /** See Widget::clippedExtent. */
-    const SDL_Rect& getClippedExtent() const;
+    const SDL_FRect& getClippedExtent() const;
 
     const std::string& getDebugName() const;
 
@@ -103,7 +103,7 @@ public:
      *                       parent window.
      */
     virtual EventResult onPreviewMouseDown(MouseButtonType buttonType,
-                                           const SDL_Point& cursorPosition);
+                                           const SDL_FPoint& cursorPosition);
 
     /**
      * Called when a mouse click occurs on this widget.
@@ -114,7 +114,7 @@ public:
      *                       parent window.
      */
     virtual EventResult onMouseDown(MouseButtonType buttonType,
-                                    const SDL_Point& cursorPosition);
+                                    const SDL_FPoint& cursorPosition);
 
     /**
      * Called when a mouse click is released.
@@ -125,7 +125,7 @@ public:
      *                       parent window.
      */
     virtual EventResult onMouseUp(MouseButtonType buttonType,
-                                  const SDL_Point& cursorPosition);
+                                  const SDL_FPoint& cursorPosition);
 
     /**
      * Called when a mouse double click (or triple click, or more) occurs on
@@ -137,7 +137,7 @@ public:
      *                       parent window.
      */
     virtual EventResult onMouseDoubleClick(MouseButtonType buttonType,
-                                           const SDL_Point& cursorPosition);
+                                           const SDL_FPoint& cursorPosition);
 
     /**
      * Called when the mouse wheel is scrolled while the cursor is over this
@@ -151,7 +151,7 @@ public:
      *                       movements down (scroll backward) generate
      *                       negative values.
      */
-    virtual EventResult onMouseWheel(int amountScrolled);
+    virtual EventResult onMouseWheel(float amountScrolled);
 
     /**
      * Called when the mouse cursor moves within this widget's bounds.
@@ -162,7 +162,7 @@ public:
      * @param cursorPosition  The cursor's position, relative to this widget's
      *                        parent window.
      */
-    virtual EventResult onMouseMove(const SDL_Point& cursorPosition);
+    virtual EventResult onMouseMove(const SDL_FPoint& cursorPosition);
 
     /**
      * Called when the mouse cursor first enters this widget's bounds.
@@ -250,7 +250,7 @@ public:
      * @param cursorPosition The cursor's position, relative to this widget's
      *                       parent window.
      */
-    virtual EventResult onDragMove(const SDL_Point& cursorPosition);
+    virtual EventResult onDragMove(const SDL_FPoint& cursorPosition);
 
     /**
      * Called when the mouse cursor first enters this widget's bounds while
@@ -303,7 +303,7 @@ public:
      * @post logicalExtent is up-to-date.
      *       scaledExtent matches the current Core::actualScreenSize.
      */
-    virtual void measure(const SDL_Rect& availableExtent);
+    virtual void measure(const SDL_FRect& availableExtent);
 
     /**
      * Updates this widget's extents to be properly scaled and positioned
@@ -321,8 +321,8 @@ public:
      *       clippedExtent is clipped to the given availableExtent and is ready
      *       for use in rendering and hit testing.
      */
-    virtual void arrange(const SDL_Point& startPosition,
-                         const SDL_Rect& availableExtent,
+    virtual void arrange(const SDL_FPoint& startPosition,
+                         const SDL_FRect& availableExtent,
                          WidgetLocator* widgetLocator);
 
     /**
@@ -330,14 +330,14 @@ public:
      *
      * The default implementation simply calls render() on all widgets in our
      * children list. Some overrides may directly call SDL functions like
-     * SDL_RenderCopy().
+     * SDL_RenderTexture().
      *
      * @param windowTopLeft The top left coordinate of this widget's parent
      *                      window. This is used to translate the widget's
      *                      window-relative extent into a final screen
      *                      position.
      */
-    virtual void render(const SDL_Point& windowTopLeft);
+    virtual void render(const SDL_FPoint& windowTopLeft);
 
     /**
      * Internal library function.
@@ -358,7 +358,7 @@ public:
     std::size_t getRefCount();
 
 protected:
-    Widget(const SDL_Rect& inLogicalExtent, const std::string& inDebugName);
+    Widget(const SDL_FRect& inLogicalExtent, const std::string& inDebugName);
 
     /** An optional user-assigned name associated with this widget.
         Only useful for debugging. For performance reasons, avoid using it
@@ -367,24 +367,24 @@ protected:
 
     /** This widget's logical screen extent, i.e. the position/size of the
         widget relative to the UI's logical size. */
-    SDL_Rect logicalExtent;
+    SDL_FRect logicalExtent;
 
     /** This widget's scaled screen extent. Equal to logicalExtent, but scaled
         to match the current UI scaling. */
-    SDL_Rect scaledExtent;
+    SDL_FRect scaledExtent;
 
     /** This widget's full window-relative extent within the layout. Equal to
         scaledExtent, but offset to be positioned within the parent.  */
-    SDL_Rect fullExtent;
+    SDL_FRect fullExtent;
 
     /** This widget's final window-relative extent within the layout. Equal to
         fullExtent, but clipped to fit within the parent. Ready for use in
         rendering and hit testing for events.
         Note: During updateLayout(), this widget may be found to not fit
               within the availableExtent. If so, this will be {0, 0, 0, 0}.
-              You can test for this with SDL_RectEmpty(clippedExtent), and
+              You can test for this with SDL_FRectEmpty(clippedExtent), and
               should do so before using this extent. */
-    SDL_Rect clippedExtent;
+    SDL_FRect clippedExtent;
 
     /** If true, this widget will be rendered and will respond to events. */
     bool isVisible;

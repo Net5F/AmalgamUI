@@ -100,10 +100,10 @@ public:
     //-------------------------------------------------------------------------
     void onTick(double timestepS) override;
 
-    void render(const SDL_Point& windowTopLeft) override;
+    void render(const SDL_FPoint& windowTopLeft) override;
 
 protected:
-    Container(const SDL_Rect& inLogicalExtent,
+    Container(const SDL_FRect& inLogicalExtent,
               const std::string& inDebugName = "Container");
 
     /** This container's child elements. This container owns the elements in

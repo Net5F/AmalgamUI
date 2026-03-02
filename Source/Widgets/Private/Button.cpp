@@ -5,7 +5,7 @@
 
 namespace AUI
 {
-Button::Button(const SDL_Rect& inLogicalExtent, const std::string& inDebugName)
+Button::Button(const SDL_FRect& inLogicalExtent, const std::string& inDebugName)
 : Widget(inLogicalExtent, inDebugName)
 , normalImage({0, 0, logicalExtent.w, logicalExtent.h})
 , hoveredImage({0, 0, logicalExtent.w, logicalExtent.h})
@@ -34,7 +34,7 @@ Button::Button(const SDL_Rect& inLogicalExtent, const std::string& inDebugName)
 
 void Button::enable()
 {
-    SDL_Point cursorPosition{};
+    SDL_FPoint cursorPosition{};
     SDL_GetMouseState(&(cursorPosition.x), &(cursorPosition.y));
     cursorPosition.x -= clippedExtent.x;
     cursorPosition.y -= clippedExtent.y;
@@ -78,7 +78,7 @@ void Button::setIsVisible(bool inIsVisible)
     Widget::setIsVisible(inIsVisible);
 }
 
-EventResult Button::onMouseDown(MouseButtonType buttonType, const SDL_Point&)
+EventResult Button::onMouseDown(MouseButtonType buttonType, const SDL_FPoint&)
 {
     // Only respond to the left mouse button.
     if (buttonType != MouseButtonType::Left) {
@@ -105,7 +105,7 @@ EventResult Button::onMouseDown(MouseButtonType buttonType, const SDL_Point&)
 }
 
 EventResult Button::onMouseUp(MouseButtonType buttonType,
-                              const SDL_Point& cursorPosition)
+                              const SDL_FPoint& cursorPosition)
 {
     // Only respond to the left mouse button.
     if (buttonType != MouseButtonType::Left) {
@@ -139,7 +139,7 @@ EventResult Button::onMouseUp(MouseButtonType buttonType,
 }
 
 EventResult Button::onMouseDoubleClick(MouseButtonType buttonType,
-                                       const SDL_Point& cursorPosition)
+                                       const SDL_FPoint& cursorPosition)
 {
     // We treat additional clicks as regular MouseDown events.
     return onMouseDown(buttonType, cursorPosition);

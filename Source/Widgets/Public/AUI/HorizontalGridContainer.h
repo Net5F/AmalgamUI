@@ -18,7 +18,7 @@ public:
     //-------------------------------------------------------------------------
     // Public interface
     //-------------------------------------------------------------------------
-    HorizontalGridContainer(const SDL_Rect& inLogicalExtent,
+    HorizontalGridContainer(const SDL_FRect& inLogicalExtent,
                             const std::string& inDebugName
                             = "HorizontalGridContainer");
 
@@ -34,13 +34,13 @@ public:
      * Sets the width of a grid cell. The elements of this container will be
      * rendered starting at the top left of their cell.
      */
-    void setCellWidth(unsigned int inLogicalCellWidth);
+    void setCellWidth(float inLogicalCellWidth);
 
     /**
      * Sets the height of a grid cell. The elements of this container will be
      * rendered starting at the top left of their cell.
      */
-    void setCellHeight(unsigned int inLogicalCellHeight);
+    void setCellHeight(float inLogicalCellHeight);
 
     /**
      * If true, horizontal scrolling with the mouse wheel will be enabled.
@@ -50,17 +50,17 @@ public:
     //-------------------------------------------------------------------------
     // Base class overrides
     //-------------------------------------------------------------------------
-    EventResult onMouseWheel(int amountScrolled) override;
+    EventResult onMouseWheel(float amountScrolled) override;
 
-    void measure(const SDL_Rect& availableExtent) override;
+    void measure(const SDL_FRect& availableExtent) override;
 
-    void arrange(const SDL_Point& startPosition,
-                 const SDL_Rect& availableExtent,
+    void arrange(const SDL_FPoint& startPosition,
+                 const SDL_FRect& availableExtent,
                  WidgetLocator* widgetLocator) override;
 
 private:
     /** The default logical pixel width of this container's cells. */
-    static constexpr int LOGICAL_DEFAULT_CELL_WIDTH{100};
+    static constexpr float LOGICAL_DEFAULT_CELL_WIDTH{100};
 
     /**
      * Scrolls the visible elements in the container left or right, bringing
@@ -78,14 +78,14 @@ private:
     unsigned int numRows;
 
     /** The width in logical space of a grid cell. */
-    int logicalCellWidth;
+    float logicalCellWidth;
     /** The scaled width in actual space of a grid cell. */
-    int scaledCellWidth;
+    float scaledCellWidth;
 
     /** The height in logical space of a grid cell. */
-    int logicalCellHeight;
+    float logicalCellHeight;
     /** The scaled height in actual space of a grid cell. */
-    int scaledCellHeight;
+    float scaledCellHeight;
 
     /** If true, mouse wheel events should scroll this container's elements 
         horizontally. */

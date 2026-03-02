@@ -19,7 +19,7 @@ const std::string& getEmptyString()
     return emptyString;
 }
 
-TextInput::TextInput(const SDL_Rect& inLogicalExtent,
+TextInput::TextInput(const SDL_FRect& inLogicalExtent,
                      const std::string& inDebugName)
 : Widget(inLogicalExtent, inDebugName)
 , normalImage({0, 0, logicalExtent.w, logicalExtent.h})
@@ -71,7 +71,7 @@ TextInput::TextInput(const SDL_Rect& inLogicalExtent,
 
 void TextInput::enable()
 {
-    SDL_Point cursorPosition{};
+    SDL_FPoint cursorPosition{};
     SDL_GetMouseState(&(cursorPosition.x), &(cursorPosition.y));
     cursorPosition.x -= clippedExtent.x;
     cursorPosition.y -= clippedExtent.y;
@@ -115,7 +115,7 @@ void TextInput::setCursorColor(const SDL_Color& inCursorColor)
     cursorColor = inCursorColor;
 }
 
-void TextInput::setCursorWidth(unsigned int inCursorWidth)
+void TextInput::setCursorWidth(float inCursorWidth)
 {
     logicalCursorWidth = inCursorWidth;
     scaledCursorWidth = ScalingHelpers::logicalToActual(logicalCursorWidth);
@@ -218,7 +218,7 @@ void TextInput::setOnTextCommitted(std::function<void(void)> inOnTextCommitted)
     onTextCommitted = std::move(inOnTextCommitted);
 }
 
-EventResult TextInput::onMouseDown(MouseButtonType buttonType, const SDL_Point&)
+EventResult TextInput::onMouseDown(MouseButtonType buttonType, const SDL_FPoint&)
 {
     // Only respond to the left mouse button.
     if (buttonType != MouseButtonType::Left) {
@@ -234,7 +234,7 @@ EventResult TextInput::onMouseDown(MouseButtonType buttonType, const SDL_Point&)
 }
 
 EventResult TextInput::onMouseDoubleClick(MouseButtonType buttonType,
-                                          const SDL_Point& cursorPosition)
+                                          const SDL_FPoint& cursorPosition)
 {
     // We treat additional clicks as regular MouseDown events.
     return onMouseDown(buttonType, cursorPosition);
@@ -351,15 +351,15 @@ EventResult TextInput::onKeyDown(SDL_Keycode keyCode)
             eventResult = handleDeleteEvent();
             break;
         }
-        case SDLK_c: {
+        case SDLK_C: {
             eventResult = handleCopyEvent();
             break;
         }
-        case SDLK_x: {
+        case SDLK_X: {
             eventResult = handleCutEvent();
             break;
         }
-        case SDLK_v: {
+        case SDLK_V: {
             eventResult = handlePasteEvent();
             break;
         }
@@ -451,7 +451,7 @@ void TextInput::onTick(double timestepS)
     Widget::onTick(timestepS);
 }
 
-void TextInput::measure(const SDL_Rect& availableExtent)
+void TextInput::measure(const SDL_FRect& availableExtent)
 {
     // Run the normal measure step (sets our scaledExtent).
     Widget::measure(availableExtent);
@@ -467,10 +467,10 @@ void TextInput::measure(const SDL_Rect& availableExtent)
     }
 }
 
-void TextInput::render(const SDL_Point& windowTopLeft)
+void TextInput::render(const SDL_FPoint& windowTopLeft)
 {
     // If this widget is fully clipped, don't render it.
-    if (SDL_RectEmpty(&clippedExtent)) {
+    if (SDL_RectEmptyFloat(&clippedExtent)) {
         return;
     }
 
@@ -531,7 +531,7 @@ EventResult TextInput::handleDeleteEvent()
 EventResult TextInput::handleCopyEvent()
 {
     // If this was a CTRL+c copy command.
-    if (SDL_GetModState() & KMOD_CTRL) {
+    if (SDL_GetModState() & SDL_KMOD_CTRL) {
         // If there's text to copy.
         const std::string& textString{text.asString()};
         if (textString.length() > 0) {
@@ -546,7 +546,7 @@ EventResult TextInput::handleCopyEvent()
 EventResult TextInput::handleCutEvent()
 {
     // If this was a CTRL+x cut command
-    if (SDL_GetModState() & KMOD_CTRL) {
+    if (SDL_GetModState() & SDL_KMOD_CTRL) {
         // If there's text to cut.
         const std::string& textString{text.asString()};
         if (textString.length() > 0) {
@@ -576,7 +576,7 @@ EventResult TextInput::handleCutEvent()
 EventResult TextInput::handlePasteEvent()
 {
     // If this was a CTRL+v paste command.
-    if (SDL_GetModState() & KMOD_CTRL) {
+    if (SDL_GetModState() & SDL_KMOD_CTRL) {
         // If there's text in the clipboard.
         if (SDL_HasClipboardText()) {
             // Paste the text from the clipboard to the cursor index.
@@ -723,12 +723,12 @@ void TextInput::refreshTextScrollOffset()
 {
     // Get the distance from the start of the string to the cursor position.
     // Note: This position is relative to text's scaledExtent.
-    SDL_Rect cursorOffsetExtent{text.calcCharacterOffset(cursorIndex)};
+    SDL_FRect cursorOffsetExtent{text.calcCharacterOffset(cursorIndex)};
 
     // If the text isn't scrolled properly, fix it.
-    SDL_Rect textExtent{text.getScaledExtent()};
-    int cursorX{cursorOffsetExtent.x};
-    int textOffset{text.getTextOffset()};
+    SDL_FRect textExtent{text.getScaledExtent()};
+    float cursorX{cursorOffsetExtent.x};
+    float textOffset{text.getTextOffset()};
     if (cursorX < textExtent.x) {
         // Cursor is past the left bound, scroll right.
         textOffset += (textExtent.x - cursorX);
@@ -740,8 +740,8 @@ void TextInput::refreshTextScrollOffset()
     else if (textOffset < 0) {
         // There's text hanging off the left side. Are we still pushed against
         // the right bound? (Relevant after a backspace.)
-        SDL_Rect lastCharOffset{text.calcCharacterOffset(
-            static_cast<unsigned int>(text.asString().length()))};
+        SDL_FRect lastCharOffset{
+            text.calcCharacterOffset(text.asString().length())};
         if (lastCharOffset.x < (textExtent.x + textExtent.w)) {
             // There's a gap to fill, scroll right.
             textOffset += ((textExtent.x + textExtent.w) - lastCharOffset.x);
@@ -759,7 +759,7 @@ void TextInput::refreshTextScrollOffset()
     isTextScrollOffsetDirty = false;
 }
 
-void TextInput::renderTextCursor(const SDL_Point& windowTopLeft)
+void TextInput::renderTextCursor(const SDL_FPoint& windowTopLeft)
 {
     // Save the current draw color to re-apply later.
     SDL_Color originalColor{};
@@ -768,7 +768,7 @@ void TextInput::renderTextCursor(const SDL_Point& windowTopLeft)
                            &originalColor.a);
 
     // Calc where the cursor should be.
-    SDL_Rect cursorOffsetExtent{text.calcCharacterOffset(cursorIndex)};
+    SDL_FRect cursorOffsetExtent{text.calcCharacterOffset(cursorIndex)};
     cursorOffsetExtent.x += clippedExtent.x + windowTopLeft.x;
     cursorOffsetExtent.y += clippedExtent.y + windowTopLeft.y;
     cursorOffsetExtent.w = scaledCursorWidth;

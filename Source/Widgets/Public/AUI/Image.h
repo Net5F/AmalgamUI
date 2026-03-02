@@ -4,7 +4,7 @@
 #include "AUI/ScreenResolution.h"
 #include "AUI/ImageType/ImageType.h"
 #include "AUI/ImageType/NineSliceImage.h"
-#include <SDL_render.h>
+#include <SDL3/SDL_render.h>
 #include <string>
 #include <memory>
 
@@ -39,7 +39,7 @@ public:
     //-------------------------------------------------------------------------
     // Public interface
     //-------------------------------------------------------------------------
-    Image(const SDL_Rect& inLogicalExtent,
+    Image(const SDL_FRect& inLogicalExtent,
           const std::string& inDebugName = "Image");
 
     virtual ~Image() = default;
@@ -55,7 +55,7 @@ public:
      *                  ("nearest" by default, to maximize sharpness).
      */
     void setSimpleImage(const std::string& textureID,
-                        SDL_ScaleMode scaleMode = SDL_ScaleModeNearest);
+                        SDL_ScaleMode scaleMode = SDL_SCALEMODE_NEAREST);
 
     /**
      * Overload to specify texExtent. Use this if you only want to display a
@@ -65,8 +65,8 @@ public:
      * @param scaleMode The filtering/scaling mode that this texture should use 
      *                  ("nearest" by default, to maximize sharpness).
      */
-    void setSimpleImage(const std::string& textureID, SDL_Rect texExtent,
-                        SDL_ScaleMode scaleMode = SDL_ScaleModeNearest);
+    void setSimpleImage(const std::string& textureID, SDL_FRect texExtent,
+                        SDL_ScaleMode scaleMode = SDL_SCALEMODE_NEAREST);
 
     /**
      * Sets this widget to render a NineSliceImage (see class comment).
@@ -88,10 +88,10 @@ public:
         std::string textureID{};
         /** The extent within the texture to display. If left default, the
             full image texture will be used. */
-        SDL_Rect texExtent{};
-        /** The filtering/scaling mode to use for this texture ("nearest" by 
+        SDL_FRect texExtent{};
+        /** The filtering/scaling mode to use for this texture ("nearest" by
             default, to maximize sharpness). */
-        SDL_ScaleMode scaleMode{SDL_ScaleModeNearest};
+        SDL_ScaleMode scaleMode{SDL_SCALEMODE_NEAREST};
     };
     /**
      * Sets this widget to render a MultiResImage (see class comment).
@@ -124,10 +124,10 @@ public:
         const std::string& textureID{};
         /** The extent within the texture to display. If left default, the
             full image texture will be used. */
-        SDL_Rect texExtent{};
-        /** The filtering/scaling mode to use for this texture ("nearest" by 
+        SDL_FRect texExtent{};
+        /** The filtering/scaling mode to use for this texture ("nearest" by
             default, to maximize sharpness). */
-        SDL_ScaleMode scaleMode{SDL_ScaleModeNearest};
+        SDL_ScaleMode scaleMode{SDL_SCALEMODE_NEAREST};
     };
     /**
      * Overload that uses the given texture.
@@ -142,10 +142,10 @@ public:
      *                  asset cache.
      */
     void setSimpleImage(SDL_Texture* texture, const std::string& textureID,
-                        SDL_ScaleMode scaleMode = SDL_ScaleModeNearest);
+                        SDL_ScaleMode scaleMode = SDL_SCALEMODE_NEAREST);
     void setSimpleImage(SDL_Texture* texture, const std::string& textureID,
-                        SDL_Rect texExtent,
-                        SDL_ScaleMode scaleMode = SDL_ScaleModeNearest);
+                        SDL_FRect texExtent,
+                        SDL_ScaleMode scaleMode = SDL_SCALEMODE_NEAREST);
     void setNineSliceImage(SDL_Texture* texture, const std::string& textureID,
                            NineSliceImage::SliceSizes inSliceSizes);
     void setMultiResImage(
@@ -161,22 +161,22 @@ public:
     /**
      * Returns the extent of the current image texture.
      */
-    SDL_Rect getCurrentImageTextureExtent() const;
+    SDL_FRect getCurrentImageTextureExtent() const;
 
     //-------------------------------------------------------------------------
     // Base class overrides
     //-------------------------------------------------------------------------
-    void measure(const SDL_Rect& availableExtent);
+    void measure(const SDL_FRect& availableExtent);
 
     /**
      * Calls Widget::arrange() and refreshes the image if this widget's
      * scaledExtent changed.
      */
-    void arrange(const SDL_Point& startPosition,
-                 const SDL_Rect& availableExtent,
+    void arrange(const SDL_FPoint& startPosition,
+                 const SDL_FRect& availableExtent,
                  WidgetLocator* widgetLocator) override;
 
-    void render(const SDL_Point& windowTopLeft) override;
+    void render(const SDL_FPoint& windowTopLeft) override;
 
 private:
     std::unique_ptr<ImageType> imageType;
@@ -184,7 +184,7 @@ private:
     /** Holds the scaled extent that was used during the last updateLayout().
         Used to tell when this widget's size changes, so we can refresh the
         image. */
-    SDL_Rect lastScaledExtent;
+    SDL_FRect lastScaledExtent;
 
     /** The alpha mod to apply to the image texture. */
     float alphaMod;

@@ -7,7 +7,7 @@
 
 namespace AUI
 {
-ScrollArea::ScrollArea(const SDL_Rect& inLogicalExtent,
+ScrollArea::ScrollArea(const SDL_FRect& inLogicalExtent,
                                              const std::string& inDebugName)
 : Widget(inLogicalExtent, inDebugName)
 , content{nullptr}
@@ -22,13 +22,13 @@ ScrollArea::ScrollArea(const SDL_Rect& inLogicalExtent,
 {
 }
 
-void ScrollArea::setScrollStepX(int inLogicalScrollStepX)
+void ScrollArea::setScrollStepX(float inLogicalScrollStepX)
 {
     logicalScrollStepX = inLogicalScrollStepX;
     scaledScrollStepX = ScalingHelpers::logicalToActual(logicalScrollStepX);
 }
 
-void ScrollArea::setScrollStepY(int inLogicalScrollStepY)
+void ScrollArea::setScrollStepY(float inLogicalScrollStepY)
 {
     logicalScrollStepY = inLogicalScrollStepY;
     scaledScrollStepY = ScalingHelpers::logicalToActual(logicalScrollStepY);
@@ -54,7 +54,7 @@ int ScrollArea::getScrollDistanceY()
     return scrollDistanceY;
 }
 
-EventResult ScrollArea::onMouseWheel(int amountScrolled)
+EventResult ScrollArea::onMouseWheel(float amountScrolled)
 {
     if (!content) {
         return EventResult{.wasHandled{false}};
@@ -78,7 +78,7 @@ void ScrollArea::onTick(double timestepS)
     }
 }
 
-void ScrollArea::measure(const SDL_Rect& availableExtent)
+void ScrollArea::measure(const SDL_FRect& availableExtent)
 {
     // Run the normal measure step (sets our scaledExtent).
     Widget::measure(availableExtent);
@@ -92,30 +92,30 @@ void ScrollArea::measure(const SDL_Rect& availableExtent)
 
     // If our content changed and is now smaller than this widget, reset the
     // scroll distance.
-    SDL_Rect contentExtent{calcContentExtent()};
+    SDL_FRect contentExtent{calcContentExtent()};
     if (contentExtent.w < scaledExtent.w) {
         // Content is more narrow than widget, reset scroll distance.
         scrollDistanceY = 0;
     }
-    else if (int maxScrollDistance{contentExtent.w - scaledExtent.w};
+    else if (float maxScrollDistance{contentExtent.w - scaledExtent.w};
              scrollDistanceX > maxScrollDistance) {
         // Scroll distance is too far (element was erased), clamp it back.
-        scrollDistanceX = std::clamp(scrollDistanceX, 0, maxScrollDistance);
+        scrollDistanceX = std::clamp(scrollDistanceX, 0.f, maxScrollDistance);
     }
 
     if (contentExtent.h < scaledExtent.h) {
         // Content is shorter than widget, reset scroll distance.
         scrollDistanceY = 0;
     }
-    else if (int maxScrollDistance{contentExtent.h - scaledExtent.h};
+    else if (float maxScrollDistance{contentExtent.h - scaledExtent.h};
              scrollDistanceY > maxScrollDistance) {
         // Scroll distance is too far (element was erased), clamp it back.
-        scrollDistanceY = std::clamp(scrollDistanceY, 0, maxScrollDistance);
+        scrollDistanceY = std::clamp(scrollDistanceY, 0.f, maxScrollDistance);
     }
 }
 
-void ScrollArea::arrange(const SDL_Point& startPosition,
-                         const SDL_Rect& availableExtent,
+void ScrollArea::arrange(const SDL_FPoint& startPosition,
+                         const SDL_FRect& availableExtent,
                          WidgetLocator* widgetLocator)
 {
     // Run the normal arrange step (will arrange us, but won't arrange our 
@@ -123,14 +123,14 @@ void ScrollArea::arrange(const SDL_Point& startPosition,
     Widget::arrange(startPosition, availableExtent, widgetLocator);
 
     // If this widget is fully clipped, return early.
-    if (SDL_RectEmpty(&clippedExtent)) {
+    if (SDL_RectEmptyFloat(&clippedExtent)) {
         return;
     }
 
     // Lay out our child content widget.
     if (content) {
         // Figure out where our content should be placed.
-        SDL_Rect contentExtent{calcContentExtent()};
+        SDL_FRect contentExtent{calcContentExtent()};
         contentExtent.x += fullExtent.x;
         contentExtent.x -= scrollDistanceX;
         contentExtent.y += fullExtent.y;
@@ -147,10 +147,10 @@ void ScrollArea::arrange(const SDL_Point& startPosition,
     }
 }
 
-void ScrollArea::render(const SDL_Point& windowTopLeft)
+void ScrollArea::render(const SDL_FPoint& windowTopLeft)
 {
     // If this widget is fully clipped, don't render it.
-    if (SDL_RectEmpty(&clippedExtent)) {
+    if (SDL_RectEmptyFloat(&clippedExtent)) {
         return;
     }
 
@@ -158,44 +158,44 @@ void ScrollArea::render(const SDL_Point& windowTopLeft)
     content->render(windowTopLeft);
 }
 
-void ScrollArea::handleMouseScrollHorizontal(int amountScrolled)
+void ScrollArea::handleMouseScrollHorizontal(float amountScrolled)
 {
     if (!content) {
         return;
     }
 
     // If the content isn't wider than this widget, don't scroll.
-    int contentWidth{calcContentExtent().w};
+    float contentWidth{calcContentExtent().w};
     if (contentWidth < scaledExtent.w) {
         return;
     }
 
     // Calc how far we would need to scroll for the last widget to be fully on
     // screen.
-    int maxScrollDistance{contentWidth - scaledExtent.w};
+    float maxScrollDistance{contentWidth - scaledExtent.w};
 
     // Calc the updated scroll distance.
     scrollDistanceX += (amountScrolled * scaledScrollStepX);
 
     // Clamp the scroll distance so we don't go too far.
-    scrollDistanceX = std::clamp(scrollDistanceX, 0, maxScrollDistance);
+    scrollDistanceX = std::clamp(scrollDistanceX, 0.f, maxScrollDistance);
 }
 
-void ScrollArea::handleMouseScrollVertical(int amountScrolled)
+void ScrollArea::handleMouseScrollVertical(float amountScrolled)
 {
     if (!content) {
         return;
     }
 
     // If the content isn't taller than this widget, don't scroll.
-    int contentHeight{calcContentExtent().h};
+    float contentHeight{calcContentExtent().h};
     if (contentHeight < scaledExtent.h) {
         return;
     }
 
     // Calc how far we would need to scroll for the last widget to be fully on
     // screen.
-    int maxScrollDistance{contentHeight - scaledExtent.h};
+    float maxScrollDistance{contentHeight - scaledExtent.h};
 
     // Calc the updated scroll distance.
     if (scrollOrigin == ScrollOrigin::TopLeft) {
@@ -206,10 +206,10 @@ void ScrollArea::handleMouseScrollVertical(int amountScrolled)
     }
 
     // Clamp the scroll distance so we don't go too far.
-    scrollDistanceY = std::clamp(scrollDistanceY, 0, maxScrollDistance);
+    scrollDistanceY = std::clamp(scrollDistanceY, 0.f, maxScrollDistance);
 }
 
-SDL_Rect ScrollArea::calcContentExtent()
+SDL_FRect ScrollArea::calcContentExtent()
 {
     if (!content) {
         return {};

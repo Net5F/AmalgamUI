@@ -32,7 +32,7 @@ void MultiResImage::addResolution(const ScreenResolution& resolution,
 
 void MultiResImage::addResolution(const ScreenResolution& resolution,
                                   const std::string& textureID,
-                                  const SDL_Rect& texExtent,
+                                  const SDL_FRect& texExtent,
                                   SDL_ScaleMode scaleMode)
 {
     // Do all the same steps from the less specific overload.
@@ -49,11 +49,11 @@ void MultiResImage::addResolution(const ScreenResolution& resolution,
 void MultiResImage::clear()
 {
     currentTexture = nullptr;
-    currentTexExtent = SDL_Rect{};
+    currentTexExtent = SDL_FRect{};
     resolutionMap.clear();
 }
 
-void MultiResImage::refresh(const SDL_Rect&)
+void MultiResImage::refresh(const SDL_FRect&)
 {
     // Re-calculate which resolution of texture to use.
     refreshChosenResolution();
@@ -91,8 +91,8 @@ void MultiResImage::refreshChosenResolution()
         }
         else {
             // No user-provided extent, use the actual texture size.
-            SDL_QueryTexture(currentTexture.get(), nullptr, nullptr,
-                             &(currentTexExtent.w), &(currentTexExtent.h));
+            SDL_GetTextureSize(currentTexture.get(), &(currentTexExtent.w),
+                               &(currentTexExtent.h));
         }
     }
 }

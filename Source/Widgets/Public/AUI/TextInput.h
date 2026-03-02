@@ -35,7 +35,7 @@ public:
     //-------------------------------------------------------------------------
     // Public interface
     //-------------------------------------------------------------------------
-    TextInput(const SDL_Rect& inLogicalExtent,
+    TextInput(const SDL_FRect& inLogicalExtent,
               const std::string& inDebugName = "TextInput");
 
     virtual ~TextInput() = default;
@@ -70,7 +70,7 @@ public:
     /**
      * Sets the width of the text cursor in pixels.
      */
-    void setCursorWidth(unsigned int inCursorWidth);
+    void setCursorWidth(float inCursorWidth);
 
     State getCurrentState();
 
@@ -135,10 +135,10 @@ public:
     // Base class overrides
     //-------------------------------------------------------------------------
     EventResult onMouseDown(MouseButtonType buttonType,
-                            const SDL_Point& cursorPosition) override;
+                            const SDL_FPoint& cursorPosition) override;
 
     EventResult onMouseDoubleClick(MouseButtonType buttonType,
-                                   const SDL_Point& cursorPosition) override;
+                                   const SDL_FPoint& cursorPosition) override;
 
     void onMouseEnter() override;
 
@@ -161,9 +161,9 @@ public:
 
     void onTick(double timestepS) override;
 
-    void measure(const SDL_Rect& availableExtent);
+    void measure(const SDL_FRect& availableExtent);
 
-    void render(const SDL_Point& windowTopLeft) override;
+    void render(const SDL_FPoint& windowTopLeft) override;
 
 private:
     //-------------------------------------------------------------------------
@@ -209,7 +209,7 @@ private:
     /**
      * Calcs where the text cursor should be and renders it.
      */
-    void renderTextCursor(const SDL_Point& windowTopLeft);
+    void renderTextCursor(const SDL_FPoint& windowTopLeft);
 
     /** See setOnTextChanged(). */
     std::function<void(void)> onTextChanged;
@@ -240,10 +240,10 @@ private:
     SDL_Color cursorColor;
 
     /** The logical width of the text cursor in pixels. */
-    unsigned int logicalCursorWidth;
+    float logicalCursorWidth;
 
     /** The scaled width of the text cursor in pixels. */
-    unsigned int scaledCursorWidth;
+    float scaledCursorWidth;
 
     /** The character index in our text that the cursor is currently at. */
     std::size_t cursorIndex;

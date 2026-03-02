@@ -3,7 +3,7 @@
 #include "AUI/Window.h"
 #include "AUI/EventRouter.h"
 #include "AUI/WidgetWeakRef.h"
-#include <SDL_events.h>
+#include <SDL3/SDL_events.h>
 #include <vector>
 #include <optional>
 
@@ -34,7 +34,7 @@ public:
      * Returns the topmost window under the given point if one was found, else
      * nullptr.
      */
-    Window* getWindowUnderPoint(const SDL_Point& point);
+    Window* getWindowUnderPoint(const SDL_FPoint& point);
 
     /**
      * Returns the given widget's parent window.

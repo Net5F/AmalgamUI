@@ -101,8 +101,8 @@ protected:
     WidgetLocator widgetLocator;
 
 private:
-    // We hide the Widget measure/arrange/render implementations, because 
-    // Windows have different needs. Specifically, they don't receive layout 
+    // We hide the Widget measure/arrange/render implementations, because
+    // Windows have different needs. Specifically, they don't receive layout
     // info from their parent, and they own their widgetLocator.
     using Widget::measure;
     using Widget::arrange;

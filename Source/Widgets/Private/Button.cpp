@@ -165,8 +165,8 @@ void Button::onMouseLeave()
         return;
     }
 
-    // We won't get a MouseLeave while Pressed because we capture the mouse, 
-    // and we know we aren't disabled. This must be an unhover or a release, 
+    // We won't get a MouseLeave while Pressed because we capture the mouse,
+    // and we know we aren't disabled. This must be an unhover or a release,
     // so go to normal.
     setCurrentState(State::Normal);
 }

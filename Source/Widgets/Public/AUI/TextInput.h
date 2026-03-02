@@ -96,7 +96,7 @@ public:
      */
     void setText(std::string_view inText);
 
-    /** Returns the current shown text, or an empty string if the hint text is 
+    /** Returns the current shown text, or an empty string if the hint text is
         currently being displayed. */
     const std::string& getText();
     /** Calls text.setFont(). */
@@ -105,7 +105,7 @@ public:
     void setTextColor(const SDL_Color& inColor);
 
     /**
-     * Sets the text that is displayed when no user text is entered, and this 
+     * Sets the text that is displayed when no user text is entered, and this
      * widget isn't focused.
      *
      * Set this to "" to disable hint text.
@@ -190,7 +190,7 @@ private:
     EventResult handleEnterEvent();
 
     /**
-     * Sets hint text as active or inactive, and sets the text color 
+     * Sets hint text as active or inactive, and sets the text color
      * appropriately. If active, the text will also be set to the hint text.
      */
     void setHintTextActive(bool inHintTextActive);
@@ -219,7 +219,7 @@ private:
 
     /** The current color of the user text. */
     SDL_Color textColor;
-    
+
     /** Text that is optionally displayed when no user text is entered. */
     std::string hintText;
     /** The current color of the hint text. */

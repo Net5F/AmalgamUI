@@ -7,8 +7,8 @@
 
 namespace AUI
 {
-HorizontalGridContainer::HorizontalGridContainer(const SDL_FRect& inLogicalExtent,
-                                             const std::string& inDebugName)
+HorizontalGridContainer::HorizontalGridContainer(
+    const SDL_FRect& inLogicalExtent, const std::string& inDebugName)
 : Container(inLogicalExtent, inDebugName)
 , numRows{1}
 , logicalCellWidth{LOGICAL_DEFAULT_CELL_WIDTH}
@@ -71,7 +71,7 @@ void HorizontalGridContainer::measure(const SDL_FRect& availableExtent)
 
     // Give our elements a chance to update their logical extent.
     for (auto& element : elements) {
-        // Note: We measure/arrange all elements, even if they're invisible, 
+        // Note: We measure/arrange all elements, even if they're invisible,
         //       so we can get the rest of the elements offsets correct.
         element->measure(logicalExtent);
     }

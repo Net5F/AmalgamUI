@@ -39,7 +39,7 @@ public:
      *                   should be used for.
      * @param textureID A user-defined ID (for manually added textures), or the
      *                  full path to an image file.
-     * @param scaleMode The filtering/scaling mode that this texture should use 
+     * @param scaleMode The filtering/scaling mode that this texture should use
      *                  ("nearest" by default, to maximize sharpness).
      */
     void addResolution(const ScreenResolution& resolution,
@@ -55,7 +55,7 @@ public:
      * @param textureID A user-defined ID (for manually added textures), or the
      *                  full path to an image file.
      * @param inTexExtent The extent within the texture to display.
-     * @param scaleMode The filtering/scaling mode that this texture should use 
+     * @param scaleMode The filtering/scaling mode that this texture should use
      *                  ("nearest" by default, to maximize sharpness).
      */
     void addResolution(const ScreenResolution& resolution,
@@ -84,7 +84,7 @@ private:
      * The data needed to render an image's texture.
      */
     struct TextureData {
-        /** A user-defined ID (for manually added textures), or the full path 
+        /** A user-defined ID (for manually added textures), or the full path
             to an image file. */
         std::string textureID;
 

@@ -167,10 +167,10 @@ SDL_FPoint ScalingHelpers::actualToLogical(const SDL_FPoint& actualPoint)
 }
 
 SDL_FRect ScalingHelpers::logicalToClipped(const SDL_FRect& logicalExtent,
-                                          const SDL_FPoint& startPosition,
-                                          const SDL_FRect& availableExtent)
+                                           const SDL_FPoint& startPosition,
+                                           const SDL_FRect& availableExtent)
 {
-    // Scale our logicalExtent to get our scaled extent, then offset it to get 
+    // Scale our logicalExtent to get our scaled extent, then offset it to get
     // our fullExtent.
     SDL_FRect fullExtent{ScalingHelpers::logicalToActual(logicalExtent)};
     fullExtent.x += startPosition.x;
@@ -178,11 +178,12 @@ SDL_FRect ScalingHelpers::logicalToClipped(const SDL_FRect& logicalExtent,
 
     // Clip fullExtent to the available space to get our clipped extent.
     SDL_FRect intersectionResult{};
-    if (SDL_GetRectIntersectionFloat(&fullExtent, &availableExtent, &intersectionResult)) {
+    if (SDL_GetRectIntersectionFloat(&fullExtent, &availableExtent,
+                                     &intersectionResult)) {
         return intersectionResult;
     }
     else {
-        // fullExtent does not intersect availableExtent (e.g. this extent 
+        // fullExtent does not intersect availableExtent (e.g. this extent
         // is fully clipped). Zero-out clippedExtent and return early.
         return {0, 0, 0, 0};
     }

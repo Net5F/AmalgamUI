@@ -35,7 +35,7 @@ public:
     /**
      * Sets the image that this widget will slice and render.
      *
-     * @param textureID A user-defined ID (for textures added using 
+     * @param textureID A user-defined ID (for textures added using
      *                  addTexture()), or the full path to an image file.
      * @param inSliceSizes How far to slice into the image, in each direction.
      * @param scaledExtent The desired size of the generated texture.

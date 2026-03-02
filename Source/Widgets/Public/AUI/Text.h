@@ -69,7 +69,7 @@ public:
      *
      * @param fontPath The full path to the font file.
      * @param inLogicalFontSize The size of the font.
-     * @param inLogicalFontOutlineSize The size of the font's outline. 0 == 
+     * @param inLogicalFontOutlineSize The size of the font's outline. 0 ==
      *                                 no outline.
      */
     void setFont(std::string_view fontPath, int inLogicalFontSize,
@@ -168,7 +168,7 @@ public:
 
     /**
      * Returns the logical extent of the current generated text texture.
-     * Note: If the text is changed, the new texture will be generated in 
+     * Note: If the text is changed, the new texture will be generated in
      *       the next call to measure().
      */
     SDL_FRect getLogicalTextureExtent();
@@ -235,7 +235,7 @@ private:
     /** The handle to our font object. */
     std::shared_ptr<TTF_Font> font;
 
-    /** If logicalFontOutlineSize > 0, this is the handle to our outlined font 
+    /** If logicalFontOutlineSize > 0, this is the handle to our outlined font
         object. */
     std::shared_ptr<TTF_Font> outlinedFont;
 
@@ -272,11 +272,11 @@ private:
 
     /** If true, a property has been changed and the font texture must be
         re-rendered.
-        Every time we refresh the font texture, alignmentIsDirty will be set 
+        Every time we refresh the font texture, alignmentIsDirty will be set
         to true (so if you want both to be done, you only need to set this). */
     bool textureIsDirty;
-    
-    /** If true, this widget's extent or textureExtent has been changed and 
+
+    /** If true, this widget's extent or textureExtent has been changed and
         alignment must be refreshed. */
     bool alignmentIsDirty;
 

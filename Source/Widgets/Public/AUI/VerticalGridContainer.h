@@ -23,7 +23,7 @@ public:
     virtual ~VerticalGridContainer() = default;
 
     /**
-     * The number of columns to arrange widgets in. Layout occurs across the 
+     * The number of columns to arrange widgets in. Layout occurs across the
      * columns, then down to the next row.
      */
     void setNumColumns(unsigned int inNumColumns);
@@ -67,7 +67,7 @@ private:
      * If there aren't any offscreen elements in the selected direction, does
      * nothing.
      *
-     * @param scrollUp  If true, scrolls up by 1 element. If false, scrolls 
+     * @param scrollUp  If true, scrolls up by 1 element. If false, scrolls
      *                  down by 1 element.
      */
     void scrollElements(bool scrollUp);
@@ -88,7 +88,7 @@ private:
     /** How many rows downwards we're currently scrolled. */
     unsigned int rowScroll;
 
-    /** If true, mouse wheel events should scroll this container's elements 
+    /** If true, mouse wheel events should scroll this container's elements
         vertically. */
     bool isScrollingEnabled;
 };

@@ -51,7 +51,7 @@ public:
      *
      * @param textureID A user-defined ID (for manually added textures), or the
      *                  full path to an image file.
-     * @param scaleMode The filtering/scaling mode that this texture should use 
+     * @param scaleMode The filtering/scaling mode that this texture should use
      *                  ("nearest" by default, to maximize sharpness).
      */
     void setSimpleImage(const std::string& textureID,
@@ -62,7 +62,7 @@ public:
      * portion of the image.
      *
      * @param inTexExtent The extent within the texture to display.
-     * @param scaleMode The filtering/scaling mode that this texture should use 
+     * @param scaleMode The filtering/scaling mode that this texture should use
      *                  ("nearest" by default, to maximize sharpness).
      */
     void setSimpleImage(const std::string& textureID, SDL_FRect texExtent,
@@ -83,7 +83,7 @@ public:
     struct MultiResImagePathInfo {
         /** The screen resolution that this texture should be used for. */
         ScreenResolution resolution{};
-        /** A user-defined ID (for manually added textures), or the full path 
+        /** A user-defined ID (for manually added textures), or the full path
             to an image file. */
         std::string textureID{};
         /** The extent within the texture to display. If left default, the
@@ -133,12 +133,12 @@ public:
      * Overload that uses the given texture.
      *
      * Note: Ownership of the texture will be taken. Do not free it.
-     * Note: These are just for convenience. You can do the same thing by 
-     *       calling AUI::Core::getAssetCache().addTexture() before using the 
+     * Note: These are just for convenience. You can do the same thing by
+     *       calling AUI::Core::getAssetCache().addTexture() before using the
      *       regular setters.
      *
      * @param texture The image texture to take ownership of.
-     * @param textureID The ID to associate with the given texture in the 
+     * @param textureID The ID to associate with the given texture in the
      *                  asset cache.
      */
     void setSimpleImage(SDL_Texture* texture, const std::string& textureID,

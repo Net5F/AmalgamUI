@@ -26,10 +26,10 @@ public:
     //       need to pass C strings into the SDL APIs.
     /**
      * If a texture with the given ID is in the cache, returns it.
-     * If not and the ID is a valid file path to an image, adds the image to 
+     * If not and the ID is a valid file path to an image, adds the image to
      * the cache and returns it.
      *
-     * @param textureID A user-defined ID (for textures added using 
+     * @param textureID A user-defined ID (for textures added using
      *                  addTexture()), or the full path to an image file.
      * @param scaleMode The filtering/scaling mode that this texture should use.
      * @return A valid texture if one was found, else nullptr.

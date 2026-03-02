@@ -10,7 +10,7 @@ void TiledImage::set(const std::string& textureID,
                      const SDL_FRect& scaledExtent)
 {
     // Attempt to load the image.
-    // Note: We assume that tiled textures will want to use "nearest" scaling 
+    // Note: We assume that tiled textures will want to use "nearest" scaling
     //       to maintain sharpness.
     if ((sourceTexture = Core::getAssetCache().requestTexture(
              textureID, SDL_SCALEMODE_NEAREST))) {
@@ -80,7 +80,7 @@ void TiledImage::regenerateTiledTexture()
 
             // Render the tile.
             SDL_RenderTexture(Core::getRenderer(), sourceTexture.get(),
-                           &tileTexExtent, &tileExtent);
+                              &tileTexExtent, &tileExtent);
         }
     }
 

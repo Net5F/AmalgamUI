@@ -233,7 +233,8 @@ void Widget::arrange(const SDL_FPoint& startPosition,
 
     // Clip fullExtent to the available space to get our clippedExtent.
     SDL_FRect intersectionResult{};
-    if (SDL_GetRectIntersectionFloat(&fullExtent, &availableExtent, &intersectionResult)) {
+    if (SDL_GetRectIntersectionFloat(&fullExtent, &availableExtent,
+                                     &intersectionResult)) {
         clippedExtent = intersectionResult;
     }
     else {

@@ -60,7 +60,7 @@ bool EventRouter::handleMouseButtonDown(SDL_MouseButtonEvent& event)
             if ((!returnData.eventWasHandled)
                 || !setFocusIfFocusable(truncatedPath)) {
                 // Event wasn't handled or nothing in truncatedPath took focus.
-                // We didn't re-click the focused widget (if there is one), so 
+                // We didn't re-click the focused widget (if there is one), so
                 // we need to drop it.
                 dropFocus(FocusLostType::Click);
             }
@@ -125,7 +125,7 @@ bool EventRouter::handleMouseWheel(SDL_MouseWheelEvent& event)
         amountScrolled *= -1;
     }
 
-    // If the mouse captor has become invalid, release capture and refresh 
+    // If the mouse captor has become invalid, release capture and refresh
     // the mouse hover path.
     if (isMouseCaptorInvalid()) {
         setMouseCapture(nullptr);
@@ -178,7 +178,7 @@ bool EventRouter::handleMouseWheel(SDL_MouseWheelEvent& event)
 
 bool EventRouter::handleMouseMove(SDL_MouseMotionEvent& event)
 {
-    // If the mouse captor has become invalid, release capture (we'll rebuild 
+    // If the mouse captor has become invalid, release capture (we'll rebuild
     // the hover path below).
     if (isMouseCaptorInvalid()) {
         mouseCapturePath.clear();
@@ -768,8 +768,7 @@ void EventRouter::routeDrop(WidgetPath& hoverPath)
     // through the hovered widgets.
     if (dragPath.back().isValid()) {
         Widget& draggedWidget{dragPath.back().get()};
-        if (const DragDropData
-            * dragDropData{draggedWidget.getDragDropData()}) {
+        if (const DragDropData* dragDropData{draggedWidget.getDragDropData()}) {
             // Perform the bubbling pass (leaf -> root, Drop).
             for (std::size_t i = hoverPath.size(); i-- > 0;) {
                 // If the widget is gone, skip it.
@@ -853,8 +852,8 @@ void EventRouter::processEventResult(const EventResult& eventResult)
 bool EventRouter::isMouseCaptorInvalid()
 {
     // If there's a mouse captor and it has become invalid, return true.
-    // Note: We don't count hidden widgets as invalid because they should still 
-    //       receive events and have an opportunity to release capture. 
+    // Note: We don't count hidden widgets as invalid because they should still
+    //       receive events and have an opportunity to release capture.
     if (!(mouseCapturePath.empty())) {
         WidgetWeakRef& widgetWeakRef{mouseCapturePath.back()};
         if (!(widgetWeakRef.isValid())) {
@@ -868,7 +867,7 @@ bool EventRouter::isMouseCaptorInvalid()
 void EventRouter::setMouseCapture(AUI::Widget* newCaptorWidget)
 {
     // Clear any existing mouse capture.
-    // Note: We expect any captor to also be in lastHoveredWidgetPath, so we 
+    // Note: We expect any captor to also be in lastHoveredWidgetPath, so we
     //       don't need to pass it a MouseLeave (it'll happen below).
     mouseCapturePath.clear();
 
@@ -877,7 +876,7 @@ void EventRouter::setMouseCapture(AUI::Widget* newCaptorWidget)
         mouseCapturePath.push_back(*newCaptorWidget);
     }
 
-    // Build a current hovered widget path based on whether the mouse is 
+    // Build a current hovered widget path based on whether the mouse is
     // captured or not.
     SDL_FPoint cursorPosition{};
     SDL_GetMouseState(&(cursorPosition.x), &(cursorPosition.y));

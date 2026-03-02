@@ -199,8 +199,7 @@ void Image::render(const SDL_FPoint& windowTopLeft)
         // the same scale relationship as currentTexExtent/fullExtent.
         // Note: We need to subtract fullExtent's origin to make clippedExtent
         //       relative to (0, 0) like currentTexExtent is.
-        clippedTexExtent.x
-            = (clippedExtent.x - fullExtent.x) * widthDiffFactor;
+        clippedTexExtent.x = (clippedExtent.x - fullExtent.x) * widthDiffFactor;
         clippedTexExtent.y
             = (clippedExtent.y - fullExtent.y) * heightDiffFactor;
         clippedTexExtent.w = clippedExtent.w * widthDiffFactor;
@@ -215,7 +214,7 @@ void Image::render(const SDL_FPoint& windowTopLeft)
     finalExtent.x += windowTopLeft.x;
     finalExtent.y += windowTopLeft.y;
     SDL_RenderTexture(Core::getRenderer(), imageType->currentTexture.get(),
-                   &clippedTexExtent, &finalExtent);
+                      &clippedTexExtent, &finalExtent);
 }
 
 } // namespace AUI

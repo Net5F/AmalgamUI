@@ -60,14 +60,14 @@ public:
     static SDL_FPoint actualToLogical(const SDL_FPoint& actualPoint);
 
     /**
-     * Scales logicalExtent to actual space, offsets it to start at 
+     * Scales logicalExtent to actual space, offsets it to start at
      * startPosition, then clips it to fit within availableExtent.
      *
      * Returns an extent that's ready for rendering.
      */
     static SDL_FRect logicalToClipped(const SDL_FRect& logicalExtent,
-                                     const SDL_FPoint& startPosition,
-                                     const SDL_FRect& availableExtent);
+                                      const SDL_FPoint& startPosition,
+                                      const SDL_FRect& availableExtent);
 };
 
 } // namespace AUI

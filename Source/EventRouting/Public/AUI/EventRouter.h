@@ -177,7 +177,8 @@ private:
      * Routes a MouseMove (or DragMove) to the widgets in hoverPath.
      * @return true if the event was handled, else false.
      */
-    bool routeMouseMove(const SDL_FPoint& cursorPosition, WidgetPath& hoverPath);
+    bool routeMouseMove(const SDL_FPoint& cursorPosition,
+                        WidgetPath& hoverPath);
 
     /**
      * Sets focus to a path from eventPath's root to its leafmost focusable
@@ -246,15 +247,15 @@ private:
     void processEventResult(const EventResult& eventResult);
 
     /**
-     * Returns true if the mouse is captured and the captor is invalid. Else, 
+     * Returns true if the mouse is captured and the captor is invalid. Else,
      * returns false.
      */
     bool isMouseCaptorInvalid();
 
     /**
-     * Sets mouse capture to the given widget and routes MouseEnter/MouseLeave 
+     * Sets mouse capture to the given widget and routes MouseEnter/MouseLeave
      * events appropriately.
-     * If newCaptorWidget == nullptr, releases mouse capture. 
+     * If newCaptorWidget == nullptr, releases mouse capture.
      */
     void setMouseCapture(AUI::Widget* newCaptorWidget);
 

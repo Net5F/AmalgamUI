@@ -138,7 +138,7 @@ void Text::refreshTexture()
     // current renderMode.
     SDL_Surface* surface{getSurface(font.get(), color, backgroundColor)};
 
-    // If we have an outline, create an outlined background surface and blit 
+    // If we have an outline, create an outlined background surface and blit
     // the text image onto it.
     if (logicalFontOutlineSize > 0) {
         // Create a temporary surface using the outlined background text.
@@ -146,7 +146,7 @@ void Text::refreshTexture()
         SDL_Surface* backgroundSurface{
             getSurface(outlinedFont.get(), blackColor, blackColor)};
 
-        // Calculate the foreground text's offset to center it on the 
+        // Calculate the foreground text's offset to center it on the
         // outlined background text.
         int actualOutlineSize{
             ScalingHelpers::logicalToActual(logicalFontOutlineSize)};
@@ -158,7 +158,7 @@ void Text::refreshTexture()
         SDL_SetSurfaceBlendMode(surface, SDL_BLENDMODE_BLEND);
         SDL_BlitSurface(surface, nullptr, backgroundSurface, &foregroundExtent);
 
-        // Free the old foreground surface and set the new combined surface 
+        // Free the old foreground surface and set the new combined surface
         // as the one to use.
         SDL_DestroySurface(surface);
         surface = backgroundSurface;
@@ -265,7 +265,7 @@ void Text::measure(const SDL_FRect& availableExtent)
     }
 
     // If auto-height is enabled, set this widget's height to match the texture.
-    // Note: We don't adjust to fit availableExtent because we want to match 
+    // Note: We don't adjust to fit availableExtent because we want to match
     //       the texture's size, not the parent's size. We'll clip in arrange()
     //       if necessary.
     if (autoHeightEnabled) {
@@ -329,7 +329,7 @@ void Text::render(const SDL_FPoint& windowTopLeft)
     finalExtent.x += windowTopLeft.x;
     finalExtent.y += windowTopLeft.y;
     SDL_RenderTexture(Core::getRenderer(), textTexture.get(),
-                   &offsetClippedTextureExtent, &finalExtent);
+                      &offsetClippedTextureExtent, &finalExtent);
 }
 
 void Text::refreshScaling()
@@ -419,22 +419,24 @@ SDL_Surface* Text::getSurface(TTF_Font* font, const SDL_Color& fontColor,
         switch (renderMode) {
             case RenderMode::Solid:
                 surface = TTF_RenderText_Solid_Wrapped(
-                    font, textToRender.data(), textToRender.size(), fontColor, scaledWidth);
+                    font, textToRender.data(), textToRender.size(), fontColor,
+                    scaledWidth);
                 break;
             case RenderMode::Shaded:
                 surface = TTF_RenderText_Shaded_Wrapped(
-                    font, textToRender.data(), textToRender.size(), fontColor, fontBackgroundColor,
-                    scaledWidth);
+                    font, textToRender.data(), textToRender.size(), fontColor,
+                    fontBackgroundColor, scaledWidth);
                 break;
             case RenderMode::Blended:
                 surface = TTF_RenderText_Blended_Wrapped(
-                    font, textToRender.data(), textToRender.size(), fontColor, scaledWidth);
+                    font, textToRender.data(), textToRender.size(), fontColor,
+                    scaledWidth);
                 break;
-			case RenderMode::LCD:
+            case RenderMode::LCD:
                 surface = TTF_RenderText_LCD_Wrapped(
                     font, textToRender.data(), textToRender.size(), fontColor,
                     fontBackgroundColor, scaledWidth);
-			    break;
+                break;
         }
     }
     else {

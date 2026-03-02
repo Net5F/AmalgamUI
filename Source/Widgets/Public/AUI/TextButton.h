@@ -10,8 +10,8 @@ namespace AUI
 /**
  * A line of text that can be hovered and clicked.
  *
- * This widget could be accomplished by exposing all mouse events on Button 
- * or Text, but it's more convenient to have it as its own widget with a 
+ * This widget could be accomplished by exposing all mouse events on Button
+ * or Text, but it's more convenient to have it as its own widget with a
  * minimal, convenient interface.
  */
 class TextButton : public Widget

@@ -120,7 +120,7 @@ void Thumbnail::enable()
     // Flag that we're now enabled.
     setIsDisabled(false);
 
-    // Note: Re-enabling returns the widget to its previous selected/active 
+    // Note: Re-enabling returns the widget to its previous selected/active
     //       states.
 }
 
@@ -271,7 +271,8 @@ void Thumbnail::setOnMouseDown(
     userOnMouseDown = std::move(inOnMouseDown);
 }
 
-EventResult Thumbnail::onMouseDown(MouseButtonType buttonType, const SDL_FPoint&)
+EventResult Thumbnail::onMouseDown(MouseButtonType buttonType,
+                                   const SDL_FPoint&)
 {
     // If we're disabled, ignore the event.
     if (isDisabled) {

@@ -14,7 +14,7 @@ public:
      * Returns the squared distance between the given points.
      */
     static float squaredDistance(const SDL_FPoint& pointA,
-                                const SDL_FPoint& pointB);
+                                 const SDL_FPoint& pointB);
 };
 
 } // namespace AUI

@@ -146,7 +146,7 @@ void Screen::render()
 
     // If we're dragging a widget, render its drag drop image at the current
     // mouse position.
-    if (Image* dragDropImage{eventRouter.getDragDropImage()}) {
+    if (Image * dragDropImage{eventRouter.getDragDropImage()}) {
         SDL_FPoint cursorPosition{};
         SDL_GetMouseState(&(cursorPosition.x), &(cursorPosition.y));
 

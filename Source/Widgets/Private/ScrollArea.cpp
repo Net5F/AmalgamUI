@@ -8,7 +8,7 @@
 namespace AUI
 {
 ScrollArea::ScrollArea(const SDL_FRect& inLogicalExtent,
-                                             const std::string& inDebugName)
+                       const std::string& inDebugName)
 : Widget(inLogicalExtent, inDebugName)
 , content{nullptr}
 , logicalScrollStepX{LOGICAL_DEFAULT_SCROLL_STEP_X}
@@ -118,7 +118,7 @@ void ScrollArea::arrange(const SDL_FPoint& startPosition,
                          const SDL_FRect& availableExtent,
                          WidgetLocator* widgetLocator)
 {
-    // Run the normal arrange step (will arrange us, but won't arrange our 
+    // Run the normal arrange step (will arrange us, but won't arrange our
     // content).
     Widget::arrange(startPosition, availableExtent, widgetLocator);
 

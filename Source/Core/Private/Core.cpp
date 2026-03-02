@@ -11,7 +11,8 @@ ScreenResolution Core::logicalScreenSize{};
 ScreenResolution Core::actualScreenSize{};
 std::unique_ptr<AssetCache> Core::assetCache{nullptr};
 float Core::dragTriggerDistance{10};
-float Core::squaredDragTriggerDistance{dragTriggerDistance * dragTriggerDistance};
+float Core::squaredDragTriggerDistance{dragTriggerDistance
+                                       * dragTriggerDistance};
 std::atomic<bool> Core::isTextInputFocused{false};
 std::atomic<int> Core::widgetCount{0};
 

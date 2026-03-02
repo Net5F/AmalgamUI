@@ -10,8 +10,8 @@ namespace AUI
  *
  * Supports vertical scrolling with the mouse wheel.
  *
- * TODO: After scrolling, our elements still have hover states based on their 
- *       pre-scroll positions. If possible, finding a way to update them would 
+ * TODO: After scrolling, our elements still have hover states based on their
+ *       pre-scroll positions. If possible, finding a way to update them would
  *       be nice.
  */
 class ScrollArea : public Widget
@@ -23,11 +23,10 @@ public:
     /**
      * Defines the origin point used when calculating scroll behavior.
      */
-    enum class ScrollOrigin
-    { 
+    enum class ScrollOrigin {
         /** Default behavior. Starts at the top and scrolls downwards. */
         TopLeft,
-        /** Starts at the bottom and scrolls upwards. Used for things like 
+        /** Starts at the bottom and scrolls upwards. Used for things like
             chat boxes. */
         BottomLeft
     };
@@ -41,7 +40,8 @@ public:
     virtual ~ScrollArea() = default;
 
     /**
-     * Sets how far a single horizontal scroll event should scroll the container.
+     * Sets how far a single horizontal scroll event should scroll the
+     * container.
      */
     void setScrollStepX(float inLogicalScrollStepX);
 
@@ -63,7 +63,7 @@ public:
     void setScrollOrigin(ScrollOrigin inScrollOrigin);
 
     /**
-     * @return How far we're scrolled in the relevant direction, in scaled 
+     * @return How far we're scrolled in the relevant direction, in scaled
      *         units.
      */
     int getScrollDistanceX();
@@ -73,7 +73,7 @@ public:
     // Public child widgets
     //-------------------------------------------------------------------------
     /** This scroll area's child content widget.
-        We use this instead of adding it to Widget::children so that we can 
+        We use this instead of adding it to Widget::children so that we can
         control its layout independent of our own. */
     std::unique_ptr<Widget> content;
 

@@ -69,7 +69,7 @@ private:
      * If there aren't any offscreen elements in the selected direction, does
      * nothing.
      *
-     * @param scrollLeft If true, scrolls left by 1 element. If false, scrolls 
+     * @param scrollLeft If true, scrolls left by 1 element. If false, scrolls
      *                   down by 1 element.
      */
     void scrollElements(bool scrollLeft);
@@ -87,7 +87,7 @@ private:
     /** The scaled height in actual space of a grid cell. */
     float scaledCellHeight;
 
-    /** If true, mouse wheel events should scroll this container's elements 
+    /** If true, mouse wheel events should scroll this container's elements
         horizontally. */
     bool isScrollingEnabled;
 

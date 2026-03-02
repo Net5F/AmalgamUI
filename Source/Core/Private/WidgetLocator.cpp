@@ -24,7 +24,8 @@ void WidgetLocator::addWidget(Widget* widget)
     // Note: This is relative to the parent window's extent (which matches
     //       this locator's extent).
     SDL_FRect widgetRelativeExtent{widget->getClippedExtent()};
-    AUI_ASSERT(SDL_HasRectIntersectionFloat(&widgetRelativeExtent, &gridRelativeExtent),
+    AUI_ASSERT(SDL_HasRectIntersectionFloat(&widgetRelativeExtent,
+                                            &gridRelativeExtent),
                "Tried to add a widget that is outside this locator's bounds. "
                "Widget name: %s",
                widget->getDebugName().c_str());

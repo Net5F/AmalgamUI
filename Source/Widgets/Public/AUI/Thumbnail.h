@@ -163,7 +163,7 @@ public:
     // Callback registration
     //-------------------------------------------------------------------------
     /**
-     * @param inOnHovered A callback that expects a pointer to the widget that 
+     * @param inOnHovered A callback that expects a pointer to the widget that
      *                    was hovered.
      */
     void setOnHovered(std::function<void(Thumbnail*)> inOnHovered);

@@ -15,8 +15,8 @@ void SimpleImage::set(const std::string& textureID, SDL_ScaleMode scaleMode)
     }
 }
 
-void SimpleImage::set(const std::string& textureID, const SDL_FRect& inTexExtent,
-                      SDL_ScaleMode scaleMode)
+void SimpleImage::set(const std::string& textureID,
+                      const SDL_FRect& inTexExtent, SDL_ScaleMode scaleMode)
 {
     // Attempt to load the image.
     if ((currentTexture

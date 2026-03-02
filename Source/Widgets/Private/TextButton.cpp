@@ -6,7 +6,8 @@
 
 namespace AUI
 {
-TextButton::TextButton(const SDL_FRect& inLogicalExtent, const std::string& inDebugName)
+TextButton::TextButton(const SDL_FRect& inLogicalExtent,
+                       const std::string& inDebugName)
 : Widget(inLogicalExtent, inDebugName)
 , text({0, 0, logicalExtent.w, logicalExtent.h})
 , normalColor{0, 0, 0, 255}
@@ -96,7 +97,8 @@ void TextButton::setIsVisible(bool inIsVisible)
     Widget::setIsVisible(inIsVisible);
 }
 
-EventResult TextButton::onMouseDown(MouseButtonType buttonType, const SDL_FPoint&)
+EventResult TextButton::onMouseDown(MouseButtonType buttonType,
+                                    const SDL_FPoint&)
 {
     // Only respond to the left mouse button.
     if (buttonType != MouseButtonType::Left) {
@@ -123,7 +125,7 @@ EventResult TextButton::onMouseDown(MouseButtonType buttonType, const SDL_FPoint
 }
 
 EventResult TextButton::onMouseUp(MouseButtonType buttonType,
-                              const SDL_FPoint& cursorPosition)
+                                  const SDL_FPoint& cursorPosition)
 {
     // Only respond to the left mouse button.
     if (buttonType != MouseButtonType::Left) {
@@ -157,7 +159,7 @@ EventResult TextButton::onMouseUp(MouseButtonType buttonType,
 }
 
 EventResult TextButton::onMouseDoubleClick(MouseButtonType buttonType,
-                                       const SDL_FPoint& cursorPosition)
+                                           const SDL_FPoint& cursorPosition)
 {
     // We treat additional clicks as regular MouseDown events.
     return onMouseDown(buttonType, cursorPosition);
@@ -183,15 +185,15 @@ void TextButton::onMouseLeave()
         return;
     }
 
-    // We won't get a MouseLeave while Pressed because we capture the mouse, 
-    // and we know we aren't disabled. This must be an unhover or a release, 
+    // We won't get a MouseLeave while Pressed because we capture the mouse,
+    // and we know we aren't disabled. This must be an unhover or a release,
     // so go to normal.
     setCurrentState(Button::State::Normal);
 }
 
 void TextButton::measure(const SDL_FRect& availableExtent)
 {
-    // Run the normal measure step (measures our children and sets our 
+    // Run the normal measure step (measures our children and sets our
     // scaledExtent).
     Widget::measure(availableExtent);
 

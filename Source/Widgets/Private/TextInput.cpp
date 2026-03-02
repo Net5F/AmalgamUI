@@ -9,7 +9,7 @@ namespace AUI
 /**
  * An empty string for getText() to return when we're displaying hint text.
  *
- * TODO: Make getText() return std::string_view. This will require updating a 
+ * TODO: Make getText() return std::string_view. This will require updating a
  *       lot of ResourceImporter code to use std::from_chars (std::stoi doesn't
  *       support std::string_view), but it's probably worth it.
  */
@@ -131,7 +131,7 @@ void TextInput::setText(std::string_view inText)
     // Set the committed text.
     lastCommittedText = inText;
 
-    // If we aren't focused, the text is empty, and hint text is enabled, 
+    // If we aren't focused, the text is empty, and hint text is enabled,
     // activate it.
     if ((currentState != State::Focused) && inText.empty() && hintTextEnabled) {
         setHintTextActive(true);
@@ -218,7 +218,8 @@ void TextInput::setOnTextCommitted(std::function<void(void)> inOnTextCommitted)
     onTextCommitted = std::move(inOnTextCommitted);
 }
 
-EventResult TextInput::onMouseDown(MouseButtonType buttonType, const SDL_FPoint&)
+EventResult TextInput::onMouseDown(MouseButtonType buttonType,
+                                   const SDL_FPoint&)
 {
     // Only respond to the left mouse button.
     if (buttonType != MouseButtonType::Left) {

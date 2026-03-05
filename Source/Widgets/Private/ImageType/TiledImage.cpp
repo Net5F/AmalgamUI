@@ -52,8 +52,19 @@ void TiledImage::regenerateTiledTexture()
     currentTexture = std::shared_ptr<SDL_Texture>(
         rawTexture, [](SDL_Texture* p) { SDL_DestroyTexture(p); });
 
-    // Set the new texture as the render target.
+    // Save the previous render target so we can restore it later, and set the 
+    // new texture as the render target.
+    SDL_Texture* previousRenderTarget{SDL_GetRenderTarget(Core::getRenderer())};
     SDL_SetRenderTarget(Core::getRenderer(), currentTexture.get());
+
+    // Clear the texture (newly created textures are uninitialized).
+    SDL_Color previousDrawColor{};
+    SDL_GetRenderDrawColor(Core::getRenderer(), &previousDrawColor.r, 
+        &previousDrawColor.g, &previousDrawColor.b, &previousDrawColor.a);
+    SDL_SetRenderDrawColor(Core::getRenderer(), 0, 0, 0, 0);
+    SDL_RenderClear(Core::getRenderer());
+    SDL_SetRenderDrawColor(Core::getRenderer(), previousDrawColor.r, 
+        previousDrawColor.g, previousDrawColor.b, previousDrawColor.a);
 
     // Tile the image to cover the given extent.
     for (int y = 0; y < currentTexExtent.h; y += sourceHeight) {
@@ -84,8 +95,8 @@ void TiledImage::regenerateTiledTexture()
         }
     }
 
-    // Set the render target back to the window.
-    SDL_SetRenderTarget(Core::getRenderer(), nullptr);
+    // Set the render target back to what it was.
+    SDL_SetRenderTarget(Core::getRenderer(), previousRenderTarget);
 }
 
 } // namespace AUI

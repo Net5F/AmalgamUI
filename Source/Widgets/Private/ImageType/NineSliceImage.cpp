@@ -63,9 +63,21 @@ void NineSliceImage::regenerateNineSliceTexture()
     // Set the blend mode (default is NONE, which causes black backgrounds).
     SDL_SetTextureBlendMode(nineSliceTexture.get(), SDL_BLENDMODE_BLEND);
 
-    // Set the new texture as the render target and copy the slices.
+    // Save the previous render target so we can restore it later, and set the 
+    // new texture as the render target.
     SDL_Texture* previousRenderTarget{SDL_GetRenderTarget(Core::getRenderer())};
     SDL_SetRenderTarget(Core::getRenderer(), nineSliceTexture.get());
+
+    // Clear the texture (newly created textures are uninitialized).
+    SDL_Color previousDrawColor{};
+    SDL_GetRenderDrawColor(Core::getRenderer(), &previousDrawColor.r, 
+        &previousDrawColor.g, &previousDrawColor.b, &previousDrawColor.a);
+    SDL_SetRenderDrawColor(Core::getRenderer(), 0, 0, 0, 0);
+    SDL_RenderClear(Core::getRenderer());
+    SDL_SetRenderDrawColor(Core::getRenderer(), previousDrawColor.r, 
+        previousDrawColor.g, previousDrawColor.b, previousDrawColor.a);
+
+    // Copy the slices.
     copyCorners(sourceWidth, sourceHeight);
     copySides(sourceWidth, sourceHeight);
     copyCenter(sourceWidth, sourceHeight);

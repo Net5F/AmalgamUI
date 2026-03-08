@@ -72,7 +72,7 @@ public:
      * @param inLogicalFontOutlineSize The size of the font's outline. 0 ==
      *                                 no outline.
      */
-    void setFont(std::string_view fontPath, int inLogicalFontSize,
+    void setFont(std::string_view fontPath, float inLogicalFontSize,
                  int inLogicalFontOutlineSize = 0);
 
     /**
@@ -227,7 +227,7 @@ private:
 
     /** Logical font size in point, i.e. font size relative to Core's
         logicalScreenSize. */
-    int logicalFontSize;
+    float logicalFontSize;
 
     /** Logical font outline size. */
     int logicalFontOutlineSize;

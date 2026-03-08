@@ -160,7 +160,7 @@ const std::string& TextInput::getText()
     return text.asString();
 }
 
-void TextInput::setTextFont(const std::string& fontPath, int inLogicalFontSize)
+void TextInput::setTextFont(const std::string& fontPath, float inLogicalFontSize)
 {
     text.setFont(fontPath, inLogicalFontSize);
 }

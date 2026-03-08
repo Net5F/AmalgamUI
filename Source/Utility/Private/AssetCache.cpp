@@ -59,7 +59,7 @@ std::shared_ptr<SDL_Texture>
 }
 
 std::shared_ptr<TTF_Font> AssetCache::requestFont(const std::string& fontPath,
-                                                  int fontSize,
+                                                  float fontSize,
                                                   int fontOutlineSize)
 {
     // Prepare the cache ID for this font ("fontPath_fontSize_fontOutlineSize").

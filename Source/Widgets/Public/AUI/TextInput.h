@@ -100,7 +100,7 @@ public:
         currently being displayed. */
     const std::string& getText();
     /** Calls text.setFont(). */
-    void setTextFont(const std::string& fontPath, int inLogicalFontSize);
+    void setTextFont(const std::string& fontPath, float inLogicalFontSize);
     /** Sets the user text color. */
     void setTextColor(const SDL_Color& inColor);
 

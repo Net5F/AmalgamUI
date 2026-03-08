@@ -44,12 +44,12 @@ void ScrollArea::setScrollOrigin(ScrollOrigin inScrollOrigin)
     scrollOrigin = inScrollOrigin;
 }
 
-int ScrollArea::getScrollDistanceX()
+float ScrollArea::getScrollDistanceX()
 {
     return scrollDistanceX;
 }
 
-int ScrollArea::getScrollDistanceY()
+float ScrollArea::getScrollDistanceY()
 {
     return scrollDistanceY;
 }

@@ -33,7 +33,7 @@ Text::Text(const SDL_FRect& inLogicalExtent, const std::string& inDebugName)
 {
 }
 
-void Text::setFont(std::string_view inFontPath, int inLogicalFontSize,
+void Text::setFont(std::string_view inFontPath, float inLogicalFontSize,
                    int inLogicalFontOutlineSize)
 {
     // Save the data for later scaling.
@@ -383,7 +383,7 @@ void Text::refreshAlignment()
 void Text::refreshFontObject()
 {
     // Scale the font size to the current actual size.
-    int actualFontSize{ScalingHelpers::logicalToActual(logicalFontSize)};
+    float actualFontSize{ScalingHelpers::logicalToActual(logicalFontSize)};
 
     // Attempt to load the desired font (errors on failure).
     AssetCache& assetCache{Core::getAssetCache()};

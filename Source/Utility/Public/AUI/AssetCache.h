@@ -58,7 +58,7 @@ public:
      * @param fontOutlineSize The size of the font's outline.
      */
     std::shared_ptr<TTF_Font> requestFont(const std::string& fontPath,
-                                          int fontSize, int fontOutlineSize);
+                                          float fontSize, int fontOutlineSize);
 
 private:
     std::unordered_map<std::string, std::shared_ptr<SDL_Texture>> textureCache;

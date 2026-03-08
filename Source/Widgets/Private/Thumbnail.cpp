@@ -190,7 +190,7 @@ void Thumbnail::setTextLogicalExtent(const SDL_FRect& inLogicalExtent)
     text.setLogicalExtent(inLogicalExtent);
 }
 
-void Thumbnail::setTextFont(const std::string& fontPath, int inLogicalFontSize)
+void Thumbnail::setTextFont(const std::string& fontPath, float inLogicalFontSize)
 {
     text.setFont(fontPath, inLogicalFontSize);
 }

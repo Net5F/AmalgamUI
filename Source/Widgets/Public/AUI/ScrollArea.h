@@ -66,8 +66,8 @@ public:
      * @return How far we're scrolled in the relevant direction, in scaled
      *         units.
      */
-    int getScrollDistanceX();
-    int getScrollDistanceY();
+    float getScrollDistanceX();
+    float getScrollDistanceY();
 
     //-------------------------------------------------------------------------
     // Public child widgets

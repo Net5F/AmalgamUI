@@ -233,16 +233,10 @@ void Widget::arrange(const SDL_FPoint& startPosition,
     fullExtent.y += startPosition.y;
 
     // Clip fullExtent to the available space to get our clippedExtent.
-    SDL_FRect intersectionResult{};
-    SDL_GetRectIntersectionFloat(&fullExtent, &availableExtent,
-                                 &intersectionResult);
-    if (SDLHelpers::hasPositiveArea(intersectionResult)) {
-        clippedExtent = intersectionResult;
-    }
-    else {
+    if (!SDL_GetRectIntersectionFloat(&fullExtent, &availableExtent,
+                                      &clippedExtent)) {
         // fullExtent does not intersect availableExtent (e.g. this widget
-        // is fully clipped). Zero-out clippedExtent and return early.
-        clippedExtent = {0, 0, 0, 0};
+        // is fully clipped). Return early.
         return;
     }
 
@@ -266,7 +260,7 @@ void Widget::arrange(const SDL_FPoint& startPosition,
 void Widget::render(const SDL_FPoint& windowTopLeft)
 {
     // If this widget is fully clipped, don't render it.
-    if (!SDLHelpers::hasPositiveArea(clippedExtent)) {
+    if (SDL_RectEmptyFloat(&clippedExtent)) {
         return;
     }
 

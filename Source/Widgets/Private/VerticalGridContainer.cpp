@@ -86,7 +86,7 @@ void VerticalGridContainer::arrange(const SDL_FPoint& startPosition,
     Widget::arrange(startPosition, availableExtent, widgetLocator);
 
     // If this widget is fully clipped, return early.
-    if (!SDLHelpers::hasPositiveArea(clippedExtent)) {
+    if (SDL_RectEmptyFloat(&clippedExtent)) {
         return;
     }
 

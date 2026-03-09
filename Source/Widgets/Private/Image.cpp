@@ -169,7 +169,7 @@ void Image::arrange(const SDL_FPoint& startPosition,
     Widget::arrange(startPosition, availableExtent, widgetLocator);
 
     // If this widget is fully clipped, return early.
-    if (!SDLHelpers::hasPositiveArea(clippedExtent)) {
+    if (SDL_RectEmptyFloat(&clippedExtent)) {
         return;
     }
 }
@@ -177,7 +177,7 @@ void Image::arrange(const SDL_FPoint& startPosition,
 void Image::render(const SDL_FPoint& windowTopLeft)
 {
     // If this widget is fully clipped, don't render it.
-    if (!SDLHelpers::hasPositiveArea(clippedExtent)) {
+    if (SDL_RectEmptyFloat(&clippedExtent)) {
         return;
     }
 

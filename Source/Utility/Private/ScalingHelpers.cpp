@@ -1,5 +1,6 @@
 #include "AUI/ScalingHelpers.h"
 #include "AUI/Core.h"
+#include "AUI/SDLHelpers.h"
 #include "AUI/Internal/Log.h"
 
 namespace AUI
@@ -178,13 +179,15 @@ SDL_FRect ScalingHelpers::logicalToClipped(const SDL_FRect& logicalExtent,
 
     // Clip fullExtent to the available space to get our clipped extent.
     SDL_FRect intersectionResult{};
-    if (SDL_GetRectIntersectionFloat(&fullExtent, &availableExtent,
-                                     &intersectionResult)) {
+    SDL_GetRectIntersectionFloat(&fullExtent, &availableExtent,
+                                 &intersectionResult);
+    if (SDLHelpers::hasPositiveArea(intersectionResult)) {
         return intersectionResult;
     }
     else {
-        // fullExtent does not intersect availableExtent (e.g. this extent
-        // is fully clipped). Zero-out clippedExtent and return early.
+        // fullExtent does not intersect availableExtent (e.g. the extent
+        // is fully clipped). Return all 0s, instead of potentially returning 
+        // negatives.
         return {0, 0, 0, 0};
     }
 }

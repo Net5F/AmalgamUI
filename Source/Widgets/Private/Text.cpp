@@ -2,6 +2,7 @@
 #include "AUI/Core.h"
 #include "AUI/ScalingHelpers.h"
 #include "AUI/Internal/Log.h"
+#include "AUI/SDLHelpers.h"
 #include <SDL3/SDL_render.h>
 
 namespace AUI
@@ -292,7 +293,7 @@ void Text::arrange(const SDL_FPoint& startPosition,
     Widget::arrange(startPosition, availableExtent, widgetLocator);
 
     // If this widget is fully clipped, return early.
-    if (SDL_RectEmptyFloat(&clippedExtent)) {
+    if (!SDLHelpers::hasPositiveArea(clippedExtent)) {
         return;
     }
 
@@ -315,11 +316,11 @@ void Text::arrange(const SDL_FPoint& startPosition,
 void Text::render(const SDL_FPoint& windowTopLeft)
 {
     // If this widget is fully clipped, don't render it.
-    if (SDL_RectEmptyFloat(&clippedExtent)) {
+    if (!SDLHelpers::hasPositiveArea(clippedExtent)) {
         return;
     }
 
-    if (textTexture == nullptr) {
+    if (!textTexture) {
         AUI_LOG_FATAL("Tried to render Font with no texture. DebugName: %s",
                       debugName.c_str());
     }

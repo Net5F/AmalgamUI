@@ -1,5 +1,6 @@
 #include "AUI/Container.h"
 #include "AUI/Internal/Log.h"
+#include "AUI/SDLHelpers.h"
 #include <algorithm>
 
 namespace AUI
@@ -114,7 +115,7 @@ void Container::onTick(double timestepS)
 void Container::render(const SDL_FPoint& windowTopLeft)
 {
     // If this widget is fully clipped, don't render it.
-    if (SDL_RectEmptyFloat(&clippedExtent)) {
+    if (!SDLHelpers::hasPositiveArea(clippedExtent)) {
         return;
     }
 

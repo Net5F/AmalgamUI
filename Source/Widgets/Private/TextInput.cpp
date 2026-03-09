@@ -2,6 +2,7 @@
 #include "AUI/Screen.h"
 #include "AUI/Core.h"
 #include "AUI/ScalingHelpers.h"
+#include "AUI/SDLHelpers.h"
 #include <cstring>
 
 namespace AUI
@@ -471,7 +472,7 @@ void TextInput::measure(const SDL_FRect& availableExtent)
 void TextInput::render(const SDL_FPoint& windowTopLeft)
 {
     // If this widget is fully clipped, don't render it.
-    if (SDL_RectEmptyFloat(&clippedExtent)) {
+    if (!SDLHelpers::hasPositiveArea(clippedExtent)) {
         return;
     }
 

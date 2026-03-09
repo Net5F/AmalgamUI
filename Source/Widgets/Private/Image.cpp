@@ -5,6 +5,7 @@
 #include "AUI/ImageType/MultiResImage.h"
 #include "AUI/ImageType/TiledImage.h"
 #include "AUI/Internal/AUIAssert.h"
+#include "AUI/SDLHelpers.h"
 
 namespace AUI
 {
@@ -168,7 +169,7 @@ void Image::arrange(const SDL_FPoint& startPosition,
     Widget::arrange(startPosition, availableExtent, widgetLocator);
 
     // If this widget is fully clipped, return early.
-    if (SDL_RectEmptyFloat(&clippedExtent)) {
+    if (!SDLHelpers::hasPositiveArea(clippedExtent)) {
         return;
     }
 }
@@ -176,7 +177,7 @@ void Image::arrange(const SDL_FPoint& startPosition,
 void Image::render(const SDL_FPoint& windowTopLeft)
 {
     // If this widget is fully clipped, don't render it.
-    if (SDL_RectEmptyFloat(&clippedExtent)) {
+    if (!SDLHelpers::hasPositiveArea(clippedExtent)) {
         return;
     }
 

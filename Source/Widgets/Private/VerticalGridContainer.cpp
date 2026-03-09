@@ -2,6 +2,7 @@
 #include "AUI/ScalingHelpers.h"
 #include "AUI/WidgetLocator.h"
 #include "AUI/Internal/Log.h"
+#include "AUI/SDLHelpers.h"
 #include <cmath>
 
 namespace AUI
@@ -85,7 +86,7 @@ void VerticalGridContainer::arrange(const SDL_FPoint& startPosition,
     Widget::arrange(startPosition, availableExtent, widgetLocator);
 
     // If this widget is fully clipped, return early.
-    if (SDL_RectEmptyFloat(&clippedExtent)) {
+    if (!SDLHelpers::hasPositiveArea(clippedExtent)) {
         return;
     }
 

@@ -19,4 +19,9 @@ float SDLHelpers::squaredDistance(const SDL_FPoint& pointA,
     return std::abs(xDif + yDif);
 }
 
+bool SDLHelpers::hasPositiveArea(const SDL_FRect& rect)
+{
+    return (rect.w > 0.0f) && (rect.h > 0.0f);
+}
+
 } // namespace AUI

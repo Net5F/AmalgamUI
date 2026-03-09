@@ -7,6 +7,7 @@
 #include "AUI/DragDropData.h"
 #include "AUI/Internal/Log.h"
 #include "AUI/Internal/AUIAssert.h"
+#include "AUI/SDLHelpers.h"
 #include <SDL3/SDL_rect.h>
 #include <algorithm>
 
@@ -233,8 +234,9 @@ void Widget::arrange(const SDL_FPoint& startPosition,
 
     // Clip fullExtent to the available space to get our clippedExtent.
     SDL_FRect intersectionResult{};
-    if (SDL_GetRectIntersectionFloat(&fullExtent, &availableExtent,
-                                     &intersectionResult)) {
+    SDL_GetRectIntersectionFloat(&fullExtent, &availableExtent,
+                                 &intersectionResult);
+    if (SDLHelpers::hasPositiveArea(intersectionResult)) {
         clippedExtent = intersectionResult;
     }
     else {
@@ -264,7 +266,7 @@ void Widget::arrange(const SDL_FPoint& startPosition,
 void Widget::render(const SDL_FPoint& windowTopLeft)
 {
     // If this widget is fully clipped, don't render it.
-    if (SDL_RectEmptyFloat(&clippedExtent)) {
+    if (!SDLHelpers::hasPositiveArea(clippedExtent)) {
         return;
     }
 

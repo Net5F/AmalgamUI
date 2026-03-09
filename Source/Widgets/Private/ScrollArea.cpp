@@ -3,6 +3,7 @@
 #include "AUI/WidgetLocator.h"
 #include "AUI/Internal/Log.h"
 #include <cmath>
+#include "AUI/SDLHelpers.h"
 #include <algorithm>
 
 namespace AUI
@@ -123,7 +124,7 @@ void ScrollArea::arrange(const SDL_FPoint& startPosition,
     Widget::arrange(startPosition, availableExtent, widgetLocator);
 
     // If this widget is fully clipped, return early.
-    if (SDL_RectEmptyFloat(&clippedExtent)) {
+    if (!SDLHelpers::hasPositiveArea(clippedExtent)) {
         return;
     }
 
@@ -150,7 +151,7 @@ void ScrollArea::arrange(const SDL_FPoint& startPosition,
 void ScrollArea::render(const SDL_FPoint& windowTopLeft)
 {
     // If this widget is fully clipped, don't render it.
-    if (SDL_RectEmptyFloat(&clippedExtent)) {
+    if (!SDLHelpers::hasPositiveArea(clippedExtent)) {
         return;
     }
 

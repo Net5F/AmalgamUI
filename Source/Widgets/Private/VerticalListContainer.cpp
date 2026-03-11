@@ -43,6 +43,9 @@ void VerticalListContainer::setFlowDirection(FlowDirection inFlowDirection)
 EventResult VerticalListContainer::onMouseWheel(float amountScrolled)
 {
     // If the content isn't taller than this widget, don't scroll.
+    // Note: We aren't worried about this function being called before measure()
+    //       is able to run, because if measure/arrange/render hasn't ran, the 
+    //       user can't see any of this anyway.
     float contentHeight{calcContentHeight()};
     if (contentHeight < scaledExtent.h) {
         return EventResult{.wasHandled{true}};
@@ -124,11 +127,8 @@ float VerticalListContainer::calcContentHeight()
     // gaps.
     float contentHeight{0};
     for (const std::unique_ptr<Widget>& widget : elements) {
+        contentHeight += widget->getScaledExtent().h;
         contentHeight += scaledGapSize;
-        // Note: We scale manually since there's no guarantee arrange()
-        //       has ran already to update this widget's scaledExtent.
-        contentHeight
-            += ScalingHelpers::logicalToActual(widget->getLogicalExtent().h);
     }
 
     // Subtract 1 gap size, so we don't have a gap on the bottom.

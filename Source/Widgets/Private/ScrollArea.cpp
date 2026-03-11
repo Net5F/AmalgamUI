@@ -210,15 +210,19 @@ void ScrollArea::handleMouseScrollVertical(float amountScrolled)
     scrollDistanceY = std::clamp(scrollDistanceY, 0.f, maxScrollDistance);
 }
 
-SDL_FRect ScrollArea::calcContentExtent()
+SDL_FRect ScrollArea::calcContentExtent() const
 {
     if (!content) {
         return {};
     }
 
-    // Note: We scale manually since there's no guarantee updateLayout()
-    //       has ran already to update the content's scaledExtent.
-    return ScalingHelpers::logicalToActual(content->getLogicalExtent());
+    // Note: It's tempting to scale the content's logical extent manually 
+    //       here, to avoid edge cases where measure() hasn't ran yet. That 
+    //       would be incorrect though, since there's no guarantee that a 
+    //       widget's scaled extent == logicalToActual(logicalExtent). For 
+    //       example, CollapsibleContainer's scaled extent is the sum of its
+    //       element's scaled extents.
+    return content->getScaledExtent();
 }
 
 } // namespace AUI

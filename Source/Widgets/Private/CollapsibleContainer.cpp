@@ -118,21 +118,15 @@ void CollapsibleContainer::measure(const SDL_FRect& availableExtent)
 {
     // Run the normal measure step (sets our scaledExtent).
     Widget::measure(availableExtent);
-
+    
     // If we're expanded, set our height to fit our elements.
     if (!isCollapsed) {
-        // Measure our elements, giving them infinite available height.
-        SDL_FRect elementAvailableExtent{0, 0, logicalExtent.w, -1};
-        for (auto& element : elements) {
-            element->measure(elementAvailableExtent);
-        }
-
-        // Calc our new height based on our elements.
-        logicalExtent.h = calcExpandedHeight();
+        measureExpandedHeight();
     }
     else {
         // We're collapsed. Set our height to the header's height.
         logicalExtent.h = headerLogicalExtent.h;
+        scaledExtent.h = ScalingHelpers::logicalToActual(headerLogicalExtent.h);
     }
 }
 
@@ -178,20 +172,29 @@ void CollapsibleContainer::arrange(const SDL_FPoint& startPosition,
     }
 }
 
-float CollapsibleContainer::calcExpandedHeight()
+void CollapsibleContainer::measureExpandedHeight()
 {
-    // Sum our element y-offsets, element heights, and gaps.
-    float newHeight{headerLogicalExtent.h};
+    // Measure our elements, then sum them to build up our new logical and 
+    // scaled heights.
+    logicalExtent.h = headerLogicalExtent.h;
+    scaledExtent.h = ScalingHelpers::logicalToActual(headerLogicalExtent.h);
     for (std::unique_ptr<Widget>& element : elements) {
-        SDL_FRect elementLogicalExtent{element->getLogicalExtent()};
-        newHeight += elementLogicalExtent.y + elementLogicalExtent.h;
-        newHeight += logicalGapSize;
+        // Measure the element, giving it infinite available height.
+        SDL_FRect elementAvailableExtent{0, 0, logicalExtent.w, -1};
+        element->measure(elementAvailableExtent);
+
+        // Add the element's logical and scaled height to ours.
+        const SDL_FRect& elementLogicalExtent{element->getLogicalExtent()};
+        const SDL_FRect& elementScaledExtent{element->getScaledExtent()};
+        logicalExtent.h
+            += elementLogicalExtent.y + elementLogicalExtent.h + logicalGapSize;
+        scaledExtent.h
+            += elementScaledExtent.y + elementScaledExtent.h + scaledGapSize;
     }
 
     // Subtract 1 gap size, so we don't have a gap on the bottom.
-    newHeight -= logicalGapSize;
-
-    return newHeight;
+    logicalExtent.h -= logicalGapSize;
+    scaledExtent.h -= scaledGapSize;
 }
 
 } // namespace AUI

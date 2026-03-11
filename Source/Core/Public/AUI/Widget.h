@@ -28,6 +28,16 @@ class WidgetLocator;
  *     constructor.
  *   - Use setters for all other data.
  *
+ * Widgets have 4 extents, used for various purposes:
+ *   Logical: The extent of the widget, relative to the logical screen size.
+ *   Scaled:  The logical extent, scaled to the actual screen size.
+ *            Note: This may not always be a direct scaling of the logical 
+ *                  extent (see CollapsibleContainer for an example).
+ *   Full:    The scaled extent, offset to be positioned within the parent 
+ *            widget or window.
+ *   Clipped: The full extent, clipped to not go beyond the parent widget's
+ *            boundaries.
+ *
  * Note: Widgets must not overlap their siblings (extents must not intersect).
  *       Parents must fully overlap their children.
  * Note: Widgets have no concept of reordering their children based on events.
@@ -380,8 +390,8 @@ protected:
     /** This widget's final window-relative extent within the layout. Equal to
         fullExtent, but clipped to fit within the parent. Ready for use in
         rendering and hit testing for events.
-        Note: During updateLayout(), this widget may be found to not fit
-              within the availableExtent. You can test for this with 
+        Note: During arrange(), this widget may be found to not fit within the
+              availableExtent. You can test for this with 
               SDL_RectEmptyFloat(clippedExtent), and should do so before using 
               this extent. */
     SDL_FRect clippedExtent;

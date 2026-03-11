@@ -99,7 +99,7 @@ private:
     /**
      * Calculates the actual-space extent of our child's content.
      */
-    SDL_FRect calcContentExtent();
+    SDL_FRect calcContentExtent() const;
 
     /** The default logical pixel distance of a horizontal scroll event. */
     static constexpr float LOGICAL_DEFAULT_SCROLL_STEP_X{15};

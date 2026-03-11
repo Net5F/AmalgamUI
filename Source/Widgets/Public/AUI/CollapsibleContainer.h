@@ -87,9 +87,10 @@ public:
 
 protected:
     /**
-     * Calculates the height of this widget, if it was in an expanded state.
+     * Measures the height of this widget, if it was in an expanded state.
+     * Sets logicalExtent.h and scaledExtent.h to fit our elements.
      */
-    float calcExpandedHeight();
+    void measureExpandedHeight();
 
     /** The logical extent of the header. Used to return to the original size
         when this container goes from expanded to collapsed. */

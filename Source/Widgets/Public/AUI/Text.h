@@ -211,6 +211,28 @@ private:
     void refreshAlignment();
 
     /**
+     * Flags our texture as needing to be re-rendered, and marks the UI dirty
+     * to match.
+     */
+    void invalidateTexture();
+
+    /**
+     * Flags our alignment as needing to be refreshed, and marks the UI dirty
+     * to match.
+     */
+    void invalidateAlignment();
+
+    /**
+     * Re-calculates offsetClippedTextExtent and offsetClippedTextureExtent
+     * based on the current textExtent, clippedExtent, and lastStartPosition.
+     *
+     * Note: This is separated out from arrange() so that render() can redo it
+     *       when the texture is refreshed without a layout pass. It uses
+     *       lastStartPosition, so arrange() must have run at least once.
+     */
+    void refreshTextExtents();
+
+    /**
      * Re-loads the font object, using the current fontPath and scaling
      * logicalFontSize to the appropriate actual font size.
      */
@@ -306,14 +328,21 @@ private:
         Used to scroll the text and have it be clipped appropriately. */
     int textOffset;
 
+    /** The startPosition from our last arrange(). Saved so that render() can
+        redo our text positioning when the texture changes without a layout
+        pass. */
+    SDL_Point lastStartPosition;
+
     /** Our textExtent, offset to match the parentExtent given during
         updateLayout() and clipped to renderExtent's bounds.
-        Calc'd during updateLayout() and only valid for that frame. */
+        Calc'd during updateLayout(), and refreshed during render() if the
+        texture changes. */
     SDL_Rect offsetClippedTextExtent;
 
     /** Our offsetClippedTextExtent, pulled back into texture space
         ((0, 0) origin). Tells us what part of the texture to render.
-        Calc'd during updateLayout() and only valid for that frame. */
+        Calc'd during updateLayout(), and refreshed during render() if the
+        texture changes. */
     SDL_Rect offsetClippedTextureExtent;
 };
 

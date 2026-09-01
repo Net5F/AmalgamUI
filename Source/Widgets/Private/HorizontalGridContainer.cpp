@@ -22,19 +22,43 @@ HorizontalGridContainer::HorizontalGridContainer(const SDL_Rect& inLogicalExtent
 
 void HorizontalGridContainer::setNumRows(unsigned int inNumRows)
 {
+    if (inNumRows == numRows) {
+        return;
+    }
+
     numRows = inNumRows;
+
+    // Note: Our elements are positioned by arrange(), so this changes the
+    //       layout.
+    Core::markLayoutDirty();
 }
 
 void HorizontalGridContainer::setCellWidth(unsigned int inLogicalCellWidth)
 {
+    if (static_cast<int>(inLogicalCellWidth) == logicalCellWidth) {
+        return;
+    }
+
     logicalCellWidth = static_cast<int>(inLogicalCellWidth);
     scaledCellWidth = ScalingHelpers::logicalToActual(logicalCellWidth);
+
+    // Note: Our elements are positioned by arrange(), so this changes the
+    //       layout.
+    Core::markLayoutDirty();
 }
 
 void HorizontalGridContainer::setCellHeight(unsigned int inLogicalCellHeight)
 {
+    if (static_cast<int>(inLogicalCellHeight) == logicalCellHeight) {
+        return;
+    }
+
     logicalCellHeight = static_cast<int>(inLogicalCellHeight);
     scaledCellHeight = ScalingHelpers::logicalToActual(logicalCellHeight);
+
+    // Note: Our elements are positioned by arrange(), so this changes the
+    //       layout.
+    Core::markLayoutDirty();
 }
 
 void HorizontalGridContainer::setScrollingEnabled(bool isEnabled)
@@ -123,6 +147,8 @@ void HorizontalGridContainer::scrollElements(bool scrollLeft)
     if (scrollLeft && (columnScroll > 0)) {
         // Scroll left 1 row.
         columnScroll--;
+
+        Core::markLayoutDirty();
     }
     else if (!scrollLeft) {
         // Else if we're being asked to scroll right, calculate if there are
@@ -133,6 +159,8 @@ void HorizontalGridContainer::scrollElements(bool scrollLeft)
         // If there are any elements offscreen, scroll to the right 1 column.
         if (columnsRight > 0) {
             columnScroll++;
+
+            Core::markLayoutDirty();
         }
     }
 }

@@ -88,13 +88,13 @@ void TextInput::enable()
 void TextInput::disable()
 {
     setCurrentState(State::Disabled);
-    cursorIsVisible = false;
+    setCursorIsVisible(false);
 
     // Scroll back to the front (the most expected behavior).
     cursorIndex = 0;
 
     // Refresh the text position to account for the change.
-    isTextScrollOffsetDirty = true;
+    invalidateTextScrollOffset();
 }
 
 void TextInput::setPadding(Padding inLogicalPadding)
@@ -107,7 +107,7 @@ void TextInput::setPadding(Padding inLogicalPadding)
          (logicalExtent.h - inLogicalPadding.top - inLogicalPadding.bottom)});
 
     // Refresh the text position to account for the change.
-    isTextScrollOffsetDirty = true;
+    invalidateTextScrollOffset();
 }
 
 void TextInput::setCursorColor(const SDL_Color& inCursorColor)
@@ -146,7 +146,7 @@ void TextInput::setText(std::string_view inText)
     cursorIndex = 0;
 
     // Refresh the text position to account for the change.
-    isTextScrollOffsetDirty = true;
+    invalidateTextScrollOffset();
 }
 
 const std::string& TextInput::getText()
@@ -282,14 +282,14 @@ EventResult TextInput::onFocusGained()
 
     // Reset the text cursor's state.
     // Show the text cursor immediately so the user can see where they're at.
-    cursorIsVisible = true;
+    setCursorIsVisible(true);
     accumulatedBlinkTime = 0;
 
     // Move the cursor to the end.
     cursorIndex = text.asString().length();
 
     // Refresh the text position to account for the change.
-    isTextScrollOffsetDirty = true;
+    invalidateTextScrollOffset();
 
     return EventResult{.wasHandled{true}};
 }
@@ -308,7 +308,7 @@ void TextInput::onFocusLost(FocusLostType focusLostType)
     Core::isTextInputFocused = false;
 
     // Reset the text cursor's state.
-    cursorIsVisible = false;
+    setCursorIsVisible(false);
 
     // If we lost focus because of an Escape key press, revert to the last
     // committed text state.
@@ -330,7 +330,7 @@ void TextInput::onFocusLost(FocusLostType focusLostType)
         cursorIndex = 0;
 
         // Refresh the text position to account for the change.
-        isTextScrollOffsetDirty = true;
+        invalidateTextScrollOffset();
 
         // If a callback is registered, signal that the text was committed.
         if (onTextCommitted) {
@@ -416,11 +416,11 @@ EventResult TextInput::onTextInput(const std::string& inputText)
     cursorIndex += inputText.length();
 
     // Refresh the text position to account for the change.
-    isTextScrollOffsetDirty = true;
+    invalidateTextScrollOffset();
 
     // Make the cursor visible and reset the blink time so it stays solid
     // while interacting.
-    cursorIsVisible = true;
+    setCursorIsVisible(true);
     accumulatedBlinkTime = 0;
 
     return EventResult{.wasHandled{true}};
@@ -436,12 +436,7 @@ void TextInput::onTick(double timestepS)
         // If enough time has passed.
         if (accumulatedBlinkTime > CURSOR_BLINK_RATE_S) {
             // Toggle the cursor draw state.
-            if (!cursorIsVisible) {
-                cursorIsVisible = true;
-            }
-            else {
-                cursorIsVisible = false;
-            }
+            setCursorIsVisible(!cursorIsVisible);
 
             accumulatedBlinkTime -= CURSOR_BLINK_RATE_S;
         }
@@ -492,11 +487,11 @@ EventResult TextInput::handleBackspaceEvent()
 
         // Make the cursor visible and reset the blink time so it stays
         // solid while interacting.
-        cursorIsVisible = true;
+        setCursorIsVisible(true);
         accumulatedBlinkTime = 0;
 
         // Refresh the text position to account for the change.
-        isTextScrollOffsetDirty = true;
+        invalidateTextScrollOffset();
 
         // If a callback is registered, signal that the text was changed.
         if (onTextChanged) {
@@ -513,11 +508,11 @@ EventResult TextInput::handleDeleteEvent()
     if (text.eraseCharacter(cursorIndex)) {
         // Make the cursor visible and reset the blink time so it stays
         // solid while interacting.
-        cursorIsVisible = true;
+        setCursorIsVisible(true);
         accumulatedBlinkTime = 0;
 
         // Refresh the text position to account for the change.
-        isTextScrollOffsetDirty = true;
+        invalidateTextScrollOffset();
 
         // If a callback is registered, signal that the the text was changed.
         if (onTextChanged) {
@@ -560,7 +555,7 @@ EventResult TextInput::handleCutEvent()
             cursorIndex = 0;
 
             // Refresh the text position to account for the change.
-            isTextScrollOffsetDirty = true;
+            invalidateTextScrollOffset();
 
             // If a callback is registered, signal that the the text was
             // changed.
@@ -589,7 +584,7 @@ EventResult TextInput::handlePasteEvent()
             SDL_free(clipboardText);
 
             // Refresh the text position to account for the change.
-            isTextScrollOffsetDirty = true;
+            invalidateTextScrollOffset();
 
             // If a callback is registered, signal that the the text was
             // changed.
@@ -609,12 +604,12 @@ EventResult TextInput::handleLeftEvent()
         cursorIndex--;
 
         // Refresh the text position to account for the change.
-        isTextScrollOffsetDirty = true;
+        invalidateTextScrollOffset();
     }
 
     // Make the cursor visible and reset the blink time so it stays
     // solid while interacting.
-    cursorIsVisible = true;
+    setCursorIsVisible(true);
     accumulatedBlinkTime = 0;
 
     return EventResult{.wasHandled{true}};
@@ -627,12 +622,12 @@ EventResult TextInput::handleRightEvent()
         cursorIndex++;
 
         // Refresh the text position to account for the change.
-        isTextScrollOffsetDirty = true;
+        invalidateTextScrollOffset();
     }
 
     // Make the cursor visible and reset the blink time so it stays
     // solid while interacting.
-    cursorIsVisible = true;
+    setCursorIsVisible(true);
     accumulatedBlinkTime = 0;
 
     return EventResult{.wasHandled{true}};
@@ -644,7 +639,7 @@ EventResult TextInput::handleHomeEvent()
     cursorIndex = 0;
 
     // Refresh the text position to account for the change.
-    isTextScrollOffsetDirty = true;
+    invalidateTextScrollOffset();
 
     return EventResult{.wasHandled{true}};
 }
@@ -655,7 +650,7 @@ EventResult TextInput::handleEndEvent()
     cursorIndex = text.asString().length();
 
     // Refresh the text position to account for the change.
-    isTextScrollOffsetDirty = true;
+    invalidateTextScrollOffset();
 
     return EventResult{.wasHandled{true}};
 }
@@ -717,6 +712,27 @@ void TextInput::setCurrentState(State inState)
             break;
         }
     }
+}
+
+void TextInput::setCursorIsVisible(bool inCursorIsVisible)
+{
+    if (inCursorIsVisible == cursorIsVisible) {
+        return;
+    }
+
+    cursorIsVisible = inCursorIsVisible;
+
+    // Note: The cursor is drawn during render(), so this is just a redraw.
+    Core::markRenderDirty();
+}
+
+void TextInput::invalidateTextScrollOffset()
+{
+    isTextScrollOffsetDirty = true;
+
+    // Note: refreshTextScrollOffset() runs during measure(), so this needs a
+    //       layout pass.
+    Core::markLayoutDirty();
 }
 
 void TextInput::refreshTextScrollOffset()

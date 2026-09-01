@@ -43,10 +43,15 @@ bool Widget::containsPoint(const SDL_Point& windowPoint)
 
 void Widget::setLogicalExtent(const SDL_Rect& inLogicalExtent)
 {
+    if (SDL_RectEquals(&logicalExtent, &inLogicalExtent)) {
+        return;
+    }
+
     // Set our logical screen extent.
     logicalExtent = inLogicalExtent;
 
-    // TODO: Invalidate the layout
+    // Our size or position changed, so the layout needs to be re-run.
+    Core::markLayoutDirty();
 }
 
 const SDL_Rect& Widget::getLogicalExtent() const
@@ -76,7 +81,15 @@ const std::string& Widget::getDebugName() const
 
 void Widget::setIsVisible(bool inIsVisible)
 {
+    if (inIsVisible == isVisible) {
+        return;
+    }
+
     isVisible = inIsVisible;
+
+    // The layout skips invisible widgets, so showing or hiding one changes
+    // which widgets are laid out (and, for containers, where they sit).
+    Core::markLayoutDirty();
 }
 
 bool Widget::getIsVisible() const

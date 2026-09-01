@@ -73,8 +73,11 @@ public:
     // Public child widgets
     //-------------------------------------------------------------------------
     /** This scroll area's child content widget.
-        We use this instead of adding it to Widget::children so that we can 
-        control its layout independent of our own. */
+        We use this instead of adding it to Widget::children so that we can
+        control its layout independent of our own.
+        Note: Since this is assigned directly instead of through a setter, we
+              can't mark the layout dirty for you. Call
+              Core::markLayoutDirty() after assigning it. */
     std::unique_ptr<Widget> content;
 
     //-------------------------------------------------------------------------

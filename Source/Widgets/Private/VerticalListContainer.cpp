@@ -1,4 +1,5 @@
 #include "AUI/VerticalListContainer.h"
+#include "AUI/Core.h"
 #include "AUI/ScalingHelpers.h"
 #include "AUI/WidgetLocator.h"
 #include "AUI/Internal/Log.h"
@@ -21,22 +22,40 @@ VerticalListContainer::VerticalListContainer(const SDL_Rect& inLogicalExtent,
 
 void VerticalListContainer::setGapSize(int inLogicalGapSize)
 {
+    if (inLogicalGapSize == logicalGapSize) {
+        return;
+    }
+
     logicalGapSize = inLogicalGapSize;
     scaledGapSize = ScalingHelpers::logicalToActual(logicalGapSize);
+
+    // Note: Our elements are positioned by arrange(), so this changes the
+    //       layout.
+    Core::markLayoutDirty();
 }
 
 void VerticalListContainer::setScrollHeight(int inLogicalScrollHeight)
 {
+    // Note: This is only used while scrolling, so it doesn't dirty anything by
+    //       itself.
     logicalScrollHeight = inLogicalScrollHeight;
     scaledScrollHeight = ScalingHelpers::logicalToActual(logicalScrollHeight);
 }
 
 void VerticalListContainer::setFlowDirection(FlowDirection inFlowDirection)
 {
+    if (inFlowDirection == flowDirection) {
+        return;
+    }
+
     flowDirection = inFlowDirection;
 
     // Reset the scroll distance since it's going in the other direction now.
     scrollDistance = 0;
+
+    // Note: Our elements are positioned by arrange(), so this changes the
+    //       layout.
+    Core::markLayoutDirty();
 }
 
 EventResult VerticalListContainer::onMouseWheel(int amountScrolled)
@@ -52,6 +71,7 @@ EventResult VerticalListContainer::onMouseWheel(int amountScrolled)
     int maxScrollDistance{contentHeight - scaledExtent.h};
 
     // Calc the updated scroll distance.
+    const int oldScrollDistance{scrollDistance};
     if (flowDirection == FlowDirection::TopToBottom) {
         scrollDistance -= (amountScrolled * scaledScrollHeight);
     }
@@ -61,6 +81,13 @@ EventResult VerticalListContainer::onMouseWheel(int amountScrolled)
 
     // Clamp the scroll distance so we don't go too far.
     scrollDistance = std::clamp(scrollDistance, 0, maxScrollDistance);
+
+    // If we actually moved, our elements need to be re-positioned.
+    // Note: Our elements are positioned by arrange(), so this changes the
+    //       layout.
+    if (scrollDistance != oldScrollDistance) {
+        Core::markLayoutDirty();
+    }
 
     return EventResult{.wasHandled{true}};
 }

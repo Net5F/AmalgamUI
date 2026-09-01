@@ -4,30 +4,30 @@
 #include "AUI/Internal/Log.h"
 #include <SDL_render.h>
 
-namespace AUI
-{
+namespace AUI {
 Text::Text(const SDL_Rect& inLogicalExtent, const std::string& inDebugName)
 : Widget(inLogicalExtent, inDebugName)
-, fontPath{""}
-, logicalFontSize{10}
-, logicalFontOutlineSize{0}
+, fontPath{ "" }
+, logicalFontSize{ 10 }
+, logicalFontOutlineSize{ 0 }
 , font{}
 , outlinedFont{}
-, color{0, 0, 0, 255}
-, backgroundColor{0, 0, 0, 0}
-, renderMode{RenderMode::Blended}
-, wordWrapEnabled{true}
-, autoHeightEnabled{false}
-, text{"Initialized"}
-, verticalAlignment{VerticalAlignment::Top}
-, horizontalAlignment{HorizontalAlignment::Left}
-, lastUsedScreenSize{0, 0}
-, textureIsDirty{true}
-, alignmentIsDirty{true}
-, textTexture{nullptr}
+, color{ 0, 0, 0, 255 }
+, backgroundColor{ 0, 0, 0, 0 }
+, renderMode{ RenderMode::Blended }
+, wordWrapEnabled{ true }
+, autoHeightEnabled{ false }
+, text{ "Initialized" }
+, verticalAlignment{ VerticalAlignment::Top }
+, horizontalAlignment{ HorizontalAlignment::Left }
+, lastUsedScreenSize{ 0, 0 }
+, textureIsDirty{ true }
+, alignmentIsDirty{ true }
+, textTexture{ nullptr }
 , textureExtent{}
 , textExtent{}
-, textOffset{0}
+, textOffset{ 0 }
+, lastStartPosition{ 0, 0 }
 , offsetClippedTextExtent{}
 , offsetClippedTextureExtent{}
 {
@@ -44,67 +44,90 @@ void Text::setFont(std::string_view inFontPath, int inLogicalFontSize,
     // Load the new font object.
     refreshFontObject();
 
-    textureIsDirty = true;
+    invalidateTexture();
 }
 
 void Text::setColor(const SDL_Color& inColor)
 {
     color = inColor;
-    textureIsDirty = true;
+    invalidateTexture();
 }
 
 void Text::setBackgroundColor(const SDL_Color& inBackgroundColor)
 {
     backgroundColor = inBackgroundColor;
-    textureIsDirty = true;
+    invalidateTexture();
 }
 
 void Text::setRenderMode(RenderMode inRenderMode)
 {
     renderMode = inRenderMode;
-    textureIsDirty = true;
+    invalidateTexture();
 }
 
 void Text::setText(std::string_view inText)
 {
     if (text != inText) {
         text = inText;
-        textureIsDirty = true;
+        invalidateTexture();
     }
 }
 
 void Text::setVerticalAlignment(VerticalAlignment inVerticalAlignment)
 {
     verticalAlignment = inVerticalAlignment;
-    alignmentIsDirty = true;
+    invalidateAlignment();
 }
 
 void Text::setHorizontalAlignment(HorizontalAlignment inHorizontalAlignment)
 {
     horizontalAlignment = inHorizontalAlignment;
-    alignmentIsDirty = true;
+    invalidateAlignment();
 }
 
 void Text::setWordWrapEnabled(bool inWordWrapEnabled)
 {
+    if (inWordWrapEnabled == wordWrapEnabled) {
+        return;
+    }
+
     wordWrapEnabled = inWordWrapEnabled;
+
+    // Wrapping changes the size of the rendered text.
+    invalidateTexture();
 }
 
 void Text::setAutoHeightEnabled(bool inAutoHeightEnabled)
 {
+    if (inAutoHeightEnabled == autoHeightEnabled) {
+        return;
+    }
+
     autoHeightEnabled = inAutoHeightEnabled;
+
+    // Our height now follows (or stops following) our texture, which only
+    // measure() can apply.
+    Core::markLayoutDirty();
 }
 
 void Text::setTextOffset(int inTextOffset)
 {
+    if (inTextOffset == textOffset) {
+        return;
+    }
+
     textOffset = inTextOffset;
+
+    // This shifts where our text sits within our extent, which refreshTextExtents()
+    // applies during render().
+    invalidateAlignment();
 }
 
 void Text::insertText(std::string_view inText, std::size_t index)
 {
     // Insert the given text at the given index.
     text.insert(index, inText);
-    textureIsDirty = true;
+    invalidateTexture();
 }
 
 bool Text::eraseCharacter(std::size_t index)
@@ -112,7 +135,7 @@ bool Text::eraseCharacter(std::size_t index)
     // If there's a character to remove, pop it.
     if (text.length() > index) {
         text.erase(text.begin() + index);
-        textureIsDirty = true;
+        invalidateTexture();
         return true;
     }
     else {
@@ -136,37 +159,37 @@ void Text::refreshTexture()
 
     // Create a temporary surface on the cpu and render our text image using the
     // current renderMode.
-    SDL_Surface* surface{getSurface(font.get(), color, backgroundColor)};
+    SDL_Surface* surface{ getSurface(font.get(), color, backgroundColor) };
 
-    // If we have an outline, create an outlined background surface and blit 
+    // If we have an outline, create an outlined background surface and blit
     // the text image onto it.
     if (logicalFontOutlineSize > 0) {
         // Create a temporary surface using the outlined background text.
-        SDL_Color blackColor{0, 0, 0, 0};
-        SDL_Surface* backgroundSurface{
-            getSurface(outlinedFont.get(), blackColor, blackColor)};
+        SDL_Color blackColor{ 0, 0, 0, 0 };
+        SDL_Surface* backgroundSurface{ getSurface(outlinedFont.get(),
+                                                   blackColor, blackColor) };
 
-        // Calculate the foreground text's offset to center it on the 
+        // Calculate the foreground text's offset to center it on the
         // outlined background text.
-        int actualOutlineSize{
-            ScalingHelpers::logicalToActual(logicalFontOutlineSize)};
-        SDL_Rect foregroundExtent{actualOutlineSize, actualOutlineSize,
-                                  surface->w - actualOutlineSize,
-                                  surface->h - actualOutlineSize};
+        int actualOutlineSize{ ScalingHelpers::logicalToActual(
+            logicalFontOutlineSize) };
+        SDL_Rect foregroundExtent{ actualOutlineSize, actualOutlineSize,
+                                   surface->w - actualOutlineSize,
+                                   surface->h - actualOutlineSize };
 
         // Blit the foreground text onto the background outlined text.
         SDL_SetSurfaceBlendMode(surface, SDL_BLENDMODE_BLEND);
         SDL_BlitSurface(surface, nullptr, backgroundSurface, &foregroundExtent);
 
-        // Free the old foreground surface and set the new combined surface 
+        // Free the old foreground surface and set the new combined surface
         // as the one to use.
         SDL_FreeSurface(surface);
         surface = backgroundSurface;
     }
 
     // Move the image to a texture on the gpu.
-    SDL_Texture* texture{
-        SDL_CreateTextureFromSurface(Core::getRenderer(), surface)};
+    SDL_Texture* texture{ SDL_CreateTextureFromSurface(Core::getRenderer(),
+                                                       surface) };
     SDL_FreeSurface(surface);
     if (texture == nullptr) {
         AUI_LOG_FATAL("Failed to create texture.");
@@ -178,7 +201,7 @@ void Text::refreshTexture()
     // Save the width and height of the new texture.
     SDL_QueryTexture(textTexture.get(), nullptr, nullptr, &(textureExtent.w),
                      &(textureExtent.h));
-    textExtent = {0, 0, textureExtent.w, textureExtent.h};
+    textExtent = { 0, 0, textureExtent.w, textureExtent.h };
 
     textureIsDirty = false;
     alignmentIsDirty = true;
@@ -192,7 +215,7 @@ const std::string& Text::asString()
 SDL_Rect Text::calcCharacterOffset(std::size_t index)
 {
     // Get a null-terminated substring containing all characters up to index.
-    std::string relevantChars{text, 0, index};
+    std::string relevantChars{ text, 0, index };
 
     // Get the x offset and height from the relevant characters.
     SDL_Rect offsetExtent{};
@@ -213,7 +236,7 @@ int Text::calcStringWidth(const std::string& string)
 {
     // Calculate the width that the given string would have if rendered using
     // the current font.
-    int stringWidth{0};
+    int stringWidth{ 0 };
     TTF_SizeUTF8(font.get(), string.c_str(), &(stringWidth), nullptr);
 
     return stringWidth;
@@ -242,10 +265,11 @@ int Text::getTextOffset()
 void Text::setLogicalExtent(const SDL_Rect& inLogicalExtent)
 {
     // Scale and set the extent.
+    // Note: This marks the layout dirty for us if the extent actually changed.
     Widget::setLogicalExtent(inLogicalExtent);
 
-    // Refresh our alignment.
-    alignmentIsDirty = true;
+    // Refresh our alignment, since we align against our own extent.
+    invalidateAlignment();
 }
 
 void Text::measure(const SDL_Rect& availableExtent)
@@ -261,7 +285,7 @@ void Text::measure(const SDL_Rect& availableExtent)
     }
 
     // If auto-height is enabled, set this widget's height to match the texture.
-    // Note: We don't adjust to fit availableExtent because we want to match 
+    // Note: We don't adjust to fit availableExtent because we want to match
     //       the texture's size, not the parent's size. We'll clip in arrange()
     //       if necessary.
     if (autoHeightEnabled) {
@@ -292,20 +316,11 @@ void Text::arrange(const SDL_Point& startPosition,
         return;
     }
 
-    // Offset our textExtent to start at startPosition.
-    SDL_Rect offsetTextExtent{textExtent};
-    offsetTextExtent.x += (startPosition.x + textOffset);
-    offsetTextExtent.y += startPosition.y;
+    // Save our start position, so render() can redo the calc below if our
+    // texture changes without another layout pass.
+    lastStartPosition = startPosition;
 
-    // Clip the text image's extent to not go beyond this widget's extent.
-    SDL_IntersectRect(&offsetTextExtent, &clippedExtent,
-                      &offsetClippedTextExtent);
-
-    // Pull offsetClippedTextExtent back into texture space ((0, 0) origin).
-    // This tells us what part of the text image texture to actually render.
-    offsetClippedTextureExtent = offsetClippedTextExtent;
-    offsetClippedTextureExtent.x -= offsetTextExtent.x;
-    offsetClippedTextureExtent.y -= offsetTextExtent.y;
+    refreshTextExtents();
 }
 
 void Text::render(const SDL_Point& windowTopLeft)
@@ -315,13 +330,29 @@ void Text::render(const SDL_Point& windowTopLeft)
         return;
     }
 
+    // If a property has been changed, re-render our text texture.
+    // Note: This is done here (as well as in measure()) so that text can be
+    //       updated without running a full layout pass.
+    if (textureIsDirty) {
+        refreshTexture();
+    }
+
+    // If our alignment is dirty, refresh it and our clipped extents.
+    // Note: refreshTexture() dirties the alignment, since the new texture may
+    //       be a different size than the old one. Without this, we'd render
+    //       the new texture into the extents that were calc'd for the old one.
+    if (alignmentIsDirty) {
+        refreshAlignment();
+        refreshTextExtents();
+    }
+
     if (textTexture == nullptr) {
         AUI_LOG_FATAL("Tried to render Font with no texture. DebugName: %s",
                       debugName.c_str());
     }
 
     // Render the text texture.
-    SDL_Rect finalExtent{offsetClippedTextExtent};
+    SDL_Rect finalExtent{ offsetClippedTextExtent };
     finalExtent.x += windowTopLeft.x;
     finalExtent.y += windowTopLeft.y;
     SDL_RenderCopy(Core::getRenderer(), textTexture.get(),
@@ -376,19 +407,61 @@ void Text::refreshAlignment()
     alignmentIsDirty = false;
 }
 
+void Text::invalidateTexture()
+{
+    textureIsDirty = true;
+
+    // Note: refreshTexture() runs during render(), so a new texture normally
+    //       only needs a redraw. The exception is auto-height, where our height
+    //       follows the texture's height, which only measure() can apply.
+    if (autoHeightEnabled) {
+        Core::markLayoutDirty();
+    }
+    else {
+        Core::markRenderDirty();
+    }
+}
+
+void Text::invalidateAlignment()
+{
+    alignmentIsDirty = true;
+
+    // Note: Alignment only moves our text within our own extent, so it can't
+    //       affect any other widget. render() refreshes it for us.
+    Core::markRenderDirty();
+}
+
+void Text::refreshTextExtents()
+{
+    // Offset our textExtent to start at our last arrange()'s startPosition.
+    SDL_Rect offsetTextExtent{ textExtent };
+    offsetTextExtent.x += (lastStartPosition.x + textOffset);
+    offsetTextExtent.y += lastStartPosition.y;
+
+    // Clip the text image's extent to not go beyond this widget's extent.
+    SDL_IntersectRect(&offsetTextExtent, &clippedExtent,
+                      &offsetClippedTextExtent);
+
+    // Pull offsetClippedTextExtent back into texture space ((0, 0) origin).
+    // This tells us what part of the text image texture to actually render.
+    offsetClippedTextureExtent = offsetClippedTextExtent;
+    offsetClippedTextureExtent.x -= offsetTextExtent.x;
+    offsetClippedTextureExtent.y -= offsetTextExtent.y;
+}
+
 void Text::refreshFontObject()
 {
     // Scale the font size to the current actual size.
-    int actualFontSize{ScalingHelpers::logicalToActual(logicalFontSize)};
+    int actualFontSize{ ScalingHelpers::logicalToActual(logicalFontSize) };
 
     // Attempt to load the desired font (errors on failure).
-    AssetCache& assetCache{Core::getAssetCache()};
+    AssetCache& assetCache{ Core::getAssetCache() };
     font = assetCache.requestFont(fontPath, actualFontSize, 0);
 
     // If we have an outline, load the outlined font as well.
     if (logicalFontOutlineSize > 0) {
-        int actualFontOutlineSize{
-            ScalingHelpers::logicalToActual(logicalFontOutlineSize)};
+        int actualFontOutlineSize{ ScalingHelpers::logicalToActual(
+            logicalFontOutlineSize) };
         outlinedFont = assetCache.requestFont(fontPath, actualFontSize,
                                               actualFontOutlineSize);
     }
@@ -398,19 +471,19 @@ SDL_Surface* Text::getSurface(TTF_Font* font, const SDL_Color& fontColor,
                               const SDL_Color& fontBackgroundColor)
 {
     // If the text string is empty, render a space instead.
-    std::string spaceText{" "};
-    std::string_view textToRender{text};
+    std::string spaceText{ " " };
+    std::string_view textToRender{ text };
     if (text == "") {
         textToRender = " ";
     }
 
     // Create a temporary surface on the cpu and render our image using the
     // set renderMode.
-    SDL_Surface* surface{nullptr};
+    SDL_Surface* surface{ nullptr };
     if (wordWrapEnabled) {
-        // Note: We need to manually scale our width since it may not yet have 
+        // Note: We need to manually scale our width since it may not yet have
         //       been updated.
-        int scaledWidth{ScalingHelpers::logicalToActual(logicalExtent.w)};
+        int scaledWidth{ ScalingHelpers::logicalToActual(logicalExtent.w) };
         switch (renderMode) {
             case RenderMode::Solid:
                 surface = TTF_RenderUTF8_Solid_Wrapped(

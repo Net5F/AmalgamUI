@@ -123,18 +123,28 @@ void Screen::tick(double timestepS)
 
 void Screen::render()
 {
-    // Update our visible window's layouts.
-    for (Window& window : windows) {
-        if (window.getIsVisible()) {
-            window.measure();
-            window.arrange();
-        }
-    }
+    // Only run the layout pass if something has actually changed the layout
+    // since our last render. If nothing has, our widgets are all still sized
+    // and positioned correctly, so we can go straight to drawing them.
+    // Note: We clear the flag first, so that a widget which dirties the layout
+    //       during the pass is picked up on the next render instead of being
+    //       lost.
+    if (Core::getIsLayoutDirty()) {
+        Core::clearLayoutDirty();
 
-    // If we have a pending focus target, set it.
-    if (pendingFocusTarget && pendingFocusTarget.value().isValid()) {
-        setFocus(&(pendingFocusTarget.value().get()));
-        pendingFocusTarget.reset();
+        // Update our visible window's layouts.
+        for (Window& window : windows) {
+            if (window.getIsVisible()) {
+                window.measure();
+                window.arrange();
+            }
+        }
+
+        // If we have a pending focus target, set it.
+        if (pendingFocusTarget && pendingFocusTarget.value().isValid()) {
+            setFocus(&(pendingFocusTarget.value().get()));
+            pendingFocusTarget.reset();
+        }
     }
 
     // Render our visible windows.

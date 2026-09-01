@@ -22,6 +22,9 @@ void Image::setSimpleImage(const std::string& textureID,
     imageType = std::make_unique<SimpleImage>();
     SimpleImage* simpleImage{static_cast<SimpleImage*>(imageType.get())};
     simpleImage->set(textureID, scaleMode);
+
+    // Our texture changed, but our extent didn't, so this is just a redraw.
+    Core::markRenderDirty();
 }
 
 void Image::setSimpleImage(const std::string& textureID, SDL_Rect texExtent,
@@ -30,6 +33,9 @@ void Image::setSimpleImage(const std::string& textureID, SDL_Rect texExtent,
     imageType = std::make_unique<SimpleImage>();
     SimpleImage* simpleImage{static_cast<SimpleImage*>(imageType.get())};
     simpleImage->set(textureID, texExtent, scaleMode);
+
+    // Our texture changed, but our extent didn't, so this is just a redraw.
+    Core::markRenderDirty();
 }
 
 void Image::setNineSliceImage(const std::string& textureID,
@@ -39,6 +45,9 @@ void Image::setNineSliceImage(const std::string& textureID,
     NineSliceImage* nineSliceImage{
         static_cast<NineSliceImage*>(imageType.get())};
     nineSliceImage->set(textureID, sliceSizes, scaledExtent);
+
+    // Our texture changed, but our extent didn't, so this is just a redraw.
+    Core::markRenderDirty();
 }
 
 void Image::setMultiResImage(
@@ -58,6 +67,9 @@ void Image::setMultiResImage(
                                          info.texExtent, info.scaleMode);
         }
     }
+
+    // Our texture changed, but our extent didn't, so this is just a redraw.
+    Core::markRenderDirty();
 }
 
 void Image::setTiledImage(const std::string& imagePath)
@@ -65,11 +77,17 @@ void Image::setTiledImage(const std::string& imagePath)
     imageType = std::make_unique<TiledImage>();
     TiledImage* tiledImage{static_cast<TiledImage*>(imageType.get())};
     tiledImage->set(imagePath, scaledExtent);
+
+    // Our texture changed, but our extent didn't, so this is just a redraw.
+    Core::markRenderDirty();
 }
 
 void Image::setCustomImage(std::unique_ptr<ImageType> inImageType)
 {
     imageType = std::move(inImageType);
+
+    // Our texture changed, but our extent didn't, so this is just a redraw.
+    Core::markRenderDirty();
 }
 
 void Image::setSimpleImage(SDL_Texture* texture, const std::string& textureID,
@@ -80,6 +98,9 @@ void Image::setSimpleImage(SDL_Texture* texture, const std::string& textureID,
     imageType = std::make_unique<SimpleImage>();
     SimpleImage* simpleImage{static_cast<SimpleImage*>(imageType.get())};
     simpleImage->set(textureID, scaleMode);
+
+    // Our texture changed, but our extent didn't, so this is just a redraw.
+    Core::markRenderDirty();
 }
 
 void Image::setSimpleImage(SDL_Texture* texture, const std::string& textureID,
@@ -90,6 +111,9 @@ void Image::setSimpleImage(SDL_Texture* texture, const std::string& textureID,
     imageType = std::make_unique<SimpleImage>();
     SimpleImage* simpleImage{static_cast<SimpleImage*>(imageType.get())};
     simpleImage->set(textureID, texExtent, scaleMode);
+
+    // Our texture changed, but our extent didn't, so this is just a redraw.
+    Core::markRenderDirty();
 }
 
 void Image::setNineSliceImage(SDL_Texture* texture,
@@ -102,6 +126,9 @@ void Image::setNineSliceImage(SDL_Texture* texture,
     NineSliceImage* nineSliceImage{
         static_cast<NineSliceImage*>(imageType.get())};
     nineSliceImage->set(textureID, inSliceSizes, scaledExtent);
+
+    // Our texture changed, but our extent didn't, so this is just a redraw.
+    Core::markRenderDirty();
 }
 
 void Image::setMultiResImage(
@@ -122,6 +149,9 @@ void Image::setMultiResImage(
                                          info.texExtent, info.scaleMode);
         }
     }
+
+    // Our texture changed, but our extent didn't, so this is just a redraw.
+    Core::markRenderDirty();
 }
 
 void Image::setTiledImage(SDL_Texture* texture, const std::string& textureID)
@@ -131,11 +161,17 @@ void Image::setTiledImage(SDL_Texture* texture, const std::string& textureID)
     imageType = std::make_unique<TiledImage>();
     TiledImage* tiledImage{static_cast<TiledImage*>(imageType.get())};
     tiledImage->set(textureID, scaledExtent);
+
+    // Our texture changed, but our extent didn't, so this is just a redraw.
+    Core::markRenderDirty();
 }
 
 void Image::setAlphaMod(float newAlphaMod)
 {
     alphaMod = newAlphaMod;
+
+    // This is applied during render(), so it's just a redraw.
+    Core::markRenderDirty();
 }
 
 SDL_Rect Image::getCurrentImageTextureExtent() const

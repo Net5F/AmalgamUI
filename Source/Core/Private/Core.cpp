@@ -14,6 +14,8 @@ int Core::dragTriggerDistance{10};
 int Core::squaredDragTriggerDistance{dragTriggerDistance * dragTriggerDistance};
 std::atomic<bool> Core::isTextInputFocused{false};
 std::atomic<int> Core::widgetCount{0};
+bool Core::isLayoutDirty{true};
+bool Core::isRenderDirty{true};
 
 void Core::initialize(SDL_Renderer* inSdlRenderer,
                       ScreenResolution inLogicalScreenSize,
@@ -55,7 +57,14 @@ void Core::quit()
 
 void Core::setActualScreenSize(ScreenResolution inActualScreenSize)
 {
+    if (actualScreenSize == inActualScreenSize) {
+        return;
+    }
+
     actualScreenSize = inActualScreenSize;
+
+    // Every widget re-scales itself against this, so the whole layout is stale.
+    markLayoutDirty();
 }
 
 void Core::setDragTriggerDistance(int newDragTriggerDistance)
@@ -67,6 +76,37 @@ void Core::setDragTriggerDistance(int newDragTriggerDistance)
 bool Core::getIsTextInputFocused()
 {
     return isTextInputFocused;
+}
+
+void Core::markLayoutDirty()
+{
+    isLayoutDirty = true;
+    isRenderDirty = true;
+}
+
+void Core::markRenderDirty()
+{
+    isRenderDirty = true;
+}
+
+bool Core::getIsLayoutDirty()
+{
+    return isLayoutDirty;
+}
+
+bool Core::getIsRenderDirty()
+{
+    return isRenderDirty;
+}
+
+void Core::clearLayoutDirty()
+{
+    isLayoutDirty = false;
+}
+
+void Core::clearRenderDirty()
+{
+    isRenderDirty = false;
 }
 
 SDL_Renderer* Core::getRenderer()

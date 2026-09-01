@@ -47,7 +47,15 @@ void TextButton::setDisabledColor(const SDL_Color& color)
 
 void TextButton::setAutoHeightEnabled(bool inAutoHeightEnabled)
 {
+    if (inAutoHeightEnabled == autoHeightEnabled) {
+        return;
+    }
+
     autoHeightEnabled = inAutoHeightEnabled;
+
+    // Our height now follows (or stops following) our text's height, which
+    // only measure() can apply.
+    Core::markLayoutDirty();
 }
 
 void TextButton::enable()

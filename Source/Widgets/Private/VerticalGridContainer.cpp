@@ -1,4 +1,5 @@
 #include "AUI/VerticalGridContainer.h"
+#include "AUI/Core.h"
 #include "AUI/ScalingHelpers.h"
 #include "AUI/WidgetLocator.h"
 #include "AUI/Internal/Log.h"
@@ -21,19 +22,43 @@ VerticalGridContainer::VerticalGridContainer(const SDL_Rect& inLogicalExtent,
 
 void VerticalGridContainer::setNumColumns(unsigned int inNumColumns)
 {
+    if (inNumColumns == numColumns) {
+        return;
+    }
+
     numColumns = inNumColumns;
+
+    // Note: Our elements are positioned by arrange(), so this changes the
+    //       layout.
+    Core::markLayoutDirty();
 }
 
 void VerticalGridContainer::setCellWidth(unsigned int inLogicalCellWidth)
 {
+    if (static_cast<int>(inLogicalCellWidth) == logicalCellWidth) {
+        return;
+    }
+
     logicalCellWidth = static_cast<int>(inLogicalCellWidth);
     scaledCellWidth = ScalingHelpers::logicalToActual(logicalCellWidth);
+
+    // Note: Our elements are positioned by arrange(), so this changes the
+    //       layout.
+    Core::markLayoutDirty();
 }
 
 void VerticalGridContainer::setCellHeight(unsigned int inLogicalCellHeight)
 {
+    if (static_cast<int>(inLogicalCellHeight) == logicalCellHeight) {
+        return;
+    }
+
     logicalCellHeight = static_cast<int>(inLogicalCellHeight);
     scaledCellHeight = ScalingHelpers::logicalToActual(logicalCellHeight);
+
+    // Note: Our elements are positioned by arrange(), so this changes the
+    //       layout.
+    Core::markLayoutDirty();
 }
 
 void VerticalGridContainer::setScrollingEnabled(bool isEnabled)
@@ -122,6 +147,8 @@ void VerticalGridContainer::scrollElements(bool scrollUp)
     if (scrollUp && (rowScroll > 0)) {
         // Scroll up 1 row.
         rowScroll--;
+
+        Core::markLayoutDirty();
     }
     else if (!scrollUp) {
         // Else if we're being asked to scroll down, calculate if there are
@@ -132,6 +159,8 @@ void VerticalGridContainer::scrollElements(bool scrollUp)
         // If there are any elements offscreen below, scroll down 1 row.
         if (rowsBelow > 0) {
             rowScroll++;
+
+            Core::markLayoutDirty();
         }
     }
 }

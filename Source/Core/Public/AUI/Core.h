@@ -80,6 +80,61 @@ public:
      */
     static bool getIsTextInputFocused();
 
+    //-------------------------------------------------------------------------
+    // Dirty tracking
+    //-------------------------------------------------------------------------
+    /**
+     * Marks the UI's layout as dirty, causing the next Screen::render() to run
+     * a full layout pass (measure() and arrange()) before it draws.
+     *
+     * Widgets call this when they change something that can move or resize a
+     * widget, i.e. anything that measure() or arrange() needs to see: extents,
+     * visibility, and the contents of a container.
+     *
+     * Note: This marks the render as dirty as well, since a layout change
+     *       always has to be drawn.
+     */
+    static void markLayoutDirty();
+
+    /**
+     * Marks the UI as needing to be re-drawn, without needing a layout pass.
+     *
+     * Widgets call this when they change what they draw but not where they sit,
+     * e.g. swapping a texture or changing a color. This is the common case, and
+     * it lets the consumer redraw without paying for a layout pass.
+     */
+    static void markRenderDirty();
+
+    /**
+     * If true, the layout may have changed since the last render.
+     *
+     * Screen::render() uses this to decide whether to run its layout pass.
+     */
+    static bool getIsLayoutDirty();
+
+    /**
+     * If true, something has changed since the last render.
+     *
+     * Consumers should use this to decide whether to render at all. If it's
+     * false, nothing has changed and the previously presented frame is still
+     * correct.
+     */
+    static bool getIsRenderDirty();
+
+    /**
+     * Clears the layout dirty flag. Called by Screen as part of its layout
+     * pass; consumers shouldn't need this.
+     */
+    static void clearLayoutDirty();
+
+    /**
+     * Clears the render dirty flag.
+     *
+     * Consumers must call this as part of each render. Do it before rendering,
+     * so that a change made during the render isn't lost.
+     */
+    static void clearRenderDirty();
+
     static SDL_Renderer* getRenderer();
     static ScreenResolution getLogicalScreenSize();
     static ScreenResolution getActualScreenSize();
@@ -126,6 +181,17 @@ private:
 
     /** See getIsTextInputFocused(). */
     static std::atomic<bool> isTextInputFocused;
+
+    /** See getIsLayoutDirty(). Starts dirty so we always lay out before the
+        first frame.
+        Note: This and isRenderDirty are deliberately non-atomic. Widgets are
+              only safe to touch from the thread that renders them, so these
+              are only ever set from that thread. */
+    static bool isLayoutDirty;
+
+    /** See getIsRenderDirty(). Starts dirty so we always draw the first
+        frame. */
+    static bool isRenderDirty;
 };
 
 } // namespace AUI

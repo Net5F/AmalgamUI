@@ -1,4 +1,5 @@
 #include "AUI/CollapsibleContainer.h"
+#include "AUI/Core.h"
 #include "AUI/ScalingHelpers.h"
 #include "AUI/WidgetLocator.h"
 #include "AUI/Internal/Log.h"
@@ -34,11 +35,21 @@ CollapsibleContainer::CollapsibleContainer(const SDL_Rect& inLogicalExtent,
 void CollapsibleContainer::setClickRegionLogicalExtent(
     const SDL_Rect& inLogicalExtent)
 {
+    if (SDL_RectEquals(&clickRegionLogicalExtent, &inLogicalExtent)) {
+        return;
+    }
+
     clickRegionLogicalExtent = inLogicalExtent;
+
+    Core::markLayoutDirty();
 }
 
 void CollapsibleContainer::setIsCollapsed(bool inIsCollapsed)
 {
+    if (inIsCollapsed == isCollapsed) {
+        return;
+    }
+
     isCollapsed = inIsCollapsed;
 
     // Update our visible children to match the new state.
@@ -51,13 +62,22 @@ void CollapsibleContainer::setIsCollapsed(bool inIsCollapsed)
         collapsedImage.setIsVisible(false);
     }
 
-    // TODO: Invalidate layout
+    // Our elements are only measured and arranged while we're expanded.
+    Core::markLayoutDirty();
 }
 
 void CollapsibleContainer::setGapSize(int inLogicalGapSize)
 {
+    if (inLogicalGapSize == logicalGapSize) {
+        return;
+    }
+
     logicalGapSize = inLogicalGapSize;
     scaledGapSize = ScalingHelpers::logicalToActual(logicalGapSize);
+
+    // Note: Our elements are positioned by arrange(), so this changes the
+    //       layout.
+    Core::markLayoutDirty();
 }
 
 SDL_Rect CollapsibleContainer::getHeaderExtent()

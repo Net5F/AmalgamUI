@@ -1,4 +1,5 @@
 #include "AUI/ScrollArea.h"
+#include "AUI/Core.h"
 #include "AUI/ScalingHelpers.h"
 #include "AUI/WidgetLocator.h"
 #include "AUI/Internal/Log.h"
@@ -36,12 +37,22 @@ void ScrollArea::setScrollStepY(int inLogicalScrollStepY)
 
 void ScrollArea::setScrollOrientation(Orientation inScrollOrientation)
 {
+    // Note: This only affects which axis a scroll event moves, so it doesn't
+    //       dirty anything by itself.
     scrollOrientation = inScrollOrientation;
 }
 
 void ScrollArea::setScrollOrigin(ScrollOrigin inScrollOrigin)
 {
+    if (inScrollOrigin == scrollOrigin) {
+        return;
+    }
+
     scrollOrigin = inScrollOrigin;
+
+    // Note: Our content is positioned by arrange(), so this changes the
+    //       layout.
+    Core::markLayoutDirty();
 }
 
 int ScrollArea::getScrollDistanceX()
@@ -175,10 +186,16 @@ void ScrollArea::handleMouseScrollHorizontal(int amountScrolled)
     int maxScrollDistance{contentWidth - scaledExtent.w};
 
     // Calc the updated scroll distance.
+    const int oldScrollDistanceX{scrollDistanceX};
     scrollDistanceX += (amountScrolled * scaledScrollStepX);
 
     // Clamp the scroll distance so we don't go too far.
     scrollDistanceX = std::clamp(scrollDistanceX, 0, maxScrollDistance);
+
+    // If we actually moved, our content needs to be re-positioned.
+    if (scrollDistanceX != oldScrollDistanceX) {
+        Core::markLayoutDirty();
+    }
 }
 
 void ScrollArea::handleMouseScrollVertical(int amountScrolled)
@@ -198,6 +215,7 @@ void ScrollArea::handleMouseScrollVertical(int amountScrolled)
     int maxScrollDistance{contentHeight - scaledExtent.h};
 
     // Calc the updated scroll distance.
+    const int oldScrollDistanceY{scrollDistanceY};
     if (scrollOrigin == ScrollOrigin::TopLeft) {
         scrollDistanceY -= (amountScrolled * scaledScrollStepY);
     }
@@ -207,6 +225,11 @@ void ScrollArea::handleMouseScrollVertical(int amountScrolled)
 
     // Clamp the scroll distance so we don't go too far.
     scrollDistanceY = std::clamp(scrollDistanceY, 0, maxScrollDistance);
+
+    // If we actually moved, our content needs to be re-positioned.
+    if (scrollDistanceY != oldScrollDistanceY) {
+        Core::markLayoutDirty();
+    }
 }
 
 SDL_Rect ScrollArea::calcContentExtent()

@@ -1,4 +1,5 @@
 #include "AUI/Container.h"
+#include "AUI/Core.h"
 #include "AUI/Internal/Log.h"
 #include <algorithm>
 
@@ -45,12 +46,22 @@ std::size_t Container::size()
 
 void Container::clear()
 {
+    if (elements.empty()) {
+        return;
+    }
+
     elements.clear();
+
+    // Note: Our elements are laid out by arrange(), so adding or removing any
+    //       of them changes the layout.
+    Core::markLayoutDirty();
 }
 
 void Container::insert(const_iterator pos, std::unique_ptr<Widget> newElement)
 {
     elements.insert(pos, std::move(newElement));
+
+    Core::markLayoutDirty();
 }
 
 void Container::erase(std::size_t index)
@@ -63,16 +74,22 @@ void Container::erase(std::size_t index)
     }
 
     elements.erase(elements.begin() + index);
+
+    Core::markLayoutDirty();
 }
 
 void Container::erase(const_iterator pos)
 {
     elements.erase(pos);
+
+    Core::markLayoutDirty();
 }
 
 void Container::erase(const_iterator first, const_iterator last)
 {
     elements.erase(first, last);
+
+    Core::markLayoutDirty();
 }
 
 void Container::erase(Widget* widget)
@@ -87,6 +104,8 @@ void Container::erase(Widget* widget)
     // If we found it, erase it.
     if (widgetIt != elements.end()) {
         elements.erase(widgetIt);
+
+        Core::markLayoutDirty();
     }
     else {
         // We didn't find it, error.
@@ -99,6 +118,8 @@ void Container::erase(Widget* widget)
 void Container::push_back(std::unique_ptr<Widget> newElement)
 {
     elements.push_back(std::move(newElement));
+
+    Core::markLayoutDirty();
 }
 
 void Container::onTick(double timestepS)

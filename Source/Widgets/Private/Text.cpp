@@ -83,6 +83,7 @@ void Text::setVerticalAlignment(VerticalAlignment inVerticalAlignment)
 void Text::setHorizontalAlignment(HorizontalAlignment inHorizontalAlignment)
 {
     horizontalAlignment = inHorizontalAlignment;
+    textureIsDirty = true;
     alignmentIsDirty = true;
 }
 
@@ -412,6 +413,27 @@ SDL_Surface* Text::getSurface(TTF_Font* font, const SDL_Color& fontColor,
     if (text == "") {
         textToRender = " ";
     }
+
+    // Wrapped text is rendered to a surface as wide as its wrap length. Match
+    // the lines within that surface to this widget's horizontal alignment.
+    // Note: The font object is shared between widgets, so this must be set to
+    //       the current widget's alignment before we create the surface.
+    TTF_HorizontalAlignment wrapAlignment{TTF_HORIZONTAL_ALIGN_LEFT};
+    switch (horizontalAlignment) {
+        case HorizontalAlignment::Left: {
+            wrapAlignment = TTF_HORIZONTAL_ALIGN_LEFT;
+            break;
+        }
+        case HorizontalAlignment::Center: {
+            wrapAlignment = TTF_HORIZONTAL_ALIGN_CENTER;
+            break;
+        }
+        case HorizontalAlignment::Right: {
+            wrapAlignment = TTF_HORIZONTAL_ALIGN_RIGHT;
+            break;
+        }
+    }
+    TTF_SetFontWrapAlignment(font, wrapAlignment);
 
     // Create a temporary surface on the cpu and render our image using the
     // set renderMode.

@@ -88,6 +88,14 @@ void TextInput::enable()
 
 void TextInput::disable()
 {
+    // If we were focused, we're no longer going to be capturing keyboard 
+    // input. Update the core flag so apps know to resume polling keyboard
+    // held state.
+    // Note: onFocusLost() won't do this, since we'll be disabled by then.
+    if (currentState == State::Focused) {
+        Core::isTextInputFocused = false;
+    }
+
     setCurrentState(State::Disabled);
     cursorIsVisible = false;
 
@@ -298,7 +306,8 @@ EventResult TextInput::onFocusGained()
 
 void TextInput::onFocusLost(FocusLostType focusLostType)
 {
-    // If we were disabled after being focused, do nothing.
+    // If we were disabled after being focused, do nothing (disable() already
+    // updated the core flag).
     if (currentState == State::Disabled) {
         return;
     }

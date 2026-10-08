@@ -192,13 +192,24 @@ void TextInput::setHintText(std::string_view inHintText)
     if (!(hintText.empty())) {
         hintTextEnabled = true;
 
-        // If we aren't focused, display the new hint text.
-        if (currentState != State::Focused) {
+        // If hint text is already being displayed, refresh it.
+        if (hintTextActive) {
+            text.setText(hintText);
+        }
+        // If we aren't focused and the text is empty, display the new hint
+        // text.
+        else if ((currentState != State::Focused) && text.asString().empty()) {
             setHintTextActive(true);
         }
     }
     else {
         hintTextEnabled = false;
+
+        // If the old hint text was being displayed, clear it.
+        if (hintTextActive) {
+            setHintTextActive(false);
+            text.setText("");
+        }
     }
 }
 

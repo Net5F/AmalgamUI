@@ -228,9 +228,11 @@ bool EventRouter::handleKeyDown(SDL_KeyboardEvent& event)
         }
     }
 
-    // If an escape key press wasn't handled, drop focus.
+    // If an escape key press wasn't handled and a widget is focused, drop
+    // focus. If nothing is focused, the screen gets a chance to handle it
+    // below.
     if ((event.type == SDL_EVENT_KEY_DOWN) && !eventWasHandled
-        && (event.key == SDLK_ESCAPE)) {
+        && (event.key == SDLK_ESCAPE) && !(focusPath.empty())) {
         dropFocus(FocusLostType::Escape);
         eventWasHandled = true;
     }

@@ -589,6 +589,9 @@ void EventRouter::setFocus(WidgetPath& newFocusPath)
 {
     // If the given path is valid for focusing.
     if (!(newFocusPath.empty()) && newFocusPath.back().isValid()) {
+        AUI_ASSERT(newFocusPath.back().get().getIsFocusable(),
+                   "Tried to set focus to a widget that isn't focusable.");
+
         // If there's an existing focus, check if it's the same widget.
         if (!(focusPath.empty()) && focusPath.back().isValid()) {
             Widget& oldFocusedWidget{focusPath.back().get()};
@@ -841,9 +844,8 @@ void EventRouter::processEventResult(const EventResult& eventResult)
         AUI_ASSERT(eventResult.setFocus->getIsFocusable(),
                    "Tried to set focus to a widget that isn't focusable.");
 
-        // Set focus to the new path.
-        WidgetPath newFocusPath{getPathUnderWidget(eventResult.setFocus)};
-        setFocus(newFocusPath);
+        // Set focus to the new widget.
+        setFocus(eventResult.setFocus);
     }
     // Else if dropping focus was requested.
     else if (eventResult.dropFocus) {

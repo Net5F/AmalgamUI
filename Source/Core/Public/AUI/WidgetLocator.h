@@ -77,15 +77,18 @@ public:
     WidgetPath getPathUnderPoint(const SDL_FPoint& actualPoint) const;
 
     /**
-     * Builds a path containing all tracked widgets that are underneath the
-     * center of the given widget.
+     * Builds a path that traces from the root-most tracked widget down to the
+     * given widget (inclusive).
      *
-     * @param widget  The widget to build a path with.
+     * @param widget  The widget to build a path to.
      * @return A widget path, ordered with the root-most widget at the front
-     *         and the leaf-most widget at the back.
+     *         and the given widget at the back. The given widget's children
+     *         are not included. If the given widget isn't tracked, returns an
+     *         empty path.
      *
-     * Note: This relies on our rules: parent widgets must fully overlap their
-     *       children, and it's invalid for sibling widgets to overlap.
+     * Note: This finds the widget's ancestors by testing its center point,
+     *       so it relies on our rules: parent widgets must fully overlap
+     *       their children, and it's invalid for sibling widgets to overlap.
      */
     WidgetPath getPathUnderWidget(const Widget* widget) const;
 

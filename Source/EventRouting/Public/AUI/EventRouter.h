@@ -144,7 +144,8 @@ private:
 
     /**
      * Returns a path that traces from the given widget's parent Window, up to
-     * the given widget (inclusive).
+     * the given widget (inclusive). The given widget's children are not
+     * included.
      *
      * If the widget was not found in the current layout, returns an empty path.
      */
@@ -192,6 +193,8 @@ private:
      * Sets up newFocusPath as the new focus path.
      * If focus is set, routes a FocusLost to the leafmost widget in focusPath.
      * Routes a FocusGained to the leafmost widget in newFocusPath.
+     *
+     * newFocusPath's leafmost widget must be focusable. Errors in debug if not.
      */
     void setFocus(WidgetPath& newFocusPath);
 

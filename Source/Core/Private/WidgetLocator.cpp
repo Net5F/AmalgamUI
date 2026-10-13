@@ -122,8 +122,23 @@ WidgetPath WidgetLocator::getPathUnderWidget(const Widget* widget) const
     widgetCenter.x += gridScreenExtent.x;
     widgetCenter.y += gridScreenExtent.y;
 
-    // Return the path under the widget's center.
-    return getPathUnderPoint(widgetCenter);
+    // Get the path under the widget's center.
+    // Note: This path ends at the deepest widget under the center, which may
+    //       be one of the given widget's children.
+    WidgetPath hitPath{getPathUnderPoint(widgetCenter)};
+
+    // Trim the path so that it ends at the given widget.
+    auto widgetIt{std::find_if(hitPath.begin(), hitPath.end(),
+                               [&](const WidgetWeakRef& widgetWeakRef) {
+                                   return widgetWeakRef.isValid()
+                                          && (&(widgetWeakRef.get()) == widget);
+                               })};
+    if (widgetIt == hitPath.end()) {
+        // The widget isn't in the path.
+        return WidgetPath{};
+    }
+
+    return WidgetPath(hitPath.begin(), (widgetIt + 1));
 }
 
 bool WidgetLocator::containsWidget(const Widget* widget) const

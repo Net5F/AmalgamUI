@@ -171,7 +171,7 @@ void Text::refreshTexture()
         SDL_CreateTextureFromSurface(Core::getRenderer(), surface)};
     SDL_DestroySurface(surface);
     if (texture == nullptr) {
-        AUI_LOG_FATAL("Failed to create texture.");
+        AUI_LOG_FATAL("Failed to create texture: %s", SDL_GetError());
     }
 
     // Give ownership of the texture pointer to our smart pointer.

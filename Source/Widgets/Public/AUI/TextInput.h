@@ -4,6 +4,8 @@
 #include "AUI/Text.h"
 #include "AUI/Padding.h"
 #include <functional>
+#include <string>
+#include <string_view>
 
 namespace AUI
 {
@@ -71,6 +73,27 @@ public:
      * Sets the width of the text cursor in pixels.
      */
     void setCursorWidth(float inCursorWidth);
+
+    /**
+     * The default max length, in bytes, of the text that the user can enter.
+     *
+     * Text is rendered to a single texture, which will fail to be created if
+     * it's wider than the renderer's max texture size (commonly 16384px).
+     * This default keeps large fonts at high DPI scaling well under that
+     * limit, so a large paste can't crash the application.
+     */
+    static constexpr std::size_t DEFAULT_MAX_LENGTH{256};
+
+    /**
+     * Sets the max length, in bytes, of the text that the user can enter.
+     * Typed or pasted text that would exceed it is cut off (at a UTF-8
+     * character boundary). Defaults to DEFAULT_MAX_LENGTH.
+     *
+     * Note: If you raise this, make sure that the longest text will still
+     *       fit within the renderer's max texture size (see
+     *       DEFAULT_MAX_LENGTH).
+     */
+    void setMaxLength(std::size_t inMaxLength);
 
     State getCurrentState();
 
@@ -190,6 +213,22 @@ private:
     EventResult handleEnterEvent();
 
     /**
+     * Returns the given text with line breaks and tabs replaced by spaces,
+     * and other control characters removed.
+     *
+     * We're a single-line input, so pasted text needs to be flattened.
+     */
+    static std::string toSingleLine(std::string_view inputText);
+
+    /**
+     * Inserts as much of the given text at the cursor as maxLength allows,
+     * and moves the cursor to the end of the inserted text.
+     *
+     * @return true if any text was inserted.
+     */
+    bool insertAtCursor(std::string_view inputText);
+
+    /**
      * Sets hint text as active or inactive, and sets the text color
      * appropriately. If active, the text will also be set to the hint text.
      */
@@ -247,6 +286,9 @@ private:
 
     /** The character index in our text that the cursor is currently at. */
     std::size_t cursorIndex;
+
+    /** See setMaxLength(). */
+    std::size_t maxLength;
 
     /** Tracks whether the text cursor should be drawn or not. */
     bool cursorIsVisible;

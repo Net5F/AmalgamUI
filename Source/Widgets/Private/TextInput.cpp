@@ -3,7 +3,7 @@
 #include "AUI/Core.h"
 #include "AUI/ScalingHelpers.h"
 #include "AUI/SDLHelpers.h"
-#include <cstring>
+#include <algorithm>
 
 namespace AUI
 {
@@ -38,6 +38,7 @@ TextInput::TextInput(const SDL_FRect& inLogicalExtent,
 , logicalCursorWidth{2}
 , scaledCursorWidth{ScalingHelpers::logicalToActual(logicalCursorWidth)}
 , cursorIndex{0}
+, maxLength{DEFAULT_MAX_LENGTH}
 , cursorIsVisible{false}
 , isTextScrollOffsetDirty{false}
 , lastCommittedText{""}
@@ -88,7 +89,7 @@ void TextInput::enable()
 
 void TextInput::disable()
 {
-    // If we were focused, we're no longer going to be capturing keyboard 
+    // If we were focused, we're no longer going to be capturing keyboard
     // input. Update the core flag so apps know to resume polling keyboard
     // held state.
     // Note: onFocusLost() won't do this, since we'll be disabled by then.
@@ -130,6 +131,11 @@ void TextInput::setCursorWidth(float inCursorWidth)
     scaledCursorWidth = ScalingHelpers::logicalToActual(logicalCursorWidth);
 }
 
+void TextInput::setMaxLength(std::size_t inMaxLength)
+{
+    maxLength = inMaxLength;
+}
+
 TextInput::State TextInput::getCurrentState()
 {
     return currentState;
@@ -169,7 +175,8 @@ const std::string& TextInput::getText()
     return text.asString();
 }
 
-void TextInput::setTextFont(const std::string& fontPath, float inLogicalFontSize)
+void TextInput::setTextFont(const std::string& fontPath,
+                            float inLogicalFontSize)
 {
     text.setFont(fontPath, inLogicalFontSize);
 }
@@ -431,11 +438,8 @@ EventResult TextInput::onKeyUp(SDL_Keycode)
 
 EventResult TextInput::onTextInput(const std::string& inputText)
 {
-    // Insert the user's new input text.
-    text.insertText(inputText, cursorIndex);
-
-    // Move the cursor forwards.
-    cursorIndex += inputText.length();
+    // Insert the user's new input text and move the cursor forwards.
+    insertAtCursor(inputText);
 
     // Refresh the text position to account for the change.
     isTextScrollOffsetDirty = true;
@@ -601,22 +605,22 @@ EventResult TextInput::handlePasteEvent()
     if (SDL_GetModState() & SDL_KMOD_CTRL) {
         // If there's text in the clipboard.
         if (SDL_HasClipboardText()) {
-            // Paste the text from the clipboard to the cursor index.
+            // Paste the text from the clipboard to the cursor index, and
+            // move the cursor to the end of the inserted text.
             char* clipboardText{SDL_GetClipboardText()};
-            text.insertText(clipboardText, cursorIndex);
-
-            // Move the cursor to the end of the inserted text.
-            cursorIndex += std::strlen(clipboardText);
-
+            std::string pasteText{toSingleLine(clipboardText)};
             SDL_free(clipboardText);
+            bool textWasInserted{insertAtCursor(pasteText)};
 
-            // Refresh the text position to account for the change.
-            isTextScrollOffsetDirty = true;
+            if (textWasInserted) {
+                // Refresh the text position to account for the change.
+                isTextScrollOffsetDirty = true;
 
-            // If a callback is registered, signal that the the text was
-            // changed.
-            if (onTextChanged) {
-                onTextChanged();
+                // If a callback is registered, signal that the the text was
+                // changed.
+                if (onTextChanged) {
+                    onTextChanged();
+                }
             }
         }
     }
@@ -687,6 +691,55 @@ EventResult TextInput::handleEnterEvent()
     // On Enter key press, we drop focus (which will call onFocusLost() to
     // set our internal state and call onTextCommitted()).
     return EventResult{.wasHandled{true}, .dropFocus{true}};
+}
+
+std::string TextInput::toSingleLine(std::string_view inputText)
+{
+    std::string result{};
+    result.reserve(inputText.size());
+    for (std::size_t i{0}; i < inputText.size(); ++i) {
+        unsigned char character{static_cast<unsigned char>(inputText[i])};
+        if ((character == '\r') || (character == '\n') || (character == '\t')) {
+            // Treat "\r\n" as a single line break.
+            if ((character == '\r') && ((i + 1) < inputText.size())
+                && (inputText[i + 1] == '\n')) {
+                ++i;
+            }
+            result += ' ';
+        }
+        else if ((character >= 0x20) && (character != 0x7F)) {
+            result += static_cast<char>(character);
+        }
+    }
+
+    return result;
+}
+
+bool TextInput::insertAtCursor(std::string_view inputText)
+{
+    // Cut the input down to the space we have left.
+    std::size_t currentLength{text.asString().size()};
+    std::size_t availableLength{
+        (currentLength < maxLength) ? (maxLength - currentLength) : 0};
+    std::size_t insertLength{std::min(inputText.size(), availableLength)};
+
+    // If we cut the input, back up so we don't split a UTF-8 character
+    // (continuation bytes have the form 10xxxxxx).
+    if (insertLength < inputText.size()) {
+        while ((insertLength > 0)
+               && ((static_cast<unsigned char>(inputText[insertLength]) & 0xC0)
+                   == 0x80)) {
+            insertLength--;
+        }
+    }
+
+    if (insertLength == 0) {
+        return false;
+    }
+
+    text.insertText(inputText.substr(0, insertLength), cursorIndex);
+    cursorIndex += insertLength;
+    return true;
 }
 
 void TextInput::setHintTextActive(bool inHintTextActive)

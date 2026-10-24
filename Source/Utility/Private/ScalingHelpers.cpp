@@ -2,6 +2,7 @@
 #include "AUI/Core.h"
 #include "AUI/SDLHelpers.h"
 #include "AUI/Internal/Log.h"
+#include <cmath>
 
 namespace AUI
 {

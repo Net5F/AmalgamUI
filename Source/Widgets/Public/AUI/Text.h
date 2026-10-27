@@ -85,6 +85,11 @@ public:
      * Sets the background color. Only used when renderMode == Shaded.
      */
     void setBackgroundColor(const SDL_Color& inBackgroundColor);
+    
+    /**
+     * Sets the text's alpha transparency (opacity) modifier.
+     */
+    void setAlphaMod(float inAlphaMod);
 
     /**
      * Sets the font render mode, affecting the quality of the rendered image.
@@ -245,6 +250,9 @@ private:
 
     /** The color of the background. Only used when renderMode == Shaded. */
     SDL_Color backgroundColor;
+    
+    /** The alpha mod to apply to the text texture. */
+    float alphaMod;
 
     /** The render mode. Affects the quality of the rendered image. */
     RenderMode renderMode;

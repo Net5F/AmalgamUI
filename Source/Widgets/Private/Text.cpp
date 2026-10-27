@@ -15,6 +15,7 @@ Text::Text(const SDL_Rect& inLogicalExtent, const std::string& inDebugName)
 , outlinedFont{}
 , color{0, 0, 0, 255}
 , backgroundColor{0, 0, 0, 0}
+, alphaMod{1.0f}
 , renderMode{RenderMode::Blended}
 , wordWrapEnabled{true}
 , autoHeightEnabled{false}
@@ -57,6 +58,11 @@ void Text::setBackgroundColor(const SDL_Color& inBackgroundColor)
 {
     backgroundColor = inBackgroundColor;
     textureIsDirty = true;
+}
+
+void Text::setAlphaMod(float inAlphaMod)
+{
+    alphaMod = inAlphaMod;
 }
 
 void Text::setRenderMode(RenderMode inRenderMode)
@@ -320,6 +326,11 @@ void Text::render(const SDL_Point& windowTopLeft)
                       debugName.c_str());
     }
 
+    // Apply the current alpha mod.
+    // TODO: When we update SDL, replace this with SDL_SetTextureAlphaModFloat.
+    Uint8 alphaModUint{static_cast<Uint8>(255 * alphaMod)};
+    SDL_SetTextureAlphaMod(textTexture.get(), alphaModUint);
+    
     // Render the text texture.
     SDL_Rect finalExtent{offsetClippedTextExtent};
     finalExtent.x += windowTopLeft.x;

@@ -151,7 +151,10 @@ void Image::measure(const SDL_FRect& availableExtent)
     Widget::measure(availableExtent);
 
     // If this widget's size has changed, refresh the image.
-    if (!SDL_RectsEqualFloat(&scaledExtent, &lastScaledExtent)) {
+    // Note: We only check the size, since moving the image doesn't require
+    //       regenerating its texture.
+    if ((SDL_fabsf(scaledExtent.w - lastScaledExtent.w) > SDL_FLT_EPSILON)
+        || (SDL_fabsf(scaledExtent.h - lastScaledExtent.h) > SDL_FLT_EPSILON)) {
         if (imageType != nullptr) {
             // We do this in case it needs to regenerate to match the new size.
             imageType->refresh(scaledExtent);

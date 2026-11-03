@@ -8,28 +8,17 @@ FILE* logFilePtr = nullptr;
 
 void Log::info(const char* expression, ...)
 {
-    // Get the va_list into arg.
     std::va_list arg;
     va_start(arg, expression);
+    print("", expression, arg);
+    va_end(arg);
+}
 
-    // If enabled, write to file.
-    if (logFilePtr != nullptr) {
-        // Copy the va_list since it's undefined to use it twice.
-        std::va_list argCopy;
-        va_copy(argCopy, arg);
-
-        std::vfprintf(logFilePtr, expression, argCopy);
-        std::fprintf(logFilePtr, "\n");
-        std::fflush(logFilePtr);
-
-        va_end(argCopy);
-    }
-
-    // Write to stdout.
-    std::vprintf(expression, arg);
-    std::printf("\n");
-    std::fflush(stdout);
-
+void Log::warn(const char* expression, ...)
+{
+    std::va_list arg;
+    va_start(arg, expression);
+    print("Warning: ", expression, arg);
     va_end(arg);
 }
 
@@ -70,6 +59,29 @@ void Log::enableFileLogging(const std::string& fileName)
     if (logFilePtr == nullptr) {
         std::printf("Failed to open log file for writing.\n");
     }
+}
+
+void Log::print(const char* prefix, const char* expression, std::va_list arg)
+{
+    // If enabled, write to file.
+    if (logFilePtr != nullptr) {
+        // Copy the va_list since it's undefined to use it twice.
+        std::va_list argCopy;
+        va_copy(argCopy, arg);
+
+        std::fprintf(logFilePtr, "%s", prefix);
+        std::vfprintf(logFilePtr, expression, argCopy);
+        std::fprintf(logFilePtr, "\n");
+        std::fflush(logFilePtr);
+
+        va_end(argCopy);
+    }
+
+    // Write to stdout.
+    std::printf("%s", prefix);
+    std::vprintf(expression, arg);
+    std::printf("\n");
+    std::fflush(stdout);
 }
 
 } // namespace AUI

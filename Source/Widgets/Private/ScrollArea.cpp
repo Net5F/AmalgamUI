@@ -216,10 +216,10 @@ SDL_FRect ScrollArea::calcContentExtent() const
         return {};
     }
 
-    // Note: It's tempting to scale the content's logical extent manually 
-    //       here, to avoid edge cases where measure() hasn't ran yet. That 
-    //       would be incorrect though, since there's no guarantee that a 
-    //       widget's scaled extent == logicalToActual(logicalExtent). For 
+    // Note: It's tempting to scale the content's logical extent manually
+    //       here, to avoid edge cases where measure() hasn't ran yet. That
+    //       would be incorrect though, since there's no guarantee that a
+    //       widget's scaled extent == logicalToActual(logicalExtent). For
     //       example, CollapsibleContainer's scaled extent is the sum of its
     //       element's scaled extents.
     return content->getScaledExtent();

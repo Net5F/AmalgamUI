@@ -118,7 +118,7 @@ void CollapsibleContainer::measure(const SDL_FRect& availableExtent)
 {
     // Run the normal measure step (sets our scaledExtent).
     Widget::measure(availableExtent);
-    
+
     // If we're expanded, set our height to fit our elements.
     if (!isCollapsed) {
         measureExpandedHeight();
@@ -174,7 +174,7 @@ void CollapsibleContainer::arrange(const SDL_FPoint& startPosition,
 
 void CollapsibleContainer::measureExpandedHeight()
 {
-    // Measure our elements, then sum them to build up our new logical and 
+    // Measure our elements, then sum them to build up our new logical and
     // scaled heights.
     logicalExtent.h = headerLogicalExtent.h;
     scaledExtent.h = ScalingHelpers::logicalToActual(headerLogicalExtent.h);

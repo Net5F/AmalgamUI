@@ -44,7 +44,7 @@ EventResult VerticalListContainer::onMouseWheel(float amountScrolled)
 {
     // If the content isn't taller than this widget, don't scroll.
     // Note: We aren't worried about this function being called before measure()
-    //       is able to run, because if measure/arrange/render hasn't ran, the 
+    //       is able to run, because if measure/arrange/render hasn't ran, the
     //       user can't see any of this anyway.
     float contentHeight{calcContentHeight()};
     if (contentHeight < scaledExtent.h) {

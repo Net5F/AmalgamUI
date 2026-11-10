@@ -15,7 +15,6 @@ public:
      */
     static float squaredDistance(const SDL_FPoint& pointA,
                                  const SDL_FPoint& pointB);
-
 };
 
 } // namespace AUI

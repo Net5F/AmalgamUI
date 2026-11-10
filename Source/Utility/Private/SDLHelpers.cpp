@@ -19,5 +19,4 @@ float SDLHelpers::squaredDistance(const SDL_FPoint& pointA,
     return std::abs(xDif + yDif);
 }
 
-
 } // namespace AUI

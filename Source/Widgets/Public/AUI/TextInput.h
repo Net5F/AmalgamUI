@@ -95,6 +95,15 @@ public:
      */
     void setMaxLength(std::size_t inMaxLength);
 
+    /**
+     * If true, the text is displayed as MASK_CHARACTER characters instead of
+     * the actual text, and copy/cut are disabled. Use this for passwords.
+     *
+     * Note: Each byte is masked separately, so a multi-byte UTF-8 character
+     *       shows as multiple mask characters.
+     */
+    void setIsMasked(bool inIsMasked);
+
     State getCurrentState();
 
     //-------------------------------------------------------------------------
@@ -197,6 +206,11 @@ private:
     static constexpr double CURSOR_BLINK_RATE_S{530
                                                 / static_cast<double>(1000)};
 
+    /** The character that's displayed in place of each byte of masked text.
+        Must be a single byte, so that indices into the displayed text match
+        indices into the actual text. */
+    static constexpr char MASK_CHARACTER{'*'};
+
     //-------------------------------------------------------------------------
     // Private members
     //-------------------------------------------------------------------------
@@ -227,6 +241,33 @@ private:
      * @return true if any text was inserted.
      */
     bool insertAtCursor(std::string_view inputText);
+
+    /**
+     * Returns the user's actual text.
+     * If masked, this is maskedText. Otherwise, it's the displayed text.
+     *
+     * Note: Doesn't account for hint text, callers must check hintTextActive.
+     */
+    const std::string& getUserText();
+
+    /**
+     * Sets the user's actual text, and the displayed text to match.
+     */
+    void setUserText(std::string_view inText);
+
+    /**
+     * Inserts the given text into the user's actual text at the given index,
+     * and updates the displayed text to match.
+     */
+    void insertUserText(std::string_view inText, std::size_t index);
+
+    /**
+     * Erases the byte at the given index from the user's actual text, and
+     * updates the displayed text to match.
+     *
+     * @return true if a byte was erased, else false (index out of bounds).
+     */
+    bool eraseUserCharacter(std::size_t index);
 
     /**
      * Sets hint text as active or inactive, and sets the text color
@@ -289,6 +330,13 @@ private:
 
     /** See setMaxLength(). */
     std::size_t maxLength;
+
+    /** See setIsMasked(). */
+    bool isMasked;
+
+    /** If isMasked, holds the user's actual text (text holds the mask
+        characters that are displayed in its place). Else, unused. */
+    std::string maskedText;
 
     /** Tracks whether the text cursor should be drawn or not. */
     bool cursorIsVisible;

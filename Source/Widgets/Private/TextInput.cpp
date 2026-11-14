@@ -39,6 +39,8 @@ TextInput::TextInput(const SDL_FRect& inLogicalExtent,
 , scaledCursorWidth{ScalingHelpers::logicalToActual(logicalCursorWidth)}
 , cursorIndex{0}
 , maxLength{DEFAULT_MAX_LENGTH}
+, isMasked{false}
+, maskedText{}
 , cursorIsVisible{false}
 , isTextScrollOffsetDirty{false}
 , lastCommittedText{""}
@@ -136,6 +138,22 @@ void TextInput::setMaxLength(std::size_t inMaxLength)
     maxLength = inMaxLength;
 }
 
+void TextInput::setIsMasked(bool inIsMasked)
+{
+    if (isMasked == inIsMasked) {
+        return;
+    }
+
+    // Re-set the user text in the new mode, so the display matches.
+    // Note: If hint text is being displayed, there's no user text to keep.
+    std::string userText{hintTextActive ? "" : getUserText()};
+    isMasked = inIsMasked;
+    maskedText.clear();
+    if (!hintTextActive) {
+        setUserText(userText);
+    }
+}
+
 TextInput::State TextInput::getCurrentState()
 {
     return currentState;
@@ -149,12 +167,13 @@ void TextInput::setText(std::string_view inText)
     // If we aren't focused, the text is empty, and hint text is enabled,
     // activate it.
     if ((currentState != State::Focused) && inText.empty() && hintTextEnabled) {
+        maskedText.clear();
         setHintTextActive(true);
     }
     else {
         // Not displaying hint text, set the user text.
         setHintTextActive(false);
-        text.setText(inText);
+        setUserText(inText);
     }
 
     // Move the cursor to the front (seems to be the most expected behavior).
@@ -171,8 +190,8 @@ const std::string& TextInput::getText()
         return getEmptyString();
     }
 
-    // Not displaying hint text. Return the current text as-shown.
-    return text.asString();
+    // Not displaying hint text. Return the user's text.
+    return getUserText();
 }
 
 void TextInput::setTextFont(const std::string& fontPath,
@@ -205,7 +224,7 @@ void TextInput::setHintText(std::string_view inHintText)
         }
         // If we aren't focused and the text is empty, display the new hint
         // text.
-        else if ((currentState != State::Focused) && text.asString().empty()) {
+        else if ((currentState != State::Focused) && getUserText().empty()) {
             setHintTextActive(true);
         }
     }
@@ -348,7 +367,7 @@ void TextInput::onFocusLost(FocusLostType focusLostType)
     }
     else {
         // We lost focus for some other reason, commit the current text.
-        lastCommittedText = text.asString();
+        lastCommittedText = getUserText();
 
         // If hint text is enabled and the text is empty, activate it.
         if (hintTextEnabled && lastCommittedText.empty()) {
@@ -512,7 +531,7 @@ void TextInput::render(const SDL_FPoint& windowTopLeft)
 EventResult TextInput::handleBackspaceEvent()
 {
     // If there's any text, delete the last character.
-    if (text.eraseCharacter(cursorIndex - 1)) {
+    if (eraseUserCharacter(cursorIndex - 1)) {
         // We deleted a character, move the cursor backwards.
         cursorIndex--;
 
@@ -536,7 +555,7 @@ EventResult TextInput::handleBackspaceEvent()
 EventResult TextInput::handleDeleteEvent()
 {
     // If there's a character after the cursor, delete it.
-    if (text.eraseCharacter(cursorIndex)) {
+    if (eraseUserCharacter(cursorIndex)) {
         // Make the cursor visible and reset the blink time so it stays
         // solid while interacting.
         cursorIsVisible = true;
@@ -556,8 +575,8 @@ EventResult TextInput::handleDeleteEvent()
 
 EventResult TextInput::handleCopyEvent()
 {
-    // If this was a CTRL+c copy command.
-    if (SDL_GetModState() & SDL_KMOD_CTRL) {
+    // If this was a CTRL+c copy command and our text isn't masked.
+    if ((SDL_GetModState() & SDL_KMOD_CTRL) && !isMasked) {
         // If there's text to copy.
         const std::string& textString{text.asString()};
         if (textString.length() > 0) {
@@ -571,8 +590,8 @@ EventResult TextInput::handleCopyEvent()
 
 EventResult TextInput::handleCutEvent()
 {
-    // If this was a CTRL+x cut command
-    if (SDL_GetModState() & SDL_KMOD_CTRL) {
+    // If this was a CTRL+x cut command and our text isn't masked.
+    if ((SDL_GetModState() & SDL_KMOD_CTRL) && !isMasked) {
         // If there's text to cut.
         const std::string& textString{text.asString()};
         if (textString.length() > 0) {
@@ -580,7 +599,7 @@ EventResult TextInput::handleCutEvent()
             SDL_SetClipboardText(textString.c_str());
 
             // Clear the text.
-            text.setText("");
+            setUserText("");
 
             // Move the cursor to the start.
             cursorIndex = 0;
@@ -737,9 +756,50 @@ bool TextInput::insertAtCursor(std::string_view inputText)
         return false;
     }
 
-    text.insertText(inputText.substr(0, insertLength), cursorIndex);
+    insertUserText(inputText.substr(0, insertLength), cursorIndex);
     cursorIndex += insertLength;
     return true;
+}
+
+const std::string& TextInput::getUserText()
+{
+    return isMasked ? maskedText : text.asString();
+}
+
+void TextInput::setUserText(std::string_view inText)
+{
+    if (isMasked) {
+        maskedText = inText;
+        text.setText(std::string(inText.size(), MASK_CHARACTER));
+    }
+    else {
+        text.setText(inText);
+    }
+}
+
+void TextInput::insertUserText(std::string_view inText, std::size_t index)
+{
+    if (isMasked) {
+        maskedText.insert(index, inText);
+        text.insertText(std::string(inText.size(), MASK_CHARACTER), index);
+    }
+    else {
+        text.insertText(inText, index);
+    }
+}
+
+bool TextInput::eraseUserCharacter(std::size_t index)
+{
+    if (isMasked) {
+        if (index >= maskedText.length()) {
+            return false;
+        }
+        maskedText.erase(index, 1);
+    }
+
+    // Note: When masked, the displayed text is the same length as
+    //       maskedText, so this erase matches.
+    return text.eraseCharacter(index);
 }
 
 void TextInput::setHintTextActive(bool inHintTextActive)
